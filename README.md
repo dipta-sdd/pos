@@ -22,7 +22,6 @@ Of course. This is the master document, consolidating all project details, the f
 
 ### 2. Database Schema (with Audit Fields)
 
-I will add a standard "audit mixin" to each model. In Django, this is often done with an abstract base class. For clarity, I'll list the fields explicitly on each table.
 
 **Audit Fields:**
 *   `created_at (DateTimeField, auto_now_add=True)`

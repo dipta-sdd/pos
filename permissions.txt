@@ -1,0 +1,64 @@
+1. Shop & Organization Permissions:
+   - can_manage_shop_settings
+   - can_manage_business_hours
+   - can_configure_taxes
+2. User Management:
+   - can_invite_users
+   - can_edit_users
+   - can_deactivate_users
+   - can_assign_roles
+   - can_view_user_activity
+3. Products & Catalog:
+   - can_add_products
+   - can_edit_products
+   - can_delete_products
+   - can_view_products
+   - can_manage_categories
+   - can_manage_brands
+   - can_import_products
+   - can_export_products
+4. Orders & Transactions:
+   - can_create_orders
+   - can_edit_orders
+   - can_cancel_orders
+   - can_view_orders
+   - can_apply_discounts
+   - can_process_refunds
+   - can_override_prices
+   - can_void_transactions
+5. Inventory Management:
+   - can_manage_inventory
+   - can_update_stock_levels
+   - can_view_low_stock_alerts
+   - can_manage_suppliers
+   - can_transfer_inventory
+6. Discounts & Promotions:
+   - can_create_discounts
+   - can_edit_discounts
+   - can_delete_discounts
+   - can_manage_coupons
+7. Payments & Finances:
+   - can_process_payments
+   - can_view_payment_history
+   - can_issue_refunds
+   - can_reconcile_transactions
+8. Reports & Analytics:
+   - can_view_sales_reports
+   - can_view_profit_reports
+   - can_view_customer_analytics
+   - can_export_reports
+9. Customer Management:
+   - can_manage_customers
+   - can_view_customer_history
+   - can_manage_loyalty_programs
+10. Suppliers & Vendors:
+    - can_manage_suppliers
+    - can_manage_purchase_orders
+11. Employee Permissions:
+    - can_clock_in_out
+    - can_view_schedules
+    - can_request_time_off
+12. Advanced Permissions:
+    - can_manage_api_keys
+    - can_audit_system_logs
+    - can_manage_multi_shop
