@@ -2,14 +2,34 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ReturnItem extends Model
 {
-    public $timestamps = false;
+    use HasFactory;
+
     protected $fillable = [
-        'return_instance_id', 'sale_item_id', 'quantity',
+        'return_id',
+        'sale_item_id',
+        'quantity',
     ];
-    public function returnInstance() { return $this->belongsTo(ReturnPOS::class, 'return_instance_id'); }
-    public function saleItem() { return $this->belongsTo(SaleItem::class); }
-}
+
+    protected $casts = [
+        'quantity' => 'decimal:2',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+    // Relationships
+    public function saleReturn(): BelongsTo
+    {
+        return $this->belongsTo(SaleReturn::class, 'return_id');
+    }
+
+    public function saleItem(): BelongsTo
+    {
+        return $this->belongsTo(SaleItem::class);
+    }
+} 

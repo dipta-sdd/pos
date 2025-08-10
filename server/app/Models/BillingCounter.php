@@ -2,20 +2,48 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class BillingCounter extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'name',
         'branch_id',
-        'created_by',
-        'updated_by',
+        'name',
     ];
 
-    public function branch() { return $this->belongsTo(Branch::class); }
-    public function creator() { return $this->belongsTo(User::class, 'created_by'); }
-    public function updater() { return $this->belongsTo(User::class, 'updated_by'); }
-    public function cashRegisterSessions() { return $this->hasMany(CashRegisterSession::class); }
-    public function sales() { return $this->hasMany(Sale::class); }
-}
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+    // Relationships
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
+    public function cashRegisterSessions(): HasMany
+    {
+        return $this->hasMany(CashRegisterSession::class);
+    }
+
+    public function sales(): HasMany
+    {
+        return $this->hasMany(Sale::class);
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+} 

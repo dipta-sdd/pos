@@ -2,23 +2,47 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Supplier extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
+        'vendor_id',
         'name',
         'contact_person',
         'email',
         'phone',
         'address',
-        'vendor_id',
-        'created_by',
-        'updated_by',
     ];
 
-    public function vendor() { return $this->belongsTo(Vendor::class); }
-    public function creator() { return $this->belongsTo(User::class, 'created_by'); }
-    public function updater() { return $this->belongsTo(User::class, 'updated_by'); }
-    public function purchaseOrders() { return $this->hasMany(PurchaseOrder::class); }
-}
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+    // Relationships
+    public function vendor(): BelongsTo
+    {
+        return $this->belongsTo(Vendor::class);
+    }
+
+    public function purchaseOrders(): HasMany
+    {
+        return $this->hasMany(PurchaseOrder::class);
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+} 
