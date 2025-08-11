@@ -15,19 +15,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password as PasswordRules;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Symfony\Component\HttpFoundation\Cookie;
 
 class AuthController extends Controller
 {
-    /**
-     * Create a new AuthController instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        // Middleware is handled in routes
-    }
-
+ 
     /**
      * Get a JWT via given credentials.
      *
@@ -48,7 +40,20 @@ class AuthController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        return $this->createNewToken($token);
+        // Set JWT as HttpOnly cookie
+        $cookie = cookie(
+            'token',
+            $token,
+            auth()->factory()->getTTL(), // minutes
+            null,
+            null,
+            config('app.env') === 'production', // secure in production
+            true, // httpOnly
+            false, // raw
+            'Strict' // SameSite
+        );
+
+        return $this->createNewToken($token)->withCookie($cookie);
     }
 
     /**
@@ -89,7 +94,10 @@ class AuthController extends Controller
     {
         auth()->logout();
 
-        return response()->json(['message' => 'User successfully logged out']);
+        // Remove the token cookie
+        $cookie = cookie()->forget('token');
+
+        return response()->json(['message' => 'User successfully logged out'])->withCookie($cookie);
     }
 
     /**
@@ -99,7 +107,22 @@ class AuthController extends Controller
      */
     public function refresh()
     {
-        return $this->createNewToken(auth()->refresh());
+        $token = auth()->refresh();
+
+        // Set new JWT as HttpOnly cookie
+        $cookie = cookie(
+            'token',
+            $token,
+            auth()->factory()->getTTL(), // minutes
+            null,
+            null,
+            config('app.env') === 'production', // secure in production
+            true, // httpOnly
+            false, // raw
+            'Strict' // SameSite
+        );
+
+        return $this->createNewToken($token)->withCookie($cookie);
     }
 
     /**

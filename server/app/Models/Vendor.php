@@ -22,7 +22,6 @@ class Vendor extends Model
         'currency',
         'timezone',
         'language',
-        'stripe_customer_id',
     ];
 
     protected $casts = [

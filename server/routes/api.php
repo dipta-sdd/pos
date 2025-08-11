@@ -14,7 +14,7 @@ use App\Http\Controllers\AuthController;
 | routes are loaded by the RouteServiceProvider and all of them will
 | be assigned to the "api" middleware group. Make something great!
 |
-*/
+*/ 
 
 // Public authentication routes
 Route::prefix('auth')->group(function () {
@@ -29,8 +29,8 @@ Route::prefix('auth')->middleware('auth:api')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::post('refresh', [AuthController::class, 'refresh']);
     Route::get('me', [AuthController::class, 'userProfile']);
-    Route::put('profile', [AuthController::class, 'updateProfile']);
-    Route::put('change-password', [AuthController::class, 'changePassword']);
+    // Route::put('profile', [AuthController::class, 'updateProfile']);
+    // Route::put('change-password', [AuthController::class, 'changePassword']);
 });
 
 // Health check route (public)
@@ -42,12 +42,3 @@ Route::get('health', function () {
     ]);
 });
 
-// Example protected route for testing
-Route::middleware('auth:api')->group(function () {
-    Route::get('protected', function () {
-        return response()->json([
-            'message' => 'This is a protected route',
-            'user' => auth()->user()
-        ]);
-    });
-});
