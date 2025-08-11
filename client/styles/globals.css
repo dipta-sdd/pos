@@ -1,5 +1,5 @@
 @import "tailwindcss";
-
+@custom-variant dark (&:where(.dark, .dark *));
 
 .sidebar-container:hover .sidebar-dropdown-menu-open,
 .sidebar-container:hover .relative.cursor-pointer.group:hover .sidebar-dropdown-menu {
