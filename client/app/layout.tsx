@@ -1,6 +1,5 @@
 import "@/styles/globals.css";
-import { Metadata, Viewport } from "next";
-import { Link } from "@heroui/link";
+import { Metadata } from "next";
 import clsx from "clsx";
 
 import { Providers } from "./providers";
@@ -20,7 +19,6 @@ export const metadata: Metadata = {
   },
 };
 
-
 export default function RootLayout({
   children,
 }: {
@@ -37,13 +35,11 @@ export default function RootLayout({
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <div className="relative flex flex-row h-screen bg-gray-100 dark:bg-slate-900">
-            <div className="bg-gray-900 "> 
-               <Sidebar />
+            <div className="bg-gray-900 ">
+              <Sidebar />
             </div>
             <div className="flex flex-grow h-screen overflow-auto">
-              <div className="w-full">
-                {children}
-              </div>
+              <div className="w-full">{children}</div>
             </div>
           </div>
         </Providers>

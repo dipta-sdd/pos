@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   LayoutDashboard,
   TabletSmartphone,
@@ -33,12 +33,8 @@ import {
   Printer,
   Sparkles,
   PlugZap,
-  LifeBuoy,
   ChevronDown,
-  Menu,
   X,
-  Moon,
-  Sun,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -183,15 +179,10 @@ const menuItems: MenuItem[] = [
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false); // Mobile off-canvas state
-  const [isExpanded, setIsExpanded] = useState(false); // Desktop expanded state
-  const [isMobile, setIsMobile] = useState(false);
-  const [openDropdowns, setOpenDropdowns] = useState<string[]>([]);
-  const [activeItem, setActiveItem] = useState<string | null>("/app/products");
+  const [activeItem] = useState<string | null>("/app/products");
 
-  const toggleDropdown = (item: string) => {
-    setOpenDropdowns((prev) =>
-      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
-    );
+  const closeMobileSidebar = () => {
+    setIsOpen(false);
   };
 
   return (
@@ -216,17 +207,17 @@ export default function Sidebar() {
               <span className="text-white font-bold text-sm">P</span>
             </div>
             <span
-              className={`font-semibold text-gray-800 dark:text-gray-200 whitespace-nowrap transition-all duration-300 ${!isMobile && !isExpanded ? "md:w-0 md:opacity-0 md:group-hover:w-auto md:group-hover:opacity-100" : "w-auto opacity-100"}`}
+              className="font-semibold text-gray-800 dark:text-gray-200 whitespace-nowrap transition-all duration-300"
             >
               POS System
             </span>
           </div>
 
           {/* Mobile close button */}
-          {isMobile && (
+          {isOpen && (
             <button
-              onClick={closeMobileSidebar}
               className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 md:hidden"
+              onClick={closeMobileSidebar}
             >
               <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </button>
@@ -236,7 +227,7 @@ export default function Sidebar() {
         {/* Navigation Menu */}
         <nav className="flex-1 p-0 space-y-2 pt-2 overflow-y-auto overflow-x-hidden">
           {menuItems.map((item, index) => (
-            <SidebarOption key={index} item={item} activeItem={activeItem} />
+            <SidebarOption key={index} activeItem={activeItem} item={item} />
           ))}
         </nav>
       </div>
@@ -253,6 +244,7 @@ export function SidebarOption({
 }) {
   const [isDropDownOpen, setIsDropDownOpen] = useState(false);
   const isDropDown = item.subItems && item.subItems.length > 0;
+
   return (
     <div className="relative cursor-pointer group">
       <div className="absolute top-0 left-0 p-0 px-2 w-full -z-1">
@@ -289,10 +281,10 @@ export function SidebarOption({
           {item.subItems?.map((subItem: MenuItem, subIndex: number) => (
             <Link
               key={subIndex}
-              href={subItem.href || ""}
               className={`
                     flex items-center space-x-3 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors duration-200
                   `}
+              href={subItem.href || ""}
             >
               <subItem.icon className="w-4 h-4 flex-shrink-0" />
               <span
