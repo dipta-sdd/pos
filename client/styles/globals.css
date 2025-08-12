@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+@plugin '../hero.ts';
+@source '../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
+@custom-variant dark (&:is(.dark *));
+
+
 .sidebar-container:hover .sidebar-dropdown-menu-open,
 .sidebar-container:hover .relative.cursor-pointer.group:hover .sidebar-dropdown-menu {
     height: auto;
