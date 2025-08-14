@@ -2,15 +2,19 @@
 
 export interface User {
   id: number;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   mobile?: string;
-  role?: string;
-  branch_id?: number;
+  email_verified_at?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface AuthResponse {
-  token: string;
+  access_token: string;
+  token_type: string;
+  expires_in: number;
   user: User;
 }
 
@@ -47,7 +51,7 @@ const deleteCookie = (name: string): void => {
 
 // Get stored token
 export const getToken = (): string | null => {
-  return getCookie('auth_token');
+  return getCookie('token');
 };
 
 // Get stored user
@@ -68,13 +72,13 @@ export const isAuthenticated = (): boolean => {
 
 // Store authentication data
 export const setAuth = (auth: AuthResponse): void => {
-  setCookie('auth_token', auth.token, 7); // 7 days
+  setCookie('token', auth.access_token, 7); // 7 days
   setCookie('auth_user', JSON.stringify(auth.user), 7);
 };
 
 // Clear authentication data
 export const clearAuth = (): void => {
-  deleteCookie('auth_token');
+  deleteCookie('token');
   deleteCookie('auth_user');
 };
 

@@ -8,8 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { signupSchema, type SignupFormData } from "@/lib/validations/auth";
-import api from "@/lib/api";
-import { setAuth, type AuthResponse } from "@/lib/auth";
+import { useAuth } from "@/lib/hooks/useAuth";
 
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -18,6 +17,7 @@ export default function SignupPage() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { register: registerUser } = useAuth();
 
   const {
     register,
@@ -40,7 +40,7 @@ export default function SignupPage() {
     setError(null);
 
     try {
-      const response = await api.post<AuthResponse>('/auth/register', {
+      const success = await registerUser({
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
@@ -49,25 +49,15 @@ export default function SignupPage() {
         password_confirmation: data.confirmPassword,
       });
 
-      // Store the authentication data using the auth utility
-      setAuth(response.data);
-
-      // Redirect to POS dashboard
-      router.push('/pos');
+      if (success) {
+        // Redirect to POS dashboard
+        router.push('/pos');
+      } else {
+        setError('Registration failed. Please try again.');
+      }
     } catch (err: any) {
       console.error('Signup error:', err);
-      
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else if (err.response?.status === 422) {
-        setError('Please check your input and try again.');
-      } else if (err.response?.status === 409) {
-        setError('An account with this email or mobile number already exists.');
-      } else if (err.code === 'ECONNREFUSED') {
-        setError('Unable to connect to server. Please try again later.');
-      } else {
-        setError('An unexpected error occurred. Please try again.');
-      }
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }

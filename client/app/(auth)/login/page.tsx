@@ -8,8 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { loginSchema, type LoginFormData } from "@/lib/validations/auth";
-import api from "@/lib/api";
-import { setAuth, type AuthResponse } from "@/lib/auth";
+import { useAuth } from "@/lib/hooks/useAuth";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -17,6 +16,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [inputType, setInputType] = useState<"email" | "mobile">("email");
   const router = useRouter();
+  const { login } = useAuth();
 
   const {
     register,
@@ -51,40 +51,18 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      // Ensure the correct field is set based on current inputType
-      const formData: any = {
-        password: data.password,
-        inputType: inputType, // Use the state value directly
-      };
-
-      // Add the appropriate field based on current input type
-      if (inputType === "email") {
-        formData.email = data.email || "";
+      // Use the login function from auth context
+      const success = await login(data.email || "", data.password);
+      
+      if (success) {
+        // Redirect to POS dashboard
+        router.push('/pos');
       } else {
-        formData.mobile = data.mobile || "";
+        setError('Invalid credentials. Please check your email and password.');
       }
-
-      const response = await api.post<AuthResponse>('/auth/login', formData);
-
-      // Store the authentication data using the auth utility
-      setAuth(response.data);
-
-      // Redirect to POS dashboard
-      router.push('/pos');
     } catch (err: any) {
       console.error('Login error:', err);
-      
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else if (err.response?.status === 401) {
-        setError('Invalid credentials. Please check your input and password.');
-      } else if (err.response?.status === 422) {
-        setError('Please check your input and try again.');
-      } else if (err.code === 'ECONNREFUSED') {
-        setError('Unable to connect to server. Please try again later.');
-      } else {
-        setError('An unexpected error occurred. Please try again.');
-      }
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
