@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { getToken } from './auth';
+  import axios from 'axios';
+  import { getToken } from './hooks/useAuth';
 
 // Backend URL - hardcoded as requested
 const BACKEND_URL = 'http://localhost:8000/api';

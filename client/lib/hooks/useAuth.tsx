@@ -1,6 +1,6 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import { getUser, isAuthenticated, logout, getToken } from '../auth';
-import type { User } from '../auth';
+
+import type { AuthResponse, User } from '../types/auth';
 import api from '../api';
 
 interface AuthContextType {
@@ -42,15 +42,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      if (isAuthenticated()) {
-        const currentUser = getUser();
-        if (currentUser) {
-          setUser(currentUser);
-        } else {
+      try {
+        if (getToken()) {
           await refreshUser();
+        } else {
+          setIsLoading(false);
         }
+      } catch (error) {
+        console.error('Error checking auth:', error);
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     checkAuth();
@@ -62,13 +63,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (response.status === 200) {
         const data = response.data as any;
-        localStorage.setItem('auth_user', JSON.stringify(data.user));
+        setToken(data);
         setUser(data.user);
+        setIsLoading(false);
         return true;
       }
       return false;
     } catch (error) {
       console.error('Login error:', error);
+      setIsLoading(false);
       return false;
     }
   };
@@ -90,20 +93,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const refreshUser = async () => {
     try {
       const token = getToken();
-      if (!token) return;
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
 
-      const response = await api.get('/auth/user-profile');
+      const response = await api.get('/auth/me');
 
       if (response.status === 200) {
         const userData = response.data as any;
-        localStorage.setItem('auth_user', JSON.stringify(userData));
         setUser(userData);
+        setIsLoading(false);
       } else {
         handleLogout();
+        setIsLoading(false);
       }
     } catch (error) {
       console.error('Error refreshing user:', error);
       handleLogout();
+      setIsLoading(false);
     }
   };
 
@@ -128,3 +136,57 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     </AuthContext.Provider>
   );
 };
+
+
+
+
+
+// Cookie utility functions
+const setCookie = (name: string, value: string, days: number = 7): void => {
+  if (typeof window === 'undefined') return;
+  
+  const expires = new Date();
+  expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+  
+  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Strict`;
+};
+
+const getCookie = (name: string): string | null => {
+  if (typeof window === 'undefined') return null;
+  
+  const nameEQ = name + "=";
+  const ca = document.cookie.split(';');
+  
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+  }
+  
+  return null;
+};
+
+const deleteCookie = (name: string): void => {
+  if (typeof window === 'undefined') return;
+  
+  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+};
+
+// Get stored token
+export const getToken = (): string | null => {
+  return getCookie('token');
+};
+
+
+// Store authentication data
+export const setToken = (auth: AuthResponse): void => {
+  setCookie('token', auth.access_token, 7); // 7 days
+};
+
+
+
+// Logout function
+export const logout = (): void => {
+  deleteCookie('token');
+  // Note: Navigation should be handled by React Router, not window.location
+}; 
