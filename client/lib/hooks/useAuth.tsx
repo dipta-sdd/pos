@@ -1,6 +1,7 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { getUser, isAuthenticated, logout, getToken } from '../auth';
 import type { User } from '../auth';
+import api from '../api';
 
 interface AuthContextType {
   user: User | null;
@@ -57,17 +58,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include',
-      });
+      const response = await api.post('/auth/login', { email, password });
 
-      if (response.ok) {
-        const data = await response.json();
+      if (response.status === 200) {
+        const data = response.data as any;
         localStorage.setItem('auth_user', JSON.stringify(data.user));
         setUser(data.user);
         return true;
@@ -81,15 +75,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const register = async (userData: RegisterData): Promise<boolean> => {
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
+      const response = await api.post('/auth/register', userData);
 
-      if (response.ok) {
+      if (response.status === 200 || response.status === 201) {
         return true;
       }
       return false;
@@ -104,15 +92,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const token = getToken();
       if (!token) return;
 
-      const response = await fetch('/api/auth/user-profile', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        credentials: 'include',
-      });
+      const response = await api.get('/auth/user-profile');
 
-      if (response.ok) {
-        const userData = await response.json();
+      if (response.status === 200) {
+        const userData = response.data as any;
         localStorage.setItem('auth_user', JSON.stringify(userData));
         setUser(userData);
       } else {

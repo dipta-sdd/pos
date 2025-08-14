@@ -36,7 +36,7 @@ export const Navbar = () => {
               </span>
             </NextLink>
             {isAuthenticated && (
-              <div className="hidden lg:flex gap-4 ml-4">
+            <div className="hidden lg:flex gap-4 ml-4">
                 <NextLink
                   className="text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 px-2 py-1 rounded transition-colors font-medium"
                   href="/pos"
@@ -55,28 +55,28 @@ export const Navbar = () => {
                 >
                   Inventory
                 </NextLink>
-              </div>
+            </div>
             )}
           </div>
           
           {/* Center: Search - only show when authenticated */}
           {isAuthenticated && (
-            <div className="hidden lg:flex flex-1 justify-center">
-              <div className="relative w-72">
-                <input
-                  aria-label="Search"
-                  className="w-full rounded-md bg-gray-100 dark:bg-gray-800 pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 transition"
+          <div className="hidden lg:flex flex-1 justify-center">
+            <div className="relative w-72">
+              <input
+                aria-label="Search"
+                className="w-full rounded-md bg-gray-100 dark:bg-gray-800 pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 transition"
                   placeholder="Search products, customers..."
-                  type="search"
-                />
-                <span className="absolute left-3 top-2.5 text-gray-400">
+                type="search"
+              />
+              <span className="absolute left-3 top-2.5 text-gray-400">
                   <Search className="w-4 h-4" />
-                </span>
-                <span className="absolute right-3 top-2.5 hidden lg:inline-block text-xs text-gray-400 border rounded px-1 py-0.5">
-                  ⌘K
-                </span>
-              </div>
+              </span>
+              <span className="absolute right-3 top-2.5 hidden lg:inline-block text-xs text-gray-400 border rounded px-1 py-0.5">
+                ⌘K
+              </span>
             </div>
+          </div>
           )}
           
           {/* Right: User menu, theme, mobile menu */}
@@ -111,7 +111,7 @@ export const Navbar = () => {
                       className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                       href="/pos/profile"
                       onClick={() => setUserMenuOpen(false)}
-                    >
+              >
                       <User className="w-4 h-4" />
                       Profile
                     </NextLink>
@@ -126,13 +126,13 @@ export const Navbar = () => {
                     <button
                       className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                       onClick={handleLogout}
-                    >
+              >
                       <LogOut className="w-4 h-4" />
                       Sign out
                     </button>
                   </div>
                 )}
-              </div>
+            </div>
             )}
             
             {/* Auth Links - only show when not authenticated */}
@@ -147,7 +147,7 @@ export const Navbar = () => {
                 <NextLink
                   className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors font-medium"
                   href="/signup"
-                >
+            >
                   Sign up
                 </NextLink>
               </div>
@@ -227,19 +227,19 @@ export const Navbar = () => {
                 </NextLink>
                 
                 {/* Search */}
-                <div className="mt-3">
-                  <div className="relative">
-                    <input
-                      aria-label="Search"
-                      className="w-full rounded-md bg-gray-100 dark:bg-gray-800 pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 transition"
+            <div className="mt-3">
+              <div className="relative">
+                <input
+                  aria-label="Search"
+                  className="w-full rounded-md bg-gray-100 dark:bg-gray-800 pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 transition"
                       placeholder="Search products, customers..."
-                      type="search"
-                    />
-                    <span className="absolute left-3 top-2.5 text-gray-400">
+                  type="search"
+                />
+                <span className="absolute left-3 top-2.5 text-gray-400">
                       <Search className="w-4 h-4" />
-                    </span>
-                  </div>
-                </div>
+                </span>
+              </div>
+            </div>
                 
                 {/* Logout */}
                 <button
