@@ -20,8 +20,10 @@ class User extends Authenticatable implements JWTSubject
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'firstName',
+        'lastName',
         'email',
+        'mobile',
         'password',
     ];
 
@@ -137,5 +139,15 @@ class User extends Authenticatable implements JWTSubject
     public function cashRegisterSessions(): HasMany
     {
         return $this->hasMany(CashRegisterSession::class, 'user_id');
+    }
+
+    /**
+     * Get the user's full name.
+     *
+     * @return string
+     */
+    public function getFullNameAttribute(): string
+    {
+        return trim($this->firstName . ' ' . $this->lastName);
     }
 }
