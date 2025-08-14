@@ -2,17 +2,22 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Mail, Lock, User, Check, X, Phone } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { signupSchema, type SignupFormData } from "@/lib/validations/auth";
+import { useAuth } from "@/lib/hooks/useAuth";
 
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const { register: registerUser } = useAuth();
 
   const {
     register,
@@ -27,20 +32,35 @@ export default function SignupPage() {
 
   const handleSubmitForm = async (data: SignupFormData) => {
     if (!acceptedTerms) {
-      alert("Please accept the terms and conditions");
-
+      setError("Please accept the terms and conditions");
       return;
     }
 
     setIsLoading(true);
+    setError(null);
 
-    // TODO: Implement signup logic here
-    console.log("Signup attempt:", data);
+    try {
+      const success = await registerUser({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        mobile: data.mobile,
+        password: data.password,
+        password_confirmation: data.confirmPassword,
+      });
 
-    // Simulate API call
-    setTimeout(() => {
+      if (success) {
+        // Redirect to POS dashboard
+        router.push('/pos');
+      } else {
+        setError('Registration failed. Please try again.');
+      }
+    } catch (err: any) {
+      console.error('Signup error:', err);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   // Password strength checker
@@ -100,6 +120,13 @@ export default function SignupPage() {
 
         {/* Signup Form */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            </div>
+          )}
+
           <form className="space-y-6" onSubmit={handleSubmit(handleSubmitForm)}>
             {/* Name Fields */}
             <div className="grid grid-cols-2 gap-4">
@@ -118,9 +145,9 @@ export default function SignupPage() {
                     id="firstName"
                     type="text"
                     {...register("firstName")}
-                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
+                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:border-green-500 transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
                       errors.firstName
-                        ? "border-red-300 dark:border-red-600"
+                        ? "border-red-500 dark:border-red-500"
                         : "border-gray-300 dark:border-gray-600"
                     }`}
                     placeholder="First name"
@@ -147,9 +174,9 @@ export default function SignupPage() {
                     id="lastName"
                     type="text"
                     {...register("lastName")}
-                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
+                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:border-green-500 transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
                       errors.lastName
-                        ? "border-red-300 dark:border-red-600"
+                        ? "border-red-500 dark:border-red-500"
                         : "border-gray-300 dark:border-gray-600"
                     }`}
                     placeholder="Last name"
@@ -179,9 +206,9 @@ export default function SignupPage() {
                   id="email"
                   type="email"
                   {...register("email")}
-                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
+                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:border-green-500 transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
                     errors.email
-                      ? "border-red-300 dark:border-red-600"
+                      ? "border-red-500 dark:border-red-500"
                       : "border-gray-300 dark:border-gray-600"
                   }`}
                   placeholder="Enter your email"
@@ -210,9 +237,9 @@ export default function SignupPage() {
                   id="mobile"
                   type="tel"
                   {...register("mobile")}
-                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
+                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:border-green-500 transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
                     errors.mobile
-                      ? "border-red-300 dark:border-red-600"
+                      ? "border-red-500 dark:border-red-500"
                       : "border-gray-300 dark:border-gray-600"
                   }`}
                   placeholder="Enter your mobile number"
@@ -241,9 +268,9 @@ export default function SignupPage() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   {...register("password")}
-                  className={`block w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
+                  className={`block w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:border-green-500 transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
                     errors.password
-                      ? "border-red-300 dark:border-red-600"
+                      ? "border-red-500 dark:border-red-500"
                       : "border-gray-300 dark:border-gray-600"
                   }`}
                   placeholder="Create a password"
@@ -310,13 +337,13 @@ export default function SignupPage() {
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
                   {...register("confirmPassword")}
-                  className={`block w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
+                  className={`block w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:border-green-500 transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
                     errors.confirmPassword
-                      ? "border-red-300 dark:border-red-600"
+                      ? "border-red-500 dark:border-red-500"
                       : watchedPassword && passwordsMatch
-                        ? "border-green-300 dark:border-green-600"
+                        ? "border-green-500 dark:border-green-500"
                         : watchedPassword && !passwordsMatch
-                          ? "border-red-300 dark:border-red-600"
+                          ? "border-red-500 dark:border-red-500"
                           : "border-gray-300 dark:border-gray-600"
                   }`}
                   placeholder="Confirm your password"

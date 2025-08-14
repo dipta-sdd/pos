@@ -2,34 +2,70 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Eye, EyeOff, Mail, Lock, Phone } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { loginSchema, type LoginFormData } from "@/lib/validations/auth";
+import { useAuth } from "@/lib/hooks/useAuth";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [inputType, setInputType] = useState<"email" | "mobile">("email");
+  const router = useRouter();
+  const { login } = useAuth();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
+    watch,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      inputType: "email",
+    },
   });
+
+  const watchedInputType = watch("inputType");
+
+  const toggleInputType = () => {
+    const newType = inputType === "email" ? "mobile" : "email";
+    setInputType(newType);
+    setValue("inputType", newType);
+    
+    // Clear the other field when switching
+    if (newType === "email") {
+      setValue("mobile", "");
+    } else {
+      setValue("email", "");
+    }
+  };
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
+    setError(null);
 
-    // TODO: Implement login logic here
-    console.log("Login attempt:", data);
-
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Use the login function from auth context
+      const success = await login(data.email || "", data.password);
+      
+      if (success) {
+        // Redirect to POS dashboard
+        router.push('/pos');
+      } else {
+        setError('Invalid credentials. Please check your email and password.');
+      }
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -47,37 +83,100 @@ export default function LoginPage() {
 
         {/* Login Form */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
-          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            {/* Email/Mobile Field */}
-            <div>
-              <label
-                className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2"
-                htmlFor="identifier"
-              >
-                Email or Mobile Number
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400 dark:text-gray-500" />
-                </div>
-                <input
-                  id="identifier"
-                  type="text"
-                  {...register("identifier")}
-                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
-                    errors.identifier
-                      ? "border-red-300 dark:border-red-600"
-                      : "border-gray-300 dark:border-gray-600"
-                  }`}
-                  placeholder="Enter your email or mobile number"
-                />
-              </div>
-              {errors.identifier && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                  {errors.identifier.message}
-                </p>
-              )}
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             </div>
+          )}
+
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            {/* Hidden input for inputType */}
+            <input type="hidden" {...register("inputType")} />
+
+            {/* Email Field - shown when inputType is email */}
+            {inputType === "email" && (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-200"
+                    htmlFor="email"
+                  >
+                    Email address
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => toggleInputType()}
+                    className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 font-medium transition-colors duration-200"
+                  >
+                    use mobile instead
+                  </button>
+                </div>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Mail className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                  </div>
+                  <input
+                    id="email"
+                    type="email"
+                    {...register("email")}
+                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:border-blue-500 transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
+                      errors.email
+                        ? "border-red-500 dark:border-red-500"
+                        : "border-gray-300 dark:border-gray-600"
+                    }`}
+                    placeholder="Enter your email"
+                  />
+                </div>
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {errors.email.message}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Mobile Field - shown when inputType is mobile */}
+            {inputType === "mobile" && (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-200"
+                    htmlFor="mobile"
+                  >
+                    Mobile number
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => toggleInputType()}
+                    className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 font-medium transition-colors duration-200"
+                  >
+                    use email instead
+                  </button>
+                </div>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Phone className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                  </div>
+                  <input
+                    id="mobile"
+                    type="tel"
+                    {...register("mobile")}
+                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:border-blue-500 transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
+                      errors.mobile
+                        ? "border-red-500 dark:border-red-500"
+                        : "border-gray-300 dark:border-gray-600"
+                    }`}
+                    placeholder="Enter your mobile number"
+                  />
+                </div>
+                {errors.mobile && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {errors.mobile.message}
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Password Field */}
             <div>
@@ -95,9 +194,9 @@ export default function LoginPage() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   {...register("password")}
-                  className={`block w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
+                  className={`block w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:border-blue-500 transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
                     errors.password
-                      ? "border-red-300 dark:border-red-600"
+                      ? "border-red-500 dark:border-red-500"
                       : "border-gray-300 dark:border-gray-600"
                   }`}
                   placeholder="Enter your password"

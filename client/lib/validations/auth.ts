@@ -2,8 +2,41 @@ import { z } from "zod";
 
 // Login validation schema
 export const loginSchema = z.object({
-  identifier: z.string().min(1, "Email or mobile number is required"),
+  email: z.string().optional(),
+  mobile: z.string().optional(),
   password: z.string().min(1, "Password is required"),
+  inputType: z.enum(["email", "mobile"]),
+}).superRefine((data, ctx) => {
+  // Validate based on inputType
+  if (data.inputType === "email") {
+    if (!data.email || data.email.trim() === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Email is required",
+        path: ["email"],
+      });
+    } else if (!z.string().email().safeParse(data.email).success) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please enter a valid email address",
+        path: ["email"],
+      });
+    }
+  } else if (data.inputType === "mobile") {
+    if (!data.mobile || data.mobile.trim() === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Mobile number is required",
+        path: ["mobile"],
+      });
+    } else if (!/^[0-9+\-\s()]{10,}$/.test(data.mobile)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Mobile number must be at least 10 digits",
+        path: ["mobile"],
+      });
+    }
+  }
 });
 
 export type LoginFormData = z.infer<typeof loginSchema>;
