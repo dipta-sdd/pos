@@ -6,24 +6,15 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 import api from "@/lib/api";
 
-export default function HomePage() {
+export default function OnboardingPage() {
   const router = useRouter();
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
-    if (isLoading) return;
-
-    if (!isAuthenticated) {
-      // User not logged in, redirect to login
-      router.push('/login');
-      return;
-    }
-
-    if (isAuthenticated && user) {
-      // User is logged in, check onboarding status
+    if (user) {
       checkOnboardingStatus();
     }
-  }, [isAuthenticated, user, isLoading, router]);
+  }, [user, router]);
 
   const checkOnboardingStatus = async () => {
     try {
@@ -63,20 +54,19 @@ export default function HomePage() {
     }
   };
 
-  // Show loading state while checking
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="text-center">
         <div className="mb-6">
           <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            Setting up your workspace...
+            Setting up your business...
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Please wait while we check your setup status.
+            Please wait while we redirect you to the next step.
           </p>
         </div>
       </div>
     </div>
   );
-}
+} 

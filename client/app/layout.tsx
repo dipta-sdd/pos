@@ -6,7 +6,6 @@ import { Providers } from "./providers";
 
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
-import Sidebar from "@/components/sidebar";
 
 export const metadata: Metadata = {
   title: {
@@ -34,14 +33,7 @@ export default function RootLayout({
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <div className="relative flex flex-row h-screen bg-gray-100 dark:bg-slate-900">
-            <div className="bg-gray-900 ">
-              <Sidebar />
-            </div>
-            <div className="flex flex-grow h-screen overflow-auto">
-              <div className="w-full">{children}</div>
-            </div>
-          </div>
+          {children}
         </Providers>
       </body>
     </html>

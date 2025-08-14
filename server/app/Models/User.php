@@ -150,4 +150,6 @@ class User extends Authenticatable implements JWTSubject
     {
         return trim($this->firstName . ' ' . $this->lastName);
     }
+
+    
 }

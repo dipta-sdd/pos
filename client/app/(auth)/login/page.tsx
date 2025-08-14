@@ -1,22 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Mail, Lock, Phone } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Eye, EyeOff, Mail, Lock, Phone, CheckCircle } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { loginSchema, type LoginFormData } from "@/lib/validations/auth";
 import { useAuth } from "@/lib/hooks/useAuth";
+import api from "@/lib/api";
+import { setAuth } from "@/lib/auth";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [inputType, setInputType] = useState<"email" | "mobile">("email");
   const router = useRouter();
-  const { login } = useAuth();
+  const searchParams = useSearchParams();
+  const { setUser } = useAuth();
+
+  // Check for success message from URL params
+  useEffect(() => {
+    const message = searchParams.get('message');
+    if (message) {
+      setSuccess(message);
+    }
+  }, [searchParams]);
 
   const {
     register,
@@ -49,20 +61,50 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     setError(null);
+    setSuccess(null);
 
     try {
-      // Use the login function from auth context
-      const success = await login(data.email || "", data.password);
-      
-      if (success) {
-        // Redirect to POS dashboard
-        router.push('/pos');
+      // Prepare the login data
+      const loginData: any = {
+        password: data.password,
+      };
+
+      // Add the appropriate field based on current input type
+      if (inputType === "email") {
+        loginData.email = data.email || "";
       } else {
-        setError('Invalid credentials. Please check your email and password.');
+        loginData.mobile = data.mobile || "";
+      }
+
+      // Use the api.ts file for the API call
+      const response = await api.post('/auth/login', loginData);
+
+      if (response.status === 200) {
+        const responseData = response.data as any;
+        
+        // Store the authentication data
+        setAuth(responseData);
+        
+        // Update the auth context
+        setUser(responseData.user);
+        
+        // Redirect to the main page (which will handle onboarding status)
+        router.push('/');
       }
     } catch (err: any) {
       console.error('Login error:', err);
-      setError('An unexpected error occurred. Please try again.');
+      
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.response?.status === 401) {
+        setError('Invalid credentials. Please check your input and password.');
+      } else if (err.response?.status === 422) {
+        setError('Please check your input and try again.');
+      } else if (err.code === 'ECONNREFUSED') {
+        setError('Unable to connect to server. Please try again later.');
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -83,6 +125,16 @@ export default function LoginPage() {
 
         {/* Login Form */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
+          {/* Success Message */}
+          {success && (
+            <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                <p className="text-sm text-green-600 dark:text-green-400">{success}</p>
+              </div>
+            </div>
+          )}
+
           {/* Error Message */}
           {error && (
             <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">

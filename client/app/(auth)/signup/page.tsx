@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { signupSchema, type SignupFormData } from "@/lib/validations/auth";
-import { useAuth } from "@/lib/hooks/useAuth";
+import api from "@/lib/api";
 
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -17,7 +17,6 @@ export default function SignupPage() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { register: registerUser } = useAuth();
 
   const {
     register,
@@ -40,7 +39,8 @@ export default function SignupPage() {
     setError(null);
 
     try {
-      const success = await registerUser({
+      // Use the api.ts file for the API call
+      const response = await api.post('/auth/register', {
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
@@ -49,15 +49,26 @@ export default function SignupPage() {
         password_confirmation: data.confirmPassword,
       });
 
-      if (success) {
-        // Redirect to POS dashboard
-        router.push('/pos');
+      if (response.status === 200 || response.status === 201) {
+        // Registration successful, redirect to login
+        router.push('/login?message=Registration successful! Please log in.');
       } else {
         setError('Registration failed. Please try again.');
       }
     } catch (err: any) {
       console.error('Signup error:', err);
-      setError('An unexpected error occurred. Please try again.');
+      
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.response?.status === 422) {
+        setError('Please check your input and try again.');
+      } else if (err.response?.status === 409) {
+        setError('An account with this email or mobile number already exists.');
+      } else if (err.code === 'ECONNREFUSED') {
+        setError('Unable to connect to server. Please try again later.');
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }

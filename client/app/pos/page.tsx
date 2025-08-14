@@ -59,7 +59,7 @@ export default function POS() {
                   <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
                     <CreditCard className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                   </div>
-                  <div>
+    <div>
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Transactions</p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">89</p>
                   </div>
