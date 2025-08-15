@@ -106,7 +106,7 @@ export default function SignupPage() {
     watchedPassword === watch("confirmPassword") && watchedPassword !== "";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
+    <div className="flex items-center justify-center">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">

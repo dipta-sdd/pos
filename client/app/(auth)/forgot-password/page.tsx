@@ -30,7 +30,6 @@ export default function ForgotPasswordPage() {
     setIsLoading(true);
 
     // TODO: Implement forgot password logic here
-    console.log("Forgot password request for:", data.email);
 
     // Simulate API call
     setTimeout(() => {
@@ -41,7 +40,7 @@ export default function ForgotPasswordPage() {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
+      <div className="flex items-center justify-center">
         <div className="max-w-md w-full space-y-8">
           <div className="text-center">
             <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 dark:bg-green-900 mb-4">

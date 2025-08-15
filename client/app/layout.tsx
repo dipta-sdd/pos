@@ -39,7 +39,7 @@ export default function RootLayout({
               <Sidebar />
             </div>
             <div className="flex flex-grow h-screen overflow-auto">
-              <div className="w-full">{children}</div>
+              <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p4">{children}</div>
             </div>
           </div>
         </Providers>
