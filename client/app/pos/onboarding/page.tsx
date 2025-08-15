@@ -2,22 +2,20 @@
 
 import { UserInfo } from "@/components/user-info";
 import { useAuth } from "@/lib/hooks/useAuth";
-// import {
-//   Modal,
-//   ModalContent,
-//   ModalHeader,
-//   ModalBody,
-//   ModalFooter,
-//   Button,
-//   useDisclosure,
-// } from "@heroui/react";
+import { Button } from "@heroui/button";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+      ModalFooter,
+} from "@heroui/modal";
 export default function POS() {
   const { user, logout } = useAuth();
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-      {/* <Button onPress={onOpen}>Open Modal</Button>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+      <Modal isOpen={true} onOpenChange={()=>{}}>
         <ModalContent>
           {(onClose) => (
             <>
@@ -52,7 +50,7 @@ export default function POS() {
             </>
           )}
         </ModalContent>
-      </Modal> */}
+      </Modal>
 
 
     </div>
