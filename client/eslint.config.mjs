@@ -88,6 +88,7 @@ export default defineConfig([globalIgnores([
         "no-console": "warn",
         "react/prop-types": "off",
         "react/jsx-uses-react": "off",
+        "react/jsx-sort-props": "off",
         "react/react-in-jsx-scope": "off",
         "react-hooks/exhaustive-deps": "off",
         "jsx-a11y/click-events-have-key-events": "warn",

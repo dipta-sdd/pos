@@ -26,7 +26,7 @@ export default function ForgotPasswordPage() {
 
   const watchedEmail = watch("email");
 
-  const onSubmit = async (data: ForgotPasswordFormData) => {
+  const onSubmit = async () => {
     setIsLoading(true);
 
     // TODO: Implement forgot password logic here
@@ -62,7 +62,7 @@ export default function ForgotPasswordPage() {
               Check your email
             </h1>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              We&apos;ve sent a password reset link to{" "}
+              We&apos;ve sent a password reset link to
               <span className="font-medium text-gray-900 dark:text-white">
                 {watchedEmail}
               </span>

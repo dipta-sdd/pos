@@ -23,7 +23,6 @@ export default function LoginPage() {
     handleSubmit,
     formState: { errors },
     setValue,
-    watch,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -31,7 +30,6 @@ export default function LoginPage() {
     },
   });
 
-  const watchedInputType = watch("inputType");
 
   const toggleInputType = () => {
     const newType = inputType === "email" ? "mobile" : "email";
@@ -52,7 +50,7 @@ export default function LoginPage() {
 
     try {
       // Use the login function from auth context
-      const success = await login(data.email || "", data.password);
+      const success = await login(data.email || "", data.password, data.mobile || "");
       
       if (success) {
         // Redirect to POS dashboard
