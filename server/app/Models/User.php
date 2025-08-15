@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
@@ -149,5 +150,23 @@ class User extends Authenticatable implements JWTSubject
     public function getFullNameAttribute(): string
     {
         return trim($this->firstName . ' ' . $this->lastName);
+    }
+
+    public function vendor(): object|null
+    {
+        $vendor = Vendor::where('owner_id', $this->id)->first();
+        if($vendor){
+            $vendor['role'] = 'owner';
+            return $vendor;
+        } else {
+            $membership = Membership::where('user_id', $this->id)->first();
+            if($membership){
+                $vendor = Vendor::where('id', $membership->vendor_id)->first();
+                $vendor['role'] = $membership->role;
+                return $vendor;
+            } else {
+                return  null;
+            }
+        }
     }
 }

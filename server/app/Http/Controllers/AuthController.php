@@ -136,7 +136,9 @@ class AuthController extends Controller
      */
     public function userProfile()
     {
-        return response()->json(auth()->user());
+        $user = auth()->user();
+        $user['vendor'] = $user->vendor();
+        return response()->json($user);
     }
 
     /**
@@ -148,11 +150,13 @@ class AuthController extends Controller
      */
     protected function createNewToken($token)
     {
+        $user = auth()->user();
+        $user['vendor'] = $user->vendor();
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60,
-            'user' => auth()->user()
+            'user' => $user
         ]);
     }
 
