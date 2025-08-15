@@ -33,6 +33,7 @@ export default function SignupPage() {
   const handleSubmitForm = async (data: SignupFormData) => {
     if (!acceptedTerms) {
       setError("Please accept the terms and conditions");
+
       return;
     }
 
@@ -51,13 +52,14 @@ export default function SignupPage() {
 
       if (success) {
         // Redirect to POS dashboard
-        router.push('/pos');
+        router.push("/pos");
       } else {
-        setError('Registration failed. Please try again.');
+        setError("Registration failed. Please try again.");
       }
     } catch (err: any) {
-      console.error('Signup error:', err);
-      setError('An unexpected error occurred. Please try again.');
+      // eslint-disable-next-line no-console
+      console.error("Signup error:", err);
+      setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }

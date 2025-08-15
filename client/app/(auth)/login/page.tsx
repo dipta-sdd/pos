@@ -30,12 +30,12 @@ export default function LoginPage() {
     },
   });
 
-
   const toggleInputType = () => {
     const newType = inputType === "email" ? "mobile" : "email";
+
     setInputType(newType);
     setValue("inputType", newType);
-    
+
     // Clear the other field when switching
     if (newType === "email") {
       setValue("mobile", "");
@@ -50,24 +50,29 @@ export default function LoginPage() {
 
     try {
       // Use the login function from auth context
-      const success = await login(data.email || "", data.password, data.mobile || "");
-      
+      const success = await login(
+        data.email || "",
+        data.password,
+        data.mobile || "",
+      );
+
       if (success) {
         // Redirect to POS dashboard
-        router.push('/pos');
+        router.push("/pos");
       } else {
-        setError('Invalid credentials. Please check your email and password.');
+        setError("Invalid credentials. Please check your email and password.");
       }
     } catch (err: any) {
-      console.error('Login error:', err);
-      setError('An unexpected error occurred. Please try again.');
+      // eslint-disable-next-line no-console
+      console.error("Login error:", err);
+      setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className=" flex items-center justify-center">
+    <div className="flex items-center justify-center min-h-screen-w-nav">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
@@ -103,9 +108,9 @@ export default function LoginPage() {
                     Email address
                   </label>
                   <button
+                    className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 font-medium transition-colors duration-200"
                     type="button"
                     onClick={() => toggleInputType()}
-                    className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 font-medium transition-colors duration-200"
                   >
                     use mobile instead
                   </button>
@@ -145,9 +150,9 @@ export default function LoginPage() {
                     Mobile number
                   </label>
                   <button
+                    className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 font-medium transition-colors duration-200"
                     type="button"
                     onClick={() => toggleInputType()}
-                    className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 font-medium transition-colors duration-200"
                   >
                     use email instead
                   </button>

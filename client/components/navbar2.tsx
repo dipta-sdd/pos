@@ -7,30 +7,33 @@ import {
   NavbarItem,
   NavbarMenuItem,
 } from "@heroui/navbar";
-import { Button } from "@heroui/button";
 import { Kbd } from "@heroui/kbd";
 import { Link } from "@heroui/link";
 import { Input } from "@heroui/input";
 import { link as linkStyles } from "@heroui/theme";
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+} from "@heroui/dropdown";
+import { User } from "@heroui/user";
 import NextLink from "next/link";
 import clsx from "clsx";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import {
-  TwitterIcon,
-  GithubIcon,
   DiscordIcon,
-  HeartFilledIcon,
-  SearchIcon,
+  GithubIcon,
   Logo,
+  SearchIcon,
+  TwitterIcon,
 } from "@/components/icons";
-import { User } from "@heroui/user";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@heroui/dropdown";
 
 export const Navbar2 = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const searchInput = (
     <Input
@@ -50,7 +53,7 @@ export const Navbar2 = () => {
   );
 
   return (
-    <HeroUINavbar maxWidth="xl" position="sticky">
+    <HeroUINavbar maxWidth="xl" position="static" >
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">
@@ -64,7 +67,7 @@ export const Navbar2 = () => {
               <NextLink
                 className={clsx(
                   linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium"
+                  "data-[active=true]:text-primary data-[active=true]:font-medium",
                 )}
                 color="foreground"
                 href={item.href}
@@ -94,7 +97,6 @@ export const Navbar2 = () => {
         </NavbarItem>
         <NavbarItem className="hidden lg:flex">{searchInput}</NavbarItem>
         <NavbarItem className="hidden md:flex">
-          
           <Dropdown placement="bottom-start">
             <DropdownTrigger>
               <User
@@ -110,7 +112,9 @@ export const Navbar2 = () => {
             <DropdownMenu aria-label="User Actions" variant="flat">
               <DropdownItem key="profile" className="h-14 gap-2">
                 <p className="font-bold">Signed in as</p>
-                <p className="font-bold">{user?.firstName + " " + user?.lastName}</p>
+                <p className="font-bold">
+                  {user?.firstName + " " + user?.lastName}
+                </p>
               </DropdownItem>
               <DropdownItem key="settings">My Settings</DropdownItem>
               <DropdownItem key="team_settings">Team Settings</DropdownItem>

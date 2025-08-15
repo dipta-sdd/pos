@@ -206,9 +206,7 @@ export default function Sidebar() {
             <div className="w-8 h-8 bg-blue-600 dark:bg-blue-700 rounded-lg flex items-center justify-center flex-shrink-0">
               <span className="text-white font-bold text-sm">P</span>
             </div>
-            <span
-              className="font-semibold text-gray-800 dark:text-gray-200 whitespace-nowrap transition-all duration-300"
-            >
+            <span className="font-semibold text-gray-800 dark:text-gray-200 whitespace-nowrap transition-all duration-300">
               POS System
             </span>
           </div>

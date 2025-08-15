@@ -1,19 +1,11 @@
 "use client";
 
-import Input from "@/components/input";
-import { UserInfo } from "@/components/user-info";
-import { useAuth } from "@/lib/hooks/useAuth";
 import { Button } from "@heroui/button";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-} from "@heroui/modal";
 import { Select, SelectItem } from "@heroui/select";
+
+import Input from "@/components/input";
+
 export default function POS() {
-  const { user, logout } = useAuth();
   const animals = [
     { key: "cat", label: "Cat" },
     { key: "dog", label: "Dog" },
@@ -29,8 +21,9 @@ export default function POS() {
     { key: "otter", label: "Otter" },
     { key: "crocodile", label: "Crocodile" },
   ];
+
   return (
-    <div className="min-h-screen  bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen-w-nav flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-sm shadow-xl p-8 border border-gray-100 dark:border-gray-700">
         <div className="mb-4">
           <p className="text-lg font-medium mb-1">
@@ -45,61 +38,61 @@ export default function POS() {
           <div>
             <Input
               id="vendor-name"
-              name="name"
+              isRequired
               label="Vendor Name"
+              name="name"
               type="text"
               variant="bordered"
-              isRequired
             />
           </div>
           <div>
             <Input
               id="vendor-description"
-              name="description"
+              isRequired
               label="Description"
+              name="description"
               type="text"
               variant="bordered"
-              isRequired
             />
           </div>
           <div>
             <Input
               id="vendor-phone"
+              isRequired
+              label="Phone Number"
               name="phone"
               type="tel"
-              label="Phone Number"
               variant="bordered"
-              isRequired
             />
           </div>
           <div>
             <Input
               id="vendor-address"
-              name="address"
+              isRequired
               label="Address"
+              name="address"
               type="text"
               variant="bordered"
-              isRequired
             />
           </div>
           <div>
             <Input
               id="vendor-currency"
-              name="currency"
+              isRequired
               label="Currency"
+              name="currency"
               type="text"
               variant="bordered"
-              isRequired
             />
           </div>
           <div>
             <Input
               id="vendor-timezone"
-              name="timezone"
+              isRequired
               label="Timezone"
+              name="timezone"
               type="text"
               variant="bordered"
-              isRequired
             />
           </div>
           <div>

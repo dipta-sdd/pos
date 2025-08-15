@@ -68,8 +68,8 @@ export default function ForgotPasswordPage() {
               </span>
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
-              Didn&apos;t receive the email? Check your spam folder or try again with
-              a different email address.
+              Didn&apos;t receive the email? Check your spam folder or try again
+              with a different email address.
             </p>
             <div className="space-y-4">
               <button

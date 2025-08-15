@@ -1,7 +1,8 @@
 "use client";
 
+import { Mail, Phone, User } from "lucide-react";
+
 import { useAuth } from "@/lib/hooks/useAuth";
-import { User, Mail, Phone } from "lucide-react";
 
 export function UserInfo() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -9,16 +10,14 @@ export function UserInfo() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-4">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600" />
       </div>
     );
   }
 
   if (!isAuthenticated || !user) {
     return (
-      <div className="p-4 text-center text-gray-500">
-        Not authenticated
-      </div>
+      <div className="p-4 text-center text-gray-500">Not authenticated</div>
     );
   }
 
@@ -35,20 +34,22 @@ export function UserInfo() {
           <p className="text-gray-600 dark:text-gray-400">User Profile</p>
         </div>
       </div>
-      
+
       <div className="space-y-3">
         <div className="flex items-center gap-3">
           <Mail className="w-4 h-4 text-gray-500" />
           <span className="text-gray-700 dark:text-gray-300">{user.email}</span>
         </div>
-        
+
         {user.mobile && (
           <div className="flex items-center gap-3">
             <Phone className="w-4 h-4 text-gray-500" />
-            <span className="text-gray-700 dark:text-gray-300">{user.mobile}</span>
+            <span className="text-gray-700 dark:text-gray-300">
+              {user.mobile}
+            </span>
           </div>
         )}
-        
+
         <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Member since {new Date(user.created_at).toLocaleDateString()}
@@ -57,4 +58,4 @@ export function UserInfo() {
       </div>
     </div>
   );
-} 
+}

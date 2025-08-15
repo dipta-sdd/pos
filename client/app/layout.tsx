@@ -29,19 +29,12 @@ export default function RootLayout({
       <head />
       <body
         className={clsx(
-          "min-h-screen text-foreground bg-background font-sans antialiased",
+          "min-h-screen text-foreground bg-background font-sans antialiased bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-700 dark:to-gray-900",
           fontSans.variable,
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <div className="relative flex flex-row h-screen bg-gray-100 dark:bg-slate-900">
-            <div className="bg-gray-900 ">
-              <Sidebar />
-            </div>
-            <div className="flex flex-grow h-screen overflow-auto">
-              <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p4">{children}</div>
-            </div>
-          </div>
+          {children}
         </Providers>
       </body>
     </html>
