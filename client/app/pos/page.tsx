@@ -3,9 +3,14 @@
 import { UserInfo } from "@/components/user-info";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { LogOut, Settings, User, BarChart3, Package, CreditCard } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function POS() {
-  const { user, logout } = useAuth();
+  const router = useRouter();
+  const { user, isLoading } = useAuth();
+  if(!isLoading && !user?.vendor) {
+    router.push('/pos/onboarding'); 
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
