@@ -2,16 +2,58 @@
 
 import { Button } from "@heroui/button";
 import { Select, SelectItem } from "@heroui/select";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 
 import Input from "@/components/input";
 import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
 import { timezones } from "@/components/timezone";
 import { Navbar2 } from "@/components/navbar2";
+import {
+  vendorOnboardingSchema,
+  type VendorOnboardingFormData,
+} from "@/lib/validations/vendor";
+import api from "@/lib/api";
 
 export default function POS() {
   const currencies = [{ key: "BDT", label: "BDT" }];
   const languages = [{ key: "en", label: "English" }];
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isValidating },
+    setValue,
+    watch,
+    trigger,
+    clearErrors,
+  } = useForm<VendorOnboardingFormData>({
+    resolver: zodResolver(vendorOnboardingSchema),
+    defaultValues: {
+      currency: "BDT",
+      language: "en",
+    },
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
+  });
+
+  const onSubmit = async (data: VendorOnboardingFormData) => {
+    try {
+      console.log("Form data:", data);
+      const response = await api.post("/vendor", data);
+      console.log("Vendor created successfully:", response.data);
+
+      // TODO: Redirect to vendor dashboard or show success message
+      // You can add navigation here: router.push('/pos/[vendorId]')
+    } catch (error) {
+      console.error("Error creating vendor:", error);
+      // TODO: Show error message to user
+      // You can add toast notification here
+    }
+  };
+
+  console.log("Current errors:", errors);
   return (
     <div className="w-full flex flex-col items-stretch">
       <Navbar2 />
@@ -32,9 +74,11 @@ export default function POS() {
                 id="vendor-name"
                 isRequired
                 label="Vendor Name"
-                name="name"
                 type="text"
                 variant="bordered"
+                {...register("name")}
+                isInvalid={!!errors.name}
+                errorMessage={errors.name?.message}
               />
             </div>
             <div>
@@ -42,9 +86,11 @@ export default function POS() {
                 id="vendor-description"
                 isRequired
                 label="Description"
-                name="description"
                 type="text"
                 variant="bordered"
+                {...register("description")}
+                isInvalid={!!errors.description}
+                errorMessage={errors.description?.message}
               />
             </div>
             <div>
@@ -52,9 +98,11 @@ export default function POS() {
                 id="vendor-phone"
                 isRequired
                 label="Phone Number"
-                name="phone"
                 type="tel"
                 variant="bordered"
+                {...register("phone")}
+                isInvalid={!!errors.phone}
+                errorMessage={errors.phone?.message}
               />
             </div>
             <div>
@@ -62,9 +110,11 @@ export default function POS() {
                 id="vendor-address"
                 isRequired
                 label="Address"
-                name="address"
                 type="text"
                 variant="bordered"
+                {...register("address")}
+                isInvalid={!!errors.address}
+                errorMessage={errors.address?.message}
               />
             </div>
             <div>
@@ -72,9 +122,15 @@ export default function POS() {
                 id="vendor-currency"
                 isRequired
                 label="Currency"
-                name="currency"
                 variant="bordered"
                 defaultItems={currencies}
+                selectedKey={watch("currency")}
+                onSelectionChange={(key) => {
+                  setValue("currency", key as string);
+                  trigger("currency");
+                }}
+                isInvalid={!!errors.currency}
+                errorMessage={errors.currency?.message}
               >
                 {(currency) => (
                   <AutocompleteItem key={currency.key}>
@@ -88,9 +144,15 @@ export default function POS() {
                 id="vendor-timezone"
                 isRequired
                 label="Timezone"
-                name="timezone"
                 variant="bordered"
                 defaultItems={timezones}
+                selectedKey={watch("timezone")}
+                onSelectionChange={(key) => {
+                  setValue("timezone", key as string);
+                  trigger("timezone");
+                }}
+                isInvalid={!!errors.timezone}
+                errorMessage={errors.timezone?.message}
               >
                 {(timezone) => (
                   <AutocompleteItem key={timezone.zone}>
@@ -102,21 +164,32 @@ export default function POS() {
             <div>
               <Select
                 id="vendor-language"
-                name="language"
                 label="Language"
                 variant="bordered"
+                selectedKeys={[watch("language")]}
+                onSelectionChange={(keys) => {
+                  const selectedKey = Array.from(keys)[0] as string;
+                  setValue("language", selectedKey);
+                  trigger("language");
+                }}
+                isInvalid={!!errors.language}
+                errorMessage={errors.language?.message}
               >
                 {languages.map((language) => (
                   <SelectItem key={language.key}>{language.label}</SelectItem>
                 ))}
               </Select>
             </div>
-            <div className="pt-2">
+            <div className="pt-2 space-y-2">
               <Button
+                type="submit"
                 color="primary"
-                className="w-full "
+                className="w-full"
                 variant="ghost"
-                isLoading={true}
+                isLoading={isSubmitting}
+                onClick={() => {
+                  handleSubmit(onSubmit);
+                }}
                 spinner={
                   <svg
                     className="animate-spin h-5 w-5 text-current"
@@ -141,6 +214,20 @@ export default function POS() {
                 }
               >
                 Create Vendor
+              </Button>
+              <Button
+                type="button"
+                color="secondary"
+                className="w-full"
+                variant="bordered"
+                onPress={() => {
+                  console.log("Current form values:", watch());
+                  console.log("Current errors:", errors);
+                  console.log("Triggering validation...");
+                  trigger();
+                }}
+              >
+                Test Validation
               </Button>
             </div>
           </form>
