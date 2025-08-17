@@ -4,23 +4,12 @@ import { Button } from "@heroui/button";
 import { Select, SelectItem } from "@heroui/select";
 
 import Input from "@/components/input";
+import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
+import { timezones } from "@/components/timezone";
 
 export default function POS() {
-  const animals = [
-    { key: "cat", label: "Cat" },
-    { key: "dog", label: "Dog" },
-    { key: "elephant", label: "Elephant" },
-    { key: "lion", label: "Lion" },
-    { key: "tiger", label: "Tiger" },
-    { key: "giraffe", label: "Giraffe" },
-    { key: "dolphin", label: "Dolphin" },
-    { key: "penguin", label: "Penguin" },
-    { key: "zebra", label: "Zebra" },
-    { key: "shark", label: "Shark" },
-    { key: "whale", label: "Whale" },
-    { key: "otter", label: "Otter" },
-    { key: "crocodile", label: "Crocodile" },
-  ];
+  const currencies = [{ key: "BDT", label: "BDT" }];
+  const languages = [{ key: "en", label: "English" }];
 
   return (
     <div className="min-h-screen-w-nav flex items-center justify-center p-4">
@@ -76,24 +65,36 @@ export default function POS() {
             />
           </div>
           <div>
-            <Input
+            <Autocomplete
               id="vendor-currency"
               isRequired
               label="Currency"
               name="currency"
-              type="text"
               variant="bordered"
-            />
+              defaultItems={currencies}
+            >
+              {(currency) => (
+                <AutocompleteItem key={currency.key}>
+                  {currency.key}
+                </AutocompleteItem>
+              )}
+            </Autocomplete>
           </div>
           <div>
-            <Input
+            <Autocomplete
               id="vendor-timezone"
               isRequired
               label="Timezone"
               name="timezone"
-              type="text"
               variant="bordered"
-            />
+              defaultItems={timezones}
+            >
+              {(timezone) => (
+                <AutocompleteItem key={timezone.zone}>
+                  {timezone.zone + " " + timezone.utc}
+                </AutocompleteItem>
+              )}
+            </Autocomplete>
           </div>
           <div>
             <Select
@@ -102,8 +103,8 @@ export default function POS() {
               label="Language"
               variant="bordered"
             >
-              {animals.map((animal) => (
-                <SelectItem key={animal.key}>{animal.label}</SelectItem>
+              {languages.map((language) => (
+                <SelectItem key={language.key}>{language.label}</SelectItem>
               ))}
             </Select>
           </div>
