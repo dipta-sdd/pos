@@ -137,7 +137,7 @@ class AuthController extends Controller
     public function userProfile()
     {
         $user = auth()->user();
-        $user['vendor'] = $user->vendor();
+        $user['memberships'] = $user->memberships()->with('vendor')->with('role')->get();
         return response()->json($user);
     }
 
@@ -151,7 +151,7 @@ class AuthController extends Controller
     protected function createNewToken($token)
     {
         $user = auth()->user();
-        $user['vendor'] = $user->vendor();
+        $user['memberships'] = $user->memberships()->with('vendor')->with('role')->get();
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',

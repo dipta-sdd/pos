@@ -30,7 +30,7 @@ class Membership extends Model
 
     public function vendor(): BelongsTo
     {
-        return $this->belongsTo(Vendor::class);
+        return $this->belongsTo(Vendor::class)->with('branches');
     }
 
     public function role(): BelongsTo

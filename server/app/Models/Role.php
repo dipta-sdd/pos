@@ -64,6 +64,9 @@ class Role extends Model
         'can_view_reports',
         'can_view_profit_loss_data',
         'can_export_data',
+        // Audit fields
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [
@@ -116,6 +119,12 @@ class Role extends Model
     {
         return $this->belongsTo(Vendor::class);
     }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
 
     public function memberships(): HasMany
     {

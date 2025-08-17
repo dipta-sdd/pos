@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\VendorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +32,15 @@ Route::prefix('auth')->middleware('auth:api')->group(function () {
     Route::get('me', [AuthController::class, 'userProfile']);
     // Route::put('profile', [AuthController::class, 'updateProfile']);
     // Route::put('change-password', [AuthController::class, 'changePassword']);
+});
+
+// Vendor routes (protected)
+Route::prefix('vendors')->middleware('auth:api')->group(function () {
+    Route::post('/', [VendorController::class, 'store']);
+    Route::get('/', [VendorController::class, 'index']);
+    Route::middleware('vendor.scope')->group(function () {
+        Route::get('/{id}', [VendorController::class, 'show']);
+    });
 });
 
 // Health check route (public)

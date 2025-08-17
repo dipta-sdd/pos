@@ -19,25 +19,33 @@ class VendorScope
     public function handle(Request $request, Closure $next)
     {
         $user = $request->user();
-        
+
         if (!$user) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // Get the user's active vendor through membership
-        $membership = Membership::where('user_id', $user->id)
-            ->where('is_active', true)
-            ->with('vendor')
-            ->first();
+        // Get vendor id from request route (matches /vendors/{id} and similar)
+        $vendorId = $request->route('id');
+        
 
-        if (!$membership || !$membership->vendor) {
-            return response()->json(['error' => 'No active vendor found'], 403);
+        if (!$vendorId) {
+            return response()->json(['error' => 'Vendor id is required'], 400);
         }
 
-        // Add vendor to request for controllers to use
+        // Check if the user has membership with this vendor
+        $membership = Membership::where('user_id', $user->id)
+            ->where('vendor_id', $vendorId)
+            ->with('role')
+            ->first();
+
+
+        if (!$membership || !$membership->role) {
+            return response()->json(['error' => 'No active membership for this vendor'], 403);
+        }
+
         $request->merge(['vendor_id' => $membership->vendor_id]);
-        $request->merge(['vendor' => $membership->vendor]);
-        
+        $request->merge(['role' => $membership->role]);
+
         return $next($request);
     }
 } 

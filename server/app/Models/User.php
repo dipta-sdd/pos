@@ -152,21 +152,21 @@ class User extends Authenticatable implements JWTSubject
         return trim($this->firstName . ' ' . $this->lastName);
     }
 
-    public function vendor(): object|null
-    {
-        $vendor = Vendor::where('owner_id', $this->id)->first();
-        if($vendor){
-            $vendor['role'] = 'owner';
-            return $vendor;
-        } else {
-            $membership = Membership::where('user_id', $this->id)->first();
-            if($membership){
-                $vendor = Vendor::where('id', $membership->vendor_id)->first();
-                $vendor['role'] = $membership->role;
-                return $vendor;
-            } else {
-                return  null;
-            }
-        }
-    }
+    // public function vendor(): object|null
+    // {
+    //     $vendor = Vendor::where('owner_id', $this->id)->first();
+    //     if($vendor){
+    //         $vendor['role'] = 'owner';
+    //         return $vendor;
+    //     } else {
+    //         $membership = Membership::where('user_id', $this->id)->first();
+    //         if($membership){
+    //             $vendor = Vendor::where('id', $membership->vendor_id)->first();
+    //             $vendor['role'] = $membership->role;
+    //             return $vendor;
+    //         } else {
+    //             return  null;
+    //         }
+    //     }
+    // }
 }

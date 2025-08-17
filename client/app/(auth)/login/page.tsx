@@ -53,7 +53,7 @@ export default function LoginPage() {
       const success = await login(
         data.email || "",
         data.password,
-        data.mobile || "",
+        data.mobile || ""
       );
 
       if (success) {

@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import api from "../api";
+import { useRouter } from "next/navigation";
 
 interface AuthContextType {
   user: User | null;
@@ -48,7 +49,7 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
+  const router = useRouter();
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -70,7 +71,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const login = async (
     email: string,
     password: string,
-    mobile?: string,
+    mobile?: string
   ): Promise<boolean> => {
     try {
       const response = await api.post("/auth/login", {
@@ -148,6 +149,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const handleLogout = () => {
     logout();
     setUser(null);
+    router.push("/login");
   };
 
   const value: AuthContextType = {
@@ -209,5 +211,6 @@ export const setToken = (auth: AuthResponse): void => {
 // Logout function
 export const logout = (): void => {
   deleteCookie("token");
+
   // Note: Navigation should be handled by React Router, not window.location
 };
