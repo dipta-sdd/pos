@@ -5,25 +5,25 @@ export const vendorOnboardingSchema = z.object({
   name: z
     .string()
     .min(1, "Vendor name is required")
-    .min(2, "Vendor name must be at least 2 characters")
+    .min(3, "Vendor name must be at least 3 characters")
     .max(100, "Vendor name must be less than 100 characters")
     .regex(/^[a-zA-Z0-9\s\-_&.]+$/, "Vendor name contains invalid characters"),
   
   description: z
     .string()
-    .min(1, "Description is required")
-    .min(10, "Description must be at least 10 characters")
-    .max(500, "Description must be less than 500 characters"),
+    .min(0)
+    .max(500, "Description must be less than 500 characters")
+    .optional(),
   
   phone: z
     .string()
     .min(1, "Phone number is required")
-    .min(10, "Phone number must be at least 10 digits")
+    .min(11, "Phone number must be at least 11 digits")
     .regex(/^[0-9+\-\s()]+$/, "Please enter a valid phone number"),
   
   address: z
     .string()
-    .min(1, "Address is required")
+    .min(1, "Address is required") 
     .min(10, "Address must be at least 10 characters")
     .max(200, "Address must be less than 200 characters"),
   

@@ -4,7 +4,7 @@ import { Button } from "@heroui/button";
 import { Select, SelectItem } from "@heroui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 
 import Input from "@/components/input";
 import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
@@ -15,36 +15,43 @@ import {
   type VendorOnboardingFormData,
 } from "@/lib/validations/vendor";
 import api from "@/lib/api";
+import { Membership, User } from "@/lib/types/auth";
+import { useAuth } from "@/lib/hooks/useAuth";
+import { useRouter } from "next/navigation";
 
 export default function POS() {
   const currencies = [{ key: "BDT", label: "BDT" }];
   const languages = [{ key: "en", label: "English" }];
 
+  const { user, setUser } = useAuth();
+  const router = useRouter();
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isValidating },
+    formState: { errors, isSubmitting },
     setValue,
     watch,
     trigger,
-    clearErrors,
   } = useForm<VendorOnboardingFormData>({
     resolver: zodResolver(vendorOnboardingSchema),
     defaultValues: {
       currency: "BDT",
       language: "en",
+      timezone: "Asia/Dhaka",
     },
-    mode: "onSubmit",
-    reValidateMode: "onSubmit",
   });
 
   const onSubmit = async (data: VendorOnboardingFormData) => {
     try {
-      console.log("Form data:", data);
-      const response = await api.post("/vendor", data);
-      console.log("Vendor created successfully:", response.data);
+      const response = await api.post("/vendors", data);
+      const membership: Membership = response.data as Membership;
 
-      // TODO: Redirect to vendor dashboard or show success message
+      setUser({
+        ...(user as User),
+        memberships: [...(user as User).memberships, membership],
+      });
+      router.push(`/pos/${membership.vendor.id}`);
+
       // You can add navigation here: router.push('/pos/[vendorId]')
     } catch (error) {
       console.error("Error creating vendor:", error);
@@ -53,7 +60,6 @@ export default function POS() {
     }
   };
 
-  console.log("Current errors:", errors);
   return (
     <div className="w-full flex flex-col items-stretch">
       <Navbar2 />
@@ -68,7 +74,11 @@ export default function POS() {
               information will help us configure your POS experience.
             </p>
           </div>
-          <form className="space-y-4">
+          <form
+            className="space-y-4"
+            noValidate
+            onSubmit={handleSubmit(onSubmit)}
+          >
             <div>
               <Input
                 id="vendor-name"
@@ -84,7 +94,6 @@ export default function POS() {
             <div>
               <Input
                 id="vendor-description"
-                isRequired
                 label="Description"
                 type="text"
                 variant="bordered"
@@ -187,9 +196,6 @@ export default function POS() {
                 className="w-full"
                 variant="ghost"
                 isLoading={isSubmitting}
-                onClick={() => {
-                  handleSubmit(onSubmit);
-                }}
                 spinner={
                   <svg
                     className="animate-spin h-5 w-5 text-current"
@@ -214,20 +220,6 @@ export default function POS() {
                 }
               >
                 Create Vendor
-              </Button>
-              <Button
-                type="button"
-                color="secondary"
-                className="w-full"
-                variant="bordered"
-                onPress={() => {
-                  console.log("Current form values:", watch());
-                  console.log("Current errors:", errors);
-                  console.log("Triggering validation...");
-                  trigger();
-                }}
-              >
-                Test Validation
               </Button>
             </div>
           </form>

@@ -121,12 +121,12 @@ class VendorController extends Controller
                 'can_view_reports' => true,
                 'can_view_profit_loss_data' => true,
                 'can_export_data' => true,
-                'created_by' => Auth::id(),
+                'created_by' => Auth::id(), 
                 'updated_by' => Auth::id(),
             ]);
 
             // Create membership for the vendor owner
-            Membership::create([
+            $membership = Membership::create([
                 'user_id' => Auth::id(),
                 'vendor_id' => $vendor->id,
                 'role_id' => $ownerRole->id,
@@ -134,9 +134,8 @@ class VendorController extends Controller
 
             DB::commit();
 
-            $vendor['role'] = $ownerRole;
-
-            return response()->json($vendor, 201);
+            $membership->load(['vendor', 'role']);
+            return response()->json($membership, 201);
 
         } catch (\Exception $e) {
             DB::rollBack();

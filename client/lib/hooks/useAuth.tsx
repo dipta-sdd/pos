@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 
 interface AuthContextType {
   user: User | null;
+  setUser: (user: User | null) => void;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string, mobile?: string) => Promise<boolean>;
@@ -154,6 +155,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const value: AuthContextType = {
     user,
+    setUser,
     isAuthenticated: !!user,
     isLoading,
     login,
