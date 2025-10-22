@@ -47,11 +47,13 @@ export default function VendorPOS() {
 
       if (!membership) {
         router.push("/pos");
+
         return;
       }
 
       if (!membership.role.can_use_pos) {
         router.push("/pos");
+
         return;
       }
 
@@ -64,7 +66,7 @@ export default function VendorPOS() {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto" />
           <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
         </div>
       </div>
@@ -82,8 +84,8 @@ export default function VendorPOS() {
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
             <button
-              onClick={() => router.push("/pos")}
               className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+              onClick={() => router.push("/pos")}
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Vendor Selection

@@ -7,9 +7,9 @@ import {
   useEffect,
   useState,
 } from "react";
+import { useRouter } from "next/navigation";
 
 import api from "../api";
-import { useRouter } from "next/navigation";
 
 interface AuthContextType {
   user: User | null;
@@ -51,6 +51,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -72,7 +73,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const login = async (
     email: string,
     password: string,
-    mobile?: string
+    mobile?: string,
   ): Promise<boolean> => {
     try {
       const response = await api.post("/auth/login", {

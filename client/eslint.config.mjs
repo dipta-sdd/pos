@@ -15,12 +15,13 @@ import { FlatCompat } from "@eslint/eslintrc";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all
+  baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
+  allConfig: js.configs.all,
 });
 
-export default defineConfig([globalIgnores([
+export default defineConfig([
+  globalIgnores([
     ".now/*",
     "**/*.css",
     "**/.changeset",
@@ -41,111 +42,133 @@ export default defineConfig([globalIgnores([
     "!**/plopfile.js",
     "!**/react-shim.js",
     "!**/tsup.config.ts",
-]), {
+  ]),
+  {
     extends: compat.extends(
-        "plugin:react/recommended",
-        "plugin:prettier/recommended",
-        "plugin:react-hooks/recommended",
-        "plugin:jsx-a11y/recommended",
-        "plugin:@next/next/recommended",
+      "plugin:react/recommended",
+      "plugin:prettier/recommended",
+      "plugin:react-hooks/recommended",
+      "plugin:jsx-a11y/recommended",
+      "plugin:@next/next/recommended"
     ),
 
     plugins: {
-        react: react,
-        "unused-imports": unusedImports,
-        import: _import,
-        "@typescript-eslint": typescriptEslint,
-        "jsx-a11y": jsxA11Y,
-        prettier: prettier,
+      react: react,
+      "unused-imports": unusedImports,
+      import: _import,
+      "@typescript-eslint": typescriptEslint,
+      "jsx-a11y": jsxA11Y,
+      prettier: prettier,
     },
 
     languageOptions: {
-        globals: {
-            ...Object.fromEntries(Object.entries(globals.browser).map(([key]) => [key, "off"])),
-            ...globals.node,
-        },
+      globals: {
+        ...Object.fromEntries(
+          Object.entries(globals.browser).map(([key]) => [key, "off"])
+        ),
+        ...globals.node,
+      },
 
-        parser: tsParser,
-        ecmaVersion: 12,
-        sourceType: "module",
+      parser: tsParser,
+      ecmaVersion: 12,
+      sourceType: "module",
 
-        parserOptions: {
-            ecmaFeatures: {
-                jsx: true,
-            },
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
         },
+      },
     },
 
     settings: {
-        react: {
-            version: "detect",
-        },
+      react: {
+        version: "detect",
+      },
     },
 
     files: ["**/*.ts", "**/*.tsx"],
 
     rules: {
-        "no-console": "warn",
-        "react/prop-types": "off",
-        "react/jsx-uses-react": "off",
-        "react/jsx-sort-props": "off",
-        "react/react-in-jsx-scope": "off",
-        "react-hooks/exhaustive-deps": "off",
-        "jsx-a11y/click-events-have-key-events": "warn",
-        "jsx-a11y/interactive-supports-focus": "warn",
-        "prettier/prettier": "warn",
-        "no-unused-vars": "off",
-        "unused-imports/no-unused-vars": "off",
-        "unused-imports/no-unused-imports": "warn",
+      "@typescript-eslint/no-unused-vars": "off",
 
-        "@typescript-eslint/no-unused-vars": ["warn", {
-            args: "after-used",
-            ignoreRestSiblings: false,
-            argsIgnorePattern: "^_.*?$",
-        }],
+      "no-console": "warn",
+      "react/prop-types": "off",
+      "react/jsx-uses-react": "off",
+      "react/jsx-sort-props": "off",
+      "react/react-in-jsx-scope": "off",
+      "react-hooks/exhaustive-deps": "off",
+      "jsx-a11y/click-events-have-key-events": "warn",
+      "jsx-a11y/interactive-supports-focus": "warn",
+      "prettier/prettier": "warn",
+      "no-unused-vars": "off",
+      "unused-imports/no-unused-vars": "off",
+      "unused-imports/no-unused-imports": "warn",
 
-        "import/order": ["warn", {
-            groups: [
-                "type",
-                "builtin",
-                "object",
-                "external",
-                "internal",
-                "parent",
-                "sibling",
-                "index",
-            ],
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          args: "after-used",
+          ignoreRestSiblings: false,
+          argsIgnorePattern: "^_.*?$",
+        },
+      ],
 
-            pathGroups: [{
-                pattern: "~/**",
-                group: "external",
-                position: "after",
-            }],
+      "import/order": [
+        "warn",
+        {
+          groups: [
+            "type",
+            "builtin",
+            "object",
+            "external",
+            "internal",
+            "parent",
+            "sibling",
+            "index",
+          ],
 
-            "newlines-between": "always",
-        }],
+          pathGroups: [
+            {
+              pattern: "~/**",
+              group: "external",
+              position: "after",
+            },
+          ],
 
-        "react/self-closing-comp": "warn",
+          "newlines-between": "always",
+        },
+      ],
 
-        "react/jsx-sort-props": ["warn", {
-            callbacksLast: true,
-            shorthandFirst: true,
-            noSortAlphabetically: false,
-            reservedFirst: true,
-        }],
+      "react/self-closing-comp": "warn",
 
-        "padding-line-between-statements": ["warn", {
-            blankLine: "always",
-            prev: "*",
-            next: "return",
-        }, {
-            blankLine: "always",
-            prev: ["const", "let", "var"],
-            next: "*",
-        }, {
-            blankLine: "any",
-            prev: ["const", "let", "var"],
-            next: ["const", "let", "var"],
-        }],
+      "react/jsx-sort-props": [
+        "warn",
+        {
+          callbacksLast: true,
+          shorthandFirst: true,
+          noSortAlphabetically: false,
+          reservedFirst: true,
+        },
+      ],
+
+      "padding-line-between-statements": [
+        "warn",
+        {
+          blankLine: "always",
+          prev: "*",
+          next: "return",
+        },
+        {
+          blankLine: "always",
+          prev: ["const", "let", "var"],
+          next: "*",
+        },
+        {
+          blankLine: "any",
+          prev: ["const", "let", "var"],
+          next: ["const", "let", "var"],
+        },
+      ],
     },
-}]);
+  },
+]);

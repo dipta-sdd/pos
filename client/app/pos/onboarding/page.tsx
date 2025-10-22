@@ -4,10 +4,10 @@ import { Button } from "@heroui/button";
 import { Select, SelectItem } from "@heroui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useCallback } from "react";
+import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
+import { useRouter } from "next/navigation";
 
 import Input from "@/components/input";
-import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
 import { timezones } from "@/components/timezone";
 import { Navbar2 } from "@/components/navbar2";
 import {
@@ -17,7 +17,6 @@ import {
 import api from "@/lib/api";
 import { Membership, User } from "@/lib/types/auth";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { useRouter } from "next/navigation";
 
 export default function POS() {
   const currencies = [{ key: "BDT", label: "BDT" }];
@@ -54,7 +53,8 @@ export default function POS() {
 
       // You can add navigation here: router.push('/pos/[vendorId]')
     } catch (error) {
-      console.error("Error creating vendor:", error);
+      // console.error("Error creating vendor:", error);
+      // console.error("Error creating vendor:", error);
       // TODO: Show error message to user
       // You can add toast notification here
     }
@@ -75,20 +75,20 @@ export default function POS() {
             </p>
           </div>
           <form
-            className="space-y-4"
             noValidate
+            className="space-y-4"
             onSubmit={handleSubmit(onSubmit)}
           >
             <div>
               <Input
-                id="vendor-name"
                 isRequired
+                id="vendor-name"
                 label="Vendor Name"
                 type="text"
                 variant="bordered"
                 {...register("name")}
-                isInvalid={!!errors.name}
                 errorMessage={errors.name?.message}
+                isInvalid={!!errors.name}
               />
             </div>
             <div>
@@ -98,48 +98,48 @@ export default function POS() {
                 type="text"
                 variant="bordered"
                 {...register("description")}
-                isInvalid={!!errors.description}
                 errorMessage={errors.description?.message}
+                isInvalid={!!errors.description}
               />
             </div>
             <div>
               <Input
-                id="vendor-phone"
                 isRequired
+                id="vendor-phone"
                 label="Phone Number"
                 type="tel"
                 variant="bordered"
                 {...register("phone")}
-                isInvalid={!!errors.phone}
                 errorMessage={errors.phone?.message}
+                isInvalid={!!errors.phone}
               />
             </div>
             <div>
               <Input
-                id="vendor-address"
                 isRequired
+                id="vendor-address"
                 label="Address"
                 type="text"
                 variant="bordered"
                 {...register("address")}
-                isInvalid={!!errors.address}
                 errorMessage={errors.address?.message}
+                isInvalid={!!errors.address}
               />
             </div>
             <div>
               <Autocomplete
-                id="vendor-currency"
                 isRequired
-                label="Currency"
-                variant="bordered"
                 defaultItems={currencies}
+                errorMessage={errors.currency?.message}
+                id="vendor-currency"
+                isInvalid={!!errors.currency}
+                label="Currency"
                 selectedKey={watch("currency")}
+                variant="bordered"
                 onSelectionChange={(key) => {
                   setValue("currency", key as string);
                   trigger("currency");
                 }}
-                isInvalid={!!errors.currency}
-                errorMessage={errors.currency?.message}
               >
                 {(currency) => (
                   <AutocompleteItem key={currency.key}>
@@ -150,18 +150,18 @@ export default function POS() {
             </div>
             <div>
               <Autocomplete
-                id="vendor-timezone"
                 isRequired
-                label="Timezone"
-                variant="bordered"
                 defaultItems={timezones}
+                errorMessage={errors.timezone?.message}
+                id="vendor-timezone"
+                isInvalid={!!errors.timezone}
+                label="Timezone"
                 selectedKey={watch("timezone")}
+                variant="bordered"
                 onSelectionChange={(key) => {
                   setValue("timezone", key as string);
                   trigger("timezone");
                 }}
-                isInvalid={!!errors.timezone}
-                errorMessage={errors.timezone?.message}
               >
                 {(timezone) => (
                   <AutocompleteItem key={timezone.zone}>
@@ -172,17 +172,18 @@ export default function POS() {
             </div>
             <div>
               <Select
+                errorMessage={errors.language?.message}
                 id="vendor-language"
+                isInvalid={!!errors.language}
                 label="Language"
-                variant="bordered"
                 selectedKeys={[watch("language")]}
+                variant="bordered"
                 onSelectionChange={(keys) => {
                   const selectedKey = Array.from(keys)[0] as string;
+
                   setValue("language", selectedKey);
                   trigger("language");
                 }}
-                isInvalid={!!errors.language}
-                errorMessage={errors.language?.message}
               >
                 {languages.map((language) => (
                   <SelectItem key={language.key}>{language.label}</SelectItem>
@@ -191,10 +192,8 @@ export default function POS() {
             </div>
             <div className="pt-2 space-y-2">
               <Button
-                type="submit"
-                color="primary"
                 className="w-full"
-                variant="ghost"
+                color="primary"
                 isLoading={isSubmitting}
                 spinner={
                   <svg
@@ -218,6 +217,8 @@ export default function POS() {
                     />
                   </svg>
                 }
+                type="submit"
+                variant="ghost"
               >
                 Create Vendor
               </Button>

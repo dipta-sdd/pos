@@ -25,8 +25,7 @@ export default function POS() {
   };
 
   const handleCreateVendor = () => {
-    // TODO: Implement vendor creation flow
-    console.log("Create new vendor");
+    router.push("/pos/onboarding");
   };
 
   if (!isLoading && !user) {
@@ -89,8 +88,8 @@ export default function POS() {
                       </p>
 
                       <button
-                        onClick={handleCreateVendor}
                         className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                        onClick={handleCreateVendor}
                       >
                         <Plus className="w-5 h-5" />
                         Create New Business
@@ -119,9 +118,12 @@ export default function POS() {
                         <div
                           key={membership.id}
                           className="group bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
+                          role="button"
+                          tabIndex={0}
                           onClick={() =>
                             handleVendorSelect(membership.vendor.id)
                           }
+                          onKeyDown={(e) => {}}
                         >
                           <div className="flex items-start gap-4">
                             <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center flex-shrink-0">
@@ -175,13 +177,13 @@ export default function POS() {
                       </h3>
 
                       <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                        You haven't joined any businesses yet. Create your first
-                        business or ask an administrator to invite you.
+                        You have not joined any businesses yet. Create your
+                        first business or ask an administrator to invite you.
                       </p>
 
                       <button
-                        onClick={handleCreateVendor}
                         className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                        onClick={handleCreateVendor}
                       >
                         <Plus className="w-4 h-4" />
                         Create Your First Business
@@ -196,5 +198,6 @@ export default function POS() {
       </div>
     );
   }
+
   return <UserLoding />;
 }
