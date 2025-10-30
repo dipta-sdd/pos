@@ -21,11 +21,11 @@ export default function POS() {
   const { user, isLoading } = useAuth();
 
   const handleVendorSelect = (vendorId: number) => {
-    router.push(`/pos/${vendorId}`);
+    router.push(`/pos/vendor/${vendorId}`);
   };
 
   const handleCreateVendor = () => {
-    router.push("/pos/onboarding");
+    router.push("/pos/vendor/add");
   };
 
   if (!isLoading && !user) {
