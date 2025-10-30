@@ -89,7 +89,7 @@ return [
             'handler_with' => [
                 'host' => env('PAPERTRAIL_URL'),
                 'port' => env('PAPERTRAIL_PORT'),
-                'connectionString' => 'tls://'.env('PAPERTRAIL_URL').':'.env('PAPERTRAIL_PORT'),
+                'connectionString' => 'tls://' . env('PAPERTRAIL_URL') . ':' . env('PAPERTRAIL_PORT'),
             ],
             'processors' => [PsrLogMessageProcessor::class],
         ],
@@ -125,6 +125,14 @@ return [
 
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
+        ],
+
+        'api_analytics' => [
+            'driver' => 'daily', // Rotates the log file each day
+            'path' => storage_path('logs/api_analytics.log'),
+            'level' => 'info', // We will log everything as 'info' level
+            'days' => 14, // Automatically delete log files older than 14 days
+            'formatter' => Monolog\Formatter\JsonFormatter::class, // CRITICAL: This formats each log entry as a JSON object
         ],
 
     ],
