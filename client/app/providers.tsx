@@ -4,7 +4,7 @@ import type { ThemeProviderProps } from "next-themes";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { HeroUIProvider } from "@heroui/system";
+import { HeroUIProvider } from "@heroui/react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 
 import { AuthProvider } from "../lib/hooks/useAuth";

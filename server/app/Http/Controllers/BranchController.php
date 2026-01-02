@@ -24,6 +24,18 @@ class BranchController extends Controller
             });
         }
 
+        // Sorting
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortDirection = $request->input('sort_direction', 'desc');
+
+        // Whitelist sortable columns
+        $allowedSortColumns = ['name', 'address', 'phone', 'created_at'];
+        if (in_array($sortBy, $allowedSortColumns)) {
+            $query->orderBy($sortBy, $sortDirection === 'asc' ? 'asc' : 'desc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
         $perPage = $request->input('per_page', 15);
         return $query->paginate($perPage);
     }

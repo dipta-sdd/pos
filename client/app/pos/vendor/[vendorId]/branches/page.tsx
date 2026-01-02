@@ -1,24 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { Edit, Trash2, MapPin, Phone } from "lucide-react";
 import { toast } from "sonner";
-import { Input } from "@heroui/input";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  useDisclosure,
-} from "@heroui/modal";
 
 import BranchForm from "./_components/BranchForm";
 
 import { SearchIcon } from "@/components/icons";
-import Pagination from "@/components/ui/Pagination";
 import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
+  type SortDescriptor,
+} from "@heroui/table";
+import { Input } from "@heroui/input";
+import { Button } from "@heroui/button";
+import { Pagination } from "@heroui/pagination";
+import {
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  useDisclosure,
+} from "@heroui/modal";
+import { Select, SelectItem } from "@heroui/select";
 
 interface Branch {
   id: number;
@@ -29,6 +40,14 @@ interface Branch {
   created_at: string;
 }
 
+const columns = [
+  { name: "BRANCH NAME", uid: "name", sortable: true },
+  { name: "DESCRIPTION", uid: "description" },
+  { name: "PHONE", uid: "phone", sortable: true },
+  { name: "ADDRESS", uid: "address", sortable: true },
+  { name: "ACTIONS", uid: "actions" },
+];
+
 export default function BranchesPage() {
   const { vendor, currentRole, isLoading: contextLoading } = useVendor();
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -36,9 +55,19 @@ export default function BranchesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [perPage, setPerPage] = useState(15);
-  const [search, setSearch] = useState("");
+  const [searchValue, setSearchValue] = useState("");
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
+    column: "created_at",
+    direction: "descending",
+  });
+
+  useEffect(() => {
+    if (vendor?.id) {
+      fetchBranches(1);
+    }
+  }, [vendor?.id, perPage, sortDescriptor]);
 
   useEffect(() => {
     if (vendor?.id) {
@@ -48,13 +77,17 @@ export default function BranchesPage() {
 
       return () => clearTimeout(delayDebounceFn);
     }
-  }, [vendor?.id, perPage, search]);
+  }, [searchValue]);
 
   const fetchBranches = async (page: number) => {
     setLoading(true);
     try {
+      const sortBy = sortDescriptor.column as string;
+      const sortDirection =
+        sortDescriptor.direction === "ascending" ? "asc" : "desc";
+
       const response = await api.get(
-        `/branches?page=${page}&per_page=${perPage}&vendor_id=${vendor?.id}&search=${search}`,
+        `/branches?page=${page}&per_page=${perPage}&vendor_id=${vendor?.id}&search=${searchValue}&sort_by=${sortBy}&sort_direction=${sortDirection}`
       );
 
       // @ts-ignore
@@ -73,7 +106,7 @@ export default function BranchesPage() {
   const handleDelete = async (branchId: number) => {
     if (
       !confirm(
-        "Are you sure you want to delete this branch? This action cannot be undone.",
+        "Are you sure you want to delete this branch? This action cannot be undone."
       )
     )
       return;
@@ -108,150 +141,201 @@ export default function BranchesPage() {
     fetchBranches(currentPage);
   };
 
+  const onSearchChange = useCallback((value?: string) => {
+    setSearchValue(value || "");
+    setCurrentPage(1);
+  }, []);
+
+  const onClear = useCallback(() => {
+    setSearchValue("");
+    setCurrentPage(1);
+  }, []);
+
+  const onRowsPerPageChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setPerPage(Number(e.target.value));
+      setCurrentPage(1);
+    },
+    []
+  );
+
+  const renderCell = useCallback((branch: Branch, columnKey: React.Key) => {
+    const cellValue = branch[columnKey as keyof Branch];
+
+    switch (columnKey) {
+      case "name":
+        return <span className="font-medium text-small">{branch.name}</span>;
+      case "description":
+        return (
+          <span className="text-small text-default-500">
+            {branch.description || "-"}
+          </span>
+        );
+      case "phone":
+        return branch.phone ? (
+          <div className="flex items-center gap-2 text-small">
+            <Phone className="w-4 h-4 text-default-400" />
+            {branch.phone}
+          </div>
+        ) : (
+          <span className="text-default-500">-</span>
+        );
+      case "address":
+        return branch.address ? (
+          <div className="flex items-center gap-2 text-small">
+            <MapPin className="w-4 h-4 text-default-400" />
+            {branch.address}
+          </div>
+        ) : (
+          <span className="text-default-500">-</span>
+        );
+      case "actions":
+        return (
+          <div className="relative flex items-center gap-2">
+            <button
+              className="text-lg text-default-400 cursor-pointer active:opacity-50"
+              title="Edit"
+              onClick={() => handleEdit(branch)}
+            >
+              <Edit className="w-4 h-4" />
+            </button>
+            <button
+              className="text-lg text-danger cursor-pointer active:opacity-50"
+              title="Delete"
+              onClick={() => handleDelete(branch.id)}
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        );
+      default:
+        return cellValue;
+    }
+  }, []);
+
+  const topContent = useMemo(() => {
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between gap-3 items-end">
+          <Input
+            isClearable
+            className="w-full sm:max-w-[44%]"
+            placeholder="Search branches..."
+            startContent={<SearchIcon />}
+            value={searchValue}
+            onClear={onClear}
+            onValueChange={onSearchChange}
+          />
+          <Button color="primary" onPress={handleCreate}>
+            Add New Branch
+          </Button>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-default-400 text-small">
+            Total {branches.length} branches
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-default-400 text-small">Rows per page:</span>
+            <Select
+              size="sm"
+              className="w-20"
+              selectedKeys={[String(perPage)]}
+              onChange={(e) => onRowsPerPageChange(e as any)}
+            >
+              <SelectItem key="10" value="10">
+                10
+              </SelectItem>
+              <SelectItem key="15" value="15">
+                15
+              </SelectItem>
+              <SelectItem key="20" value="20">
+                20
+              </SelectItem>
+              <SelectItem key="50" value="50">
+                50
+              </SelectItem>
+            </Select>
+          </div>
+        </div>
+      </div>
+    );
+  }, [
+    searchValue,
+    onSearchChange,
+    branches.length,
+    perPage,
+    onRowsPerPageChange,
+  ]);
+
+  const bottomContent = useMemo(() => {
+    return (
+      <div className="py-2 px-2 flex justify-center items-center">
+        <Pagination
+          isCompact
+          showControls
+          showShadow
+          color="primary"
+          className="overflow-hidden"
+          page={currentPage}
+          total={lastPage}
+          onChange={(page) => fetchBranches(page)}
+        />
+      </div>
+    );
+  }, [currentPage, lastPage]);
+
   if (contextLoading) return <div>Loading...</div>;
 
   return (
     <PermissionGuard permission="can_manage_branches_and_counters">
       <div className="p-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Branches
-            </h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">
-              Manage your shop locations
-            </p>
-          </div>
-          <button
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-            onClick={handleCreate}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Branches
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Manage your shop locations
+          </p>
+        </div>
+
+        <Table
+          isHeaderSticky
+          isStriped
+          aria-label="Branches table with sorting"
+          classNames={{
+            wrapper: "min-h-[222px]",
+          }}
+          sortDescriptor={sortDescriptor}
+          topContent={topContent}
+          bottomContent={bottomContent}
+          topContentPlacement="inside"
+          bottomContentPlacement="inside"
+          onSortChange={setSortDescriptor}
+        >
+          <TableHeader columns={columns}>
+            {(column) => (
+              <TableColumn
+                key={column.uid}
+                align={column.uid === "actions" ? "center" : "start"}
+                allowsSorting={column.sortable}
+              >
+                {column.name}
+              </TableColumn>
+            )}
+          </TableHeader>
+          <TableBody
+            emptyContent={loading ? "Loading..." : "No branches found."}
+            items={branches}
           >
-            Add New Branch
-          </button>
-        </div>
-
-        <div className="mb-6 w-full md:w-1/3">
-          <Input
-            isClearable
-            aria-label="Search branches"
-            placeholder="Search branches..."
-            startContent={
-              <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
-            }
-            value={search}
-            onClear={() => setSearch("")}
-            onValueChange={setSearch}
-          />
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-600 dark:text-gray-400 font-medium border-b border-gray-200 dark:border-gray-700">
-                <tr>
-                  <th className="px-6 py-4" scope="col">
-                    Branch Name
-                  </th>
-                  <th className="px-6 py-4" scope="col">
-                    Description
-                  </th>
-                  <th className="px-6 py-4" scope="col">
-                    Phone
-                  </th>
-                  <th className="px-6 py-4" scope="col">
-                    Address
-                  </th>
-                  <th className="px-6 py-4 text-right" scope="col">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                {loading ? (
-                  Array.from({ length: 3 }).map((_, i) => (
-                    <tr key={i} className="animate-pulse">
-                      <td className="px-6 py-4" colSpan={5}>
-                        <div className="h-4 bg-gray-200 rounded dark:bg-gray-700 w-full" />
-                      </td>
-                    </tr>
-                  ))
-                ) : branches.length === 0 ? (
-                  <tr>
-                    <td
-                      className="px-6 py-12 text-center text-gray-500"
-                      colSpan={5}
-                    >
-                      No branches found.
-                    </td>
-                  </tr>
-                ) : (
-                  branches.map((branch) => (
-                    <tr
-                      key={branch.id}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                    >
-                      <td className="px-6 py-4">
-                        <span className="font-medium text-gray-900 dark:text-gray-200">
-                          {branch.name}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
-                        {branch.description || "-"}
-                      </td>
-                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
-                        {branch.phone ? (
-                          <div className="flex items-center gap-2">
-                            <Phone className="w-4 h-4 text-gray-400" />
-                            {branch.phone}
-                          </div>
-                        ) : (
-                          "-"
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
-                        {branch.address ? (
-                          <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4 text-gray-400" />
-                            {branch.address}
-                          </div>
-                        ) : (
-                          "-"
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex justify-end gap-2">
-                          <button
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-sm dark:text-blue-400 dark:hover:bg-blue-900/20"
-                            title="Edit"
-                            onClick={() => handleEdit(branch)}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-sm dark:text-red-400 dark:hover:bg-red-900/20"
-                            title="Delete"
-                            onClick={() => handleDelete(branch.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+            {(item) => (
+              <TableRow key={item.id}>
+                {(columnKey) => (
+                  <TableCell>{renderCell(item, columnKey)}</TableCell>
                 )}
-              </tbody>
-            </table>
-          </div>
-          {!loading && branches.length > 0 && (
-            <Pagination
-              currentPage={currentPage}
-              lastPage={lastPage}
-              perPage={perPage}
-              onPageChange={(p) => fetchBranches(p)}
-              onPerPageChange={setPerPage}
-            />
-          )}
-        </div>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
 
         <Modal
           className="bg-white dark:bg-gray-800"
