@@ -2,7 +2,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 @config "../tailwind.config.js";
 
-
+.sidebar-container {
+    overflow: hidden;
+}
 .sidebar-container:hover .sidebar-dropdown-menu-open,
 .sidebar-container:hover .relative.cursor-pointer.group:hover .sidebar-dropdown-menu {
     height: auto;
@@ -15,4 +17,9 @@
 }
 .min-h-screen-w-nav{
     min-height: calc(100vh - 64px);
+}
+
+
+* {
+    scrollbar-width: thin;
 }
