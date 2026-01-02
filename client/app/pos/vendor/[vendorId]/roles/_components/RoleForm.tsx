@@ -203,14 +203,14 @@ export default function RoleForm({
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-full">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 w-full">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-sm border border-gray-200 dark:border-gray-700 w-full">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Role Name
         </label>
         <input
           {...form.register("name")}
           disabled={readOnly}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded bg-transparent dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           placeholder="e.g., Store Manager"
         />
         {form.formState.errors.name && (
@@ -229,7 +229,7 @@ export default function RoleForm({
           return (
             <div
               key={groupName}
-              className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700"
+              className="bg-white dark:bg-gray-800 p-6 rounded shadow-sm border border-gray-200 dark:border-gray-700"
             >
               <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
                 <h3 className="font-semibold text-gray-900 dark:text-white">
@@ -257,7 +257,7 @@ export default function RoleForm({
                         type="checkbox"
                         {...form.register(perm as any)}
                         disabled={readOnly}
-                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600 dark:border-gray-600 dark:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="h-4 w-4 rounded-sm border-gray-300 text-blue-600 focus:ring-blue-600 dark:border-gray-600 dark:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                       />
                     </div>
                     <span className="text-sm text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
@@ -276,7 +276,7 @@ export default function RoleForm({
           <button
             type="button"
             onClick={() => router.back()}
-            className="px-6 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="px-6 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
           >
             Cancel
           </button>
@@ -285,7 +285,7 @@ export default function RoleForm({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
           >
             {isSubmitting
               ? "Saving..."

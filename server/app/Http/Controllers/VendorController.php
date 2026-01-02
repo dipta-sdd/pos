@@ -89,6 +89,7 @@ class VendorController extends Controller
                 'can_customize_receipts' => true,
                 'can_manage_staff' => true,
                 'can_manage_roles_and_permissions' => true,
+                'can_view_roles' => true,
                 'can_view_user_activity_log' => true,
                 'can_view_products' => true,
                 'can_manage_products' => true,

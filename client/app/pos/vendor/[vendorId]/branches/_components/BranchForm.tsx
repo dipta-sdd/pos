@@ -90,7 +90,7 @@ export default function BranchForm({
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-8 w-full max-w-2xl"
     >
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 w-full">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded border border-gray-200 dark:border-gray-700 w-full">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -98,7 +98,7 @@ export default function BranchForm({
             </label>
             <input
               {...form.register("name")}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded bg-transparent dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="e.g., Main Branch"
             />
             {form.formState.errors.name && (
@@ -148,14 +148,14 @@ export default function BranchForm({
         <button
           type="button"
           onClick={() => (onCancel ? onCancel() : router.back())}
-          className="px-6 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          className="px-6 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+          className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
         >
           {isSubmitting
             ? "Saving..."

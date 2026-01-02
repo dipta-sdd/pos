@@ -81,14 +81,14 @@ export default function RolesPage() {
           {currentRole?.can_manage_roles_and_permissions && (
             <Link
               href={`/pos/vendor/${vendor?.id}/roles/new`}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
             >
               Create New Role
             </Link>
           )}
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
           {loading ? (
             <div className="p-8 text-center text-gray-500">
               Loading roles...
@@ -139,7 +139,7 @@ export default function RolesPage() {
                                 <>
                                   <Link
                                     href={`/pos/vendor/${vendor?.id}/roles/${role.id}`}
-                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg dark:text-blue-400 dark:hover:bg-blue-900/20 inline-block"
+                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-sm dark:text-blue-400 dark:hover:bg-blue-900/20 inline-block"
                                     title={
                                       currentRole?.can_manage_roles_and_permissions
                                         ? "Edit Role"
@@ -155,7 +155,7 @@ export default function RolesPage() {
                                   {currentRole?.can_manage_roles_and_permissions && (
                                     <button
                                       onClick={() => handleDelete(role.id)}
-                                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg dark:text-red-400 dark:hover:bg-red-900/20"
+                                      className="p-2 text-red-600 hover:bg-red-50 rounded-sm dark:text-red-400 dark:hover:bg-red-900/20"
                                       title="Delete Role"
                                     >
                                       <Trash2 className="w-4 h-4" />

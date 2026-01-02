@@ -123,7 +123,7 @@ export default function BranchesPage() {
           </div>
           <button
             onClick={handleCreate}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
           >
             Add New Branch
           </button>
@@ -143,7 +143,7 @@ export default function BranchesPage() {
           />
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-600 dark:text-gray-400 font-medium border-b border-gray-200 dark:border-gray-700">
@@ -221,14 +221,14 @@ export default function BranchesPage() {
                         <div className="flex justify-end gap-2">
                           <button
                             onClick={() => handleEdit(branch)}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg dark:text-blue-400 dark:hover:bg-blue-900/20"
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-sm dark:text-blue-400 dark:hover:bg-blue-900/20"
                             title="Edit"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDelete(branch.id)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg dark:text-red-400 dark:hover:bg-red-900/20"
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-sm dark:text-red-400 dark:hover:bg-red-900/20"
                             title="Delete"
                           >
                             <Trash2 className="w-4 h-4" />
