@@ -43,7 +43,10 @@ export default function VendorPOS() {
   useEffect(() => {
     if (!isLoading && user) {
       const vendorId = parseInt(params.vendorId as string);
-      const membership = user.memberships.find((m) => m.vendor.id === vendorId);
+      console.log(user);
+      const membership = user?.memberships?.find(
+        (m) => m.vendor.id === vendorId
+      );
 
       if (!membership) {
         router.push("/pos");

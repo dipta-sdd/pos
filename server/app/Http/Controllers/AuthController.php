@@ -142,7 +142,7 @@ class AuthController extends Controller
     protected function createNewToken($token)
     {
         $user = auth()->user();
-        $user['memberships'] = $user->memberships()->with('vendor')->with('role')->get();
+        $user['memberships'] = $user->memberships()->with('role')->get();
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
