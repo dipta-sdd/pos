@@ -12,6 +12,7 @@ export interface Role {
   can_customize_receipts: boolean;
   can_manage_staff: boolean;
   can_manage_roles_and_permissions: boolean;
+  can_view_roles: boolean;
   can_view_user_activity_log: boolean;
   can_view_products: boolean;
   can_manage_products: boolean;

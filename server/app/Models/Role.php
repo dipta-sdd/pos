@@ -24,6 +24,7 @@ class Role extends Model
         // User Management Permissions
         'can_manage_staff',
         'can_manage_roles_and_permissions',
+        'can_view_roles',
         'can_view_user_activity_log',
         // Product & Catalog Permissions
         'can_view_products',
@@ -78,6 +79,7 @@ class Role extends Model
         'can_customize_receipts' => 'boolean',
         'can_manage_staff' => 'boolean',
         'can_manage_roles_and_permissions' => 'boolean',
+        'can_view_roles' => 'boolean',
         'can_view_user_activity_log' => 'boolean',
         'can_view_products' => 'boolean',
         'can_manage_products' => 'boolean',
@@ -140,4 +142,4 @@ class Role extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
-} 
+}

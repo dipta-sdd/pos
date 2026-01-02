@@ -5,11 +5,11 @@
 .sidebar-container {
     overflow: hidden;
 }
-.sidebar-container:hover .sidebar-dropdown-menu-open,
+/* .sidebar-container:hover .sidebar-dropdown-menu-open,
 .sidebar-container:hover .relative.cursor-pointer.group:hover .sidebar-dropdown-menu {
     height: auto;
     transition: all 0.3s ease-in-out;
-}
+} */
 
 
 .h-screen-w-nav{

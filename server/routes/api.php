@@ -195,12 +195,12 @@ Route::middleware('log.api')->group(function () {
         });
 
         // Role routes (protected)
-        Route::prefix('roles')->middleware('permission:can_manage_roles_and_permissions')->group(function () {
-            Route::get('/', [RoleController::class, 'index']);
-            Route::post('/', [RoleController::class, 'store']);
-            Route::get('/{role}', [RoleController::class, 'show']);
-            Route::put('/{role}', [RoleController::class, 'update']);
-            Route::delete('/{role}', [RoleController::class, 'destroy']);
+        Route::prefix('roles')->group(function () {
+            Route::get('/', [RoleController::class, 'index'])->middleware('permission:can_view_roles');
+            Route::post('/', [RoleController::class, 'store'])->middleware('permission:can_manage_roles_and_permissions');
+            Route::get('/{role}', [RoleController::class, 'show'])->middleware('permission:can_view_roles');
+            Route::put('/{role}', [RoleController::class, 'update'])->middleware('permission:can_manage_roles_and_permissions');
+            Route::delete('/{role}', [RoleController::class, 'destroy'])->middleware('permission:can_manage_roles_and_permissions');
         });
 
         // Billing Counter routes (protected)

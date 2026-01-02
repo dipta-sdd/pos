@@ -1,10 +1,73 @@
 "use client";
 
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { Role } from "@/lib/types/auth";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
+import { toast } from "sonner";
+import { useState } from "react";
+
+// 1. Zod Schema
+const permissionSchema = z.boolean().default(false);
+
+const roleFormSchema = z.object({
+  name: z
+    .string()
+    .min(2, { message: "Role name must be at least 2 characters." }),
+  vendor_id: z.number().optional(),
+  // Permissions
+  // Dashboard & Reports
+  can_view_dashboard: permissionSchema.optional(),
+  can_view_reports: permissionSchema.optional(),
+  can_view_profit_loss_data: permissionSchema.optional(),
+  can_export_data: permissionSchema.optional(),
+  can_view_user_activity_log: permissionSchema.optional(),
+  // POS & Sales
+  can_use_pos: permissionSchema.optional(),
+  can_view_sales_history: permissionSchema.optional(),
+  can_process_returns: permissionSchema.optional(),
+  can_open_close_cash_register: permissionSchema.optional(),
+  can_perform_cash_transactions: permissionSchema.optional(),
+  can_override_prices: permissionSchema.optional(),
+  can_apply_manual_discounts: permissionSchema.optional(),
+  can_void_sales: permissionSchema.optional(),
+  can_issue_cash_refunds: permissionSchema.optional(),
+  can_issue_store_credit: permissionSchema.optional(),
+  // Catalog & Inventory
+  can_view_products: permissionSchema.optional(),
+  can_manage_products: permissionSchema.optional(),
+  can_manage_categories: permissionSchema.optional(),
+  can_manage_units_of_measure: permissionSchema.optional(),
+  can_import_products: permissionSchema.optional(),
+  can_export_products: permissionSchema.optional(),
+  can_view_inventory_levels: permissionSchema.optional(),
+  can_perform_stock_adjustments: permissionSchema.optional(),
+  can_manage_stock_transfers: permissionSchema.optional(),
+  can_manage_purchase_orders: permissionSchema.optional(),
+  can_receive_purchase_orders: permissionSchema.optional(),
+  can_manage_suppliers: permissionSchema.optional(),
+  // Customers & Promos
+  can_view_customers: permissionSchema.optional(),
+  can_manage_customers: permissionSchema.optional(),
+  can_view_promotions: permissionSchema.optional(),
+  can_manage_promotions: permissionSchema.optional(),
+  // Settings & Admin
+  can_manage_shop_settings: permissionSchema.optional(),
+  can_manage_billing_and_plan: permissionSchema.optional(),
+  can_manage_branches_and_counters: permissionSchema.optional(),
+  can_manage_payment_methods: permissionSchema.optional(),
+  can_configure_taxes: permissionSchema.optional(),
+  can_customize_receipts: permissionSchema.optional(),
+  can_manage_staff: permissionSchema.optional(),
+  can_manage_roles_and_permissions: permissionSchema.optional(),
+  can_view_roles: permissionSchema.optional(),
+  can_manage_expenses: permissionSchema.optional(),
+});
+
+type RoleFormValues = z.infer<typeof roleFormSchema>;
 
 interface RoleFormProps {
   initialData?: Partial<Role>;
@@ -60,6 +123,7 @@ const PERMISSION_GROUPS = {
     "can_customize_receipts",
     "can_manage_staff",
     "can_manage_roles_and_permissions",
+    "can_view_roles",
     "can_manage_expenses",
   ],
 };
@@ -78,89 +142,86 @@ export default function RoleForm({
 }: RoleFormProps) {
   const { vendor } = useVendor();
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [formData, setFormData] = useState<Partial<Role>>({
-    name: initialData?.name || "",
-    vendor_id: vendor?.id,
-    ...Object.keys(PERMISSION_GROUPS).reduce((acc, group) => {
-      PERMISSION_GROUPS[group as keyof typeof PERMISSION_GROUPS].forEach(
-        (perm) => {
-          // @ts-ignore
-          acc[perm] = initialData?.[perm] || false;
-        }
-      );
-      return acc;
-    }, {} as any),
+  const form = useForm<RoleFormValues>({
+    resolver: zodResolver(roleFormSchema),
+    defaultValues: {
+      name: initialData?.name || "",
+      vendor_id: vendor?.id,
+      ...Object.keys(PERMISSION_GROUPS).reduce((acc, group) => {
+        PERMISSION_GROUPS[group as keyof typeof PERMISSION_GROUPS].forEach(
+          (perm) => {
+            // @ts-ignore
+            acc[perm] = initialData?.[perm] || false;
+          }
+        );
+        return acc;
+      }, {} as any),
+    },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.name) return;
-
-    setLoading(true);
-    setError(null);
-
+  const onSubmit = async (data: RoleFormValues) => {
+    setIsSubmitting(true);
     try {
       if (isEditing && initialData?.id) {
-        await api.put(`/roles/${initialData.id}`, formData);
+        await api.put(`/roles/${initialData.id}`, data);
+        toast.success("Role updated successfully");
       } else {
-        await api.post("/roles", formData);
+        await api.post("/roles", data);
+        toast.success("Role created successfully");
       }
       router.push(`/pos/vendor/${vendor?.id}/roles`);
       router.refresh();
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to save role");
+    } catch (error: any) {
+      console.error(error);
+      const message = error.response?.data?.message || "Something went wrong";
+      toast.error(message);
+
+      // Handle backend validation errors
+      if (error.response?.data?.errors) {
+        const errors = error.response.data.errors;
+        Object.keys(errors).forEach((key) => {
+          form.setError(key as any, {
+            type: "server",
+            message: errors[key][0],
+          });
+        });
+      }
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  const togglePermission = (key: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [key]: !prev[key as keyof Role],
-    }));
-  };
-
   const toggleGroup = (groupPermissions: string[], value: boolean) => {
-    setFormData((prev) => {
-      const updates: any = {};
-      groupPermissions.forEach((perm) => {
-        updates[perm] = value;
-      });
-      return { ...prev, ...updates };
+    groupPermissions.forEach((perm) => {
+      form.setValue(perm as any, value, { shouldDirty: true });
     });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
-      {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg">
-          {error}
-        </div>
-      )}
-
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-full">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 w-full">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Role Name
         </label>
         <input
-          type="text"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent dark:text-white"
+          {...form.register("name")}
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="e.g., Store Manager"
-          required
         />
+        {form.formState.errors.name && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+            {form.formState.errors.name.message}
+          </p>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
         {Object.entries(PERMISSION_GROUPS).map(([groupName, permissions]) => {
-          const allChecked = permissions.every(
-            (p) => formData[p as keyof Role]
-          );
+          // Watch permissions for "Select All" state
+          const groupValues = form.watch(permissions as any);
+          const allChecked = groupValues.every((v: boolean) => v);
 
           return (
             <div
@@ -189,8 +250,7 @@ export default function RoleForm({
                     <div className="relative flex items-center mt-0.5">
                       <input
                         type="checkbox"
-                        checked={!!formData[perm as keyof Role]}
-                        onChange={() => togglePermission(perm)}
+                        {...form.register(perm as any)}
                         className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600 dark:border-gray-600 dark:bg-gray-700"
                       />
                     </div>
@@ -205,7 +265,7 @@ export default function RoleForm({
         })}
       </div>
 
-      <div className="flex justify-end gap-4 py-4">
+      <div className="flex justify-end gap-4 py-4 w-full">
         <button
           type="button"
           onClick={() => router.back()}
@@ -215,10 +275,14 @@ export default function RoleForm({
         </button>
         <button
           type="submit"
-          disabled={loading}
+          disabled={isSubmitting}
           className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
         >
-          {loading ? "Saving..." : isEditing ? "Update Role" : "Create Role"}
+          {isSubmitting
+            ? "Saving..."
+            : isEditing
+              ? "Update Role"
+              : "Create Role"}
         </button>
       </div>
     </form>

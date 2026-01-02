@@ -222,7 +222,7 @@ export default function Sidebar() {
           icon: ShieldCheck,
           label: "Roles & Permissions",
           href: `/pos/vendor/${vendor.id}/roles`,
-          permission: "can_manage_roles_and_permissions",
+          permission: "can_view_roles",
         },
         {
           icon: CreditCard,

@@ -9,6 +9,7 @@ import { Role } from "@/lib/types/auth";
 import Pagination from "@/components/ui/Pagination";
 import { Edit, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function RolesPage() {
   const { vendor, currentRole, isLoading: contextLoading } = useVendor();
@@ -54,17 +55,18 @@ export default function RolesPage() {
 
     try {
       await api.delete(`/roles/${roleId}`);
+      toast.success("Role deleted successfully");
       fetchRoles(currentPage);
     } catch (error) {
       console.error("Failed to delete role:", error);
-      alert("Failed to delete role"); // Ideally use a toast notification
+      toast.error("Failed to delete role");
     }
   };
 
   if (contextLoading) return <div>Loading...</div>;
 
   return (
-    <PermissionGuard permission="can_manage_roles_and_permissions">
+    <PermissionGuard permission="can_view_roles">
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <div>
