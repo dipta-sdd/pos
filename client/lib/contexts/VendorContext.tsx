@@ -1,5 +1,7 @@
 "use client";
 
+import type { Membership, Vendor, Role } from "../types/auth";
+
 import {
   createContext,
   useContext,
@@ -8,8 +10,8 @@ import {
   ReactNode,
 } from "react";
 import { useParams, useRouter } from "next/navigation";
+
 import { useAuth } from "../hooks/useAuth";
-import type { Membership, Vendor, Role } from "../types/auth";
 
 interface VendorContextType {
   vendor: Vendor | null;
@@ -22,9 +24,11 @@ const VendorContext = createContext<VendorContextType | undefined>(undefined);
 
 export const useVendor = () => {
   const context = useContext(VendorContext);
+
   if (context === undefined) {
     throw new Error("useVendor must be used within a VendorProvider");
   }
+
   return context;
 };
 
@@ -46,21 +50,25 @@ export const VendorProvider = ({ children }: VendorProviderProps) => {
 
     if (!user) {
       router.push("/login");
+
       return;
     }
 
     const vendorId = parseInt(params.vendorId as string);
+
     if (isNaN(vendorId)) {
       router.push("/pos");
+
       return;
     }
 
     const foundMembership = user.memberships?.find(
-      (m) => m.vendor_id === vendorId
+      (m) => m.vendor_id === vendorId,
     );
 
     if (!foundMembership) {
       router.push("/pos");
+
       return;
     }
 

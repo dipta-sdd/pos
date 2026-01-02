@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const login = async (
     email: string,
     password: string,
-    mobile?: string
+    mobile?: string,
   ): Promise<boolean> => {
     try {
       const response = await api.post("/auth/login", {

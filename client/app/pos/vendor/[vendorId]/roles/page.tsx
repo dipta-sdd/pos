@@ -1,15 +1,16 @@
 "use client";
 
-import PermissionGuard from "@/components/auth/PermissionGuard";
-import { useVendor } from "@/lib/contexts/VendorContext";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import api from "@/lib/api";
-import { Role } from "@/lib/types/auth";
-import Pagination from "@/components/ui/Pagination";
 import { Edit, Trash2, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+
+import PermissionGuard from "@/components/auth/PermissionGuard";
+import { useVendor } from "@/lib/contexts/VendorContext";
+import api from "@/lib/api";
+import { Role } from "@/lib/types/auth";
+import Pagination from "@/components/ui/Pagination";
 
 export default function RolesPage() {
   const { vendor, currentRole, isLoading: contextLoading } = useVendor();
@@ -30,8 +31,9 @@ export default function RolesPage() {
     setLoading(true);
     try {
       const response = await api.get(
-        `/roles?page=${page}&per_page=${perPage}&vendor_id=${vendor?.id}`
+        `/roles?page=${page}&per_page=${perPage}&vendor_id=${vendor?.id}`,
       );
+
       // @ts-ignore
       setRoles(response?.data?.data);
       // @ts-ignore
@@ -39,8 +41,8 @@ export default function RolesPage() {
       // @ts-ignore
       setLastPage(response?.data?.last_page);
       window.scrollTo(0, 0);
-    } catch (error) {
-      console.error("Failed to fetch roles:", error);
+    } catch (_error) {
+      // console.error("Failed to fetch roles:", error);
     } finally {
       setLoading(false);
     }
@@ -49,7 +51,7 @@ export default function RolesPage() {
   const handleDelete = async (roleId: number) => {
     if (
       !confirm(
-        "Are you sure you want to delete this role? This action cannot be undone."
+        "Are you sure you want to delete this role? This action cannot be undone.",
       )
     )
       return;
@@ -58,8 +60,8 @@ export default function RolesPage() {
       await api.delete(`/roles/${roleId}?vendor_id=${vendor?.id}`);
       toast.success("Role deleted successfully");
       fetchRoles(currentPage);
-    } catch (error) {
-      console.error("Failed to delete role:", error);
+    } catch (_error) {
+      // console.error("Failed to delete role:", error);
       toast.error("Failed to delete role");
     }
   };
@@ -80,8 +82,8 @@ export default function RolesPage() {
           </div>
           {currentRole?.can_manage_roles_and_permissions && (
             <Link
-              href={`/pos/vendor/${vendor?.id}/roles/new`}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              href={`/pos/vendor/${vendor?.id}/roles/new`}
             >
               Create New Role
             </Link>
@@ -108,8 +110,8 @@ export default function RolesPage() {
                     {roles.length === 0 ? (
                       <tr>
                         <td
-                          colSpan={3}
                           className="px-6 py-12 text-center text-gray-500"
+                          colSpan={3}
                         >
                           No roles found. Create one to get started.
                         </td>
@@ -138,8 +140,8 @@ export default function RolesPage() {
                               {role.name !== "Owner" && (
                                 <>
                                   <Link
-                                    href={`/pos/vendor/${vendor?.id}/roles/${role.id}`}
                                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-sm dark:text-blue-400 dark:hover:bg-blue-900/20 inline-block"
+                                    href={`/pos/vendor/${vendor?.id}/roles/${role.id}`}
                                     title={
                                       currentRole?.can_manage_roles_and_permissions
                                         ? "Edit Role"
@@ -154,9 +156,9 @@ export default function RolesPage() {
                                   </Link>
                                   {currentRole?.can_manage_roles_and_permissions && (
                                     <button
-                                      onClick={() => handleDelete(role.id)}
                                       className="p-2 text-red-600 hover:bg-red-50 rounded-sm dark:text-red-400 dark:hover:bg-red-900/20"
                                       title="Delete Role"
+                                      onClick={() => handleDelete(role.id)}
                                     >
                                       <Trash2 className="w-4 h-4" />
                                     </button>
@@ -175,8 +177,8 @@ export default function RolesPage() {
               <Pagination
                 currentPage={currentPage}
                 lastPage={lastPage}
-                onPageChange={fetchRoles}
                 perPage={perPage}
+                onPageChange={fetchRoles}
                 onPerPageChange={setPerPage}
               />
             </>

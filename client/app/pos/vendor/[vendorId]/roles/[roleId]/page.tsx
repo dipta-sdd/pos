@@ -1,12 +1,13 @@
-"use client";
+'use client';
+import { useRouter, useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import RoleForm from "../_components/RoleForm";
 
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { useVendor } from "@/lib/contexts/VendorContext";
-import { useRouter, useParams } from "next/navigation";
-import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import { Role } from "@/lib/types/auth";
-import RoleForm from "../_components/RoleForm";
 
 export default function EditRolePage() {
   const { currentRole, isLoading: contextLoading } = useVendor();
@@ -24,12 +25,13 @@ export default function EditRolePage() {
     const fetchRole = async () => {
       try {
         const response = await api.get(
-          `/roles/${params.roleId}?vendor_id=${params.vendorId}`
+          `/roles/${params.roleId}?vendor_id=${params.vendorId}`,
         );
+
         // @ts-ignore
         setRole(response.data);
-      } catch (error) {
-        console.error("Failed to fetch role:", error);
+      } catch (_error) {
+        // console.error("Failed to fetch role:", error);
       } finally {
         setLoading(false);
       }
@@ -52,7 +54,7 @@ export default function EditRolePage() {
           </h1>
         </div>
 
-        <RoleForm initialData={role} isEditing readOnly={isReadOnly} />
+        <RoleForm isEditing initialData={role} readOnly={isReadOnly} />
       </div>
     </PermissionGuard>
   );

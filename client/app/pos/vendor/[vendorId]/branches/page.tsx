@@ -1,14 +1,9 @@
 "use client";
 
-import PermissionGuard from "@/components/auth/PermissionGuard";
-import { useVendor } from "@/lib/contexts/VendorContext";
 import { useEffect, useState } from "react";
-import api from "@/lib/api";
-import Pagination from "@/components/ui/Pagination";
 import { Edit, Trash2, MapPin, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@heroui/input";
-import { SearchIcon } from "@/components/icons";
 import {
   Modal,
   ModalContent,
@@ -16,7 +11,14 @@ import {
   ModalBody,
   useDisclosure,
 } from "@heroui/modal";
+
 import BranchForm from "./_components/BranchForm";
+
+import { SearchIcon } from "@/components/icons";
+import Pagination from "@/components/ui/Pagination";
+import api from "@/lib/api";
+import { useVendor } from "@/lib/contexts/VendorContext";
+import PermissionGuard from "@/components/auth/PermissionGuard";
 
 interface Branch {
   id: number;
@@ -52,16 +54,17 @@ export default function BranchesPage() {
     setLoading(true);
     try {
       const response = await api.get(
-        `/branches?page=${page}&per_page=${perPage}&vendor_id=${vendor?.id}&search=${search}`
+        `/branches?page=${page}&per_page=${perPage}&vendor_id=${vendor?.id}&search=${search}`,
       );
+
       // @ts-ignore
       setBranches(response?.data?.data);
       // @ts-ignore
       setCurrentPage(response?.data?.current_page);
       // @ts-ignore
       setLastPage(response?.data?.last_page);
-    } catch (error) {
-      console.error("Failed to fetch branches:", error);
+    } catch (_error) {
+      // console.error("Failed to fetch branches:", error);
     } finally {
       setLoading(false);
     }
@@ -70,7 +73,7 @@ export default function BranchesPage() {
   const handleDelete = async (branchId: number) => {
     if (
       !confirm(
-        "Are you sure you want to delete this branch? This action cannot be undone."
+        "Are you sure you want to delete this branch? This action cannot be undone.",
       )
     )
       return;
@@ -80,7 +83,7 @@ export default function BranchesPage() {
       toast.success("Branch deleted successfully");
       fetchBranches(currentPage);
     } catch (error: any) {
-      console.error("Failed to delete branch:", error);
+      // console.error("Failed to delete branch:", error);
       toast.error(error.response?.data?.message || "Failed to delete branch");
     }
   };
@@ -105,8 +108,6 @@ export default function BranchesPage() {
     fetchBranches(currentPage);
   };
 
-  const canManage = currentRole?.can_manage_branches_and_counters;
-
   if (contextLoading) return <div>Loading...</div>;
 
   return (
@@ -122,8 +123,8 @@ export default function BranchesPage() {
             </p>
           </div>
           <button
-            onClick={handleCreate}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            onClick={handleCreate}
           >
             Add New Branch
           </button>
@@ -131,15 +132,15 @@ export default function BranchesPage() {
 
         <div className="mb-6 w-full md:w-1/3">
           <Input
+            isClearable
             aria-label="Search branches"
             placeholder="Search branches..."
             startContent={
               <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
             }
             value={search}
-            onValueChange={setSearch}
-            isClearable
             onClear={() => setSearch("")}
+            onValueChange={setSearch}
           />
         </div>
 
@@ -148,19 +149,19 @@ export default function BranchesPage() {
             <table className="w-full text-left text-sm">
               <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-600 dark:text-gray-400 font-medium border-b border-gray-200 dark:border-gray-700">
                 <tr>
-                  <th scope="col" className="px-6 py-4">
+                  <th className="px-6 py-4" scope="col">
                     Branch Name
                   </th>
-                  <th scope="col" className="px-6 py-4">
+                  <th className="px-6 py-4" scope="col">
                     Description
                   </th>
-                  <th scope="col" className="px-6 py-4">
+                  <th className="px-6 py-4" scope="col">
                     Phone
                   </th>
-                  <th scope="col" className="px-6 py-4">
+                  <th className="px-6 py-4" scope="col">
                     Address
                   </th>
-                  <th scope="col" className="px-6 py-4 text-right">
+                  <th className="px-6 py-4 text-right" scope="col">
                     Actions
                   </th>
                 </tr>
@@ -169,16 +170,16 @@ export default function BranchesPage() {
                 {loading ? (
                   Array.from({ length: 3 }).map((_, i) => (
                     <tr key={i} className="animate-pulse">
-                      <td colSpan={5} className="px-6 py-4">
-                        <div className="h-4 bg-gray-200 rounded dark:bg-gray-700 w-full"></div>
+                      <td className="px-6 py-4" colSpan={5}>
+                        <div className="h-4 bg-gray-200 rounded dark:bg-gray-700 w-full" />
                       </td>
                     </tr>
                   ))
                 ) : branches.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={5}
                       className="px-6 py-12 text-center text-gray-500"
+                      colSpan={5}
                     >
                       No branches found.
                     </td>
@@ -220,16 +221,16 @@ export default function BranchesPage() {
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
                           <button
-                            onClick={() => handleEdit(branch)}
                             className="p-2 text-blue-600 hover:bg-blue-50 rounded-sm dark:text-blue-400 dark:hover:bg-blue-900/20"
                             title="Edit"
+                            onClick={() => handleEdit(branch)}
                           >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(branch.id)}
                             className="p-2 text-red-600 hover:bg-red-50 rounded-sm dark:text-red-400 dark:hover:bg-red-900/20"
                             title="Delete"
+                            onClick={() => handleDelete(branch.id)}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -245,18 +246,18 @@ export default function BranchesPage() {
             <Pagination
               currentPage={currentPage}
               lastPage={lastPage}
-              onPageChange={(p) => fetchBranches(p)}
               perPage={perPage}
+              onPageChange={(p) => fetchBranches(p)}
               onPerPageChange={setPerPage}
             />
           )}
         </div>
 
         <Modal
-          isOpen={isOpen}
-          onOpenChange={onOpenChange}
-          size="2xl"
           className="bg-white dark:bg-gray-800"
+          isOpen={isOpen}
+          size="2xl"
+          onOpenChange={onOpenChange}
         >
           <ModalContent>
             {(onClose) => (
@@ -268,8 +269,8 @@ export default function BranchesPage() {
                   <BranchForm
                     initialData={selectedBranch}
                     isEditing={!!selectedBranch}
-                    onSuccess={handleSuccess}
                     onCancel={onClose}
+                    onSuccess={handleSuccess}
                   />
                 </ModalBody>
               </>

@@ -52,7 +52,7 @@ export default function POS() {
       router.push(`/pos/vendor/${membership.vendor.id}`);
 
       // You can add navigation here: router.push('/pos/[vendorId]')
-    } catch (error) {
+    } catch (_error) {
       // console.error("Error creating vendor:", error);
       // console.error("Error creating vendor:", error);
       // TODO: Show error message to user

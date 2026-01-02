@@ -1,9 +1,10 @@
 "use client";
 
-import { useVendor } from "@/lib/contexts/VendorContext";
-import { Role } from "@/lib/types/auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+
+import { useVendor } from "@/lib/contexts/VendorContext";
+import { Role } from "@/lib/types/auth";
 
 interface PermissionGuardProps {
   children: React.ReactNode;
@@ -25,6 +26,7 @@ export default function PermissionGuard({
       if (!fallback) {
         // Find main vendor path
         const vendorId = currentRole.vendor_id;
+
         router.push(`/pos/vendor/${vendorId}`);
       }
     }

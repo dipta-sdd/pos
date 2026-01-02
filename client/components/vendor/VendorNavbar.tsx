@@ -1,8 +1,5 @@
-import { useVendor } from "@/lib/contexts/VendorContext";
-import { useAuth } from "@/lib/hooks/useAuth";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ThemeSwitch } from "@/components/theme-switch";
 import {
   Dropdown,
   DropdownItem,
@@ -11,6 +8,10 @@ import {
 } from "@heroui/dropdown";
 import { User } from "@heroui/user";
 import { Menu } from "lucide-react";
+
+import { ThemeSwitch } from "@/components/theme-switch";
+import { useAuth } from "@/lib/hooks/useAuth";
+import { useVendor } from "@/lib/contexts/VendorContext";
 import { useSidebar } from "@/lib/contexts/SidebarContext";
 
 export default function VendorNavbar() {
@@ -18,24 +19,22 @@ export default function VendorNavbar() {
   const { user, logout } = useAuth(); // Need 'user' for the avatar
   const pathname = usePathname();
 
+  const { toggleSidebar } = useSidebar();
+
   if (isLoading || !vendor) {
     return (
       <nav className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 animate-pulse" />
     );
   }
 
-  const { toggleSidebar } = useSidebar();
-
-  const isActive = (path: string) => pathname?.includes(path);
-
   return (
     <nav className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 md:px-6 flex items-center justify-between z-40 relative">
       <div className="flex items-center gap-8">
         <div className="flex items-center gap-4">
           <button
-            onClick={toggleSidebar}
-            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             aria-label="Toggle Sidebar"
+            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onClick={toggleSidebar}
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -43,12 +42,12 @@ export default function VendorNavbar() {
           {/* Breadcrumbs */}
           <div className="flex items-center gap-2 text-sm">
             <Link
-              href={`/pos/vendor/${vendor.id}`}
               className={`font-semibold transition-colors ${
                 pathname === `/pos/vendor/${vendor.id}`
                   ? "text-gray-900 dark:text-gray-100"
                   : "text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
               }`}
+              href={`/pos/vendor/${vendor.id}`}
             >
               {vendor.name}
             </Link>
@@ -58,7 +57,7 @@ export default function VendorNavbar() {
               .filter(
                 (segment) =>
                   segment &&
-                  !["pos", "vendor", String(vendor.id)].includes(segment)
+                  !["pos", "vendor", String(vendor.id)].includes(segment),
               )
               .map((segment, index, array) => {
                 const isLast = index === array.length - 1;
@@ -87,8 +86,8 @@ export default function VendorNavbar() {
                       </span>
                     ) : (
                       <Link
-                        href={href}
                         className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
+                        href={href}
                       >
                         {label}
                       </Link>
@@ -111,7 +110,7 @@ export default function VendorNavbar() {
               as="button"
               avatarProps={{
                 isBordered: true,
-                src: user?.avatar, // Assuming user object has avatar, else it falls back
+                src: (user as any)?.avatar, // Avatar property not in type definition
               }}
               className="transition-transform"
               description={currentRole?.name}

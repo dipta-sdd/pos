@@ -37,8 +37,9 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useVendor } from "@/lib/contexts/VendorContext";
 import { usePathname } from "next/navigation";
+
+import { useVendor } from "@/lib/contexts/VendorContext";
 import { Role } from "@/lib/types/auth";
 import { useSidebar } from "@/lib/contexts/SidebarContext";
 
@@ -274,6 +275,7 @@ export default function Sidebar() {
         if (subItem.permission && !(currentRole as any)?.[subItem.permission]) {
           return false;
         }
+
         return true;
       });
       // If no subitems remain, hide the main item
@@ -281,6 +283,7 @@ export default function Sidebar() {
         return false;
       }
     }
+
     return true;
   });
 
@@ -367,8 +370,8 @@ export function SidebarOption({
       </div>
 
       <Link
-        href={!isDropDown ? item.href || "#" : "#"}
         className="block"
+        href={!isDropDown ? item.href || "#" : "#"}
         onClick={(e) => {
           if (isDropDown) {
             e.preventDefault();

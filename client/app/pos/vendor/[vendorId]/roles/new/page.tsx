@@ -1,15 +1,14 @@
 "use client";
 
-import PermissionGuard from "@/components/auth/PermissionGuard";
-import { useVendor } from "@/lib/contexts/VendorContext";
-import { useRouter } from "next/navigation";
 import RoleForm from "../_components/RoleForm";
 
-export default function NewRolePage() {
-  const { isLoading } = useVendor();
-  const router = useRouter();
+import PermissionGuard from "@/components/auth/PermissionGuard";
+import { useVendor } from "@/lib/contexts/VendorContext";
 
-  if (isLoading) return <div>Loading...</div>;
+export default function NewRolePage() {
+  const { isLoading: contextLoading } = useVendor();
+
+  if (contextLoading) return <div>Loading...</div>;
 
   return (
     <PermissionGuard permission="can_manage_roles_and_permissions">

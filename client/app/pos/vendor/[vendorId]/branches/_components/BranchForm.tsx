@@ -4,10 +4,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
-import api from "@/lib/api";
-import { useVendor } from "@/lib/contexts/VendorContext";
 import { toast } from "sonner";
 import { useState } from "react";
+
+import api from "@/lib/api";
+import { useVendor } from "@/lib/contexts/VendorContext";
 
 const branchSchema = z.object({
   name: z
@@ -67,12 +68,14 @@ export default function BranchForm({
         router.refresh();
       }
     } catch (error: any) {
-      console.error(error);
+      // console.error(error);
       const message = error.response?.data?.message || "Something went wrong";
+
       toast.error(message);
 
       if (error.response?.data?.errors) {
         const errors = error.response.data.errors;
+
         Object.keys(errors).forEach((key) => {
           form.setError(key as any, {
             type: "server",
@@ -87,16 +90,20 @@ export default function BranchForm({
 
   return (
     <form
-      onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-8 w-full max-w-2xl"
+      onSubmit={form.handleSubmit(onSubmit)}
     >
       <div className="bg-white dark:bg-gray-800 p-6 rounded border border-gray-200 dark:border-gray-700 w-full">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              htmlFor="name"
+            >
               Branch Name <span className="text-red-500">*</span>
             </label>
             <input
+              id="name"
               {...form.register("name")}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded bg-transparent dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="e.g., Main Branch"
@@ -109,10 +116,14 @@ export default function BranchForm({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              htmlFor="description"
+            >
               Description
             </label>
             <textarea
+              id="description"
               {...form.register("description")}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Optional description"
@@ -121,20 +132,28 @@ export default function BranchForm({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                htmlFor="phone"
+              >
                 Phone
               </label>
               <input
+                id="phone"
                 {...form.register("phone")}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g., +1234567890"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                htmlFor="address"
+              >
                 Address
               </label>
               <input
+                id="address"
                 {...form.register("address")}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g., 123 Main St"
@@ -146,16 +165,16 @@ export default function BranchForm({
 
       <div className="flex justify-end gap-4">
         <button
+          className="px-6 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
           type="button"
           onClick={() => (onCancel ? onCancel() : router.back())}
-          className="px-6 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
         >
           Cancel
         </button>
         <button
-          type="submit"
-          disabled={isSubmitting}
           className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
+          disabled={isSubmitting}
+          type="submit"
         >
           {isSubmitting
             ? "Saving..."

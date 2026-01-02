@@ -26,21 +26,21 @@ export default function NotFound() {
               Page Not Found
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Oops! The page you're looking for doesn't exist.
+              Oops! The page you&apos;re looking for doesn&apos;t exist.
             </p>
           </div>
         </div>
 
         <div className="space-y-4">
           <button
-            onClick={() => router.push("/pos/")}
             className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+            onClick={() => router.push("/pos/")}
           >
             Go Home
           </button>
           <button
-            onClick={() => router.back()}
             className="w-full px-6 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold rounded-lg border-2 border-gray-300 dark:border-gray-600 hover:border-blue-600 dark:hover:border-blue-500 transition-all duration-200"
+            onClick={() => router.back()}
           >
             Go Back
           </button>

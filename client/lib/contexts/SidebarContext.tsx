@@ -18,9 +18,11 @@ const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 export const useSidebar = () => {
   const context = useContext(SidebarContext);
+
   if (context === undefined) {
     throw new Error("useSidebar must be used within a SidebarProvider");
   }
+
   return context;
 };
 
@@ -36,6 +38,7 @@ export const SidebarProvider = ({ children }: SidebarProviderProps) => {
   // Initialize from localStorage on mount
   useEffect(() => {
     const savedState = localStorage.getItem("sidebar_state");
+
     if (savedState !== null) {
       setIsOpenState(savedState === "true");
     }
