@@ -1,0 +1,1 @@
+for every form we need zod verification in frontend , need validation in backend . also front end need to show backend validation error in frontend . aslo need to show toast for every event like fail or succed. and we will not use max-w-\* classes because we want every page to be full width.

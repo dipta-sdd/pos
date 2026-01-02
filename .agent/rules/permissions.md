@@ -1,0 +1,1 @@
+in backend or server for every(except some) api check user role have the permission using middleware. in frontend or client on every page or sidebar link also need to check permission . if the permission not in our list add it to the database , for some cases there will be needed sepaerate permission for view and manage .
