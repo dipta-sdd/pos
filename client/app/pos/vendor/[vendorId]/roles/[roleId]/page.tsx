@@ -9,16 +9,23 @@ import { Role } from "@/lib/types/auth";
 import RoleForm from "../_components/RoleForm";
 
 export default function EditRolePage() {
-  const { isLoading: contextLoading } = useVendor();
+  const { currentRole, isLoading: contextLoading } = useVendor();
   const router = useRouter();
   const params = useParams();
   const [role, setRole] = useState<Role | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Check if the user has permission to manage roles
+  const canManageRoles = currentRole?.can_manage_roles_and_permissions || false;
+  // If they can't manage, they are in read-only mode (since they passed the PermissionGuard which checks can_view_roles)
+  const isReadOnly = !canManageRoles;
+
   useEffect(() => {
     const fetchRole = async () => {
       try {
-        const response = await api.get(`/roles/${params.roleId}`);
+        const response = await api.get(
+          `/roles/${params.roleId}?vendor_id=${params.vendorId}`
+        );
         // @ts-ignore
         setRole(response.data);
       } catch (error) {
@@ -37,15 +44,15 @@ export default function EditRolePage() {
   if (!role) return <div>Role not found</div>;
 
   return (
-    <PermissionGuard permission="can_manage_roles_and_permissions">
+    <PermissionGuard permission="can_view_roles">
       <div className="p-6 mx-auto w-full">
         <div className="flex items-center gap-4 mb-6">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Edit Role: {role.name}
+            {isReadOnly ? "View Role" : "Edit Role"}: {role.name}
           </h1>
         </div>
 
-        <RoleForm initialData={role} isEditing />
+        <RoleForm initialData={role} isEditing readOnly={isReadOnly} />
       </div>
     </PermissionGuard>
   );

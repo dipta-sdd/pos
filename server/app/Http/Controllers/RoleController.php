@@ -7,9 +7,11 @@ use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Role::paginate();
+        return Role::where('vendor_id', $request->vendor_id)
+            ->where('name', '!=', 'Owner')
+            ->paginate($request->get('per_page', 15));
     }
 
     public function store(Request $request)

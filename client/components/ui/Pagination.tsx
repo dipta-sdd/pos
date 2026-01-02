@@ -4,22 +4,26 @@ interface PaginationProps {
   currentPage: number;
   lastPage: number;
   onPageChange: (page: number) => void;
+  perPage?: number;
+  onPerPageChange?: (perPage: number) => void;
+  total?: number;
 }
 
 export default function Pagination({
   currentPage,
   lastPage,
   onPageChange,
+  perPage,
+  onPerPageChange,
+  total,
 }: PaginationProps) {
-  if (lastPage <= 1) return null;
+  // Always show pagination, even if there's only one page
 
   const pages = [];
-  // Logic to show limited page numbers (e.g., 1, 2, ..., 5, 6, 7, ..., 10)
-  // For simplicity, showing all if <= 7, otherwise condensed
+  // Logic to show limited page numbers
   if (lastPage <= 7) {
     for (let i = 1; i <= lastPage; i++) pages.push(i);
   } else {
-    // Always show first, last, current, and neighbors
     if (currentPage <= 4) {
       for (let i = 1; i <= 5; i++) pages.push(i);
       pages.push("...");
@@ -40,8 +44,8 @@ export default function Pagination({
   }
 
   return (
-    <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 sm:px-6">
-      <div className="flex flex-1 justify-between sm:hidden">
+    <div className="flex flex-col sm:flex-row items-center justify-between border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 sm:px-6 gap-4 sm:gap-0">
+      <div className="flex flex-1 justify-between sm:hidden w-full">
         <button
           onClick={() => onPageChange(Math.max(1, currentPage - 1))}
           disabled={currentPage === 1}
@@ -57,13 +61,33 @@ export default function Pagination({
           Next
         </button>
       </div>
-      <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-        <div>
+
+      <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between w-full">
+        <div className="flex items-center gap-4">
           <p className="text-sm text-gray-700 dark:text-gray-300">
             Showing page <span className="font-medium">{currentPage}</span> of{" "}
             <span className="font-medium">{lastPage}</span>
           </p>
+          {onPerPageChange && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-700 dark:text-gray-300 text-nowrap">
+                Per page:
+              </span>
+              <select
+                value={perPage}
+                onChange={(e) => onPerPageChange(Number(e.target.value))}
+                className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 dark:text-gray-100 dark:bg-gray-700 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6"
+              >
+                {[10, 15, 20, 50, 100].map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
+
         <div>
           <nav
             className="isolate inline-flex -space-x-px rounded-md shadow-sm"

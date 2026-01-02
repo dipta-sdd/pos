@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import { Role } from "@/lib/types/auth";
 import Pagination from "@/components/ui/Pagination";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -17,19 +17,20 @@ export default function RolesPage() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
+  const [perPage, setPerPage] = useState(15);
   const router = useRouter();
 
   useEffect(() => {
     if (vendor?.id) {
       fetchRoles(1);
     }
-  }, [vendor?.id]);
+  }, [vendor?.id, perPage]);
 
   const fetchRoles = async (page: number) => {
     setLoading(true);
     try {
       const response = await api.get(
-        `/roles?page=${page}&vendor_id=${vendor?.id}`
+        `/roles?page=${page}&per_page=${perPage}&vendor_id=${vendor?.id}`
       );
       // @ts-ignore
       setRoles(response?.data?.data);
@@ -54,7 +55,7 @@ export default function RolesPage() {
       return;
 
     try {
-      await api.delete(`/roles/${roleId}`);
+      await api.delete(`/roles/${roleId}?vendor_id=${vendor?.id}`);
       toast.success("Role deleted successfully");
       fetchRoles(currentPage);
     } catch (error) {
@@ -143,17 +144,27 @@ export default function RolesPage() {
                                       )
                                     }
                                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg dark:text-blue-400 dark:hover:bg-blue-900/20"
-                                    title="Edit Role"
+                                    title={
+                                      currentRole?.can_manage_roles_and_permissions
+                                        ? "Edit Role"
+                                        : "View Role"
+                                    }
                                   >
-                                    <Edit className="w-4 h-4" />
+                                    {currentRole?.can_manage_roles_and_permissions ? (
+                                      <Edit className="w-4 h-4" />
+                                    ) : (
+                                      <Eye className="w-4 h-4" />
+                                    )}
                                   </button>
-                                  <button
-                                    onClick={() => handleDelete(role.id)}
-                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg dark:text-red-400 dark:hover:bg-red-900/20"
-                                    title="Delete Role"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
+                                  {currentRole?.can_manage_roles_and_permissions && (
+                                    <button
+                                      onClick={() => handleDelete(role.id)}
+                                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg dark:text-red-400 dark:hover:bg-red-900/20"
+                                      title="Delete Role"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  )}
                                 </>
                               )}
                             </div>
@@ -169,6 +180,8 @@ export default function RolesPage() {
                 currentPage={currentPage}
                 lastPage={lastPage}
                 onPageChange={fetchRoles}
+                perPage={perPage}
+                onPerPageChange={setPerPage}
               />
             </>
           )}

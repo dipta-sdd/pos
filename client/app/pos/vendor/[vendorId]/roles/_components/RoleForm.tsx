@@ -72,6 +72,7 @@ type RoleFormValues = z.infer<typeof roleFormSchema>;
 interface RoleFormProps {
   initialData?: Partial<Role>;
   isEditing?: boolean;
+  readOnly?: boolean;
 }
 
 const PERMISSION_GROUPS = {
@@ -139,6 +140,7 @@ const formatPermissionLabel = (key: string) => {
 export default function RoleForm({
   initialData,
   isEditing = false,
+  readOnly = false,
 }: RoleFormProps) {
   const { vendor } = useVendor();
   const router = useRouter();
@@ -207,7 +209,8 @@ export default function RoleForm({
         </label>
         <input
           {...form.register("name")}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          disabled={readOnly}
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           placeholder="e.g., Store Manager"
         />
         {form.formState.errors.name && (
@@ -232,26 +235,29 @@ export default function RoleForm({
                 <h3 className="font-semibold text-gray-900 dark:text-white">
                   {groupName}
                 </h3>
-                <button
-                  type="button"
-                  onClick={() => toggleGroup(permissions, !allChecked)}
-                  className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-                >
-                  {allChecked ? "Unselect All" : "Select All"}
-                </button>
+                {!readOnly && (
+                  <button
+                    type="button"
+                    onClick={() => toggleGroup(permissions, !allChecked)}
+                    className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                  >
+                    {allChecked ? "Unselect All" : "Select All"}
+                  </button>
+                )}
               </div>
 
               <div className="space-y-3">
                 {permissions.map((perm) => (
                   <label
                     key={perm}
-                    className="flex items-start gap-3 cursor-pointer group"
+                    className={`flex items-start gap-3 group ${readOnly ? "cursor-not-allowed" : "cursor-pointer"}`}
                   >
                     <div className="relative flex items-center mt-0.5">
                       <input
                         type="checkbox"
                         {...form.register(perm as any)}
-                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600 dark:border-gray-600 dark:bg-gray-700"
+                        disabled={readOnly}
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600 dark:border-gray-600 dark:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                       />
                     </div>
                     <span className="text-sm text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
@@ -271,19 +277,21 @@ export default function RoleForm({
           onClick={() => router.back()}
           className="px-6 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
         >
-          Cancel
+          {readOnly ? "Back" : "Cancel"}
         </button>
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-        >
-          {isSubmitting
-            ? "Saving..."
-            : isEditing
-              ? "Update Role"
-              : "Create Role"}
-        </button>
+        {!readOnly && (
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+          >
+            {isSubmitting
+              ? "Saving..."
+              : isEditing
+                ? "Update Role"
+                : "Create Role"}
+          </button>
+        )}
       </div>
     </form>
   );
