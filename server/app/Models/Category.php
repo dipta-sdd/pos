@@ -13,16 +13,13 @@ class Category extends Model
 
     protected $fillable = [
         'vendor_id',
-        'parent_id',
         'name',
+        'description',
+        'parent_id',
+        'created_by',
+        'updated_by',
     ];
 
-    protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
-
-    // Relationships
     public function vendor(): BelongsTo
     {
         return $this->belongsTo(Vendor::class);
@@ -43,11 +40,6 @@ class Category extends Model
         return $this->hasMany(Product::class);
     }
 
-    public function promotions(): HasMany
-    {
-        return $this->hasMany(Promotion::class);
-    }
-
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -57,4 +49,4 @@ class Category extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
-} 
+}

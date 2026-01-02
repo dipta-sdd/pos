@@ -15,6 +15,8 @@ class Membership extends Model
         'user_id',
         'vendor_id',
         'role_id',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [

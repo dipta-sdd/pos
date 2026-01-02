@@ -18,6 +18,8 @@ class Supplier extends Model
         'email',
         'phone',
         'address',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [

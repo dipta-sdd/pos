@@ -15,6 +15,8 @@ class InventoryAdjustment extends Model
         'user_id',
         'quantity_changed',
         'reason',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [

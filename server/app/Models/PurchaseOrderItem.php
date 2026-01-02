@@ -14,9 +14,12 @@ class PurchaseOrderItem extends Model
     protected $fillable = [
         'purchase_order_id',
         'product_id',
+        'variant_id',
         'quantity_ordered',
         'quantity_received',
         'unit_cost',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [

@@ -13,6 +13,8 @@ class UserBranchAssignment extends Model
     protected $fillable = [
         'membership_id',
         'branch_id',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [

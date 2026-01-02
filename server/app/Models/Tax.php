@@ -15,6 +15,8 @@ class Tax extends Model
         'name',
         'rate_percentage',
         'is_default',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [
