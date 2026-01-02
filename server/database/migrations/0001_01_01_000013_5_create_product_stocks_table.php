@@ -11,17 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('branch_products', function (Blueprint $table) {
+        Schema::create('product_stocks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('branch_id')->constrained('branches')->onDelete('cascade');
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->foreignId('variant_id')->nullable()->constrained('variants')->onDelete('cascade');
-            $table->decimal('low_stock_threshold', 10, 2)->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->decimal('quantity', 10, 2)->default(0);
+            $table->decimal('cost_price', 10, 2)->default(0)->comment('Buy Price');
+            $table->decimal('selling_price', 10, 2)->default(0)->comment('Sell Price');
             $table->timestamps();
-            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
-            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
             
+            // Unique constraint to ensure one stock record per product/variant per branch
             $table->unique(['branch_id', 'product_id', 'variant_id']);
         });
     }
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('branch_products');
+        Schema::dropIfExists('product_stocks');
     }
-}; 
+};

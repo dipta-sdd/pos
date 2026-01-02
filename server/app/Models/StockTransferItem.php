@@ -13,6 +13,7 @@ class StockTransferItem extends Model
     protected $fillable = [
         'stock_transfer_id',
         'branch_product_id',
+        'variant_id',
         'from_inventory_batch_id',
         'quantity',
     ];
@@ -34,8 +35,13 @@ class StockTransferItem extends Model
         return $this->belongsTo(BranchProduct::class);
     }
 
+    public function variant(): BelongsTo
+    {
+        return $this->belongsTo(Variant::class);
+    }
+
     public function fromInventoryBatch(): BelongsTo
     {
         return $this->belongsTo(InventoryBatch::class, 'from_inventory_batch_id');
     }
-} 
+}

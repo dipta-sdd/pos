@@ -16,6 +16,9 @@ return new class extends Migration
             $table->foreignId('sale_id')->constrained('sales')->onDelete('cascade');
             $table->foreignId('branch_product_id')->constrained('branch_products')->onDelete('cascade');
             $table->decimal('quantity', 10, 2);
+            $table->decimal('buy_price', 10, 2)->default(0)->comment('Cost at time of sale');
+            $table->foreignId('variant_id')->nullable()->constrained('variants')->onDelete('cascade');
+            $table->foreignId('product_stock_id')->nullable()->constrained('product_stocks')->onDelete('set null');
             $table->decimal('sell_price_at_sale', 10, 2);
             $table->decimal('discount_amount', 10, 2)->default(0);
             $table->decimal('tax_amount', 10, 2)->default(0);

@@ -15,6 +15,9 @@ class SaleItem extends Model
         'sale_id',
         'branch_product_id',
         'quantity',
+        'buy_price',
+        'variant_id',
+        'product_stock_id',
         'sell_price_at_sale',
         'discount_amount',
         'tax_amount',
@@ -26,6 +29,7 @@ class SaleItem extends Model
 
     protected $casts = [
         'quantity' => 'decimal:2',
+        'buy_price' => 'decimal:2',
         'sell_price_at_sale' => 'decimal:2',
         'discount_amount' => 'decimal:2',
         'tax_amount' => 'decimal:2',
@@ -44,6 +48,16 @@ class SaleItem extends Model
     public function branchProduct(): BelongsTo
     {
         return $this->belongsTo(BranchProduct::class);
+    }
+
+    public function variant(): BelongsTo
+    {
+        return $this->belongsTo(Variant::class);
+    }
+
+    public function productStock(): BelongsTo
+    {
+        return $this->belongsTo(ProductStock::class);
     }
 
     public function saleItemBatches(): HasMany
@@ -65,4 +79,4 @@ class SaleItem extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
-} 
+}

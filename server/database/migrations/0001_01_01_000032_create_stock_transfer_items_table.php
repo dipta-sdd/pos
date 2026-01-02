@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('stock_transfer_id')->constrained('stock_transfers')->onDelete('cascade');
             $table->foreignId('branch_product_id')->constrained('branch_products')->onDelete('cascade');
+            $table->foreignId('variant_id')->nullable()->constrained('variants')->onDelete('cascade');
             $table->foreignId('from_inventory_batch_id')->constrained('inventory_batches')->onDelete('cascade');
             $table->decimal('quantity', 10, 2);
         });

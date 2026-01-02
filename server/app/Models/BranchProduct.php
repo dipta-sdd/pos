@@ -15,9 +15,6 @@ class BranchProduct extends Model
         'branch_id',
         'product_id',
         'variant_id',
-        'sell_price',
-        'sku',
-        'barcode',
         'low_stock_threshold',
         'is_active',
         'created_by',
@@ -25,7 +22,6 @@ class BranchProduct extends Model
     ];
 
     protected $casts = [
-        'sell_price' => 'decimal:2',
         'low_stock_threshold' => 'decimal:2',
         'is_active' => 'boolean',
         'created_at' => 'datetime',
@@ -41,6 +37,11 @@ class BranchProduct extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function variant(): BelongsTo
+    {
+        return $this->belongsTo(Variant::class);
     }
 
     public function inventoryBatches(): HasMany
@@ -67,4 +68,4 @@ class BranchProduct extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
-} 
+}

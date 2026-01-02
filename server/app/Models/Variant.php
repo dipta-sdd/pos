@@ -14,6 +14,8 @@ class Variant extends Model
         'product_id',
         'name',
         'value',
+        'sku',
+        'barcode',
         'created_by',
         'updated_by',
     ];

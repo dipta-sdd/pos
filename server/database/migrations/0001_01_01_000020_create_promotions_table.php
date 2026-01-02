@@ -20,6 +20,7 @@ return new class extends Migration
             $table->decimal('discount_value', 10, 2);
             $table->enum('applies_to', ['product', 'category']);
             $table->foreignId('product_id')->nullable()->constrained('products')->onDelete('cascade');
+            $table->foreignId('variant_id')->nullable()->constrained('variants')->onDelete('cascade');
             $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('cascade');
             $table->date('start_date');
             $table->date('end_date');

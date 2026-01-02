@@ -13,6 +13,7 @@ class InventoryBatch extends Model
 
     protected $fillable = [
         'branch_product_id',
+        'variant_id',
         'purchase_order_item_id',
         'buy_price',
         'initial_quantity',
@@ -36,6 +37,11 @@ class InventoryBatch extends Model
     public function branchProduct(): BelongsTo
     {
         return $this->belongsTo(BranchProduct::class);
+    }
+
+    public function variant(): BelongsTo
+    {
+        return $this->belongsTo(Variant::class);
     }
 
     public function purchaseOrderItem(): BelongsTo
@@ -67,4 +73,4 @@ class InventoryBatch extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
-} 
+}

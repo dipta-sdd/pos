@@ -6,32 +6,33 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ReturnItem extends Model
+class ProductStock extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'return_id',
-        'sale_item_id',
+        'branch_id',
+        'product_id',
         'variant_id',
         'quantity',
+        'cost_price',
+        'selling_price',
     ];
 
     protected $casts = [
         'quantity' => 'decimal:2',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'cost_price' => 'decimal:2',
+        'selling_price' => 'decimal:2',
     ];
 
-    // Relationships
-    public function saleReturn(): BelongsTo
+    public function branch(): BelongsTo
     {
-        return $this->belongsTo(SaleReturn::class, 'return_id');
+        return $this->belongsTo(Branch::class);
     }
 
-    public function saleItem(): BelongsTo
+    public function product(): BelongsTo
     {
-        return $this->belongsTo(SaleItem::class);
+        return $this->belongsTo(Product::class);
     }
 
     public function variant(): BelongsTo

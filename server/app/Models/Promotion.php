@@ -18,6 +18,7 @@ class Promotion extends Model
         'discount_value',
         'applies_to',
         'product_id',
+        'variant_id',
         'category_id',
         'start_date',
         'end_date',
@@ -51,6 +52,11 @@ class Promotion extends Model
         return $this->belongsTo(Product::class);
     }
 
+    public function variant(): BelongsTo
+    {
+        return $this->belongsTo(Variant::class);
+    }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
@@ -65,4 +71,4 @@ class Promotion extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
-} 
+}

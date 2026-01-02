@@ -41,8 +41,13 @@ class PurchaseOrderItem extends Model
         return $this->belongsTo(Product::class);
     }
 
+    public function variant(): BelongsTo
+    {
+        return $this->belongsTo(Variant::class);
+    }
+
     public function inventoryBatches(): HasMany
     {
         return $this->hasMany(InventoryBatch::class);
     }
-} 
+}
