@@ -18,14 +18,10 @@ class Product extends Model
         'category_id',
         'image_url',
         'unit_of_measure_id',
+        'created_by',
+        'updated_by',
     ];
 
-    protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
-
-    // Relationships
     public function vendor(): BelongsTo
     {
         return $this->belongsTo(Vendor::class);
@@ -41,24 +37,19 @@ class Product extends Model
         return $this->belongsTo(UnitOfMeasure::class);
     }
 
+    public function variants(): HasMany
+    {
+        return $this->hasMany(Variant::class);
+    }
+
     public function branchProducts(): HasMany
     {
         return $this->hasMany(BranchProduct::class);
     }
 
-    public function branches()
-    {
-        return $this->belongsToMany(Branch::class, 'branch_products');
-    }
-
     public function purchaseOrderItems(): HasMany
     {
         return $this->hasMany(PurchaseOrderItem::class);
-    }
-
-    public function stockTransferItems(): HasMany
-    {
-        return $this->hasMany(StockTransferItem::class);
     }
 
     public function createdBy(): BelongsTo
@@ -70,4 +61,4 @@ class Product extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
-} 
+}

@@ -18,6 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'jwt.auth' => \Tymon\JWTAuth\Http\Middleware\Authenticate::class,
             'jwt.refresh' => \Tymon\JWTAuth\Http\Middleware\RefreshToken::class,
             'jwt.verify' => \Tymon\JWTAuth\Http\Middleware\VerifyToken::class,
+            'user.permissions' => \App\Http\Middleware\AddUserAndPermissions::class,
+            'permission' => \App\Http\Middleware\CheckPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

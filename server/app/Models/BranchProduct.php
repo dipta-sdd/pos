@@ -14,11 +14,14 @@ class BranchProduct extends Model
     protected $fillable = [
         'branch_id',
         'product_id',
+        'variant_id',
         'sell_price',
         'sku',
         'barcode',
         'low_stock_threshold',
         'is_active',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [

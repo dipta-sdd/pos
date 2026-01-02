@@ -20,6 +20,8 @@ class PurchaseOrder extends Model
         'paid_amount',
         'order_date',
         'expected_delivery_date',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [

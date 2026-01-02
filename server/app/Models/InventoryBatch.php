@@ -19,6 +19,8 @@ class InventoryBatch extends Model
         'quantity_on_hand',
         'expiry_date',
         'batch_number',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [
