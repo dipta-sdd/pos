@@ -214,8 +214,8 @@ export default function Sidebar() {
         },
         {
           icon: MapPin,
-          label: "Locations",
-          href: `/pos/vendor/${vendor.id}/settings/branches`,
+          label: "Branches",
+          href: `/pos/vendor/${vendor.id}/branches`,
           permission: "can_manage_branches_and_counters",
         },
         {

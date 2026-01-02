@@ -121,7 +121,18 @@ class VendorController extends Controller
                 'can_view_reports' => true,
                 'can_view_profit_loss_data' => true,
                 'can_export_data' => true,
-                'created_by' => Auth::id(), 
+                'created_by' => Auth::id(),
+                'updated_by' => Auth::id(),
+            ]);
+
+            // Create default branch
+            \App\Models\Branch::create([
+                'vendor_id' => $vendor->id,
+                'name' => 'Main',
+                'description' => 'Main Branch',
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'created_by' => Auth::id(),
                 'updated_by' => Auth::id(),
             ]);
 
@@ -183,8 +194,8 @@ class VendorController extends Controller
 
             // Check if user has permission to update this vendor
             $membership = Membership::where('user_id', Auth::id())
-                                  ->where('vendor_id', $id)
-                                  ->first();
+                ->where('vendor_id', $id)
+                ->first();
 
             if (!$membership) {
                 return response()->json([
@@ -213,8 +224,14 @@ class VendorController extends Controller
             }
 
             $vendor->update($request->only([
-                'name', 'description', 'phone', 'address',
-                'subscription_tier', 'currency', 'timezone', 'language'
+                'name',
+                'description',
+                'phone',
+                'address',
+                'subscription_tier',
+                'currency',
+                'timezone',
+                'language'
             ]));
 
             $vendor->load(['owner', 'memberships.user', 'roles']);
@@ -307,8 +324,8 @@ class VendorController extends Controller
 
             // Check if user has access to this vendor
             $membership = Membership::where('user_id', Auth::id())
-                                  ->where('vendor_id', $id)
-                                  ->first();
+                ->where('vendor_id', $id)
+                ->first();
 
             if (!$membership) {
                 return response()->json([
@@ -358,8 +375,8 @@ class VendorController extends Controller
 
             // Check if user has access to this vendor
             $membership = Membership::where('user_id', Auth::id())
-                                  ->where('vendor_id', $id)
-                                  ->first();
+                ->where('vendor_id', $id)
+                ->first();
 
             if (!$membership) {
                 return response()->json([
@@ -369,8 +386,8 @@ class VendorController extends Controller
             }
 
             $members = $vendor->memberships()
-                             ->with(['user', 'role'])
-                             ->get();
+                ->with(['user', 'role'])
+                ->get();
 
             return response()->json([
                 'success' => true,
@@ -400,8 +417,8 @@ class VendorController extends Controller
 
             // Check if user has permission to add members
             $membership = Membership::where('user_id', Auth::id())
-                                  ->where('vendor_id', $id)
-                                  ->first();
+                ->where('vendor_id', $id)
+                ->first();
 
             if (!$membership) {
                 return response()->json([
@@ -425,8 +442,8 @@ class VendorController extends Controller
 
             // Check if user is already a member
             $existingMembership = Membership::where('user_id', $request->user_id)
-                                          ->where('vendor_id', $id)
-                                          ->first();
+                ->where('vendor_id', $id)
+                ->first();
 
             if ($existingMembership) {
                 return response()->json([
@@ -472,8 +489,8 @@ class VendorController extends Controller
 
             // Check if user has permission to remove members
             $membership = Membership::where('user_id', Auth::id())
-                                  ->where('vendor_id', $vendorId)
-                                  ->first();
+                ->where('vendor_id', $vendorId)
+                ->first();
 
             if (!$membership) {
                 return response()->json([
@@ -483,8 +500,8 @@ class VendorController extends Controller
             }
 
             $memberMembership = Membership::where('user_id', $memberId)
-                                        ->where('vendor_id', $vendorId)
-                                        ->first();
+                ->where('vendor_id', $vendorId)
+                ->first();
 
             if (!$memberMembership) {
                 return response()->json([
@@ -516,4 +533,4 @@ class VendorController extends Controller
             ], 500);
         }
     }
-} 
+}

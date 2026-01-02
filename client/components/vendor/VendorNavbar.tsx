@@ -2,6 +2,7 @@ import { useVendor } from "@/lib/contexts/VendorContext";
 import { useAuth } from "@/lib/hooks/useAuth";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ThemeSwitch } from "@/components/theme-switch";
 import {
   Dropdown,
   DropdownItem,
@@ -88,13 +89,8 @@ export default function VendorNavbar() {
       </div>
 
       <div className="flex items-center gap-4">
-        {/* Role Badge */}
-        <div className="hidden md:flex items-center px-3 py-1 bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800/50 rounded-full">
-          <span className="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
-          <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wider">
-            {currentRole?.name}
-          </span>
-        </div>
+        {/* Theme Switch */}
+        <ThemeSwitch />
 
         {/* Profile Dropdown */}
         <Dropdown placement="bottom-end">
@@ -106,7 +102,7 @@ export default function VendorNavbar() {
                 src: user?.avatar, // Assuming user object has avatar, else it falls back
               }}
               className="transition-transform"
-              description={user?.email}
+              description={currentRole?.name}
               name={user?.firstName + " " + user?.lastName}
             />
           </DropdownTrigger>

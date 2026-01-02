@@ -7,9 +7,25 @@ use Illuminate\Http\Request;
 
 class BranchController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Branch::paginate();
+        $query = Branch::query();
+
+        if ($request->has('vendor_id')) {
+            $query->where('vendor_id', $request->vendor_id);
+        }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('address', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        $perPage = $request->input('per_page', 15);
+        return $query->paginate($perPage);
     }
 
     public function store(Request $request)
@@ -53,6 +69,13 @@ class BranchController extends Controller
 
     public function destroy(Branch $branch)
     {
+        // Check if this is the only branch for the vendor
+        $count = Branch::where('vendor_id', $branch->vendor_id)->count();
+
+        if ($count <= 1) {
+            return response()->json(['message' => 'Cannot delete the only branch. A vendor must have at least one branch.'], 400);
+        }
+
         $branch->delete();
 
         return response()->json(null, 204);
