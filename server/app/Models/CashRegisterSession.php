@@ -30,8 +30,6 @@ class CashRegisterSession extends Model
         'discrepancy' => 'decimal:2',
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     // Relationships

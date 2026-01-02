@@ -22,17 +22,12 @@ class VendorFactory extends Factory
             'owner_id' => User::factory(),
             'name' => $this->faker->company,
             'description' => $this->faker->paragraph,
-            'website' => $this->faker->url,
-            'industry' => $this->faker->bs,
-            'contact_person' => $this->faker->name,
-            'email' => $this->faker->unique()->safeEmail,
             'phone' => $this->faker->phoneNumber,
             'address' => $this->faker->address,
-            'logo_url' => $this->faker->imageUrl,
-            'status' => 'active',
-            'subscription_plan' => 'standard',
-            'trial_ends_at' => null,
+            'subscription_tier' => 'standard',
+            'currency' => 'USD',
             'timezone' => 'UTC',
+            'language' => 'en',
         ];
     }
 }

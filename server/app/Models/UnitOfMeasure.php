@@ -11,6 +11,8 @@ class UnitOfMeasure extends Model
 {
     use HasFactory;
 
+    protected $table = 'units_of_measure';
+
     protected $fillable = [
         'vendor_id',
         'name',
@@ -44,4 +46,4 @@ class UnitOfMeasure extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
-} 
+}

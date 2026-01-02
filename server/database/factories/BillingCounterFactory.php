@@ -13,6 +13,8 @@ class BillingCounterFactory extends Factory
         return [
             'branch_id' => Branch::factory(),
             'name' => $this->faker->word . ' Counter',
+            'created_by' => \App\Models\User::factory(),
+            'updated_by' => \App\Models\User::factory(),
         ];
     }
 }

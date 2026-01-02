@@ -17,7 +17,7 @@ class PurchaseOrderFactory extends Factory
             'vendor_id' => Vendor::factory(),
             'supplier_id' => Supplier::factory(),
             'branch_id' => Branch::factory(),
-            'status' => $this->faker->randomElement(['pending', 'received', 'cancelled']),
+            'status' => $this->faker->randomElement(['draft', 'ordered', 'fully_received', 'cancelled']),
             'total_amount' => $this->faker->randomFloat(2, 100, 2000),
             'paid_amount' => $this->faker->randomFloat(2, 0, 2000),
             'order_date' => $this->faker->dateTimeThisMonth(),

@@ -16,6 +16,8 @@ class BranchFactory extends Factory
             'description' => $this->faker->paragraph,
             'phone' => $this->faker->phoneNumber,
             'address' => $this->faker->address,
+            'created_by' => \App\Models\User::factory(),
+            'updated_by' => \App\Models\User::factory(),
         ];
     }
 }

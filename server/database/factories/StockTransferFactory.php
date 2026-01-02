@@ -16,7 +16,7 @@ class StockTransferFactory extends Factory
             'vendor_id' => Vendor::factory(),
             'from_branch_id' => Branch::factory(),
             'to_branch_id' => Branch::factory(),
-            'status' => $this->faker->randomElement(['pending', 'shipped', 'received', 'cancelled']),
+            'status' => $this->faker->randomElement(['draft', 'pending_approval', 'in_transit', 'completed', 'cancelled']),
             'notes' => $this->faker->sentence,
             'created_by' => User::factory(),
             'updated_by' => User::factory(),

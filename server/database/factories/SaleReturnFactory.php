@@ -19,7 +19,7 @@ class SaleReturnFactory extends Factory
             'original_sale_id' => Sale::factory(),
             'user_id' => User::factory(),
             'reason' => $this->faker->sentence,
-            'refund_type' => $this->faker->randomElement(['cash', 'store_credit']),
+            'refund_type' => $this->faker->randomElement(['cash_back', 'store_credit']),
             'refund_amount' => $this->faker->randomFloat(2, 10, 100),
             'created_by' => User::factory(),
             'updated_by' => User::factory(),

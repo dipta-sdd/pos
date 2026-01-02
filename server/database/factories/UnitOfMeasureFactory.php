@@ -14,7 +14,8 @@ class UnitOfMeasureFactory extends Factory
         return [
             'vendor_id' => Vendor::factory(),
             'name' => $this->faker->word,
-            'short_code' => $this->faker->lexify('??'),
+            'abbreviation' => $this->faker->lexify('??'),
+            'is_decimal_allowed' => $this->faker->boolean,
             'created_by' => User::factory(),
             'updated_by' => User::factory(),
         ];

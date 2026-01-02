@@ -16,8 +16,7 @@ class MembershipFactory extends Factory
             'user_id' => User::factory(),
             'vendor_id' => Vendor::factory(),
             'role_id' => Role::factory(),
-            'created_by' => User::factory(),
-            'updated_by' => User::factory(),
+
         ];
     }
 }

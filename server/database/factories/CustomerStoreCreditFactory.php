@@ -14,8 +14,7 @@ class CustomerStoreCreditFactory extends Factory
         return [
             'customer_id' => Customer::factory(),
             'current_balance' => $this->faker->randomFloat(2, 0, 1000),
-            'created_by' => User::factory(),
-            'updated_by' => User::factory(),
+
         ];
     }
 }

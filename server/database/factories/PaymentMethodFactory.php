@@ -16,6 +16,8 @@ class PaymentMethodFactory extends Factory
             'branch_id' => Branch::factory(),
             'name' => $this->faker->creditCardType,
             'is_active' => $this->faker->boolean,
+            'created_by' => \App\Models\User::factory(),
+            'updated_by' => \App\Models\User::factory(),
         ];
     }
 }

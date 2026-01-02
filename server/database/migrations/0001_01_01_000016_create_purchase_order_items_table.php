@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -19,6 +18,9 @@ return new class extends Migration
             $table->decimal('quantity_ordered', 10, 2);
             $table->decimal('quantity_received', 10, 2)->default(0);
             $table->decimal('unit_cost', 10, 2);
+            $table->timestamps();
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
         });
     }
 
@@ -29,4 +31,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('purchase_order_items');
     }
-}; 
+};

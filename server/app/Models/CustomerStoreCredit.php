@@ -14,8 +14,7 @@ class CustomerStoreCredit extends Model
     protected $fillable = [
         'customer_id',
         'current_balance',
-        'created_by',
-        'updated_by',
+
     ];
 
     protected $casts = [
@@ -35,13 +34,5 @@ class CustomerStoreCredit extends Model
         return $this->hasMany(CustomerStoreCreditTransaction::class, 'store_credit_id');
     }
 
-    public function createdBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
 
-    public function updatedBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'updated_by');
-    }
-} 
+}

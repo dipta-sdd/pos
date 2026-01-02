@@ -15,6 +15,8 @@ class VariantFactory extends Factory
             'product_id' => Product::factory(),
             'name' => $this->faker->randomElement(['Size', 'Color']),
             'value' => $this->faker->randomElement(['S', 'M', 'L', 'Red', 'Blue', 'Green']),
+            'sku' => $this->faker->unique()->ean8,
+            'barcode' => $this->faker->unique()->ean13,
             'created_by' => User::factory(),
             'updated_by' => User::factory(),
         ];
