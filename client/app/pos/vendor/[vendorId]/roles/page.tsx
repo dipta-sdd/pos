@@ -137,13 +137,9 @@ export default function RolesPage() {
                             <div className="flex justify-end gap-2">
                               {role.name !== "Owner" && (
                                 <>
-                                  <button
-                                    onClick={() =>
-                                      router.push(
-                                        `/pos/vendor/${vendor?.id}/roles/${role.id}`
-                                      )
-                                    }
-                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg dark:text-blue-400 dark:hover:bg-blue-900/20"
+                                  <Link
+                                    href={`/pos/vendor/${vendor?.id}/roles/${role.id}`}
+                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg dark:text-blue-400 dark:hover:bg-blue-900/20 inline-block"
                                     title={
                                       currentRole?.can_manage_roles_and_permissions
                                         ? "Edit Role"
@@ -155,7 +151,7 @@ export default function RolesPage() {
                                     ) : (
                                       <Eye className="w-4 h-4" />
                                     )}
-                                  </button>
+                                  </Link>
                                   {currentRole?.can_manage_roles_and_permissions && (
                                     <button
                                       onClick={() => handleDelete(role.id)}
