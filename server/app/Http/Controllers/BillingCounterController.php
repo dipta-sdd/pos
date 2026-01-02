@@ -7,9 +7,29 @@ use Illuminate\Http\Request;
 
 class BillingCounterController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return BillingCounter::paginate();
+        $query = BillingCounter::query();
+
+        if ($request->has('branch_id')) {
+            $query->where('branch_id', $request->branch_id);
+        }
+
+        if ($request->has('vendor_id')) {
+            $query->whereHas('branch', function ($q) use ($request) {
+                $q->where('vendor_id', $request->vendor_id);
+            });
+        }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        $perPage = $request->input('per_page', 15);
+        return $query->paginate($perPage);
     }
 
     public function store(Request $request)

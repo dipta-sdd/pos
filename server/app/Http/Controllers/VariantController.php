@@ -7,9 +7,30 @@ use Illuminate\Http\Request;
 
 class VariantController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Variant::paginate();
+        $query = Variant::query();
+
+        if ($request->has('product_id')) {
+            $query->where('product_id', $request->product_id);
+        }
+
+        if ($request->has('vendor_id')) {
+            $query->whereHas('product', function ($q) use ($request) {
+                $q->where('vendor_id', $request->vendor_id);
+            });
+        }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('value', 'like', "%{$search}%");
+            });
+        }
+
+        $perPage = $request->input('per_page', 15);
+        return $query->paginate($perPage);
     }
 
     public function store(Request $request)

@@ -8,9 +8,27 @@ use Illuminate\Support\Facades\DB;
 
 class SaleReturnController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return SaleReturn::with('returnItems')->paginate();
+        $query = SaleReturn::with('returnItems');
+
+        if ($request->has('vendor_id')) {
+            $query->where('vendor_id', $request->vendor_id);
+        }
+
+        if ($request->has('branch_id')) {
+            $query->where('branch_id', $request->branch_id);
+        }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('reason', 'like', "%{$search}%");
+            });
+        }
+
+        $perPage = $request->input('per_page', 15);
+        return $query->paginate($perPage);
     }
 
     public function store(Request $request)

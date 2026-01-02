@@ -7,9 +7,24 @@ use Illuminate\Http\Request;
 
 class UnitOfMeasureController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return UnitOfMeasure::paginate();
+        $query = UnitOfMeasure::query();
+
+        if ($request->has('vendor_id')) {
+            $query->where('vendor_id', $request->vendor_id);
+        }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('short_code', 'like', "%{$search}%");
+            });
+        }
+
+        $perPage = $request->input('per_page', 15);
+        return $query->paginate($perPage);
     }
 
     public function store(Request $request)

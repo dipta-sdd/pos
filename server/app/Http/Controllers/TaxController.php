@@ -7,9 +7,23 @@ use Illuminate\Http\Request;
 
 class TaxController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Tax::paginate();
+        $query = Tax::query();
+
+        if ($request->has('vendor_id')) {
+            $query->where('vendor_id', $request->vendor_id);
+        }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        $perPage = $request->input('per_page', 15);
+        return $query->paginate($perPage);
     }
 
     public function store(Request $request)

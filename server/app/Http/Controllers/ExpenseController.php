@@ -7,9 +7,31 @@ use Illuminate\Http\Request;
 
 class ExpenseController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Expense::paginate();
+        $query = Expense::query();
+
+        if ($request->has('vendor_id')) {
+            $query->where('vendor_id', $request->vendor_id);
+        }
+
+        if ($request->has('branch_id')) {
+            $query->where('branch_id', $request->branch_id);
+        }
+
+        if ($request->has('expense_category_id')) {
+            $query->where('expense_category_id', $request->expense_category_id);
+        }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('description', 'like', "%{$search}%");
+            });
+        }
+
+        $perPage = $request->input('per_page', 15);
+        return $query->paginate($perPage);
     }
 
     public function store(Request $request)

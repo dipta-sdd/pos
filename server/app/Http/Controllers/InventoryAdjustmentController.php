@@ -7,9 +7,26 @@ use Illuminate\Http\Request;
 
 class InventoryAdjustmentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return InventoryAdjustment::paginate();
+        $query = InventoryAdjustment::query();
+
+        if ($request->has('vendor_id')) {
+            // Adjustments created by users of the vendor
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('vendor_id', $request->vendor_id);
+            });
+        }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('reason', 'like', "%{$search}%");
+            });
+        }
+
+        $perPage = $request->input('per_page', 15);
+        return $query->paginate($perPage);
     }
 
     public function store(Request $request)

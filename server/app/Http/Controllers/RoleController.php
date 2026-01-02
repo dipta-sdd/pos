@@ -9,9 +9,25 @@ class RoleController extends Controller
 {
     public function index(Request $request)
     {
-        return Role::where('vendor_id', $request->vendor_id)
-            ->where('name', '!=', 'Owner')
-            ->paginate($request->get('per_page', 15));
+        $query = Role::query();
+
+        if ($request->has('vendor_id')) {
+            $query->where('vendor_id', $request->vendor_id);
+        }
+
+        // Always exclude System/Owner role from general listing if desired, 
+        // or keep standard behavior. The original excluded Owner.
+        $query->where('name', '!=', 'Owner');
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        $perPage = $request->input('per_page', 15);
+        return $query->paginate($perPage);
     }
 
     public function store(Request $request)

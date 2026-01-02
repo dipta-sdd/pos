@@ -8,9 +8,31 @@ use Illuminate\Support\Facades\DB;
 
 class SaleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Sale::with(['saleItems', 'salePayments'])->paginate();
+        $query = Sale::with(['saleItems', 'salePayments']);
+
+        if ($request->has('vendor_id')) {
+            $query->where('vendor_id', $request->vendor_id);
+        }
+
+        if ($request->has('branch_id')) {
+            $query->where('branch_id', $request->branch_id);
+        }
+
+        if ($request->has('customer_id')) {
+            $query->where('customer_id', $request->customer_id);
+        }
+
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Search options: by ID or Customer Name override if needed, 
+        // but for now simple structure is sufficient.
+
+        $perPage = $request->input('per_page', 15);
+        return $query->paginate($perPage);
     }
 
     public function store(Request $request)
