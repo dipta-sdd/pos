@@ -40,6 +40,7 @@ import Link from "next/link";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import { usePathname } from "next/navigation";
 import { Role } from "@/lib/types/auth";
+import { useSidebar } from "@/lib/contexts/SidebarContext";
 
 export type MenuItem = {
   icon: React.ElementType;
@@ -52,7 +53,9 @@ export type MenuItem = {
 
 export default function Sidebar() {
   const { vendor, currentRole, isLoading } = useVendor();
-  const [isOpen, setIsOpen] = useState(false); // Mobile off-canvas state
+  // const [isOpen, setIsOpen] = useState(false); // Mobile off-canvas state
+
+  const { isOpen, setIsOpen } = useSidebar();
   const pathname = usePathname();
 
   if (isLoading || !vendor) return null;
