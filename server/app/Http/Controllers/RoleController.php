@@ -74,6 +74,10 @@ class RoleController extends Controller
 
     public function update(Request $request, Role $role)
     {
+        if ($role->name === 'Owner') {
+            return response()->json(['message' => 'System role cannot be modified'], 403);
+        }
+
         $validatedData = $request->validate([
             'name' => 'string|max:255',
             'can_manage_shop_settings' => 'boolean',
@@ -127,6 +131,10 @@ class RoleController extends Controller
 
     public function destroy(Role $role)
     {
+        if ($role->name === 'Owner') {
+            return response()->json(['message' => 'System role cannot be deleted'], 403);
+        }
+
         $role->delete();
 
         return response()->json(null, 204);

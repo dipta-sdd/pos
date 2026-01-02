@@ -64,7 +64,7 @@ export default function POS() {
     <div className="w-full flex flex-col items-stretch">
       <Navbar2 />
       <div className="min-h-screen-w-nav flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-sm shadow-xl p-8 border border-gray-100 dark:border-gray-700">
+        <div className="w-full bg-white dark:bg-gray-800 rounded-sm shadow-xl p-8 border border-gray-100 dark:border-gray-700">
           <div className="mb-4">
             <p className="text-lg font-medium mb-1">
               You need to create a Vendor to get started.
