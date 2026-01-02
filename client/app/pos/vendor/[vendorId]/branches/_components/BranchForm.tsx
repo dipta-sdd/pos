@@ -90,7 +90,7 @@ export default function BranchForm({
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-8 w-full max-w-2xl"
     >
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 w-full">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 w-full">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
