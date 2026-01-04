@@ -1,5 +1,5 @@
 "use client";
-import { Pagination, Select, SelectItem } from "@heroui/react";
+import { Pagination, Select, SelectItem, Skeleton } from "@heroui/react";
 import {
   SortDescriptor,
   Selection,
@@ -31,6 +31,9 @@ interface CustomTableProps {
   renderCell: (item: any, columnKey: React.Key) => React.ReactNode;
   columns: Column[];
   visibleColumns?: "all" | Selection;
+  loadingState?: React.ReactNode;
+  emptyState?: React.ReactNode;
+  ariaLabel?: string;
 }
 
 const CustomTable: React.FC<CustomTableProps> = ({
@@ -46,6 +49,9 @@ const CustomTable: React.FC<CustomTableProps> = ({
   renderCell,
   columns,
   visibleColumns = "all",
+  loadingState,
+  emptyState = "No items found.",
+  ariaLabel,
 }) => {
   const classNames = useMemo(
     () => ({
@@ -110,11 +116,19 @@ const CustomTable: React.FC<CustomTableProps> = ({
     );
   }, [currentPage, lastPage, perPage]);
 
+  const defaultLoadingState = (
+    <div className="flex flex-col gap-4 pt-2">
+      {Array.from({ length: perPage }).map((_, index) => (
+        <Skeleton key={index} className="w-full h-4 rounded" />
+      ))}
+    </div>
+  );
+
   return (
     <Table
       isStriped
       isHeaderSticky
-      aria-label="Branches table with sorting"
+      aria-label={ariaLabel}
       bottomContent={bottomContent}
       bottomContentPlacement="inside"
       classNames={classNames}
@@ -133,7 +147,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
         )}
       </TableHeader>
       <TableBody
-        emptyContent={isLoading ? "Loading..." : "No items found."}
+        emptyContent={isLoading ? loadingState ? loadingState : defaultLoadingState : emptyState}
         items={items}
       >
         {(item) => (

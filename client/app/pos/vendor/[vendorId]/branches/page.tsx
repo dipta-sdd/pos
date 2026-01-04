@@ -7,9 +7,18 @@ import {
   PopoverTrigger,
   Select,
   SelectItem,
+  Skeleton,
   type Selection,
 } from "@heroui/react";
-import { Edit, Trash2, MapPin, Phone, ChevronDown } from "lucide-react";
+import {
+  Edit,
+  Trash2,
+  MapPin,
+  Phone,
+  ChevronDown,
+  User,
+  Calendar,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import BranchForm from "./_components/BranchForm";
@@ -45,25 +54,28 @@ import {
 } from "@heroui/dropdown";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
 import Confirm from "@/components/ui/Confirm";
-
-interface Branch {
-  id: number;
-  name: string;
-  description?: string;
-  phone?: string;
-  address?: string;
-  created_at: string;
-}
+import { Branch } from "@/lib/types/general";
+import { formatDateTime } from "@/lib/helper/dates";
 
 const columns: Column[] = [
   { name: "BRANCH NAME", uid: "name", sortable: true },
   { name: "DESCRIPTION", uid: "description" },
   { name: "PHONE", uid: "phone", sortable: true },
   { name: "ADDRESS", uid: "address", sortable: true },
+  { name: "CREATED AT", uid: "created_at", sortable: true },
+  { name: "CREATED BY", uid: "created_by_name", sortable: true },
+  { name: "UPDATED AT", uid: "updated_at", sortable: true },
+  { name: "UPDATED BY", uid: "updated_by_name", sortable: true },
   { name: "ACTIONS", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "phone", "address", "actions"];
+const INITIAL_VISIBLE_COLUMNS = [
+  "name",
+  "phone",
+  "address",
+  "updated_at",
+  "actions",
+];
 
 function capitalize(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
@@ -199,7 +211,7 @@ export default function BranchesPage() {
         return <span className="">{branch.name}</span>;
       case "description":
         return (
-          <span className="text-small text-default-500">
+          <span className="text-small text-default-500 text-truncate">
             {branch.description || "-"}
           </span>
         );
@@ -221,27 +233,60 @@ export default function BranchesPage() {
         ) : (
           <span className="text-default-500">-</span>
         );
+      case "created_at":
+        return branch.created_at ? (
+          <div className="flex items-center gap-2 text-small">
+            <Calendar className="w-4 h-4 text-default-400" />
+            {formatDateTime(branch.created_at)}
+          </div>
+        ) : (
+          <span className="text-default-500">-</span>
+        );
+      case "updated_at":
+        return branch.updated_at ? (
+          <div className="flex items-center gap-2 text-small">
+            <Calendar className="w-4 h-4 text-default-400" />
+            {formatDateTime(branch.updated_at)}
+          </div>
+        ) : (
+          <span className="text-default-500">-</span>
+        );
+      case "updated_by_name":
+        return branch.updated_by_name ? (
+          <div className="flex items-center gap-2 text-small">
+            <User className="w-4 h-4 text-default-400" />
+            {branch.updated_by_name}
+          </div>
+        ) : (
+          <span className="text-default-500">-</span>
+        );
       case "actions":
         return (
-          <div className="relative flex items-center gap-2">
-            <button
-              className="text-lg text-default-400 cursor-pointer active:opacity-50"
+          <div className="flex items-center justify-end gap-2">
+            <Button
+              variant="light"
+              color="primary"
+              className="min-w-none"
+              size="sm"
               title="Edit"
-              onClick={() => handleEdit(branch)}
+              onPress={() => handleEdit(branch)}
             >
               <Edit className="w-4 h-4" />
-            </button>
+            </Button>
 
-            <button
-              className="text-lg text-danger cursor-pointer active:opacity-50"
+            <Button
+              variant="light"
+              color="danger"
+              className="min-w-none"
+              size="sm"
               title="Delete"
-              onClick={() => {
+              onPress={() => {
                 setDeleteConfirmOpen(true);
                 setDeleteConfirmProp(branch.id);
               }}
             >
               <Trash2 className="w-4 h-4" />
-            </button>
+            </Button>
           </div>
         );
       default:
@@ -249,8 +294,10 @@ export default function BranchesPage() {
     }
   }, []);
 
-  if (contextLoading) return <div>Loading...</div>;
+  
 
+  if (contextLoading) return <div>Loading...</div>;
+console.log("branches", visibleColumns);
   return (
     <PermissionGuard permission="can_manage_branches_and_counters">
       <div className="p-6">

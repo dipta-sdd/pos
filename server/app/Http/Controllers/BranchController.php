@@ -9,7 +9,7 @@ class BranchController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Branch::query();
+        $query = Branch::selectRaw('branches.*, CONCAT(c.firstName, " ", c.lastName) as created_by_name, CONCAT(u.firstName, " ", u.lastName) as updated_by_name ')->leftJoin('users as c', 'branches.created_by', '=', 'c.id')->leftJoin('users as u', 'branches.updated_by', '=', 'u.id');
 
         if ($request->has('vendor_id')) {
             $query->where('vendor_id', $request->vendor_id);
@@ -29,7 +29,7 @@ class BranchController extends Controller
         $sortDirection = $request->input('sort_direction', 'desc');
 
         // Whitelist sortable columns
-        $allowedSortColumns = ['name', 'address', 'phone', 'created_at'];
+        $allowedSortColumns = ['name', 'address', 'phone', 'created_at','updated_at','created_by_name','updated_by_name'];
         if (in_array($sortBy, $allowedSortColumns)) {
             $query->orderBy($sortBy, $sortDirection === 'asc' ? 'asc' : 'desc');
         } else {
