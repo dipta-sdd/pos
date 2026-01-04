@@ -6,21 +6,10 @@ import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useState } from "react";
+import { Input, Textarea, Button } from "@heroui/react";
 
 import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
-
-const branchSchema = z.object({
-  name: z
-    .string()
-    .min(2, { message: "Branch name must be at least 2 characters." }),
-  description: z.string().optional(),
-  phone: z.string().optional(),
-  address: z.string().optional(),
-  vendor_id: z.number().optional(),
-});
-
-type BranchFormValues = z.infer<typeof branchSchema>;
 
 interface BranchFormProps {
   initialData?: any;
@@ -37,9 +26,15 @@ export default function BranchForm({
 }: BranchFormProps) {
   const { vendor } = useVendor();
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<BranchFormValues>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setValue,
+    watch,
+    trigger,
+  } = useForm<BranchFormData>({
     resolver: zodResolver(branchSchema),
     defaultValues: {
       name: initialData?.name || "",
@@ -50,8 +45,7 @@ export default function BranchForm({
     },
   });
 
-  const onSubmit = async (data: BranchFormValues) => {
-    setIsSubmitting(true);
+  const onSubmit = async (data: BranchFormData) => {
     try {
       if (isEditing && initialData?.id) {
         await api.put(`/branches/${initialData.id}`, data);
@@ -64,125 +58,99 @@ export default function BranchForm({
       if (onSuccess) {
         onSuccess();
       } else {
-        router.push(`/pos/vendor/${vendor?.id}/branches`);
         router.refresh();
       }
     } catch (error: any) {
-      // console.error(error);
-      const message = error.response?.data?.message || "Something went wrong";
-
-      toast.error(message);
-
-      if (error.response?.data?.errors) {
-        const errors = error.response.data.errors;
-
-        Object.keys(errors).forEach((key) => {
-          form.setError(key as any, {
-            type: "server",
-            message: errors[key][0],
-          });
-        });
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
+    } 
   };
-
+  console.log(errors);
   return (
-    <form
-      className="space-y-8 w-full max-w-2xl"
-      onSubmit={form.handleSubmit(onSubmit)}
-    >
-      <div className="bg-white dark:bg-gray-800 p-6 rounded border border-gray-200 dark:border-gray-700 w-full">
-        <div className="space-y-4">
-          <div>
-            <label
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              htmlFor="name"
-            >
-              Branch Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="name"
-              {...form.register("name")}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded bg-transparent dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g., Main Branch"
-            />
-            {form.formState.errors.name && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {form.formState.errors.name.message}
-              </p>
-            )}
-          </div>
+    <form className="space-y-6 w-full" onSubmit={handleSubmit(onSubmit)}>
+      <div className="space-y-4">
+        <Input
+          id="branch-name"
+          isRequired
+          label="Branch Name"
+          type="text"
+          placeholder="e.g., Main Branch"
+          variant="bordered"
+          {...register("name")}
+          errorMessage={errors.name?.message}
+          isInvalid={!!errors.name}
+        />
 
-          <div>
-            <label
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              htmlFor="description"
-            >
-              Description
-            </label>
-            <textarea
-              id="description"
-              {...form.register("description")}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Optional description"
-            />
-          </div>
+        <Textarea
+          label="Description"
+          placeholder="Optional description"
+          variant="bordered"
+          {...register("description")}
+          errorMessage={errors.description?.message}
+          isInvalid={!!errors.description}
+        />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                htmlFor="phone"
-              >
-                Phone
-              </label>
-              <input
-                id="phone"
-                {...form.register("phone")}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g., +1234567890"
-              />
-            </div>
-            <div>
-              <label
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                htmlFor="address"
-              >
-                Address
-              </label>
-              <input
-                id="address"
-                {...form.register("address")}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g., 123 Main St"
-              />
-            </div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Input
+            label="Phone"
+            placeholder="e.g., +1234567890"
+            variant="bordered"
+            {...register("phone")}
+            errorMessage={errors.phone?.message}
+            isInvalid={!!errors.phone}
+          />
+          <Input
+            label="Address"
+            placeholder="e.g., 123 Main St"
+            variant="bordered"
+            {...register("address")}
+            errorMessage={errors.address?.message}
+            isInvalid={!!errors.address}
+          />
         </div>
       </div>
 
-      <div className="flex justify-end gap-4">
-        <button
-          className="px-6 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-          type="button"
-          onClick={() => (onCancel ? onCancel() : router.back())}
-        >
+      <div className="flex justify-end gap-3 pt-4">
+        <Button color="default" variant="flat" onPress={onCancel}>
           Cancel
-        </button>
-        <button
-          className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
-          disabled={isSubmitting}
-          type="submit"
-        >
-          {isSubmitting
-            ? "Saving..."
-            : isEditing
-              ? "Update Branch"
-              : "Create Branch"}
-        </button>
+        </Button>
+        <Button color="primary" isLoading={isSubmitting} type="submit">
+          {isEditing ? "Update Branch" : "Create Branch"}
+        </Button>
       </div>
     </form>
   );
 }
+
+// Vendor onboarding validation schema
+export const branchSchema = z.object({
+  vendor_id: z.number().optional(),
+  name: z
+    .string()
+    .min(1, "Branch name is required")
+    .min(3, "Branch name must be at least 3 characters")
+    .max(100, "Branch name must be less than 100 characters")
+    .regex(/^[a-zA-Z0-9\s\-_&.]+$/, "Vendor name contains invalid characters"),
+
+  description: z
+    .string()
+    .min(0)
+    .max(500, "Description must be less than 500 characters")
+    .optional(),
+
+  phone: z
+    .string()
+    .min(1, "Phone number is required")
+    .min(11, "Phone number must be at least 11 digits")
+    .regex(/^[0-9+\-\s()]+$/, "Please enter a valid phone number"),
+
+  address: z
+    .string()
+    .min(1, "Address is required")
+    .min(10, "Address must be at least 10 characters")
+    .max(200, "Address must be less than 200 characters"),
+});
+
+export type BranchFormData = z.infer<typeof branchSchema>;
+
+export const branchUpdateSchema = branchSchema.partial();
+
+export type BranchUpdateFormData = z.infer<typeof branchUpdateSchema>;

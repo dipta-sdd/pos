@@ -297,7 +297,6 @@ export default function BranchesPage() {
   
 
   if (contextLoading) return <div>Loading...</div>;
-console.log("branches", visibleColumns);
   return (
     <PermissionGuard permission="can_manage_branches_and_counters">
       <div className="p-6">
