@@ -17,7 +17,20 @@ const config = {
     },
   },
   darkMode: "class",
-
+  plugins: [heroui({
+    layout: {
+      radius: {
+        small: "2px",
+        medium: "4px",
+        large: "6px",
+      },
+      borderWidth: {
+        small: "1px",
+        medium: "1px",
+        large: "2px",
+      },
+    },
+  })],
 }
 
 module.exports = config;

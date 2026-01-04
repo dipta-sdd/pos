@@ -29,8 +29,8 @@ export default function RootLayout({
       <head />
       <body
         className={clsx(
-          "min-h-screen text-foreground bg-background font-sans antialiased bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-[#000c1b] dark:via-[#00070f] dark:to-[#120d2d]",
-          fontSans.variable,
+          "min-h-screen text-foreground bg-gray-100 font-sans antialiased dark:bg-gradient-to-br dark:from-[#000c1b] dark:via-[#00070f] dark:to-[#120d2d]",
+          fontSans.variable
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>

@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { Edit, Trash2, MapPin, Phone } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Select,
+  SelectItem,
+  type Selection,
+} from "@heroui/react";
+import { Edit, Trash2, MapPin, Phone, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 
 import BranchForm from "./_components/BranchForm";
@@ -29,7 +37,14 @@ import {
   ModalHeader,
   useDisclosure,
 } from "@heroui/modal";
-import { Select, SelectItem } from "@heroui/select";
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+} from "@heroui/dropdown";
+import CustomTable, { Column } from "@/components/ui/CustomTable";
+import Confirm from "@/components/ui/Confirm";
 
 interface Branch {
   id: number;
@@ -40,7 +55,7 @@ interface Branch {
   created_at: string;
 }
 
-const columns = [
+const columns: Column[] = [
   { name: "BRANCH NAME", uid: "name", sortable: true },
   { name: "DESCRIPTION", uid: "description" },
   { name: "PHONE", uid: "phone", sortable: true },
@@ -48,27 +63,50 @@ const columns = [
   { name: "ACTIONS", uid: "actions" },
 ];
 
+const INITIAL_VISIBLE_COLUMNS = ["name", "phone", "address", "actions"];
+
+function capitalize(s: string) {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
+}
+
 export default function BranchesPage() {
-  const { vendor, currentRole, isLoading: contextLoading } = useVendor();
+  const { vendor, isLoading: contextLoading } = useVendor();
+  // table states
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
-  const [perPage, setPerPage] = useState(15);
-  const [searchValue, setSearchValue] = useState("");
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
+  const [perPage, setPerPage] = useState(10);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "created_at",
     direction: "descending",
   });
+  const [visibleColumns, setVisibleColumns] = useState<Selection>(
+    new Set(INITIAL_VISIBLE_COLUMNS)
+  );
 
+  // end table states
+  // modal states
+  const [searchValue, setSearchValue] = useState("");
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
+  // end modal states
+  // delete confirm states
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
+  const [deleteConfirmProp, setDeleteConfirmProp] = useState<number | string>(
+    ""
+  );
+  // end delete confirm states
   useEffect(() => {
     if (vendor?.id) {
       fetchBranches(1);
     }
   }, [vendor?.id, perPage, sortDescriptor]);
-
+  useEffect(() => {
+    if (vendor?.id) {
+      fetchBranches(currentPage);
+    }
+  }, [currentPage]);
   useEffect(() => {
     if (vendor?.id) {
       const delayDebounceFn = setTimeout(() => {
@@ -86,9 +124,16 @@ export default function BranchesPage() {
       const sortDirection =
         sortDescriptor.direction === "ascending" ? "asc" : "desc";
 
-      const response = await api.get(
-        `/branches?page=${page}&per_page=${perPage}&vendor_id=${vendor?.id}&search=${searchValue}&sort_by=${sortBy}&sort_direction=${sortDirection}`
-      );
+      const response = await api.get(`/branches`, {
+        params: {
+          page,
+          per_page: perPage,
+          vendor_id: vendor?.id,
+          search: searchValue,
+          sort_by: sortBy,
+          sort_direction: sortDirection,
+        },
+      });
 
       // @ts-ignore
       setBranches(response?.data?.data);
@@ -104,21 +149,16 @@ export default function BranchesPage() {
   };
 
   const handleDelete = async (branchId: number) => {
-    if (
-      !confirm(
-        "Are you sure you want to delete this branch? This action cannot be undone."
-      )
-    )
-      return;
-
     try {
-      await api.delete(`/branches/${branchId}`);
+      await api.delete(`/branches/${branchId}?vendor_id=${vendor?.id}`);
       toast.success("Branch deleted successfully");
       fetchBranches(currentPage);
     } catch (error: any) {
       // console.error("Failed to delete branch:", error);
       toast.error(error.response?.data?.message || "Failed to delete branch");
     }
+    setDeleteConfirmOpen(false);
+    setDeleteConfirmProp("");
   };
 
   const handleEdit = (branch: Branch) => {
@@ -151,20 +191,12 @@ export default function BranchesPage() {
     setCurrentPage(1);
   }, []);
 
-  const onRowsPerPageChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      setPerPage(Number(e.target.value));
-      setCurrentPage(1);
-    },
-    []
-  );
-
   const renderCell = useCallback((branch: Branch, columnKey: React.Key) => {
     const cellValue = branch[columnKey as keyof Branch];
 
     switch (columnKey) {
       case "name":
-        return <span className="font-medium text-small">{branch.name}</span>;
+        return <span className="">{branch.name}</span>;
       case "description":
         return (
           <span className="text-small text-default-500">
@@ -199,10 +231,14 @@ export default function BranchesPage() {
             >
               <Edit className="w-4 h-4" />
             </button>
+
             <button
               className="text-lg text-danger cursor-pointer active:opacity-50"
               title="Delete"
-              onClick={() => handleDelete(branch.id)}
+              onClick={() => {
+                setDeleteConfirmOpen(true);
+                setDeleteConfirmProp(branch.id);
+              }}
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -212,77 +248,6 @@ export default function BranchesPage() {
         return cellValue;
     }
   }, []);
-
-  const topContent = useMemo(() => {
-    return (
-      <div className="flex flex-col gap-4">
-        <div className="flex justify-between gap-3 items-end">
-          <Input
-            isClearable
-            className="w-full sm:max-w-[44%]"
-            placeholder="Search branches..."
-            startContent={<SearchIcon />}
-            value={searchValue}
-            onClear={onClear}
-            onValueChange={onSearchChange}
-          />
-          <Button color="primary" onPress={handleCreate}>
-            Add New Branch
-          </Button>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">
-            Total {branches.length} branches
-          </span>
-          <div className="flex items-center gap-2">
-            <span className="text-default-400 text-small">Rows per page:</span>
-            <Select
-              size="sm"
-              className="w-20"
-              selectedKeys={[String(perPage)]}
-              onChange={(e) => onRowsPerPageChange(e as any)}
-            >
-              <SelectItem key="10" value="10">
-                10
-              </SelectItem>
-              <SelectItem key="15" value="15">
-                15
-              </SelectItem>
-              <SelectItem key="20" value="20">
-                20
-              </SelectItem>
-              <SelectItem key="50" value="50">
-                50
-              </SelectItem>
-            </Select>
-          </div>
-        </div>
-      </div>
-    );
-  }, [
-    searchValue,
-    onSearchChange,
-    branches.length,
-    perPage,
-    onRowsPerPageChange,
-  ]);
-
-  const bottomContent = useMemo(() => {
-    return (
-      <div className="py-2 px-2 flex justify-center items-center">
-        <Pagination
-          isCompact
-          showControls
-          showShadow
-          color="primary"
-          className="overflow-hidden"
-          page={currentPage}
-          total={lastPage}
-          onChange={(page) => fetchBranches(page)}
-        />
-      </div>
-    );
-  }, [currentPage, lastPage]);
 
   if (contextLoading) return <div>Loading...</div>;
 
@@ -297,45 +262,65 @@ export default function BranchesPage() {
             Manage your shop locations
           </p>
         </div>
-
-        <Table
-          isHeaderSticky
-          isStriped
-          aria-label="Branches table with sorting"
-          classNames={{
-            wrapper: "min-h-[222px]",
-          }}
-          sortDescriptor={sortDescriptor}
-          topContent={topContent}
-          bottomContent={bottomContent}
-          topContentPlacement="inside"
-          bottomContentPlacement="inside"
-          onSortChange={setSortDescriptor}
-        >
-          <TableHeader columns={columns}>
-            {(column) => (
-              <TableColumn
-                key={column.uid}
-                align={column.uid === "actions" ? "center" : "start"}
-                allowsSorting={column.sortable}
+        <div className="flex justify-between gap-3 items-end">
+          <Input
+            isClearable
+            classNames={{
+              base: "w-full sm:max-w-[44%]",
+            }}
+            radius="sm"
+            placeholder="Search branches..."
+            startContent={<SearchIcon className="text-default-500" />}
+            value={searchValue}
+            variant="bordered"
+            onClear={onClear}
+            onValueChange={onSearchChange}
+          />
+          <div className="flex gap-3">
+            <Dropdown radius="sm">
+              <DropdownTrigger className="flex">
+                <Button
+                  endContent={<ChevronDown className="text-small" />}
+                  variant="flat"
+                >
+                  Columns
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection
+                aria-label="Table Columns"
+                closeOnSelect={false}
+                selectedKeys={visibleColumns}
+                selectionMode="multiple"
+                onSelectionChange={setVisibleColumns}
               >
-                {column.name}
-              </TableColumn>
-            )}
-          </TableHeader>
-          <TableBody
-            emptyContent={loading ? "Loading..." : "No branches found."}
-            items={branches}
-          >
-            {(item) => (
-              <TableRow key={item.id}>
-                {(columnKey) => (
-                  <TableCell>{renderCell(item, columnKey)}</TableCell>
-                )}
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+                {columns.map((column) => (
+                  <DropdownItem key={column.uid} className="capitalize">
+                    {capitalize(column.name)}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+            <Button color="primary" radius="sm" onPress={handleCreate}>
+              Add New Branch
+            </Button>
+          </div>
+        </div>
+
+        <CustomTable
+          items={branches}
+          isLoading={loading}
+          lastPage={lastPage}
+          perPage={perPage}
+          setPerPage={setPerPage}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          sortDescriptor={sortDescriptor}
+          setSortDescriptor={setSortDescriptor}
+          columns={columns}
+          renderCell={renderCell}
+          visibleColumns={visibleColumns}
+        />
 
         <Modal
           className="bg-white dark:bg-gray-800"
@@ -361,6 +346,12 @@ export default function BranchesPage() {
             )}
           </ModalContent>
         </Modal>
+        <Confirm
+          isOpen={deleteConfirmOpen}
+          onOpenChange={setDeleteConfirmOpen}
+          onConfirm={(id) => handleDelete(id as number)}
+          onConfirmProp={deleteConfirmProp}
+        />
       </div>
     </PermissionGuard>
   );
