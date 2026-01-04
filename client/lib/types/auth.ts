@@ -48,7 +48,9 @@ export interface Role {
   created_at: string;
   updated_at: string;
   created_by: number;
+  created_by_name?: string;
   updated_by: number;
+  updated_by_name?: string;
 }
 
 export interface Vendor {

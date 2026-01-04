@@ -60,10 +60,9 @@ export default function BranchForm({
       } else {
         router.refresh();
       }
-    } catch (error: any) {
-    } 
+    } catch (error: any) {}
   };
-  console.log(errors);
+
   return (
     <form className="space-y-6 w-full" onSubmit={handleSubmit(onSubmit)}>
       <div className="space-y-4">

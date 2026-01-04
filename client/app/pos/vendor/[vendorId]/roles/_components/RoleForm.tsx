@@ -6,73 +6,26 @@ import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useState } from "react";
+import {
+  Input,
+  Button,
+  Checkbox,
+  Card,
+  CardHeader,
+  CardBody,
+  Divider,
+} from "@heroui/react";
 
-import { Role } from "@/lib/types/auth";
 import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
 
-// 1. Zod Schema
-const permissionSchema = z.boolean().default(false);
-
-const roleFormSchema = z.object({
-  name: z
-    .string()
-    .min(2, { message: "Role name must be at least 2 characters." }),
-  vendor_id: z.number().optional(),
-  // Permissions
-  // Dashboard & Reports
-  can_view_dashboard: permissionSchema.optional(),
-  can_view_reports: permissionSchema.optional(),
-  can_view_profit_loss_data: permissionSchema.optional(),
-  can_export_data: permissionSchema.optional(),
-  can_view_user_activity_log: permissionSchema.optional(),
-  // POS & Sales
-  can_use_pos: permissionSchema.optional(),
-  can_view_sales_history: permissionSchema.optional(),
-  can_process_returns: permissionSchema.optional(),
-  can_open_close_cash_register: permissionSchema.optional(),
-  can_perform_cash_transactions: permissionSchema.optional(),
-  can_override_prices: permissionSchema.optional(),
-  can_apply_manual_discounts: permissionSchema.optional(),
-  can_void_sales: permissionSchema.optional(),
-  can_issue_cash_refunds: permissionSchema.optional(),
-  can_issue_store_credit: permissionSchema.optional(),
-  // Catalog & Inventory
-  can_view_products: permissionSchema.optional(),
-  can_manage_products: permissionSchema.optional(),
-  can_manage_categories: permissionSchema.optional(),
-  can_manage_units_of_measure: permissionSchema.optional(),
-  can_import_products: permissionSchema.optional(),
-  can_export_products: permissionSchema.optional(),
-  can_view_inventory_levels: permissionSchema.optional(),
-  can_perform_stock_adjustments: permissionSchema.optional(),
-  can_manage_stock_transfers: permissionSchema.optional(),
-  can_manage_purchase_orders: permissionSchema.optional(),
-  can_receive_purchase_orders: permissionSchema.optional(),
-  can_manage_suppliers: permissionSchema.optional(),
-  // Customers & Promos
-  can_view_customers: permissionSchema.optional(),
-  can_manage_customers: permissionSchema.optional(),
-  can_view_promotions: permissionSchema.optional(),
-  can_manage_promotions: permissionSchema.optional(),
-  // Settings & Admin
-  can_manage_shop_settings: permissionSchema.optional(),
-  can_manage_billing_and_plan: permissionSchema.optional(),
-  can_manage_branches_and_counters: permissionSchema.optional(),
-  can_manage_payment_methods: permissionSchema.optional(),
-  can_configure_taxes: permissionSchema.optional(),
-  can_customize_receipts: permissionSchema.optional(),
-  can_manage_staff: permissionSchema.optional(),
-  can_manage_roles_and_permissions: permissionSchema.optional(),
-  can_view_roles: permissionSchema.optional(),
-  can_manage_expenses: permissionSchema.optional(),
-});
-
-type RoleFormValues = z.infer<typeof roleFormSchema>;
+import { Role } from "@/lib/types/auth";
 
 interface RoleFormProps {
-  initialData?: Partial<Role>;
+  initialData?: Role;
   isEditing?: boolean;
+  onSuccess?: () => void;
+  onCancel?: () => void;
   readOnly?: boolean;
 }
 
@@ -141,14 +94,21 @@ const formatPermissionLabel = (key: string) => {
 export default function RoleForm({
   initialData,
   isEditing = false,
+  onSuccess,
+  onCancel,
   readOnly = false,
 }: RoleFormProps) {
   const { vendor } = useVendor();
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<RoleFormValues>({
-    resolver: zodResolver(roleFormSchema),
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setValue,
+    watch,
+  } = useForm<RoleFormData>({
+    resolver: zodResolver(roleSchema),
     defaultValues: {
       name: initialData?.name || "",
       vendor_id: vendor?.id,
@@ -157,16 +117,20 @@ export default function RoleForm({
           (perm) => {
             // @ts-ignore
             acc[perm] = initialData?.[perm] || false;
-          },
+          }
         );
-
         return acc;
       }, {} as any),
     },
   });
 
-  const onSubmit = async (data: RoleFormValues) => {
-    setIsSubmitting(true);
+  const toggleGroup = (groupPermissions: string[], value: boolean) => {
+    groupPermissions.forEach((perm) => {
+      setValue(perm as any, value, { shouldDirty: true });
+    });
+  };
+
+  const onSubmit = async (data: RoleFormData) => {
     try {
       if (isEditing && initialData?.id) {
         await api.put(`/roles/${initialData.id}`, data);
@@ -175,134 +139,168 @@ export default function RoleForm({
         await api.post("/roles", data);
         toast.success("Role created successfully");
       }
-      router.push(`/pos/vendor/${vendor?.id}/roles`);
-      router.refresh();
-    } catch (error: any) {
-      // console.error(error);
-      const message = error.response?.data?.message || "Something went wrong";
 
-      toast.error(message);
-
-      // Handle backend validation errors
-      if (error.response?.data?.errors) {
-        const errors = error.response.data.errors;
-
-        Object.keys(errors).forEach((key) => {
-          form.setError(key as any, {
-            type: "server",
-            message: errors[key][0],
-          });
-        });
+      if (onSuccess) {
+        onSuccess();
+        router.push(`/pos/vendor/${vendor?.id}/roles`);
+      } else {
+        router.push(`/pos/vendor/${vendor?.id}/roles`);
       }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const toggleGroup = (groupPermissions: string[], value: boolean) => {
-    groupPermissions.forEach((perm) => {
-      form.setValue(perm as any, value, { shouldDirty: true });
-    });
+    } catch (error: any) {}
   };
 
   return (
-    <form className="space-y-8 w-full" onSubmit={form.handleSubmit(onSubmit)}>
-      <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-sm border border-gray-200 dark:border-gray-700 w-full">
-        <label
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-          htmlFor="name"
-        >
-          Role Name
-        </label>
-        <input
-          id="name"
-          {...form.register("name")}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded bg-transparent dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={readOnly}
+    <form className="space-y-6 w-full" onSubmit={handleSubmit(onSubmit)}>
+      <div className="space-y-6">
+        <Input
+          id="role-name"
+          isRequired
+          label="Role Name"
           placeholder="e.g., Store Manager"
+          variant="bordered"
+          {...register("name")}
+          errorMessage={errors.name?.message}
+          isInvalid={!!errors.name}
+          isReadOnly={readOnly}
+          isDisabled={readOnly}
         />
-        {form.formState.errors.name && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-            {form.formState.errors.name.message}
-          </p>
-        )}
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-        {Object.entries(PERMISSION_GROUPS).map(([groupName, permissions]) => {
-          // Watch permissions for "Select All" state
-          const groupValues = form.watch(permissions as any);
-          const allChecked = groupValues.every((v: boolean) => v);
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Object.entries(PERMISSION_GROUPS).map(([groupName, permissions]) => {
+            const groupValues = watch(permissions as any);
+            const allChecked = groupValues?.every((v: boolean) => v) ?? false;
 
-          return (
-            <div
-              key={groupName}
-              className="bg-white dark:bg-gray-800 p-6 rounded shadow-sm border border-gray-200 dark:border-gray-700"
-            >
-              <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
-                <h3 className="font-semibold text-gray-900 dark:text-white">
-                  {groupName}
-                </h3>
-                {!readOnly && (
-                  <button
-                    className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-                    type="button"
-                    onClick={() => toggleGroup(permissions, !allChecked)}
-                  >
-                    {allChecked ? "Unselect All" : "Select All"}
-                  </button>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                {permissions.map((perm) => (
-                  <label
-                    key={perm}
-                    className={`flex items-start gap-3 group ${readOnly ? "cursor-not-allowed" : "cursor-pointer"}`}
-                  >
-                    <div className="relative flex items-center mt-0.5">
-                      <input
-                        type="checkbox"
-                        {...form.register(perm as any)}
-                        className="h-4 w-4 rounded-sm border-gray-300 text-blue-600 focus:ring-blue-600 dark:border-gray-600 dark:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={readOnly}
-                      />
-                    </div>
-                    <span className="text-sm text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
+            return (
+              <Card
+                key={groupName}
+                className="shadow-sm border border-default-200 dark:bg-slate-900"
+              >
+                <CardHeader className="flex justify-between items-center px-4 py-3 bg-default-50 dark:bg-slate-950">
+                  <span className="font-semibold text-small">{groupName}</span>
+                  {!readOnly && (
+                    <Button
+                      size="sm"
+                      variant="light"
+                      color="primary"
+                      className="h-auto min-w-0 px-2 py-1 text-tiny"
+                      onPress={() => toggleGroup(permissions, !allChecked)}
+                    >
+                      {allChecked ? "Unselect All" : "Select All"}
+                    </Button>
+                  )}
+                </CardHeader>
+                <Divider />
+                <CardBody className="gap-3 px-4 py-3">
+                  {permissions.map((perm) => (
+                    <Checkbox
+                      key={perm}
+                      classNames={{ label: "text-small" }}
+                      isSelected={watch(perm as any)}
+                      onValueChange={(value) =>
+                        setValue(perm as any, value, { shouldDirty: true })
+                      }
+                      isDisabled={readOnly}
+                    >
                       {formatPermissionLabel(perm)}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          );
-        })}
+                    </Checkbox>
+                  ))}
+                </CardBody>
+              </Card>
+            );
+          })}
+        </div>
       </div>
 
-      <div className="flex justify-end gap-4 py-4 w-full">
-        {!readOnly && (
-          <button
-            className="px-6 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-            type="button"
-            onClick={() => router.back()}
-          >
+      <div className="flex justify-end gap-3 pt-4">
+        {/* {!readOnly && (
+          <Button color="default" variant="flat" onPress={onCancel}>
             Cancel
-          </button>
-        )}
+          </Button>
+        )} */}
         {!readOnly && (
-          <button
-            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
-            disabled={isSubmitting}
-            type="submit"
+          <Button color="primary" isLoading={isSubmitting} type="submit">
+            {isEditing ? "Update Role" : "Create Role"}
+          </Button>
+        )}
+        {readOnly && (
+          <Button
+            color="default"
+            variant="flat"
+            onPress={onCancel || (() => router.back())}
           >
-            {isSubmitting
-              ? "Saving..."
-              : isEditing
-                ? "Update Role"
-                : "Create Role"}
-          </button>
+            Go Back
+          </Button>
         )}
       </div>
     </form>
   );
 }
+
+// Role validation schema
+export const roleSchema = z.object({
+  vendor_id: z.number().optional(),
+  name: z
+    .string()
+    .min(1, "Role name is required")
+    .min(2, "Role name must be at least 2 characters")
+    .max(100, "Role name must be less than 100 characters")
+    .regex(/^[a-zA-Z0-9\s\-_&.]+$/, "Role name contains invalid characters"),
+
+  // Permissions
+  // Dashboard & Reports
+  can_view_dashboard: z.boolean().default(false),
+  can_view_reports: z.boolean().default(false),
+  can_view_profit_loss_data: z.boolean().default(false),
+  can_export_data: z.boolean().default(false),
+  can_view_user_activity_log: z.boolean().default(false),
+
+  // POS & Sales
+  can_use_pos: z.boolean().default(false),
+  can_view_sales_history: z.boolean().default(false),
+  can_process_returns: z.boolean().default(false),
+  can_open_close_cash_register: z.boolean().default(false),
+  can_perform_cash_transactions: z.boolean().default(false),
+  can_override_prices: z.boolean().default(false),
+  can_apply_manual_discounts: z.boolean().default(false),
+  can_void_sales: z.boolean().default(false),
+  can_issue_cash_refunds: z.boolean().default(false),
+  can_issue_store_credit: z.boolean().default(false),
+
+  // Catalog & Inventory
+  can_view_products: z.boolean().default(false),
+  can_manage_products: z.boolean().default(false),
+  can_manage_categories: z.boolean().default(false),
+  can_manage_units_of_measure: z.boolean().default(false),
+  can_import_products: z.boolean().default(false),
+  can_export_products: z.boolean().default(false),
+  can_view_inventory_levels: z.boolean().default(false),
+  can_perform_stock_adjustments: z.boolean().default(false),
+  can_manage_stock_transfers: z.boolean().default(false),
+  can_manage_purchase_orders: z.boolean().default(false),
+  can_receive_purchase_orders: z.boolean().default(false),
+  can_manage_suppliers: z.boolean().default(false),
+
+  // Customers & Promos
+  can_view_customers: z.boolean().default(false),
+  can_manage_customers: z.boolean().default(false),
+  can_view_promotions: z.boolean().default(false),
+  can_manage_promotions: z.boolean().default(false),
+
+  // Settings & Admin
+  can_manage_shop_settings: z.boolean().default(false),
+  can_manage_billing_and_plan: z.boolean().default(false),
+  can_manage_branches_and_counters: z.boolean().default(false),
+  can_manage_payment_methods: z.boolean().default(false),
+  can_configure_taxes: z.boolean().default(false),
+  can_customize_receipts: z.boolean().default(false),
+  can_manage_staff: z.boolean().default(false),
+  can_manage_roles_and_permissions: z.boolean().default(false),
+  can_view_roles: z.boolean().default(false),
+  can_manage_expenses: z.boolean().default(false),
+});
+
+export type RoleFormData = z.infer<typeof roleSchema>;
+
+export const roleUpdateSchema = roleSchema.partial();
+
+export type RoleUpdateFormData = z.infer<typeof roleUpdateSchema>;
