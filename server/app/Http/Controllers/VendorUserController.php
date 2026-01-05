@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Membership;
+use App\Models\UserBranchAssignment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -37,7 +38,7 @@ class VendorUserController extends Controller
             })
             ->with([
                 'memberships' => function ($q) use ($vendorId) {
-                    $q->where('vendor_id', $vendorId)->with('role');
+                    $q->where('vendor_id', $vendorId)->with(['role', 'userBranchAssignments.branch']);
                 }
             ]);
 
@@ -53,7 +54,6 @@ class VendorUserController extends Controller
         if (in_array($sortBy, ['firstName', 'lastName', 'email', 'created_at'])) {
             $query->orderBy($sortBy, $sortDirection);
         } else if ($sortBy === 'role') {
-            // Sort by role name needs a join or subquery, keeping it simple for now or implementing if needed
             $query->select('users.*')
                 ->join('memberships', 'users.id', '=', 'memberships.user_id')
                 ->join('roles', 'memberships.role_id', '=', 'roles.id')
@@ -63,12 +63,15 @@ class VendorUserController extends Controller
 
         $users = $query->paginate($perPage);
 
-        // Transform collection to include the specific role for this vendor context
+        // Transform collection to include the specific role and branches for this vendor context
         $users->getCollection()->transform(function ($user) {
             $membership = $user->memberships->first();
             $user->role = $membership ? $membership->role : null;
             $user->joined_at = $membership ? $membership->created_at : null;
             $user->membership_id = $membership ? $membership->id : null;
+            $user->branches = $membership ? $membership->userBranchAssignments->map(function ($assignment) {
+                return $assignment->branch;
+            }) : [];
             unset($user->memberships);
             return $user;
         });
@@ -85,14 +88,15 @@ class VendorUserController extends Controller
             'vendor_id' => 'required|exists:vendors,id',
             'firstName' => 'required|string|max:255',
             'lastName' => 'required|string|max:255',
-            'email' => 'required|email', // Removed unique:users check to allow inviting existing users logic if desired later, but for now let's assume new users or handle gracefully
-            'password' => 'required|string|min:8', // Password required for new user creation
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
             'role_id' => 'required|exists:roles,id',
             'mobile' => 'nullable|string|max:20',
+            'branches' => 'nullable|array',
+            'branches.*' => 'exists:branches,id',
         ]);
 
         return DB::transaction(function () use ($request) {
-            // Check if user exists
             $user = User::where('email', $request->email)->first();
 
             if (!$user) {
@@ -104,7 +108,6 @@ class VendorUserController extends Controller
                     'password' => Hash::make($request->password),
                 ]);
             } else {
-                // If user exists, ensure they are not already a member of this vendor
                 $exists = Membership::where('user_id', $user->id)
                     ->where('vendor_id', $request->vendor_id)
                     ->exists();
@@ -118,14 +121,28 @@ class VendorUserController extends Controller
                 'user_id' => $user->id,
                 'vendor_id' => $request->vendor_id,
                 'role_id' => $request->role_id,
+                'created_by' => $request->user()->id,
+                'updated_by' => $request->user()->id,
             ]);
 
-            // Load the role relation for response
-            $membership->load('role');
+            // Assign branches
+            if ($request->has('branches')) {
+                foreach ($request->branches as $branchId) {
+                    UserBranchAssignment::create([
+                        'membership_id' => $membership->id,
+                        'branch_id' => $branchId,
+                        'created_by' => $request->user()->id,
+                        'updated_by' => $request->user()->id,
+                    ]);
+                }
+            }
+
+            $membership->load(['role', 'userBranchAssignments.branch']);
 
             $user->role = $membership->role;
             $user->membership_id = $membership->id;
             $user->joined_at = $membership->created_at;
+            $user->branches = $membership->userBranchAssignments->map(fn($assign) => $assign->branch);
 
             return response()->json($user, 201);
         });
@@ -146,16 +163,18 @@ class VendorUserController extends Controller
             })
             ->with([
                 'memberships' => function ($q) use ($request) {
-                    $q->where('vendor_id', $request->vendor_id)->with('role');
+                    $q->where('vendor_id', $request->vendor_id)->with(['role', 'userBranchAssignments.branch']);
                 }
             ])
             ->firstOrFail();
 
         $membership = $user->memberships->first();
         $user->role = $membership ? $membership->role : null;
-        $user->role_id = $membership ? $membership->role_id : null; // Convenience for frontend form
+        $user->role_id = $membership ? $membership->role_id : null;
         $user->joined_at = $membership ? $membership->created_at : null;
         $user->membership_id = $membership ? $membership->id : null;
+        $user->branches = $membership ? $membership->userBranchAssignments->map(fn($assign) => $assign->branch) : [];
+        $user->branch_ids = $membership ? $membership->userBranchAssignments->pluck('branch_id') : [];
         unset($user->memberships);
 
         return response()->json($user);
@@ -172,33 +191,50 @@ class VendorUserController extends Controller
             'lastName' => 'required|string|max:255',
             'role_id' => 'required|exists:roles,id',
             'mobile' => 'nullable|string|max:20',
-            // Password update is usually handled separately or optionally here
+            'branches' => 'nullable|array',
+            'branches.*' => 'exists:branches,id',
         ]);
 
         return DB::transaction(function () use ($request, $id) {
             $user = User::findOrFail($id);
 
-            // Update User details (globally) - caution: this changes the user's name for all vendors they might be part of. 
-            // For a POSSAAS, typically this is desired or user manages their own profile. 
-            // Here assuming admin can update user profile.
             $user->update([
                 'firstName' => $request->firstName,
                 'lastName' => $request->lastName,
                 'mobile' => $request->mobile,
             ]);
 
-            // Update Membership (Role)
             $membership = Membership::where('user_id', $id)
                 ->where('vendor_id', $request->vendor_id)
                 ->firstOrFail();
 
-            if ($membership->role_id !== $request->role_id) {
-                $membership->update(['role_id' => $request->role_id]);
+            if ((int) $membership->role_id !== (int) $request->role_id) {
+                $membership->update([
+                    'role_id' => $request->role_id,
+                    'updated_by' => $request->user()->id
+                ]);
             }
 
-            $membership->load('role');
+            // Sync Branches
+            // Remove existing assignments for this membership
+            UserBranchAssignment::where('membership_id', $membership->id)->delete();
+
+            // Add new assignments
+            if ($request->has('branches')) {
+                foreach ($request->branches as $branchId) {
+                    UserBranchAssignment::create([
+                        'membership_id' => $membership->id,
+                        'branch_id' => $branchId,
+                        'created_by' => $request->user()->id,
+                        'updated_by' => $request->user()->id,
+                    ]);
+                }
+            }
+
+            $membership->load(['role', 'userBranchAssignments.branch']);
             $user->role = $membership->role;
             $user->role_id = $membership->role_id;
+            $user->branches = $membership->userBranchAssignments->map(fn($assign) => $assign->branch);
 
             return response()->json($user);
         });
@@ -218,6 +254,7 @@ class VendorUserController extends Controller
             ->firstOrFail();
 
         $membership->delete();
+        UserBranchAssignment::where('membership_id', $membership->id)->delete();
 
         return response()->json(['message' => 'User removed from vendor successfully.']);
     }

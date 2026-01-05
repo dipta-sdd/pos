@@ -29,14 +29,16 @@ export default function UserForm({
   const { vendor } = useVendor();
   const router = useRouter();
   const [roles, setRoles] = useState<any[]>([]);
+  const [branches, setBranches] = useState<any[]>([]);
 
   const userSchema = z.object({
-    vendor_id: z.number().optional(),
+    vendor_id: z.number(),
     firstName: z.string().min(1, "First name is required"),
     lastName: z.string().min(1, "Last name is required"),
     email: z.string().email("Invalid email address"),
     mobile: z.string().optional(),
     role_id: z.number(),
+    branches: z.array(z.number()),
     // Password is required only for creating a new user
     password: isEditing
       ? z.string().optional()
@@ -51,6 +53,7 @@ export default function UserForm({
     formState: { errors, isSubmitting },
     setValue,
     watch,
+    setError,
   } = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
     defaultValues: {
@@ -59,6 +62,9 @@ export default function UserForm({
       email: initialData?.email || "",
       mobile: initialData?.mobile || "",
       role_id: initialData?.role_id ? Number(initialData.role_id) : undefined,
+      branches: initialData?.branch_ids
+        ? initialData.branch_ids.map(Number)
+        : [],
       vendor_id: vendor?.id,
     },
   });
@@ -66,12 +72,18 @@ export default function UserForm({
   useEffect(() => {
     if (vendor?.id) {
       fetchRoles();
+      fetchBranches();
     }
   }, [vendor?.id]);
 
   useEffect(() => {
-    if (initialData && initialData.role_id) {
-      setValue("role_id", Number(initialData.role_id));
+    if (initialData) {
+      if (initialData.role_id) {
+        setValue("role_id", Number(initialData.role_id));
+      }
+      if (initialData.branch_ids) {
+        setValue("branches", initialData.branch_ids.map(Number));
+      }
     }
   }, [initialData, setValue]);
 
@@ -84,6 +96,18 @@ export default function UserForm({
       setRoles(response.data.data);
     } catch (error) {
       console.error("Failed to fetch roles", error);
+    }
+  };
+
+  const fetchBranches = async () => {
+    try {
+      const response = await api.get(
+        `/branches?vendor_id=${vendor?.id}&per_page=100`
+      );
+      // @ts-ignore
+      setBranches(response.data.data);
+    } catch (error) {
+      console.error("Failed to fetch branches", error);
     }
   };
 
@@ -106,6 +130,15 @@ export default function UserForm({
         router.push(`/pos/vendor/${vendor?.id}/users`);
       }
     } catch (error: any) {
+      if (error.response?.data?.errors) {
+        Object.entries(error.response?.data?.errors).forEach(([key, value]) => {
+          setError(key as keyof UserFormData, {
+            type: "manual",
+            // @ts-ignore
+            message: value[0],
+          });
+        });
+      }
       toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
@@ -174,24 +207,52 @@ export default function UserForm({
         />
       )}
 
-      {/* Role Selection */}
-      <Select
-        isRequired
-        label="Role"
-        placeholder="Select a role"
-        variant="bordered"
-        selectedKeys={watch("role_id") ? [String(watch("role_id"))] : []}
-        onChange={(e) => setValue("role_id", Number(e.target.value))}
-        errorMessage={errors.role_id?.message}
-        isInvalid={!!errors.role_id}
-        isDisabled={readOnly}
-      >
-        {roles.map((role) => (
-          <SelectItem key={role.id} textValue={role.name}>
-            {role.name}
-          </SelectItem>
-        ))}
-      </Select>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Role Selection */}
+        <Select
+          isRequired
+          label="Role"
+          placeholder="Select a role"
+          variant="bordered"
+          selectedKeys={watch("role_id") ? [String(watch("role_id"))] : []}
+          onChange={(e) => setValue("role_id", Number(e.target.value))}
+          errorMessage={errors.role_id?.message}
+          isInvalid={!!errors.role_id}
+          isDisabled={readOnly}
+        >
+          {roles.map((role) => (
+            <SelectItem key={role.id} textValue={role.name}>
+              {role.name}
+            </SelectItem>
+          ))}
+        </Select>
+
+        {/* Branch Selection */}
+        <Select
+          isRequired
+          label="Branches"
+          placeholder="Select branches"
+          variant="bordered"
+          selectionMode="multiple"
+          selectedKeys={watch("branches") ? watch("branches")?.map(String) : []}
+          onChange={(e) => {
+            const values = e.target.value
+              .split(",")
+              .filter((v) => v)
+              .map(Number);
+            setValue("branches", values);
+          }}
+          errorMessage={errors.branches?.message}
+          isInvalid={!!errors.branches}
+          isDisabled={readOnly}
+        >
+          {branches.map((branch) => (
+            <SelectItem key={branch.id} textValue={branch.name}>
+              {branch.name}
+            </SelectItem>
+          ))}
+        </Select>
+      </div>
 
       <div className="flex justify-end gap-3 pt-4">
         <Button

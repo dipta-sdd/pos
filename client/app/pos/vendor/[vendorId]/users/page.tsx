@@ -13,6 +13,14 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@heroui/dropdown";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+} from "@heroui/react";
 import { useRouter } from "next/navigation";
 
 import { SearchIcon } from "@/components/icons";
@@ -22,6 +30,7 @@ import PermissionGuard from "@/components/auth/PermissionGuard";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
 import Confirm from "@/components/ui/Confirm";
 import { formatDateTime } from "@/lib/helper/dates";
+import UserForm from "./_components/UserForm";
 
 interface VendorUser {
   id: number;
@@ -34,6 +43,9 @@ interface VendorUser {
     name: string;
   };
   joined_at: string;
+  branches?: any[];
+  branch_ids?: number[];
+  role_id?: number;
 }
 
 const columns: Column[] = [
@@ -75,6 +87,11 @@ export default function UsersPage() {
   );
 
   // modal states
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const [selectedUser, setSelectedUser] = useState<VendorUser | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+
+  // search states
   const [searchValue, setSearchValue] = useState("");
 
   // delete confirm states
@@ -146,6 +163,48 @@ export default function UsersPage() {
     }
   };
 
+  const handleCreate = () => {
+    setSelectedUser(null);
+    setIsEditing(false);
+    onOpen();
+  };
+
+  const handleEdit = (user: VendorUser) => {
+    // Transform user data to match format expected by UserForm if necessary
+    // UserForm expects standard fields + role_id + branch_ids
+    // The table fetch response seems to put branches in user.branches object array and role in user.role object
+    // We might need raw IDs for form initialData
+    // However, the backend show/index response might already be optimized or we might rely on UserForm re-fetching if we passed ID?
+    // UserForm accepts `initialData` which usually matches the form fields.
+    // Let's ensure `user` has `role_id` and `branch_ids` or UserForm handles it.
+    // Looking at VendorUserController index: it returns role object and branches object array.
+    // It also populates `role_id` and `branch_ids` (check backend implementation plan vs code).
+    // The controller index transformation does:
+    // $user->membership_id = ...
+    // $user->role = ...
+    // $user->branches = ...
+    // It MISSES `role_id` and `branch_ids` in index transformation?
+    // Let's quickly re-check controller code or assume we might need to fetch single user or augment here.
+    // Actually, getting full details for edit is safer. But for modal speed, we can assume.
+    // Let's pass the user object, and if UserForm needs more it might need adjustment or we map it here.
+
+    // Mapping for UserForm:
+    const mappedUser = {
+      ...user,
+      role_id: user.role?.id, // Extract role ID
+      branch_ids: user.branches?.map((b: any) => b.id) || [], // Extract branch IDs
+    };
+
+    setSelectedUser(mappedUser as VendorUser);
+    setIsEditing(true);
+    onOpen();
+  };
+
+  const handleFormSuccess = () => {
+    onClose();
+    fetchUsers(currentPage);
+  };
+
   const handleDelete = async (userId: number) => {
     try {
       await api.delete(`/users/${userId}?vendor_id=${vendor?.id}`);
@@ -212,9 +271,7 @@ export default function UsersPage() {
                 size="sm"
                 title="Edit"
                 variant="light"
-                onPress={() =>
-                  router.push(`/pos/vendor/${vendor?.id}/users/${user.id}`)
-                }
+                onPress={() => handleEdit(user)}
               >
                 <Edit className="w-4 h-4" />
               </Button>
@@ -297,7 +354,7 @@ export default function UsersPage() {
               color="primary"
               radius="sm"
               startContent={<Plus className="w-4 h-4" />}
-              onPress={() => router.push(`/pos/vendor/${vendor?.id}/users/new`)}
+              onPress={handleCreate}
             >
               Add New User
             </Button>
@@ -327,6 +384,33 @@ export default function UsersPage() {
           title="Remove User"
           message="Are you sure you want to remove this user from the vendor?"
         />
+
+        {/* Create/Edit User Modal */}
+        <Modal
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          placement="center"
+          size="2xl"
+        >
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex flex-col gap-1">
+                  {isEditing ? "Edit User" : "Add New User"}
+                </ModalHeader>
+                <ModalBody>
+                  <UserForm
+                    initialData={selectedUser}
+                    isEditing={isEditing}
+                    onSuccess={handleFormSuccess}
+                    onCancel={onClose}
+                  />
+                </ModalBody>
+                {/* Footer is handled inside UserForm (buttons) or we can use ModalFooter if we move buttons out, but UserForm has buttons. */}
+              </>
+            )}
+          </ModalContent>
+        </Modal>
       </div>
     </PermissionGuard>
   );
