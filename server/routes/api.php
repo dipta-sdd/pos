@@ -283,6 +283,17 @@ Route::middleware('log.api')->group(function () {
             Route::put('/{userBranchAssignment}', [UserBranchAssignmentController::class, 'update']);
             Route::delete('/{userBranchAssignment}', [UserBranchAssignmentController::class, 'destroy']);
         });
+
+        // Vendor User routes (protected) - explicitly using VendorUserController
+        // These routes are usually context-dependent on the vendor passed in query or body
+        // but typically 'users' endpoint suggests managing users under the current context
+        Route::prefix('users')->middleware('permission:can_manage_staff')->group(function () {
+            Route::get('/', [\App\Http\Controllers\VendorUserController::class, 'index']);
+            Route::post('/', [\App\Http\Controllers\VendorUserController::class, 'store']);
+            Route::get('/{user}', [\App\Http\Controllers\VendorUserController::class, 'show']);
+            Route::put('/{user}', [\App\Http\Controllers\VendorUserController::class, 'update']);
+            Route::delete('/{user}', [\App\Http\Controllers\VendorUserController::class, 'destroy']);
+        });
     });
 
     // Health check route (public)
