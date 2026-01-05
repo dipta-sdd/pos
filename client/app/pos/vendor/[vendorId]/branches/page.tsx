@@ -345,6 +345,7 @@ export default function BranchesPage() {
         </div>
 
         <CustomTable
+          ariaLabel="Branches Table"
           columns={columns}
           currentPage={currentPage}
           isLoading={loading}

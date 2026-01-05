@@ -74,18 +74,24 @@ export default function RolesPage() {
   );
 
   // end delete confirm states
+  const [initialLoad, setInitialLoad] = useState(true);
   useEffect(() => {
     if (vendor?.id) {
       fetchRoles(1);
     }
-  }, [vendor?.id, perPage, sortDescriptor]);
+  }, [vendor?.id]);
   useEffect(() => {
-    if (vendor?.id) {
+    if (vendor?.id && !initialLoad) {
+      fetchRoles(1);
+    }
+  }, [perPage, sortDescriptor]);
+  useEffect(() => {
+    if (vendor?.id && !initialLoad) {
       fetchRoles(currentPage);
     }
   }, [currentPage]);
   useEffect(() => {
-    if (vendor?.id) {
+    if (vendor?.id && !initialLoad) {
       const delayDebounceFn = setTimeout(() => {
         fetchRoles(1);
       }, 500);
@@ -280,6 +286,7 @@ export default function RolesPage() {
         </div>
 
         <CustomTable
+        ariaLabel="Roles Table"
           columns={columns}
           currentPage={currentPage}
           isLoading={loading}
