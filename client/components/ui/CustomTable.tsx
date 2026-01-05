@@ -56,7 +56,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
   const classNames = useMemo(
     () => ({
       base: "gap-2 my-2",
-      wrapper: ["p-2", "dark:bg-slate-900", "rounded-sm"],
+      wrapper: ["p-2", "rounded-sm"],
       th: [
         "bg-transparent",
         "text-default-500",
@@ -64,19 +64,16 @@ const CustomTable: React.FC<CustomTableProps> = ({
         "border-divider",
         "shadow-none",
       ],
-      td: [
-        "before:!rounded-none",
-        "dark:group-data-[odd=true]/tr:before:bg-slate-950",
-      ],
+      td: ["before:!rounded-none"],
       tr: ["!shadow-none"],
     }),
-    [],
+    []
   );
   const headerColumns = useMemo(() => {
     if (visibleColumns === "all") return columns;
 
     return columns.filter((column) =>
-      Array.from(visibleColumns).includes(column.uid),
+      Array.from(visibleColumns).includes(column.uid)
     );
   }, [visibleColumns]);
 
