@@ -116,7 +116,7 @@ export default function RoleForm({
           (perm) => {
             // @ts-ignore
             acc[perm] = initialData?.[perm] || false;
-          },
+          }
         );
 
         return acc;
@@ -174,9 +174,9 @@ export default function RoleForm({
             return (
               <Card
                 key={groupName}
-                className="shadow-sm border border-default-200 dark:bg-slate-900"
+                className="shadow-sm border border-default-200"
               >
-                <CardHeader className="flex justify-between items-center px-4 py-3 bg-default-50 dark:bg-slate-950">
+                <CardHeader className="flex justify-between items-center px-4 py-3 bg-default-50">
                   <span className="font-semibold text-small">{groupName}</span>
                   {!readOnly && (
                     <Button

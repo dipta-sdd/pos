@@ -361,7 +361,7 @@ export default function BranchesPage() {
         />
 
         <Modal
-          className="bg-white dark:bg-gray-800"
+          className=""
           isOpen={isOpen}
           size="2xl"
           onOpenChange={onOpenChange}
