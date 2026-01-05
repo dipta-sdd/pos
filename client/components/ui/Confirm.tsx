@@ -41,7 +41,7 @@ const Confirm = ({
 }: ConfirmProps) => {
   return (
     <>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size={size}>
+      <Modal isOpen={isOpen} size={size} onOpenChange={onOpenChange}>
         <ModalContent>
           <ModalHeader className="pb-0">
             <h2 className="text-lg font-medium">{title}</h2>
@@ -51,8 +51,8 @@ const Confirm = ({
           </ModalBody>
           <ModalFooter className="pt-0">
             <Button
-              size={size}
               color={color}
+              size={size}
               onPress={() => onConfirm(onConfirmProp)}
             >
               {confirmText}

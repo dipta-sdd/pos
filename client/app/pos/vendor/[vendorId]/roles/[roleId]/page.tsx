@@ -1,5 +1,5 @@
-'use client';
-import { useRouter, useParams } from "next/navigation";
+"use client";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import RoleForm from "../_components/RoleForm";
@@ -11,7 +11,6 @@ import { Role } from "@/lib/types/auth";
 
 export default function EditRolePage() {
   const { currentRole, isLoading: contextLoading } = useVendor();
-  const router = useRouter();
   const params = useParams();
   const [role, setRole] = useState<Role | null>(null);
   const [loading, setLoading] = useState(true);

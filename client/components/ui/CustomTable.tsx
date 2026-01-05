@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@heroui/table";
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 
 export interface Column {
   name: string;
@@ -70,13 +70,13 @@ const CustomTable: React.FC<CustomTableProps> = ({
       ],
       tr: ["!shadow-none"],
     }),
-    []
+    [],
   );
   const headerColumns = useMemo(() => {
     if (visibleColumns === "all") return columns;
 
     return columns.filter((column) =>
-      Array.from(visibleColumns).includes(column.uid)
+      Array.from(visibleColumns).includes(column.uid),
     );
   }, [visibleColumns]);
 
@@ -88,22 +88,26 @@ const CustomTable: React.FC<CustomTableProps> = ({
           className="overflow-hidden"
           color="primary"
           page={currentPage}
+          radius="sm"
           total={lastPage}
           variant="faded"
-          radius="sm"
           onChange={(page) => setCurrentPage(page)}
         />
-        <label className="flex items-center text-default-400 text-small gap-2">
+        <label
+          className="flex items-center text-default-400 text-small gap-2"
+          htmlFor="rows-per-page"
+        >
           <span className="text-nowrap">Rows per page:</span>
           <Select
-            size="sm"
             className="w-20"
             classNames={{
               value: "!text-gray-400",
             }}
-            variant="bordered"
+            id="rows-per-page"
             selectedKeys={[String(perPage)]}
+            size="sm"
             value={perPage}
+            variant="bordered"
             onChange={(e) => setPerPage(Number(e.target.value))}
           >
             <SelectItem key="10">10</SelectItem>
@@ -126,8 +130,8 @@ const CustomTable: React.FC<CustomTableProps> = ({
 
   return (
     <Table
-      isStriped
       isHeaderSticky
+      isStriped
       aria-label={ariaLabel}
       bottomContent={bottomContent}
       bottomContentPlacement="inside"
@@ -147,7 +151,13 @@ const CustomTable: React.FC<CustomTableProps> = ({
         )}
       </TableHeader>
       <TableBody
-        emptyContent={isLoading ? loadingState ? loadingState : defaultLoadingState : emptyState}
+        emptyContent={
+          isLoading
+            ? loadingState
+              ? loadingState
+              : defaultLoadingState
+            : emptyState
+        }
         items={items}
       >
         {(item) => (

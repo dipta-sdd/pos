@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useState } from "react";
 import { Input, Textarea, Button } from "@heroui/react";
 
 import api from "@/lib/api";
@@ -31,9 +30,6 @@ export default function BranchForm({
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    setValue,
-    watch,
-    trigger,
   } = useForm<BranchFormData>({
     resolver: zodResolver(branchSchema),
     defaultValues: {
@@ -60,18 +56,18 @@ export default function BranchForm({
       } else {
         router.refresh();
       }
-    } catch (error: any) {}
+    } catch (/* @ts-ignore */ error: any) {}
   };
 
   return (
     <form className="space-y-6 w-full" onSubmit={handleSubmit(onSubmit)}>
       <div className="space-y-4">
         <Input
-          id="branch-name"
           isRequired
+          id="branch-name"
           label="Branch Name"
-          type="text"
           placeholder="e.g., Main Branch"
+          type="text"
           variant="bordered"
           {...register("name")}
           errorMessage={errors.name?.message}

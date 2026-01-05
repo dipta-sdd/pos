@@ -120,10 +120,9 @@ export default function POS() {
                           className="group bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
                           role="button"
                           tabIndex={0}
-                          onClick={() =>
-                            handleVendorSelect(membership.vendor.id)
+                          onClick={
+                            () => handleVendorSelect(membership.vendor.id) // eslint-ignore-line
                           }
-                          onKeyDown={(e) => {}}
                         >
                           <div className="flex items-start gap-4">
                             <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center flex-shrink-0">

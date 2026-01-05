@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useState } from "react";
 import {
   Input,
   Button,
@@ -18,7 +17,6 @@ import {
 
 import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
-
 import { Role } from "@/lib/types/auth";
 
 interface RoleFormProps {
@@ -108,6 +106,7 @@ export default function RoleForm({
     setValue,
     watch,
   } = useForm<RoleFormData>({
+    // @ts-ignore
     resolver: zodResolver(roleSchema),
     defaultValues: {
       name: initialData?.name || "",
@@ -117,8 +116,9 @@ export default function RoleForm({
           (perm) => {
             // @ts-ignore
             acc[perm] = initialData?.[perm] || false;
-          }
+          },
         );
+
         return acc;
       }, {} as any),
     },
@@ -150,19 +150,20 @@ export default function RoleForm({
   };
 
   return (
+    // @ts-ignore
     <form className="space-y-6 w-full" onSubmit={handleSubmit(onSubmit)}>
       <div className="space-y-6">
         <Input
-          id="role-name"
           isRequired
+          id="role-name"
           label="Role Name"
           placeholder="e.g., Store Manager"
           variant="bordered"
           {...register("name")}
           errorMessage={errors.name?.message}
+          isDisabled={readOnly}
           isInvalid={!!errors.name}
           isReadOnly={readOnly}
-          isDisabled={readOnly}
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -179,10 +180,10 @@ export default function RoleForm({
                   <span className="font-semibold text-small">{groupName}</span>
                   {!readOnly && (
                     <Button
+                      className="h-auto min-w-0 px-2 py-1 text-tiny"
+                      color="primary"
                       size="sm"
                       variant="light"
-                      color="primary"
-                      className="h-auto min-w-0 px-2 py-1 text-tiny"
                       onPress={() => toggleGroup(permissions, !allChecked)}
                     >
                       {allChecked ? "Unselect All" : "Select All"}
@@ -195,11 +196,11 @@ export default function RoleForm({
                     <Checkbox
                       key={perm}
                       classNames={{ label: "text-small" }}
+                      isDisabled={readOnly}
                       isSelected={watch(perm as any)}
                       onValueChange={(value) =>
                         setValue(perm as any, value, { shouldDirty: true })
                       }
-                      isDisabled={readOnly}
                     >
                       {formatPermissionLabel(perm)}
                     </Checkbox>

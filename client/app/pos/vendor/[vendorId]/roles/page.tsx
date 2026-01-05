@@ -1,27 +1,10 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
-import {
-  type Selection,
-} from "@heroui/react";
-import {
-  Edit,
-  Trash2,
-  MapPin,
-  Phone,
-  ChevronDown,
-  User,
-  Calendar,
-} from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { type Selection } from "@heroui/react";
+import { Edit, Trash2, ChevronDown, User, Calendar } from "lucide-react";
 import { toast } from "sonner";
-
-import { SearchIcon } from "@/components/icons";
-import api from "@/lib/api";
-import { useVendor } from "@/lib/contexts/VendorContext";
-import PermissionGuard from "@/components/auth/PermissionGuard";
-import {
-  type SortDescriptor,
-} from "@heroui/table";
+import { type SortDescriptor } from "@heroui/table";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import {
@@ -30,11 +13,16 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@heroui/dropdown";
+import { useRouter } from "next/navigation";
+
+import { SearchIcon } from "@/components/icons";
+import api from "@/lib/api";
+import { useVendor } from "@/lib/contexts/VendorContext";
+import PermissionGuard from "@/components/auth/PermissionGuard";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
 import Confirm from "@/components/ui/Confirm";
 import { formatDateTime } from "@/lib/helper/dates";
 import { Role } from "@/lib/types/auth";
-import { useRouter } from "next/navigation";
 
 const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
@@ -72,7 +60,7 @@ export default function RolesPage() {
     direction: "descending",
   });
   const [visibleColumns, setVisibleColumns] = useState<Selection>(
-    new Set(INITIAL_VISIBLE_COLUMNS)
+    new Set(INITIAL_VISIBLE_COLUMNS),
   );
 
   // end table states
@@ -82,8 +70,9 @@ export default function RolesPage() {
   // delete confirm states
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
   const [deleteConfirmProp, setDeleteConfirmProp] = useState<number | string>(
-    ""
+    "",
   );
+
   // end delete confirm states
   useEffect(() => {
     if (vendor?.id) {
@@ -149,7 +138,6 @@ export default function RolesPage() {
     setDeleteConfirmProp("");
   };
 
-
   const onSearchChange = useCallback((value?: string) => {
     setSearchValue(value || "");
     setCurrentPage(1);
@@ -197,22 +185,24 @@ export default function RolesPage() {
         return (
           <div className="flex items-center justify-end gap-2">
             <Button
-              variant="light"
-              color="primary"
               className="min-w-none"
+              color="primary"
               size="sm"
               title="Edit"
-              onPress={() => router.push(`/pos/vendor/${vendor?.id}/roles/${role.id}`)}
+              variant="light"
+              onPress={() =>
+                router.push(`/pos/vendor/${vendor?.id}/roles/${role.id}`)
+              }
             >
               <Edit className="w-4 h-4" />
             </Button>
 
             <Button
-              variant="light"
-              color="danger"
               className="min-w-none"
+              color="danger"
               size="sm"
               title="Delete"
+              variant="light"
               onPress={() => {
                 setDeleteConfirmOpen(true);
                 setDeleteConfirmProp(role.id);
@@ -227,9 +217,8 @@ export default function RolesPage() {
     }
   }, []);
 
-  
-
   if (contextLoading) return <div>Loading...</div>;
+
   return (
     <PermissionGuard permission="can_manage_roles_and_permissions">
       <div className="p-6">
@@ -247,8 +236,8 @@ export default function RolesPage() {
             classNames={{
               base: "w-full sm:max-w-[44%]",
             }}
-            radius="sm"
             placeholder="Search roles..."
+            radius="sm"
             startContent={<SearchIcon className="text-default-500" />}
             value={searchValue}
             variant="bordered"
@@ -280,31 +269,35 @@ export default function RolesPage() {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button color="primary" radius="sm" onPress={() => router.push(`/pos/vendor/${vendor?.id}/roles/new`)}>
+            <Button
+              color="primary"
+              radius="sm"
+              onPress={() => router.push(`/pos/vendor/${vendor?.id}/roles/new`)}
+            >
               Add New Role
             </Button>
           </div>
         </div>
 
         <CustomTable
-          items={roles}
+          columns={columns}
+          currentPage={currentPage}
           isLoading={loading}
+          items={roles}
           lastPage={lastPage}
           perPage={perPage}
-          setPerPage={setPerPage}
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          sortDescriptor={sortDescriptor}
-          setSortDescriptor={setSortDescriptor}
-          columns={columns}
           renderCell={renderCell}
+          setCurrentPage={setCurrentPage}
+          setPerPage={setPerPage}
+          setSortDescriptor={setSortDescriptor}
+          sortDescriptor={sortDescriptor}
           visibleColumns={visibleColumns}
         />
         <Confirm
           isOpen={deleteConfirmOpen}
-          onOpenChange={setDeleteConfirmOpen}
           onConfirm={(id) => handleDelete(id as number)}
           onConfirmProp={deleteConfirmProp}
+          onOpenChange={setDeleteConfirmOpen}
         />
       </div>
     </PermissionGuard>
