@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('vendor_id')->constrained('vendors')->onDelete('cascade');
             $table->foreignId('from_branch_id')->constrained('branches')->onDelete('cascade');
             $table->foreignId('to_branch_id')->constrained('branches')->onDelete('cascade');
-            $table->enum('status', ['draft', 'pending_approval', 'in_transit', 'completed', 'cancelled'])->default('draft');
+            $table->enum('status', ['draft', 'pending_approval', 'in_transit', 'completed', 'cancelled', 'rejected', 'requested'])->default('draft');
             $table->text('notes')->nullable();
             $table->timestamps();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');

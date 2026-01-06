@@ -18,8 +18,9 @@ return new class extends Migration
             $table->foreignId('original_sale_id')->constrained('sales')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->text('reason');
-            $table->enum('refund_type', ['cash_back', 'store_credit']);
+            $table->enum('refund_type', ['cash_back', 'store_credit', "exchange"])->default('cash_back');
             $table->decimal('refund_amount', 10, 2);
+            $table->foreignId('exchange_sale_id')->nullable()->constrained('sales')->onDelete('cascade');
             $table->timestamps();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');

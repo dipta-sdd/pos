@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('purchase_order_payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('purchase_order_id')->constrained('purchase_orders')->onDelete('cascade');
+            $table->foreignId('cash_transaction_id')->nullable()->constrained('cash_transactions')->onDelete('cascade');
             $table->decimal('amount', 10, 2);
             $table->date('payment_date');
-            $table->string('payment_method');
             $table->text('notes')->nullable();
             $table->timestamps();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');

@@ -14,7 +14,6 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('return_id')->constrained('returns')->onDelete('cascade');
             $table->foreignId('sale_item_id')->constrained('sale_items')->onDelete('cascade');
-            $table->foreignId('variant_id')->nullable()->constrained('variants')->onDelete('cascade');
             $table->decimal('quantity', 10, 2);
             $table->timestamps();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');

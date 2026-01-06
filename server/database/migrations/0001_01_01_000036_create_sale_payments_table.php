@@ -14,8 +14,12 @@ return new class extends Migration
         Schema::create('sale_payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('sale_id')->constrained('sales')->onDelete('cascade');
+            $table->foreignId('cash_register_session_id')->constrained('cash_register_sessions')->onDelete('cascade');
             $table->foreignId('payment_method_id')->constrained('payment_methods')->onDelete('cascade');
             $table->decimal('amount', 10, 2);
+            //only for cash payment
+            $table->decimal('amount_received', 10, 2)->default(0);
+            $table->decimal('change', 10, 2)->default(0);
             $table->timestamps();
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
         });

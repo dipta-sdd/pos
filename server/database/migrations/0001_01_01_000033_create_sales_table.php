@@ -15,8 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('vendor_id')->constrained('vendors')->onDelete('cascade');
             $table->foreignId('branch_id')->constrained('branches')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('billing_counter_id')->constrained('billing_counters')->onDelete('cascade');
+            $table->foreignId('sales_person_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('cash_register_session_id')->constrained('cash_register_sessions')->onDelete('cascade');
             $table->foreignId('customer_id')->nullable()->constrained('customers')->onDelete('set null');
             $table->decimal('subtotal_amount', 10, 2);

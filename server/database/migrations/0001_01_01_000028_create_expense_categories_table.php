@@ -14,12 +14,13 @@ return new class extends Migration
         Schema::create('expense_categories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('vendor_id')->constrained('vendors')->onDelete('cascade');
+            $table->foreignId('parent_id')->nullable()->constrained('expense_categories')->onDelete('cascade');
             $table->string('name');
             $table->timestamps();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
             
-            $table->unique(['vendor_id', 'name']);
+            $table->unique(['vendor_id', 'parent_id', 'name']);
         });
     }
 

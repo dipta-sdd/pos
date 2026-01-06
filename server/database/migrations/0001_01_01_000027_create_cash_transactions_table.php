@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('cash_transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('cash_register_session_id')->constrained('cash_register_sessions')->onDelete('cascade');
+            $table->foreignId('payment_method_id')->constrained('payment_methods')->onDelete('cascade');
             $table->decimal('amount', 10, 2);
             $table->enum('type', ['sale_payment', 'refund', 'cash_in', 'cash_out', 'transfer_out_to_branch', 'transfer_in_from_branch']);
             $table->text('notes')->nullable();

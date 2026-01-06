@@ -13,9 +13,8 @@ return new class extends Migration {
         Schema::create('stock_transfer_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('stock_transfer_id')->constrained('stock_transfers')->onDelete('cascade');
-            $table->foreignId('branch_product_id')->constrained('branch_products')->onDelete('cascade');
             $table->foreignId('variant_id')->nullable()->constrained('variants')->onDelete('cascade');
-            $table->foreignId('from_inventory_batch_id')->constrained('inventory_batches')->onDelete('cascade');
+            $table->foreignId('product_stocks_id')->constrained('product_stocks')->onDelete('cascade');
             $table->decimal('quantity', 10, 2);
             $table->timestamps();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
