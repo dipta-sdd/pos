@@ -14,8 +14,7 @@ class Sale extends Model
     protected $fillable = [
         'vendor_id',
         'branch_id',
-        'user_id',
-        'billing_counter_id',
+        'sales_person_id',
         'cash_register_session_id',
         'customer_id',
         'subtotal_amount',
@@ -47,14 +46,9 @@ class Sale extends Model
         return $this->belongsTo(Branch::class);
     }
 
-    public function user(): BelongsTo
+    public function salesPerson(): BelongsTo
     {
-        return $this->belongsTo(User::class);
-    }
-
-    public function billingCounter(): BelongsTo
-    {
-        return $this->belongsTo(BillingCounter::class);
+        return $this->belongsTo(User::class, 'sales_person_id');
     }
 
     public function cashRegisterSession(): BelongsTo
@@ -91,4 +85,4 @@ class Sale extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
-} 
+}

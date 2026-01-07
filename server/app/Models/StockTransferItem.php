@@ -40,8 +40,5 @@ class StockTransferItem extends Model
         return $this->belongsTo(Variant::class);
     }
 
-    public function fromInventoryBatch(): BelongsTo
-    {
-        return $this->belongsTo(InventoryBatch::class, 'from_inventory_batch_id');
-    }
+
 }

@@ -17,7 +17,7 @@ class SaleReturnFactory extends Factory
             'vendor_id' => Vendor::factory(),
             'branch_id' => Branch::factory(),
             'original_sale_id' => Sale::factory(),
-            'user_id' => User::factory(),
+            'exchange_sale_id' => null,
             'reason' => $this->faker->sentence,
             'refund_type' => $this->faker->randomElement(['cash_back', 'store_credit']),
             'refund_amount' => $this->faker->randomFloat(2, 10, 100),

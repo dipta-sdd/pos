@@ -124,13 +124,13 @@ class User extends Authenticatable implements JWTSubject
 
     public function sales(): HasMany
     {
-        return $this->hasMany(Sale::class, 'user_id');
+        return $this->hasMany(Sale::class, 'sales_person_id');
     }
 
-    public function returns(): HasMany
-    {
-        return $this->hasMany(SaleReturn::class, 'user_id');
-    }
+    // public function returns(): HasMany
+    // {
+    //     return $this->hasMany(SaleReturn::class, 'created_by');
+    // }
 
     public function cashTransactions(): HasMany
     {

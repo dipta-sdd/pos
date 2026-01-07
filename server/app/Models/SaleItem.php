@@ -13,16 +13,17 @@ class SaleItem extends Model
 
     protected $fillable = [
         'sale_id',
-        'branch_product_id',
-        'quantity',
-        'buy_price',
         'variant_id',
         'product_stock_id',
+        'quantity',
+        'buy_price',
         'sell_price_at_sale',
         'discount_amount',
         'tax_amount',
         'tax_rate_applied',
         'line_total',
+        'unit_of_measure_id',
+        'other',
         'created_by',
         'updated_by',
     ];
@@ -35,6 +36,7 @@ class SaleItem extends Model
         'tax_amount' => 'decimal:2',
         'tax_rate_applied' => 'decimal:2',
         'line_total' => 'decimal:2',
+        'other' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -43,11 +45,6 @@ class SaleItem extends Model
     public function sale(): BelongsTo
     {
         return $this->belongsTo(Sale::class);
-    }
-
-    public function branchProduct(): BelongsTo
-    {
-        return $this->belongsTo(BranchProduct::class);
     }
 
     public function variant(): BelongsTo
@@ -60,10 +57,12 @@ class SaleItem extends Model
         return $this->belongsTo(ProductStock::class);
     }
 
-    public function saleItemBatches(): HasMany
+    public function unitOfMeasure(): BelongsTo
     {
-        return $this->hasMany(SaleItemBatch::class);
+        return $this->belongsTo(UnitOfMeasure::class);
     }
+
+
 
     public function returnItems(): HasMany
     {

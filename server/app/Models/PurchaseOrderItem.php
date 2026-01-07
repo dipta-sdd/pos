@@ -13,11 +13,13 @@ class PurchaseOrderItem extends Model
 
     protected $fillable = [
         'purchase_order_id',
-        'product_id',
         'variant_id',
+        'unit_of_measure_id',
         'quantity_ordered',
         'quantity_received',
         'unit_cost',
+        'total_cost',
+        'notes',
         'created_by',
         'updated_by',
     ];
@@ -26,6 +28,7 @@ class PurchaseOrderItem extends Model
         'quantity_ordered' => 'decimal:2',
         'quantity_received' => 'decimal:2',
         'unit_cost' => 'decimal:2',
+        'total_cost' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -36,18 +39,14 @@ class PurchaseOrderItem extends Model
         return $this->belongsTo(PurchaseOrder::class);
     }
 
-    public function product(): BelongsTo
-    {
-        return $this->belongsTo(Product::class);
-    }
-
     public function variant(): BelongsTo
     {
         return $this->belongsTo(Variant::class);
     }
 
-    public function inventoryBatches(): HasMany
+    public function unitOfMeasure(): BelongsTo
     {
-        return $this->hasMany(InventoryBatch::class);
+        return $this->belongsTo(UnitOfMeasure::class);
     }
+
 }

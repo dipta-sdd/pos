@@ -15,11 +15,15 @@ class PurchaseOrderItemFactory extends Factory
     {
         return [
             'purchase_order_id' => PurchaseOrder::factory(),
-            'product_id' => Product::factory(),
             'variant_id' => Variant::factory(),
+            'unit_of_measure_id' => null,
             'quantity_ordered' => $this->faker->numberBetween(10, 100),
             'quantity_received' => $this->faker->numberBetween(0, 100),
             'unit_cost' => $this->faker->randomFloat(2, 5, 50),
+            'total_cost' => function (array $attributes) {
+                return $attributes['quantity_ordered'] * $attributes['unit_cost'];
+            },
+            'notes' => $this->faker->sentence,
             'created_by' => User::factory(),
             'updated_by' => User::factory(),
         ];

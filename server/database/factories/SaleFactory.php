@@ -22,8 +22,7 @@ class SaleFactory extends Factory
         return [
             'vendor_id' => Vendor::factory(),
             'branch_id' => Branch::factory(),
-            'user_id' => User::factory(),
-            'billing_counter_id' => BillingCounter::factory(),
+            'sales_person_id' => User::factory(),
             'cash_register_session_id' => CashRegisterSession::factory(),
             'customer_id' => Customer::factory(),
             'subtotal_amount' => $subtotal,

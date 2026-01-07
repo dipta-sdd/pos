@@ -17,10 +17,10 @@ class SaleReturn extends Model
         'vendor_id',
         'branch_id',
         'original_sale_id',
-        'user_id',
         'reason',
         'refund_type',
         'refund_amount',
+        'exchange_sale_id',
         'created_by',
         'updated_by',
     ];
@@ -47,9 +47,9 @@ class SaleReturn extends Model
         return $this->belongsTo(Sale::class, 'original_sale_id');
     }
 
-    public function user(): BelongsTo
+    public function exchangeSale(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Sale::class, 'exchange_sale_id');
     }
 
     public function returnItems(): HasMany
@@ -66,4 +66,4 @@ class SaleReturn extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
-} 
+}

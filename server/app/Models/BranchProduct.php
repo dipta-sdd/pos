@@ -44,10 +44,7 @@ class BranchProduct extends Model
         return $this->belongsTo(Variant::class);
     }
 
-    public function inventoryBatches(): HasMany
-    {
-        return $this->hasMany(InventoryBatch::class);
-    }
+
 
     public function saleItems(): HasMany
     {

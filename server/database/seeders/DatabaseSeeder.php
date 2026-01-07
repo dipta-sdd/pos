@@ -32,7 +32,6 @@ class DatabaseSeeder extends Seeder
             PurchaseOrderSeeder::class,
             SaleSeeder::class,
             StockTransferSeeder::class,
-            InventoryAdjustmentSeeder::class,
             MembershipSeeder::class,
             UserBranchAssignmentSeeder::class,
             PaymentMethodSeeder::class,

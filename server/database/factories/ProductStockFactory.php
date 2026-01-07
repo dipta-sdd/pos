@@ -16,9 +16,11 @@ class ProductStockFactory extends Factory
             'branch_id' => Branch::factory(),
             'product_id' => Product::factory(),
             'variant_id' => Variant::factory(),
+            'unit_of_measure_id' => null,
             'quantity' => $this->faker->randomFloat(2, 0, 1000),
             'cost_price' => $this->faker->randomFloat(2, 10, 500),
             'selling_price' => $this->faker->randomFloat(2, 20, 1000),
+            'expiry_date' => $this->faker->optional()->date(),
         ];
     }
 }

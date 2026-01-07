@@ -13,7 +13,6 @@ class ReturnItem extends Model
     protected $fillable = [
         'return_id',
         'sale_item_id',
-        'variant_id',
         'quantity',
     ];
 
@@ -32,10 +31,5 @@ class ReturnItem extends Model
     public function saleItem(): BelongsTo
     {
         return $this->belongsTo(SaleItem::class);
-    }
-
-    public function variant(): BelongsTo
-    {
-        return $this->belongsTo(Variant::class);
     }
 }

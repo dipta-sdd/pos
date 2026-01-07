@@ -19,7 +19,6 @@ class ProductFactory extends Factory
             'description' => $this->faker->sentence,
             'category_id' => Category::factory(),
             'image_url' => $this->faker->imageUrl,
-            'unit_of_measure_id' => UnitOfMeasure::factory(),
             'created_by' => User::factory(),
             'updated_by' => User::factory(),
         ];
