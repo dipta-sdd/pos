@@ -50,8 +50,7 @@ const config = {
             800: "#f3f4f6",
             900: "#f9fafb",
             DEFAULT: "#181d2c",
-          }
-
+          },
         }
       }
     }
