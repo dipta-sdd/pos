@@ -39,10 +39,12 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'vendor_id' => 'required|exists:vendors,id',
             'category_id' => 'nullable|exists:categories,id',
-            'unit_of_measure_id' => 'nullable|exists:units_of_measure,id',
             'variants' => 'sometimes|array',
             'variants.*.name' => 'required_with:variants|string|max:255',
             'variants.*.value' => 'required_with:variants|string|max:255',
+            'variants.*.sku' => 'nullable|string|max:255',
+            'variants.*.barcode' => 'nullable|string|max:255',
+            'variants.*.unit_of_measure_id' => 'nullable|exists:units_of_measure,id',
         ]);
 
         $validatedData['created_by'] = $request->user()->id;
@@ -74,11 +76,13 @@ class ProductController extends Controller
             'name' => 'string|max:255',
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
-            'unit_of_measure_id' => 'nullable|exists:units_of_measure,id',
             'variants' => 'sometimes|array',
             'variants.*.id' => 'sometimes|exists:variants,id',
             'variants.*.name' => 'required_with:variants|string|max:255',
             'variants.*.value' => 'required_with:variants|string|max:255',
+            'variants.*.sku' => 'nullable|string|max:255',
+            'variants.*.barcode' => 'nullable|string|max:255',
+            'variants.*.unit_of_measure_id' => 'nullable|exists:units_of_measure,id',
         ]);
 
         $validatedData['updated_by'] = $request->user()->id;

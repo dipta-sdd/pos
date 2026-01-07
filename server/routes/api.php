@@ -185,14 +185,7 @@ Route::middleware('log.api')->group(function () {
             Route::delete('/{stockTransfer}', [StockTransferController::class, 'destroy']);
         });
 
-        // Inventory Adjustment routes (protected)
-        Route::prefix('inventory-adjustments')->middleware('permission:can_perform_stock_adjustments')->group(function () {
-            Route::get('/', [InventoryAdjustmentController::class, 'index']);
-            Route::post('/', [InventoryAdjustmentController::class, 'store']);
-            Route::get('/{inventoryAdjustment}', [InventoryAdjustmentController::class, 'show']);
-            Route::put('/{inventoryAdjustment}', [InventoryAdjustmentController::class, 'update']);
-            Route::delete('/{inventoryAdjustment}', [InventoryAdjustmentController::class, 'destroy']);
-        });
+
 
         // Role routes (protected)
         Route::prefix('roles')->group(function () {

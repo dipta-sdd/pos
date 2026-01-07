@@ -48,7 +48,9 @@ class StockTransferController extends Controller
             'notes' => 'nullable|string',
             'vendor_id' => 'required|exists:vendors,id',
             'items' => 'required|array',
-            'items.*.branch_product_id' => 'required|exists:branch_products,id',
+            'items.*.product_stocks_id' => 'required|exists:product_stocks,id',
+            'items.*.variant_id' => 'nullable|exists:variants,id',
+            'items.*.unit_of_measure_id' => 'nullable|exists:units_of_measure,id',
             'items.*.quantity' => 'required|numeric|min:1',
         ]);
 
@@ -78,7 +80,9 @@ class StockTransferController extends Controller
             'notes' => 'nullable|string',
             'items' => 'sometimes|array',
             'items.*.id' => 'sometimes|exists:stock_transfer_items,id',
-            'items.*.branch_product_id' => 'required_with:items|exists:branch_products,id',
+            'items.*.product_stocks_id' => 'required_with:items|exists:product_stocks,id',
+            'items.*.variant_id' => 'nullable|exists:variants,id',
+            'items.*.unit_of_measure_id' => 'nullable|exists:units_of_measure,id',
             'items.*.quantity' => 'required_with:items|numeric|min:1',
         ]);
 

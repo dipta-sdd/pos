@@ -39,6 +39,9 @@ class VariantController extends Controller
             'product_id' => 'required|exists:products,id',
             'name' => 'required|string|max:255',
             'value' => 'required|string|max:255',
+            'sku' => 'nullable|string|max:255|unique:variants,sku',
+            'barcode' => 'nullable|string|max:255|unique:variants,barcode',
+            'unit_of_measure_id' => 'nullable|exists:units_of_measure,id',
         ]);
 
         $validatedData['created_by'] = $request->user()->id;

@@ -12,9 +12,9 @@ class StockTransferItem extends Model
 
     protected $fillable = [
         'stock_transfer_id',
-        'branch_product_id',
         'variant_id',
-        'from_inventory_batch_id',
+        'product_stocks_id',
+        'unit_of_measure_id',
         'quantity',
     ];
 
@@ -30,14 +30,19 @@ class StockTransferItem extends Model
         return $this->belongsTo(StockTransfer::class);
     }
 
-    public function branchProduct(): BelongsTo
+    public function productStock(): BelongsTo
     {
-        return $this->belongsTo(BranchProduct::class);
+        return $this->belongsTo(ProductStock::class, 'product_stocks_id');
     }
 
     public function variant(): BelongsTo
     {
         return $this->belongsTo(Variant::class);
+    }
+
+    public function unitOfMeasure(): BelongsTo
+    {
+        return $this->belongsTo(UnitOfMeasure::class);
     }
 
 

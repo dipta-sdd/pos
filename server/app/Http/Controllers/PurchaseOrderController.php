@@ -44,10 +44,13 @@ class PurchaseOrderController extends Controller
             'expected_delivery_date' => 'nullable|date|after_or_equal:order_date',
             'vendor_id' => 'required|exists:vendors,id',
             'items' => 'required|array',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.variant_id' => 'nullable|exists:variants,id',
+            'items.*.variant_id' => 'required|exists:variants,id',
+            'items.*.unit_of_measure_id' => 'nullable|exists:units_of_measure,id',
             'items.*.quantity_ordered' => 'required|numeric|min:1',
+            'items.*.quantity_received' => 'numeric|min:0',
             'items.*.unit_cost' => 'required|numeric|min:0',
+            'items.*.total_cost' => 'required|numeric|min:0',
+            'items.*.notes' => 'nullable|string',
         ]);
 
         $validatedData['created_by'] = $request->user()->id;
@@ -79,10 +82,13 @@ class PurchaseOrderController extends Controller
             'expected_delivery_date' => 'nullable|date|after_or_equal:order_date',
             'items' => 'sometimes|array',
             'items.*.id' => 'sometimes|exists:purchase_order_items,id',
-            'items.*.product_id' => 'required_with:items|exists:products,id',
-            'items.*.variant_id' => 'nullable|exists:variants,id',
+            'items.*.variant_id' => 'required_with:items|exists:variants,id',
+            'items.*.unit_of_measure_id' => 'nullable|exists:units_of_measure,id',
             'items.*.quantity_ordered' => 'required_with:items|numeric|min:1',
+            'items.*.quantity_received' => 'numeric|min:0',
             'items.*.unit_cost' => 'required_with:items|numeric|min:0',
+            'items.*.total_cost' => 'required_with:items|numeric|min:0',
+            'items.*.notes' => 'nullable|string',
         ]);
 
         $validatedData['updated_by'] = $request->user()->id;

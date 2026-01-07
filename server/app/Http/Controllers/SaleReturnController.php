@@ -35,15 +35,15 @@ class SaleReturnController extends Controller
     {
         $validatedData = $request->validate([
             'original_sale_id' => 'required|exists:sales,id',
-            'user_id' => 'required|exists:users,id',
+            'exchange_sale_id' => 'nullable|exists:sales,id',
             'reason' => 'nullable|string',
-            'refund_type' => 'required|in:cash,store_credit',
+            'refund_type' => 'required|in:cash_back,store_credit,exchange',
             'refund_amount' => 'required|numeric|min:0',
             'vendor_id' => 'required|exists:vendors,id',
             'branch_id' => 'required|exists:branches,id',
             'items' => 'required|array',
             'items.*.sale_item_id' => 'required|exists:sale_items,id',
-            'items.*.quantity_returned' => 'required|numeric|min:1',
+            'items.*.quantity' => 'required|numeric|min:0.01',
         ]);
 
         $validatedData['created_by'] = $request->user()->id;
