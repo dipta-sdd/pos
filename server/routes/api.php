@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OtpController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
@@ -40,6 +41,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::middleware('log.api')->group(function () {
+    Route::get('update-checker', function () {
+        return response()->json([
+                "name" => "Campaignbay Pro",
+                'version' => '1.0.1',
+                'download_url' => 'https://wpanchorbay.com/plugins/campaignbay/',
+                'sections' => [
+                    'description' => 'The description HTML.',
+                    'changelog' => '<ul><li>Fixed a bug.</li></ul>',
+                ],
+        ]);
+    });
 
     // Public authentication routes
     Route::prefix('auth')->group(function () {
@@ -57,6 +69,11 @@ Route::middleware('log.api')->group(function () {
             Route::get('me', [AuthController::class, 'userProfile']);
             // Route::put('profile', [AuthController::class, 'updateProfile']);
             // Route::put('change-password', [AuthController::class, 'changePassword']);
+        });
+
+        Route::prefix('otp')->group(function () {
+            Route::post('send', [OtpController::class, 'send']);
+            Route::post('verify', [OtpController::class, 'verify']);
         });
 
         // Vendor routes (protected)

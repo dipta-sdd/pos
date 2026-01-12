@@ -87,6 +87,7 @@ export interface User {
   email: string;
   mobile?: string;
   email_verified_at?: string | null;
+  mobile_verified_at?: string | null;
   created_at: string;
   updated_at: string;
   memberships: Membership[];

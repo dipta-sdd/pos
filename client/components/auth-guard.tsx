@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle, CheckCircle, Loader2, Shield } from "lucide-react";
 
@@ -10,37 +10,58 @@ interface AuthGuardProps {
   children: React.ReactNode;
   requireAuth?: boolean;
   redirectTo?: string;
+  requireVerification?: boolean;
 }
 
 export function AuthGuard({
   children,
   requireAuth = true,
   redirectTo = "/login",
+  requireVerification = true,
 }: AuthGuardProps) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
+  const [ isVerified, setIsVerified ] = useState(false);
+  const [ isVerifying, setIsVerifying ] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     if (!isLoading) {
-      if (requireAuth && !isAuthenticated) {
+      if (requireAuth && isAuthenticated && requireVerification) {
+        if (!user?.email_verified_at || !user?.mobile_verified_at) {
+          router.push("/verify");
+          setIsVerifying(false);
+        } else {
+          setIsVerified(true);
+          setIsVerifying(false);
+        }
+      } else if (requireAuth && !isAuthenticated) {
         router.push(redirectTo);
+        setIsVerifying(false);
       } else if (!requireAuth && isAuthenticated) {
         router.push("/pos");
+        setIsVerifying(false);
       }
     }
-  }, [isAuthenticated, isLoading, requireAuth, redirectTo, router]);
+  }, [
+    isAuthenticated,
+    isLoading,
+    requireAuth,
+    redirectTo,
+    router,
+    requireVerification,
+    user,
+  ]);
 
-  if (isLoading) {
+  if (isLoading || (requireVerification && !isVerified && !isVerifying)) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
+        {/* Loading UI... (Keeping existing) */}
         <div className="text-center max-w-md">
-          {/* Animated Logo/Icon */}
           <div className="relative mb-8">
             <div className="w-24 h-24 mx-auto bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-2xl flex items-center justify-center">
               <Shield className="w-12 h-12 text-white animate-pulse" />
             </div>
 
-            {/* Animated Rings */}
             <div className="absolute inset-0 w-24 h-24 mx-auto border-4 border-blue-200 border-t-blue-500 rounded-2xl animate-spin" />
             <div
               className="absolute inset-2 w-20 h-20 mx-auto border-4 border-indigo-200 border-t-indigo-500 rounded-2xl animate-spin"
@@ -51,7 +72,6 @@ export function AuthGuard({
             />
           </div>
 
-          {/* Loading Text */}
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
             Securing Your Session
           </h1>
@@ -59,7 +79,6 @@ export function AuthGuard({
             Please wait while we verify your authentication...
           </p>
 
-          {/* Progress Bar */}
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-6 overflow-hidden">
             <div
               className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full animate-pulse"
@@ -67,7 +86,6 @@ export function AuthGuard({
             />
           </div>
 
-          {/* Status Indicators */}
           <div className="flex items-center justify-center space-x-6 text-sm">
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
@@ -86,7 +104,6 @@ export function AuthGuard({
             </div>
           </div>
 
-          {/* Loading Spinner */}
           <div className="mt-8">
             <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto" />
           </div>
@@ -96,6 +113,7 @@ export function AuthGuard({
   }
 
   if (requireAuth && !isAuthenticated) {
+    // ... (Access Denied UI)
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50 dark:from-red-900 dark:via-gray-800 dark:to-pink-900 flex items-center justify-center p-4">
         <div className="text-center max-w-md">
@@ -124,6 +142,7 @@ export function AuthGuard({
   }
 
   if (!requireAuth && isAuthenticated) {
+    // ... (Already Authenticated UI)
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-green-900 dark:via-gray-800 dark:to-emerald-900 flex items-center justify-center p-4">
         <div className="text-center max-w-md">

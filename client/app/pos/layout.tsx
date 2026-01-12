@@ -4,7 +4,7 @@ import { AuthGuard } from "@/components/auth-guard";
 
 export default function POSLayout({ children }: { children: React.ReactNode }) {
   return (
-    <AuthGuard redirectTo="/login" requireAuth={true}>
+    <AuthGuard redirectTo="/login" requireAuth={true} requireVerification={true}>
       {children}
     </AuthGuard>
   );
