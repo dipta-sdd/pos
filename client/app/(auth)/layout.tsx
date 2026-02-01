@@ -9,7 +9,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AuthGuard redirectTo="/pos" requireAuth={false}>
+    <AuthGuard redirectTo="/pos" requireAuth={false} requireVerification={false}>
       <div className="min-h-screen  relative">
         {children}
 
