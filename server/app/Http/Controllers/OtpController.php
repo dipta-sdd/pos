@@ -16,9 +16,44 @@ class OtpController extends Controller
     {
         // TODO: Integrate actual SMS/Email API
         Log::info("Sending OTP {$otp} to {$identifier} for {$type}");
+        if ($type === 'email') {
+            // $this->sendEmail($identifier, $otp);
+        } else {
+            $this->sendSMS($identifier, $otp);
+        }
 
         // Return true for now
         return true;
+    }
+
+    private function sendSMS($identifier, $otp)
+    {
+        try {
+            $url = "http://bulksmsbd.net/api/smsapi";
+            $message = "Your NexusPos OTP is: {$otp}";
+
+            $data = [
+                "api_key" => env('SMS_API_KEY'),
+                "senderid" => env('SMS_SENDER_ID'),
+                "number" => $identifier,
+                "message" => $message
+            ];
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            $response = curl_exec($ch);
+            curl_close($ch);
+            Log::info("SMS sent successfully");
+            Log::info(json_encode($response));
+
+            return true;
+        } catch (\Throwable $th) {
+            Log::error("Failed to send SMS: " . $th->getMessage());
+            return false;
+        }
     }
 
     public function send(Request $request)
