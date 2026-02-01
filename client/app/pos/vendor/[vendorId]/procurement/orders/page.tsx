@@ -11,6 +11,7 @@ import CustomTable, { Column } from "@/components/ui/CustomTable";
 import { SortDescriptor } from "@heroui/table";
 import api from "@/lib/api";
 import { Plus } from "lucide-react";
+import { PurchaseOrder } from "@/lib/types/general";
 
 const columns: Column[] = [
   { name: "ORDER ID", uid: "id", sortable: true },
@@ -22,7 +23,7 @@ const columns: Column[] = [
 
 export default function PurchaseOrdersPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<PurchaseOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -63,9 +64,9 @@ export default function PurchaseOrdersPage() {
     }
   }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
 
-  const renderCell = useCallback((item: any, columnKey: React.Key) => {
+  const renderCell = useCallback((item: PurchaseOrder, columnKey: React.Key) => {
     if (columnKey === "supplier") return item.supplier?.name || "N/A";
-    return item[columnKey as keyof any];
+    return (item as any)[columnKey as keyof PurchaseOrder];
   }, []);
 
   if (contextLoading) return <div>Loading...</div>;

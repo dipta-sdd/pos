@@ -11,18 +11,19 @@ import CustomTable, { Column } from "@/components/ui/CustomTable";
 import { SortDescriptor } from "@heroui/table";
 import api from "@/lib/api";
 import { Plus } from "lucide-react";
+import { SaleReturn } from "@/lib/types/general";
 
 const columns: Column[] = [
   { name: "RETURN ID", uid: "id", sortable: true },
-  { name: "SALE ID", uid: "sale_id", sortable: true },
+  { name: "SALE ID", uid: "original_sale_id", sortable: true },
   { name: "REASON", uid: "reason", sortable: true },
-  { name: "TOTAL REFUNDED", uid: "total_refunded", sortable: true },
+  { name: "TOTAL REFUNDED", uid: "refund_amount", sortable: true },
   { name: "CREATED AT", uid: "created_at", sortable: true },
 ];
 
 export default function ReturnsPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<SaleReturn[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -63,8 +64,8 @@ export default function ReturnsPage() {
     }
   }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
 
-  const renderCell = useCallback((item: any, columnKey: React.Key) => {
-    return item[columnKey as keyof any];
+  const renderCell = useCallback((item: SaleReturn, columnKey: React.Key) => {
+    return (item as any)[columnKey as keyof SaleReturn];
   }, []);
 
   if (contextLoading) return <div>Loading...</div>;

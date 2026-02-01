@@ -10,26 +10,27 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
 import { SortDescriptor } from "@heroui/table";
 import api from "@/lib/api";
-import { Plus, Wallet } from "lucide-react";
+import { Wallet } from "lucide-react";
+import { CashRegisterSession } from "@/lib/types/general";
 
 const columns: Column[] = [
   { name: "SESSION ID", uid: "id", sortable: true },
   { name: "OPENED BY", uid: "user", sortable: false },
-  { name: "OPENED AT", uid: "opened_at", sortable: true },
-  { name: "CLOSED AT", uid: "closed_at", sortable: true },
+  { name: "OPENED AT", uid: "started_at", sortable: true },
+  { name: "CLOSED AT", uid: "ended_at", sortable: true },
   { name: "STATUS", uid: "status", sortable: true },
 ];
 
 export default function CashManagementPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<CashRegisterSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [searchValue, setSearchValue] = useState("");
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
-    column: "opened_at",
+    column: "started_at",
     direction: "descending",
   });
 
@@ -63,10 +64,9 @@ export default function CashManagementPage() {
     }
   }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
 
-  const renderCell = useCallback((item: any, columnKey: React.Key) => {
+  const renderCell = useCallback((item: CashRegisterSession, columnKey: React.Key) => {
     if (columnKey === "user") return item.user?.name || "N/A";
-    if (columnKey === "status") return item.closed_at ? "Closed" : "Open";
-    return item[columnKey as keyof any];
+    return (item as any)[columnKey as keyof CashRegisterSession];
   }, []);
 
   if (contextLoading) return <div>Loading...</div>;

@@ -10,6 +10,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
 import { SortDescriptor } from "@heroui/table";
 import api from "@/lib/api";
+import { Variant } from "@/lib/types/general";
 
 const columns: Column[] = [
   { name: "PRODUCT", uid: "product", sortable: false },
@@ -20,7 +21,7 @@ const columns: Column[] = [
 
 export default function InventoryPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<Variant[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -61,9 +62,9 @@ export default function InventoryPage() {
     }
   }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
 
-  const renderCell = useCallback((item: any, columnKey: React.Key) => {
+  const renderCell = useCallback((item: Variant, columnKey: React.Key) => {
     if (columnKey === "product") return item.product?.name || "N/A";
-    return item[columnKey as keyof any];
+    return (item as any)[columnKey as keyof Variant];
   }, []);
 
   if (contextLoading) return <div>Loading...</div>;
