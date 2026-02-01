@@ -12,7 +12,6 @@ import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
 import api from "@/lib/api";
-import { Plus } from "lucide-react";
 import { InventoryAdjustment } from "@/lib/types/general";
 
 const columns: Column[] = [

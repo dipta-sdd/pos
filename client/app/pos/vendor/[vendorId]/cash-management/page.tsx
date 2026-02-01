@@ -4,7 +4,6 @@ import { useState, useCallback, useEffect } from "react";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { SortDescriptor } from "@heroui/table";
-import { Wallet } from "lucide-react";
 
 import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
