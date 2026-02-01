@@ -12,16 +12,17 @@ import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
 import api from "@/lib/api";
+import { Tax } from "@/lib/types/general";
 
 const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
-  { name: "RATE (%)", uid: "rate", sortable: true },
+  { name: "RATE (%)", uid: "rate_percentage", sortable: true },
   { name: "CREATED AT", uid: "created_at", sortable: true },
 ];
 
 export default function TaxesPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<Tax[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -64,8 +65,8 @@ export default function TaxesPage() {
     }
   }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
 
-  const renderCell = useCallback((item: any, columnKey: React.Key) => {
-    return item[columnKey as keyof any];
+  const renderCell = useCallback((item: Tax, columnKey: React.Key) => {
+    return (item as any)[columnKey as keyof Tax];
   }, []);
 
   if (contextLoading) return <div>Loading...</div>;

@@ -12,18 +12,19 @@ import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
 import api from "@/lib/api";
+import { Sale } from "@/lib/types/general";
 
 const columns: Column[] = [
   { name: "SALE ID", uid: "id", sortable: true },
   { name: "CUSTOMER", uid: "customer", sortable: false },
-  { name: "TOTAL", uid: "total_amount", sortable: true },
+  { name: "TOTAL", uid: "final_amount", sortable: true },
   { name: "STATUS", uid: "status", sortable: true },
   { name: "CREATED AT", uid: "created_at", sortable: true },
 ];
 
 export default function SalesPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -66,13 +67,12 @@ export default function SalesPage() {
     }
   }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
 
-  const renderCell = useCallback((item: any, columnKey: React.Key) => {
-    if (columnKey === "customer")
-      return item.customer
-        ? `${item.customer.first_name} ${item.customer.last_name}`
-        : "Walk-in";
-
-    return item[columnKey as keyof any];
+  const renderCell = useCallback((item: Sale, columnKey: React.Key) => {
+    if (columnKey === "customer") {
+        if (!item.customer) return "Walk-in";
+        return item.customer.name || `${item.customer.first_name || ""} ${item.customer.last_name || ""}`.trim();
+    }
+    return (item as any)[columnKey as keyof Sale];
   }, []);
 
   if (contextLoading) return <div>Loading...</div>;

@@ -12,6 +12,7 @@ import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
 import api from "@/lib/api";
+import { Product } from "@/lib/types/general";
 
 const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
@@ -22,7 +23,7 @@ const columns: Column[] = [
 
 export default function ProductsPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -65,8 +66,8 @@ export default function ProductsPage() {
     }
   }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
 
-  const renderCell = useCallback((item: any, columnKey: React.Key) => {
-    return item[columnKey as keyof any];
+  const renderCell = useCallback((item: Product, columnKey: React.Key) => {
+    return (item as any)[columnKey as keyof Product];
   }, []);
 
   if (contextLoading) return <div>Loading...</div>;

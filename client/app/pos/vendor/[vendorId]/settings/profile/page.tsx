@@ -7,6 +7,9 @@ import { Building2, Globe, Clock } from "lucide-react";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { Button } from "@heroui/button";
+import { Card, CardBody } from "@heroui/card";
+import { Building2, Globe, Clock } from "lucide-react";
 
 export default function BusinessProfilePage() {
   const { vendor, isLoading: contextLoading } = useVendor();

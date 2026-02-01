@@ -12,6 +12,8 @@ import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
 import api from "@/lib/api";
+import { Plus } from "lucide-react";
+import { InventoryAdjustment } from "@/lib/types/general";
 
 const columns: Column[] = [
   { name: "ADJUSTMENT ID", uid: "id", sortable: true },
@@ -22,7 +24,7 @@ const columns: Column[] = [
 
 export default function StockAdjustmentsPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<InventoryAdjustment[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -37,7 +39,6 @@ export default function StockAdjustmentsPage() {
     if (!vendor?.id) return;
     setLoading(true);
     try {
-      // Assuming endpoint exists or as placeholder
       const response = await api.get(`/inventory-adjustments`, {
         params: {
           page,
@@ -66,10 +67,9 @@ export default function StockAdjustmentsPage() {
     }
   }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
 
-  const renderCell = useCallback((item: any, columnKey: React.Key) => {
+  const renderCell = useCallback((item: InventoryAdjustment, columnKey: React.Key) => {
     if (columnKey === "user") return item.user?.name || "N/A";
-
-    return item[columnKey as keyof any];
+    return (item as any)[columnKey as keyof InventoryAdjustment];
   }, []);
 
   if (contextLoading) return <div>Loading...</div>;
