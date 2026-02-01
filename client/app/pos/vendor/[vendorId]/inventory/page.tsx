@@ -2,13 +2,13 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { Input } from "@heroui/input";
-import { Button } from "@heroui/button";
+import { SortDescriptor } from "@heroui/table";
+
 import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
-import { SortDescriptor } from "@heroui/table";
 import api from "@/lib/api";
 
 const columns: Column[] = [
@@ -42,10 +42,12 @@ export default function InventoryPage() {
           vendor_id: vendor.id,
           search: searchValue,
           sort_by: sortDescriptor.column,
-          sort_direction: sortDescriptor.direction === "ascending" ? "asc" : "desc",
+          sort_direction:
+            sortDescriptor.direction === "ascending" ? "asc" : "desc",
         },
       });
-      setItems(response.data.data);
+
+      setItems(response?.data?.data);
       setCurrentPage(response.data.current_page);
       setLastPage(response.data.last_page);
     } catch (error) {
@@ -57,12 +59,13 @@ export default function InventoryPage() {
 
   useEffect(() => {
     if (vendor?.id) {
-        fetchItems(currentPage);
+      fetchItems(currentPage);
     }
   }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
 
   const renderCell = useCallback((item: any, columnKey: React.Key) => {
     if (columnKey === "product") return item.product?.name || "N/A";
+
     return item[columnKey as keyof any];
   }, []);
 
@@ -71,7 +74,10 @@ export default function InventoryPage() {
   return (
     <PermissionGuard permission="can_view_inventory_levels">
       <div className="p-6">
-        <PageHeader title="Stock Levels" description="View and manage current inventory levels" />
+        <PageHeader
+          description="View and manage current inventory levels"
+          title="Stock Levels"
+        />
 
         <div className="flex justify-between gap-3 items-end mb-4">
           <Input
@@ -86,16 +92,16 @@ export default function InventoryPage() {
 
         <CustomTable
           columns={columns}
-          items={items}
-          isLoading={loading}
           currentPage={currentPage}
+          isLoading={loading}
+          items={items}
           lastPage={lastPage}
           perPage={perPage}
-          setPerPage={setPerPage}
-          setCurrentPage={setCurrentPage}
-          sortDescriptor={sortDescriptor}
-          setSortDescriptor={setSortDescriptor}
           renderCell={renderCell}
+          setCurrentPage={setCurrentPage}
+          setPerPage={setPerPage}
+          setSortDescriptor={setSortDescriptor}
+          sortDescriptor={sortDescriptor}
         />
       </div>
     </PermissionGuard>

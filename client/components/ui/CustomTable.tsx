@@ -67,13 +67,13 @@ const CustomTable: React.FC<CustomTableProps> = ({
       td: ["before:!rounded-none"],
       tr: ["!shadow-none"],
     }),
-    []
+    [],
   );
   const headerColumns = useMemo(() => {
     if (visibleColumns === "all") return columns;
 
     return columns.filter((column) =>
-      Array.from(visibleColumns).includes(column.uid)
+      Array.from(visibleColumns).includes(column.uid),
     );
   }, [visibleColumns]);
 

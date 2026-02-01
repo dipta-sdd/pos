@@ -116,7 +116,7 @@ export default function RoleForm({
           (perm) => {
             // @ts-ignore
             acc[perm] = initialData?.[perm] || false;
-          }
+          },
         );
 
         return acc;

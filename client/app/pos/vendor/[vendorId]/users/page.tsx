@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { type Selection } from "@heroui/react";
-import { Edit, Trash2, ChevronDown, User, Calendar, Plus } from "lucide-react";
+import { Edit, Trash2, ChevronDown, Calendar, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { type SortDescriptor } from "@heroui/table";
 import { Input } from "@heroui/input";
@@ -18,10 +18,11 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalFooter,
   useDisclosure,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
+
+import UserForm from "./_components/UserForm";
 
 import { SearchIcon } from "@/components/icons";
 import api from "@/lib/api";
@@ -30,7 +31,6 @@ import PermissionGuard from "@/components/auth/PermissionGuard";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
 import Confirm from "@/components/ui/Confirm";
 import { formatDateTime } from "@/lib/helper/dates";
-import UserForm from "./_components/UserForm";
 
 interface VendorUser {
   id: number;
@@ -83,7 +83,7 @@ export default function UsersPage() {
     direction: "descending",
   });
   const [visibleColumns, setVisibleColumns] = useState<Selection>(
-    new Set(INITIAL_VISIBLE_COLUMNS)
+    new Set(INITIAL_VISIBLE_COLUMNS),
   );
 
   // modal states
@@ -97,7 +97,7 @@ export default function UsersPage() {
   // delete confirm states
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
   const [deleteConfirmProp, setDeleteConfirmProp] = useState<number | string>(
-    ""
+    "",
   );
 
   const [initialLoad, setInitialLoad] = useState(true);
@@ -295,7 +295,7 @@ export default function UsersPage() {
           return null;
       }
     },
-    [vendor?.id, router]
+    [vendor?.id, router],
   );
 
   if (contextLoading) return <div>Loading...</div>;
@@ -378,19 +378,19 @@ export default function UsersPage() {
         />
         <Confirm
           isOpen={deleteConfirmOpen}
+          message="Are you sure you want to remove this user from the vendor?"
+          title="Remove User"
           onConfirm={(id) => handleDelete(id as number)}
           onConfirmProp={deleteConfirmProp}
           onOpenChange={setDeleteConfirmOpen}
-          title="Remove User"
-          message="Are you sure you want to remove this user from the vendor?"
         />
 
         {/* Create/Edit User Modal */}
         <Modal
           isOpen={isOpen}
-          onOpenChange={onOpenChange}
           placement="center"
           size="2xl"
+          onOpenChange={onOpenChange}
         >
           <ModalContent>
             {(onClose) => (
@@ -402,8 +402,8 @@ export default function UsersPage() {
                   <UserForm
                     initialData={selectedUser}
                     isEditing={isEditing}
-                    onSuccess={handleFormSuccess}
                     onCancel={onClose}
+                    onSuccess={handleFormSuccess}
                   />
                 </ModalBody>
                 {/* Footer is handled inside UserForm (buttons) or we can use ModalFooter if we move buttons out, but UserForm has buttons. */}

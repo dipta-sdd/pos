@@ -3,14 +3,15 @@
 import { useState, useCallback, useEffect } from "react";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
+import { SortDescriptor } from "@heroui/table";
+import { Wallet } from "lucide-react";
+
 import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
-import { SortDescriptor } from "@heroui/table";
 import api from "@/lib/api";
-import { Plus, Wallet } from "lucide-react";
 
 const columns: Column[] = [
   { name: "SESSION ID", uid: "id", sortable: true },
@@ -44,10 +45,12 @@ export default function CashManagementPage() {
           vendor_id: vendor.id,
           search: searchValue,
           sort_by: sortDescriptor.column,
-          sort_direction: sortDescriptor.direction === "ascending" ? "asc" : "desc",
+          sort_direction:
+            sortDescriptor.direction === "ascending" ? "asc" : "desc",
         },
       });
-      setItems(response.data.data);
+
+      setItems(response?.data?.data);
       setCurrentPage(response.data.current_page);
       setLastPage(response.data.last_page);
     } catch (error) {
@@ -59,13 +62,14 @@ export default function CashManagementPage() {
 
   useEffect(() => {
     if (vendor?.id) {
-        fetchItems(currentPage);
+      fetchItems(currentPage);
     }
   }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
 
   const renderCell = useCallback((item: any, columnKey: React.Key) => {
     if (columnKey === "user") return item.user?.name || "N/A";
     if (columnKey === "status") return item.closed_at ? "Closed" : "Open";
+
     return item[columnKey as keyof any];
   }, []);
 
@@ -74,10 +78,17 @@ export default function CashManagementPage() {
   return (
     <PermissionGuard permission="can_open_close_cash_register">
       <div className="p-6">
-        <PageHeader title="Cash Management" description="Open/Close register and track cash sessions">
-            <Button color="success" className="text-white font-bold" startContent={<Wallet className="w-4 h-4" />}>
-                Open Register
-            </Button>
+        <PageHeader
+          description="Open/Close register and track cash sessions"
+          title="Cash Management"
+        >
+          <Button
+            className="text-white font-bold"
+            color="success"
+            startContent={<Wallet className="w-4 h-4" />}
+          >
+            Open Register
+          </Button>
         </PageHeader>
 
         <div className="flex justify-between gap-3 items-end mb-4">
@@ -93,16 +104,16 @@ export default function CashManagementPage() {
 
         <CustomTable
           columns={columns}
-          items={items}
-          isLoading={loading}
           currentPage={currentPage}
+          isLoading={loading}
+          items={items}
           lastPage={lastPage}
           perPage={perPage}
-          setPerPage={setPerPage}
-          setCurrentPage={setCurrentPage}
-          sortDescriptor={sortDescriptor}
-          setSortDescriptor={setSortDescriptor}
           renderCell={renderCell}
+          setCurrentPage={setCurrentPage}
+          setPerPage={setPerPage}
+          setSortDescriptor={setSortDescriptor}
+          sortDescriptor={sortDescriptor}
         />
       </div>
     </PermissionGuard>

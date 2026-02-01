@@ -139,57 +139,52 @@ export default function SignupPage() {
             {/* Name Fields */}
             <div className="grid grid-cols-2 gap-4">
               <Input
+                errorMessage={errors.firstName?.message}
+                isInvalid={!!errors.firstName}
                 label="First name"
                 placeholder="First name"
-                variant="bordered"
                 startContent={<User className="text-default-400" size={20} />}
-                isInvalid={!!errors.firstName}
-                errorMessage={errors.firstName?.message}
+                variant="bordered"
                 {...register("firstName")}
               />
               <Input
+                errorMessage={errors.lastName?.message}
+                isInvalid={!!errors.lastName}
                 label="Last name"
                 placeholder="Last name"
-                variant="bordered"
                 startContent={<User className="text-default-400" size={20} />}
-                isInvalid={!!errors.lastName}
-                errorMessage={errors.lastName?.message}
+                variant="bordered"
                 {...register("lastName")}
               />
             </div>
 
             {/* Email Field */}
             <Input
+              errorMessage={errors.email?.message}
+              isInvalid={!!errors.email}
               label="Email address"
               placeholder="Enter your email"
+              startContent={<Mail className="text-default-400" size={20} />}
               type="email"
               variant="bordered"
-              startContent={<Mail className="text-default-400" size={20} />}
-              isInvalid={!!errors.email}
-              errorMessage={errors.email?.message}
               {...register("email")}
             />
 
             {/* Mobile Field */}
             <Input
+              errorMessage={errors.mobile?.message}
+              isInvalid={!!errors.mobile}
               label="Mobile number"
               placeholder="Enter your mobile number"
+              startContent={<Phone className="text-default-400" size={20} />}
               type="tel"
               variant="bordered"
-              startContent={<Phone className="text-default-400" size={20} />}
-              isInvalid={!!errors.mobile}
-              errorMessage={errors.mobile?.message}
               {...register("mobile")}
             />
 
             {/* Password Field */}
             <div>
               <Input
-                label="Password"
-                placeholder="Create a password"
-                type={showPassword ? "text" : "password"}
-                variant="bordered"
-                startContent={<Lock className="text-default-400" size={20} />}
                 endContent={
                   <button
                     className="focus:outline-none"
@@ -209,8 +204,13 @@ export default function SignupPage() {
                     )}
                   </button>
                 }
-                isInvalid={!!errors.password}
                 errorMessage={errors.password?.message}
+                isInvalid={!!errors.password}
+                label="Password"
+                placeholder="Create a password"
+                startContent={<Lock className="text-default-400" size={20} />}
+                type={showPassword ? "text" : "password"}
+                variant="bordered"
                 {...register("password")}
               />
 
@@ -218,8 +218,7 @@ export default function SignupPage() {
               {passwordStrength && (
                 <div className="mt-2 flex items-center gap-2">
                   <Progress
-                    size="sm"
-                    value={passwordStrength.value}
+                    className="flex-1"
                     color={
                       passwordStrength.color as
                         | "danger"
@@ -227,7 +226,8 @@ export default function SignupPage() {
                         | "primary"
                         | "success"
                     }
-                    className="flex-1"
+                    size="sm"
+                    value={passwordStrength.value}
                   />
                   <span
                     className={`text-xs font-medium text-${passwordStrength.color}`}
@@ -241,11 +241,6 @@ export default function SignupPage() {
             {/* Confirm Password Field */}
             <div>
               <Input
-                label="Confirm password"
-                placeholder="Confirm your password"
-                type={showConfirmPassword ? "text" : "password"}
-                variant="bordered"
-                startContent={<Lock className="text-default-400" size={20} />}
                 endContent={
                   <div className="flex items-center gap-2">
                     {watchedPassword &&
@@ -276,8 +271,13 @@ export default function SignupPage() {
                     </button>
                   </div>
                 }
-                isInvalid={!!errors.confirmPassword}
                 errorMessage={errors.confirmPassword?.message}
+                isInvalid={!!errors.confirmPassword}
+                label="Confirm password"
+                placeholder="Confirm your password"
+                startContent={<Lock className="text-default-400" size={20} />}
+                type={showConfirmPassword ? "text" : "password"}
+                variant="bordered"
                 {...register("confirmPassword")}
               />
 
@@ -295,14 +295,14 @@ export default function SignupPage() {
 
             {/* Terms and Conditions */}
             <Checkbox
-              isSelected={acceptedTerms}
               className="mb-2 items-start"
               classNames={{
                 label: "mt-[-2px]",
               }}
-              onValueChange={setAcceptedTerms}
-              size="sm"
               color="success"
+              isSelected={acceptedTerms}
+              size="sm"
+              onValueChange={setAcceptedTerms}
             >
               I agree to the{" "}
               <Link
@@ -322,10 +322,10 @@ export default function SignupPage() {
 
             <Button
               fullWidth
-              color="success"
               className="text-white font-medium shadow-md"
-              isLoading={isLoading}
+              color="success"
               isDisabled={isLoading || !acceptedTerms}
+              isLoading={isLoading}
               type="submit"
             >
               {isLoading ? "Creating account..." : "Create account"}
@@ -340,7 +340,6 @@ export default function SignupPage() {
 
           <div className="mt-6 grid grid-cols-2 gap-3">
             <Button
-              variant="bordered"
               startContent={
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path
@@ -361,11 +360,11 @@ export default function SignupPage() {
                   />
                 </svg>
               }
+              variant="bordered"
             >
               Google
             </Button>
             <Button
-              variant="bordered"
               startContent={
                 <svg
                   className="w-5 h-5"
@@ -375,6 +374,7 @@ export default function SignupPage() {
                   <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
                 </svg>
               }
+              variant="bordered"
             >
               Twitter
             </Button>

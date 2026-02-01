@@ -94,6 +94,7 @@ export default function BranchesPage() {
 
   // end delete confirm states
   const [initialLoad, setInitialLoad] = useState(true);
+
   useEffect(() => {
     if (vendor?.id) {
       fetchBranches(1);
