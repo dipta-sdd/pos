@@ -51,10 +51,10 @@ export default function RolesPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
   // table states
   const [roles, setRoles] = useState<Role[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [lastPage, setLastPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [lastPage, setLastPage] = useState<number>(1);
+  const [perPage, setPerPage] = useState<number>(10);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "created_at",
     direction: "descending",
@@ -65,7 +65,7 @@ export default function RolesPage() {
 
   // end table states
   // modal states
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState<string>("");
   // end modal states
   // delete confirm states
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
@@ -74,7 +74,7 @@ export default function RolesPage() {
   );
 
   // end delete confirm states
-  const [initialLoad, setInitialLoad] = useState(true);
+  const [initialLoad, setInitialLoad] = useState<boolean>(true);
 
   useEffect(() => {
     if (vendor?.id) {
@@ -108,7 +108,7 @@ export default function RolesPage() {
       const sortDirection =
         sortDescriptor.direction === "ascending" ? "asc" : "desc";
 
-      const response = await api.get(`/roles`, {
+      const response: any = await api.get(`/roles`, {
         params: {
           page,
           per_page: perPage,
@@ -119,16 +119,14 @@ export default function RolesPage() {
         },
       });
 
-      // @ts-ignore
-      setRoles(response?.data?.data);
-      // @ts-ignore
-      setCurrentPage(response?.data?.current_page);
-      // @ts-ignore
-      setLastPage(response?.data?.last_page);
-    } catch (_error) {
+      setRoles(response?.data?.data || []);
+      setCurrentPage(response?.data?.current_page || 1);
+      setLastPage(response?.data?.last_page || 1);
+    } catch (_error: any) {
       // console.error("Failed to fetch roles:", error);
     } finally {
       setLoading(false);
+      setInitialLoad(false);
     }
   };
 
@@ -234,7 +232,7 @@ export default function RolesPage() {
             Roles
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">
-            Manage your shop locations
+            Manage your staff roles and permissions
           </p>
         </div>
         <div className="flex justify-between gap-3 items-end">
