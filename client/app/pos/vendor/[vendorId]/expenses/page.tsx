@@ -1,0 +1,169 @@
+"use client";
+
+import { useState, useCallback, useEffect } from "react";
+import { Input } from "@heroui/input";
+import { Button } from "@heroui/button";
+import { SortDescriptor } from "@heroui/table";
+import { Plus, ChevronDown } from "lucide-react";
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+} from "@heroui/dropdown";
+import { Selection } from "@heroui/react";
+
+import { SearchIcon } from "@/components/icons";
+import { useVendor } from "@/lib/contexts/VendorContext";
+import PermissionGuard from "@/components/auth/PermissionGuard";
+import { PageHeader } from "@/components/ui/PageHeader";
+import CustomTable, { Column } from "@/components/ui/CustomTable";
+import api from "@/lib/api";
+import { Expense } from "@/lib/types/general";
+import { formatDateTime } from "@/lib/helper/dates";
+
+const columns: Column[] = [
+  { name: "CATEGORY", uid: "expense_category", sortable: false },
+  { name: "AMOUNT", uid: "amount", sortable: true },
+  { name: "DESCRIPTION", uid: "description", sortable: true },
+  { name: "DATE", uid: "expense_date", sortable: true },
+  { name: "CREATED AT", uid: "created_at", sortable: true },
+];
+
+const INITIAL_VISIBLE_COLUMNS = ["expense_category", "amount", "description", "expense_date"];
+
+function capitalize(s: string) {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
+}
+
+export default function ExpensesPage() {
+  const { vendor, isLoading: contextLoading } = useVendor();
+  const [items, setItems] = useState<Expense[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [lastPage, setLastPage] = useState<number>(1);
+  const [perPage, setPerPage] = useState<number>(10);
+  const [searchValue, setSearchValue] = useState<string>("");
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
+    column: "expense_date",
+    direction: "descending",
+  });
+  const [visibleColumns, setVisibleColumns] = useState<Selection>(
+    new Set(INITIAL_VISIBLE_COLUMNS),
+  );
+
+  const fetchItems = async (page: number) => {
+    if (!vendor?.id) return;
+    setLoading(true);
+    try {
+      const response: any = await api.get(`/expenses`, {
+        params: {
+          page,
+          per_page: perPage,
+          vendor_id: vendor.id,
+          search: searchValue,
+          sort_by: sortDescriptor.column,
+          sort_direction:
+            sortDescriptor.direction === "ascending" ? "asc" : "desc",
+        },
+      });
+
+      setItems(response?.data?.data || []);
+      setCurrentPage(response?.data?.current_page || 1);
+      setLastPage(response?.data?.last_page || 1);
+    } catch (error: any) {
+      console.error("Failed to fetch expenses:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (vendor?.id) {
+      fetchItems(currentPage);
+    }
+  }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
+
+  const renderCell = useCallback((item: Expense, columnKey: React.Key) => {
+    switch (columnKey) {
+      case "expense_category":
+        return item.expense_category?.name || "N/A";
+      case "amount":
+        return typeof item.amount === "number"
+          ? item.amount.toFixed(2)
+          : item.amount;
+      case "expense_date":
+        return formatDateTime(item.expense_date);
+      case "created_at":
+        return formatDateTime(item.created_at);
+      default:
+        return (item as any)[columnKey as keyof Expense];
+    }
+  }, []);
+
+  if (contextLoading) return <div>Loading...</div>;
+
+  return (
+    <PermissionGuard permission="can_manage_expenses">
+      <div className="p-6">
+        <PageHeader description="Track business expenses" title="Expenses">
+          <Button color="primary" startContent={<Plus className="w-4 h-4" />}>
+            Add Expense
+          </Button>
+        </PageHeader>
+
+        <div className="flex justify-between gap-3 items-end mb-4">
+          <Input
+            isClearable
+            classNames={{ base: "w-full sm:max-w-[44%]" }}
+            placeholder="Search expenses..."
+            startContent={<SearchIcon />}
+            value={searchValue}
+            onValueChange={setSearchValue}
+          />
+          <div className="flex gap-3">
+            <Dropdown radius="sm">
+              <DropdownTrigger className="flex">
+                <Button
+                  endContent={<ChevronDown className="text-small" />}
+                  variant="flat"
+                >
+                  Columns
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection
+                aria-label="Table Columns"
+                closeOnSelect={false}
+                selectedKeys={visibleColumns}
+                selectionMode="multiple"
+                onSelectionChange={setVisibleColumns}
+              >
+                {columns.map((column) => (
+                  <DropdownItem key={column.uid} className="capitalize">
+                    {capitalize(column.name)}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+          </div>
+        </div>
+
+        <CustomTable
+          columns={columns}
+          currentPage={currentPage}
+          isLoading={loading}
+          items={items}
+          lastPage={lastPage}
+          perPage={perPage}
+          renderCell={renderCell}
+          setCurrentPage={setCurrentPage}
+          setPerPage={setPerPage}
+          setSortDescriptor={setSortDescriptor}
+          sortDescriptor={sortDescriptor}
+          visibleColumns={visibleColumns}
+        />
+      </div>
+    </PermissionGuard>
+  );
+}
