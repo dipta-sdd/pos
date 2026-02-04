@@ -8,15 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('inventory_adjustments', function (Blueprint ) {
-            $column->id();
-            $column->foreignId('vendor_id')->constrained()->onDelete('cascade');
-            $column->foreignId('variant_id')->constrained()->onDelete('cascade');
-            $column->decimal('quantity', 15, 2);
-            $column->enum('type', ['addition', 'subtraction']);
-            $column->text('reason');
-            $column->foreignId('created_by')->constrained('users')->onDelete('cascade');
-            $column->timestamps();
+        Schema::create('inventory_adjustments', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('vendor_id')->constrained()->onDelete('cascade');
+            $table->foreignId('variant_id')->constrained()->onDelete('cascade');
+            $table->decimal('quantity', 15, 2);
+            $table->enum('type', ['addition', 'subtraction']);
+            $table->text('reason');
+            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 

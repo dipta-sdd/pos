@@ -15,6 +15,15 @@ return new class extends Migration {
             $table->foreignId('vendor_id')->constrained('vendors')->onDelete('cascade');
             $table->string('name');
 
+            // we have many permissions , we dont even know which one we are using which are not using ,and we also need to add more permisiions , so we can do one thing  we will devide our permisions in 3 sections , confirmed , depricated , dont-know
+
+            // confirmed start - we will manualy add perssions here one by one 
+            // confirmed end
+
+            // depricated start - this permissions will be later we first have to make sure where they are in use
+            // depricated end
+
+            // dont-know start - most of these permissions are in use ,but we will devide many of them in multiple permissions
             // Shop & Organization Permissions
             $table->boolean('can_manage_shop_settings')->default(false);
             $table->boolean('can_manage_billing_and_plan')->default(false);
@@ -76,6 +85,8 @@ return new class extends Migration {
             $table->boolean('can_view_reports')->default(false);
             $table->boolean('can_view_profit_loss_data')->default(false);
             $table->boolean('can_export_data')->default(false);
+
+            //dont-know end
 
             $table->timestamps();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
