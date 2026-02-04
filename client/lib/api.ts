@@ -34,7 +34,7 @@ api.interceptors.request.use(
 
         config.params = {
           vendor_id: vendorId,
-          ...config.params,
+          ...(config.params as Record<string, unknown>),
         };
       }
     }
