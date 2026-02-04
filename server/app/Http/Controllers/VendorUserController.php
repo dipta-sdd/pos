@@ -25,6 +25,8 @@ class VendorUserController extends Controller
             'sort_by' => 'nullable|string',
             'sort_direction' => 'nullable|in:asc,desc',
             'role_id' => 'nullable|exists:roles,id',
+            'branch_ids' => 'nullable|array',
+            'branch_ids.*' => 'exists:branches,id',
         ]);
 
         $vendorId = $request->vendor_id;
@@ -33,12 +35,18 @@ class VendorUserController extends Controller
         $sortBy = $request->sort_by ?? 'created_at';
         $sortDirection = $request->sort_direction ?? 'desc';
         $roleId = $request->role_id;
+        $branchIds = $request->branch_ids;
 
         $query = User::query()
-            ->whereHas('memberships', function ($q) use ($vendorId, $roleId) {
+            ->whereHas('memberships', function ($q) use ($vendorId, $roleId, $branchIds) {
                 $q->where('vendor_id', $vendorId);
-                if ($roleId) {
+                if ($roleId && $roleId !== 'all') {
                     $q->where('role_id', $roleId);
+                }
+                if ($branchIds && count($branchIds) > 0) {
+                    $q->whereHas('userBranchAssignments', function ($bq) use ($branchIds) {
+                        $bq->whereIn('branch_id', $branchIds);
+                    });
                 }
             })
             ->with([

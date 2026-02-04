@@ -71,7 +71,7 @@ function capitalize(s: string) {
 
 export default function UsersPage() {
   const router = useRouter();
-  const { vendor, isLoading: contextLoading , membership} = useVendor();
+  const { vendor, isLoading: contextLoading, membership } = useVendor();
 
   // table states
   const [users, setUsers] = useState<VendorUser[]>([]);
@@ -98,6 +98,7 @@ export default function UsersPage() {
   // Filter states
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [roles, setRoles] = useState<any[]>([]);
+  const [branchFilter, setBranchFilter] = useState<Selection>(new Set([]));
 
   // Selection states
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
@@ -123,7 +124,7 @@ export default function UsersPage() {
     if (vendor?.id && !initialLoad) {
       fetchUsers(1);
     }
-  }, [perPage, sortDescriptor, roleFilter]);
+  }, [perPage, sortDescriptor, roleFilter, branchFilter]);
 
   useEffect(() => {
     if (vendor?.id && !initialLoad) {
@@ -156,6 +157,9 @@ export default function UsersPage() {
       const sortDirection =
         sortDescriptor.direction === "ascending" ? "asc" : "desc";
 
+      const branchIds =
+        branchFilter === "all" ? [] : Array.from(branchFilter as Set<string>);
+
       const response: any = await api.get(`/users`, {
         params: {
           page,
@@ -165,6 +169,7 @@ export default function UsersPage() {
           sort_by: sortBy,
           sort_direction: sortDirection,
           role_id: roleFilter !== "all" ? roleFilter : undefined,
+          branch_ids: branchIds.length > 0 ? branchIds : undefined,
         },
       });
 
@@ -247,7 +252,6 @@ export default function UsersPage() {
     setSearchValue("");
     setCurrentPage(1);
   }, []);
-
 
   const renderCell = useCallback(
     (user: VendorUser, columnKey: React.Key) => {
@@ -374,6 +378,36 @@ export default function UsersPage() {
                 Delete All ({users.length})
               </Button>
             ) : null}
+
+            <Dropdown radius="sm">
+              <DropdownTrigger className="flex">
+                <Button
+                  endContent={<ChevronDown className="text-small" />}
+                  variant="flat"
+                >
+                  Branch:{" "}
+                  {branchFilter === "all"
+                    ? "All"
+                    : (branchFilter as Set<string>).size === 0
+                      ? "All"
+                      : `${(branchFilter as Set<string>).size} Selected`}
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                aria-label="Filter by Branch"
+                closeOnSelect={false}
+                disallowEmptySelection={false}
+                selectedKeys={branchFilter}
+                selectionMode="multiple"
+                onSelectionChange={setBranchFilter}
+              >
+                {membership?.user_branch_assignments?.map((assignment) => (
+                  <DropdownItem key={String(assignment.branch.id)}>
+                    {assignment.branch.name}
+                  </DropdownItem>
+                )) || []}
+              </DropdownMenu>
+            </Dropdown>
 
             <Dropdown radius="sm">
               <DropdownTrigger className="flex">
