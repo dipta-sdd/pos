@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { SortDescriptor } from "@heroui/table";
-import { Plus, ChevronDown } from "lucide-react";
+import { Plus, ChevronDown, Trash2 } from "lucide-react";
 import {
   Dropdown,
   DropdownTrigger,
@@ -13,6 +13,7 @@ import {
   DropdownItem,
 } from "@heroui/dropdown";
 import { Selection } from "@heroui/react";
+import { toast } from "sonner";
 
 import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
@@ -22,6 +23,7 @@ import CustomTable, { Column } from "@/components/ui/CustomTable";
 import api from "@/lib/api";
 import { Sale } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
+import Confirm from "@/components/ui/Confirm";
 
 const columns: Column[] = [
   { name: "SALE ID", uid: "id", sortable: true },
@@ -29,6 +31,7 @@ const columns: Column[] = [
   { name: "TOTAL", uid: "final_amount", sortable: true },
   { name: "STATUS", uid: "status", sortable: true },
   { name: "CREATED AT", uid: "created_at", sortable: true },
+  { name: "ACTIONS", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -37,6 +40,7 @@ const INITIAL_VISIBLE_COLUMNS = [
   "final_amount",
   "status",
   "created_at",
+  "actions",
 ];
 
 function capitalize(s: string) {
@@ -59,6 +63,9 @@ export default function SalesPage() {
   const [visibleColumns, setVisibleColumns] = useState<Selection>(
     new Set(INITIAL_VISIBLE_COLUMNS),
   );
+
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   const fetchItems = async (page: number) => {
     if (!vendor?.id) return;
@@ -92,6 +99,17 @@ export default function SalesPage() {
     }
   }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
 
+  const handleDelete = async (id: number) => {
+    try {
+      await api.delete(`/sales/${id}`);
+      toast.success("Sale deleted successfully");
+      fetchItems(currentPage);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to delete sale");
+    }
+    setDeleteConfirmOpen(false);
+  };
+
   const renderCell = useCallback((item: Sale, columnKey: React.Key) => {
     switch (columnKey) {
       case "customer":
@@ -106,6 +124,22 @@ export default function SalesPage() {
         return typeof item.final_amount === "number"
           ? item.final_amount.toFixed(2)
           : item.final_amount;
+      case "actions":
+        return (
+          <div className="flex items-center justify-end gap-2">
+            <Button
+              isIconOnly
+              size="sm"
+              variant="light"
+              onPress={() => {
+                setDeleteConfirmId(item.id);
+                setDeleteConfirmOpen(true);
+              }}
+            >
+              <Trash2 className="w-4 h-4 text-danger" />
+            </Button>
+          </div>
+        );
       default:
         return (item as any)[columnKey as keyof Sale];
     }
@@ -179,6 +213,15 @@ export default function SalesPage() {
           setSortDescriptor={setSortDescriptor}
           sortDescriptor={sortDescriptor}
           visibleColumns={visibleColumns}
+        />
+
+        <Confirm
+          isOpen={deleteConfirmOpen}
+          message="Are you sure you want to delete this sale record?"
+          title="Delete Sale"
+          onConfirm={(id) => handleDelete(id as number)}
+          onConfirmProp={deleteConfirmId || ""}
+          onOpenChange={setDeleteConfirmOpen}
         />
       </div>
     </PermissionGuard>

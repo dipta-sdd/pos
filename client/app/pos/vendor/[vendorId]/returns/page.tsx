@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { SortDescriptor } from "@heroui/table";
-import { Plus, ChevronDown } from "lucide-react";
+import { Plus, ChevronDown, Trash2 } from "lucide-react";
 import {
   Dropdown,
   DropdownTrigger,
@@ -12,6 +12,16 @@ import {
   DropdownItem,
 } from "@heroui/dropdown";
 import { Selection } from "@heroui/react";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  useDisclosure,
+} from "@heroui/modal";
+import { toast } from "sonner";
+
+import ReturnForm from "./_components/ReturnForm";
 
 import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
@@ -21,6 +31,7 @@ import CustomTable, { Column } from "@/components/ui/CustomTable";
 import api from "@/lib/api";
 import { SaleReturn } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
+import Confirm from "@/components/ui/Confirm";
 
 const columns: Column[] = [
   { name: "RETURN ID", uid: "id", sortable: true },
@@ -28,6 +39,7 @@ const columns: Column[] = [
   { name: "REASON", uid: "reason", sortable: true },
   { name: "TOTAL REFUNDED", uid: "refund_amount", sortable: true },
   { name: "CREATED AT", uid: "created_at", sortable: true },
+  { name: "ACTIONS", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -36,6 +48,7 @@ const INITIAL_VISIBLE_COLUMNS = [
   "reason",
   "refund_amount",
   "created_at",
+  "actions",
 ];
 
 function capitalize(s: string) {
@@ -57,6 +70,10 @@ export default function ReturnsPage() {
   const [visibleColumns, setVisibleColumns] = useState<Selection>(
     new Set(INITIAL_VISIBLE_COLUMNS),
   );
+
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   const fetchItems = async (page: number) => {
     if (!vendor?.id) return;
@@ -90,6 +107,17 @@ export default function ReturnsPage() {
     }
   }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
 
+  const handleDelete = async (id: number) => {
+    try {
+      await api.delete(`/sale-returns/${id}`);
+      toast.success("Return record deleted successfully");
+      fetchItems(currentPage);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to delete return record");
+    }
+    setDeleteConfirmOpen(false);
+  };
+
   const renderCell = useCallback((item: SaleReturn, columnKey: React.Key) => {
     switch (columnKey) {
       case "created_at":
@@ -98,6 +126,22 @@ export default function ReturnsPage() {
         return typeof item.refund_amount === "number"
           ? item.refund_amount.toFixed(2)
           : item.refund_amount;
+      case "actions":
+        return (
+          <div className="flex items-center justify-end gap-2">
+            <Button
+              isIconOnly
+              size="sm"
+              variant="light"
+              onPress={() => {
+                setDeleteConfirmId(item.id);
+                setDeleteConfirmOpen(true);
+              }}
+            >
+              <Trash2 className="w-4 h-4 text-danger" />
+            </Button>
+          </div>
+        );
       default:
         return (item as any)[columnKey as keyof SaleReturn];
     }
@@ -112,7 +156,11 @@ export default function ReturnsPage() {
           description="Manage sales returns and refunds"
           title="Returns"
         >
-          <Button color="primary" startContent={<Plus className="w-4 h-4" />}>
+          <Button
+            color="primary"
+            startContent={<Plus className="w-4 h-4" />}
+            onPress={onOpen}
+          >
             Process Return
           </Button>
         </PageHeader>
@@ -167,6 +215,34 @@ export default function ReturnsPage() {
           setSortDescriptor={setSortDescriptor}
           sortDescriptor={sortDescriptor}
           visibleColumns={visibleColumns}
+        />
+
+        <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="2xl">
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader>Process Sale Return</ModalHeader>
+                <ModalBody>
+                  <ReturnForm
+                    onCancel={onClose}
+                    onSuccess={() => {
+                      onClose();
+                      fetchItems(currentPage);
+                    }}
+                  />
+                </ModalBody>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
+
+        <Confirm
+          isOpen={deleteConfirmOpen}
+          message="Are you sure you want to delete this return record?"
+          title="Delete Return"
+          onConfirm={(id) => handleDelete(id as number)}
+          onConfirmProp={deleteConfirmId || ""}
+          onOpenChange={setDeleteConfirmOpen}
         />
       </div>
     </PermissionGuard>
