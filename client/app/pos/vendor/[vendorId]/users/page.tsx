@@ -28,9 +28,11 @@ import { SearchIcon } from "@/components/icons";
 import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
+import { PageHeader } from "@/components/ui/PageHeader";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
 import Confirm from "@/components/ui/Confirm";
 import { formatDateTime } from "@/lib/helper/dates";
+import { useAuth } from "@/lib/hooks/useAuth";
 
 interface VendorUser {
   id: number;
@@ -94,8 +96,17 @@ export default function UsersPage() {
   // search states
   const [searchValue, setSearchValue] = useState<string>("");
 
+  // Filter states
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [roles, setRoles] = useState<any[]>([]);
+
+  // Selection states
+  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
+
   // delete confirm states
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
+  const [deleteBulkConfirmOpen, setDeleteBulkConfirmOpen] =
+    useState<boolean>(false);
   const [deleteConfirmProp, setDeleteConfirmProp] = useState<number | string>(
     "",
   );
@@ -105,6 +116,7 @@ export default function UsersPage() {
   useEffect(() => {
     if (vendor?.id) {
       fetchUsers(1);
+      fetchRoles();
     }
   }, [vendor?.id]);
 
@@ -112,7 +124,7 @@ export default function UsersPage() {
     if (vendor?.id && !initialLoad) {
       fetchUsers(1);
     }
-  }, [perPage, sortDescriptor]);
+  }, [perPage, sortDescriptor, roleFilter]);
 
   useEffect(() => {
     if (vendor?.id && !initialLoad) {
@@ -130,6 +142,13 @@ export default function UsersPage() {
     }
   }, [searchValue]);
 
+  const fetchRoles = async () => {
+    try {
+      const response: any = await api.get(`/roles?vendor_id=${vendor?.id}`);
+      setRoles(response?.data?.data || []);
+    } catch (_error: any) {}
+  };
+
   const fetchUsers = async (page: number) => {
     setLoading(true);
     setUsers([]);
@@ -146,6 +165,7 @@ export default function UsersPage() {
           search: searchValue,
           sort_by: sortBy,
           sort_direction: sortDirection,
+          role_id: roleFilter !== "all" ? roleFilter : undefined,
         },
       });
 
@@ -196,6 +216,29 @@ export default function UsersPage() {
     setDeleteConfirmProp("");
   };
 
+  const handleBulkDelete = async () => {
+    try {
+      const userIds =
+        selectedKeys === "all"
+          ? users.map((u) => u.id)
+          : Array.from(selectedKeys as Set<string>).map((id) => Number(id));
+
+      await (api as any).delete(`/users/bulk`, {
+        data: {
+          vendor_id: vendor?.id,
+          user_ids: userIds,
+        },
+      });
+
+      toast.success(`${userIds.length} users removed successfully`);
+      setSelectedKeys(new Set([]));
+      fetchUsers(currentPage);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to remove users");
+    }
+    setDeleteBulkConfirmOpen(false);
+  };
+
   const onSearchChange = useCallback((value?: string) => {
     setSearchValue(value || "");
     setCurrentPage(1);
@@ -205,6 +248,9 @@ export default function UsersPage() {
     setSearchValue("");
     setCurrentPage(1);
   }, []);
+
+  const { user } = useAuth();
+  console.log(user);
 
   const renderCell = useCallback(
     (user: VendorUser, columnKey: React.Key) => {
@@ -282,15 +328,20 @@ export default function UsersPage() {
   return (
     <PermissionGuard permission="can_manage_staff">
       <div className="p-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            User Management
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">
-            Manage staff members and their roles
-          </p>
-        </div>
-        <div className="flex justify-between gap-3 items-end">
+        <PageHeader
+          description="Manage staff members and their roles"
+          title="User Management"
+        >
+          <Button
+            color="primary"
+            radius="sm"
+            startContent={<Plus className="w-4 h-4" />}
+            onPress={handleCreate}
+          >
+            Add New User
+          </Button>
+        </PageHeader>
+        <div className="flex justify-between gap-3 items-end mb-4">
           <Input
             isClearable
             classNames={{
@@ -305,6 +356,61 @@ export default function UsersPage() {
             onValueChange={onSearchChange}
           />
           <div className="flex gap-3">
+            {selectedKeys !== "all" && (selectedKeys as any).size > 0 ? (
+              <Button
+                color="danger"
+                radius="sm"
+                startContent={<Trash2 className="w-4 h-4" />}
+                variant="flat"
+                onPress={() => setDeleteBulkConfirmOpen(true)}
+              >
+                Delete Selected ({(selectedKeys as any).size})
+              </Button>
+            ) : selectedKeys === "all" ? (
+              <Button
+                color="danger"
+                radius="sm"
+                startContent={<Trash2 className="w-4 h-4" />}
+                variant="flat"
+                onPress={() => setDeleteBulkConfirmOpen(true)}
+              >
+                Delete All ({users.length})
+              </Button>
+            ) : null}
+
+            <Dropdown radius="sm">
+              <DropdownTrigger className="flex">
+                <Button
+                  endContent={<ChevronDown className="text-small" />}
+                  variant="flat"
+                >
+                  Role:{" "}
+                  {roleFilter === "all"
+                    ? "All"
+                    : roles.find((r) => String(r.id) === roleFilter)?.name}
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                aria-label="Filter by Role"
+                disallowEmptySelection
+                selectedKeys={new Set([roleFilter])}
+                selectionMode="single"
+                onSelectionChange={(keys) => {
+                  const selectedValue = Array.from(keys as Set<string>)[0];
+                  setRoleFilter(selectedValue);
+                }}
+              >
+                {[
+                  <DropdownItem key="all">All Roles</DropdownItem>,
+                  ...roles.map((role) => (
+                    <DropdownItem key={String(role.id)}>
+                      {role.name}
+                    </DropdownItem>
+                  )),
+                ]}
+              </DropdownMenu>
+            </Dropdown>
+
             <Dropdown radius="sm">
               <DropdownTrigger className="flex">
                 <Button
@@ -329,14 +435,6 @@ export default function UsersPage() {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button
-              color="primary"
-              radius="sm"
-              startContent={<Plus className="w-4 h-4" />}
-              onPress={handleCreate}
-            >
-              Add New User
-            </Button>
           </div>
         </div>
 
@@ -349,11 +447,14 @@ export default function UsersPage() {
           lastPage={lastPage}
           perPage={perPage}
           renderCell={renderCell}
+          selectedKeys={selectedKeys}
+          selectionMode="multiple"
           setCurrentPage={setCurrentPage}
           setPerPage={setPerPage}
           setSortDescriptor={setSortDescriptor}
           sortDescriptor={sortDescriptor}
           visibleColumns={visibleColumns}
+          onSelectionChange={setSelectedKeys}
         />
         <Confirm
           isOpen={deleteConfirmOpen}
@@ -362,6 +463,15 @@ export default function UsersPage() {
           onConfirm={(id) => handleDelete(id as number)}
           onConfirmProp={deleteConfirmProp}
           onOpenChange={setDeleteConfirmOpen}
+        />
+        <Confirm
+          isOpen={deleteBulkConfirmOpen}
+          message={`Are you sure you want to remove ${
+            selectedKeys === "all" ? users.length : (selectedKeys as any).size
+          } users from the vendor?`}
+          title="Bulk Remove Users"
+          onConfirm={handleBulkDelete}
+          onOpenChange={setDeleteBulkConfirmOpen}
         />
 
         {/* Create/Edit User Modal */}

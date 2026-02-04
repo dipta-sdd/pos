@@ -10,7 +10,7 @@ class InventoryAdjustment extends Model
 {
     use HasFactory;
 
-    protected  = [
+    protected $fillable = [
         'vendor_id',
         'variant_id',
         'quantity',

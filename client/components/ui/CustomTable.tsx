@@ -34,6 +34,9 @@ interface CustomTableProps {
   loadingState?: React.ReactNode;
   emptyState?: React.ReactNode;
   ariaLabel?: string;
+  selectionMode?: "none" | "single" | "multiple";
+  selectedKeys?: "all" | Selection;
+  onSelectionChange?: (keys: "all" | Selection) => void;
 }
 
 const CustomTable: React.FC<CustomTableProps> = ({
@@ -52,6 +55,9 @@ const CustomTable: React.FC<CustomTableProps> = ({
   loadingState,
   emptyState = "No items found.",
   ariaLabel,
+  selectionMode = "none",
+  selectedKeys,
+  onSelectionChange,
 }) => {
   const classNames = useMemo(
     () => ({
@@ -135,6 +141,9 @@ const CustomTable: React.FC<CustomTableProps> = ({
       classNames={classNames}
       sortDescriptor={sortDescriptor}
       onSortChange={setSortDescriptor}
+      selectedKeys={selectedKeys}
+      selectionMode={selectionMode}
+      onSelectionChange={onSelectionChange}
     >
       <TableHeader columns={headerColumns}>
         {(column) => (

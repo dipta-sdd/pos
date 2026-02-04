@@ -307,6 +307,7 @@ Route::middleware('log.api')->group(function () {
         Route::prefix('users')->middleware('permission:can_manage_staff')->group(function () {
             Route::get('/', [\App\Http\Controllers\VendorUserController::class, 'index']);
             Route::post('/', [\App\Http\Controllers\VendorUserController::class, 'store']);
+            Route::delete('/bulk', [\App\Http\Controllers\VendorUserController::class, 'bulkDestroy']);
             Route::get('/{user}', [\App\Http\Controllers\VendorUserController::class, 'show']);
             Route::put('/{user}', [\App\Http\Controllers\VendorUserController::class, 'update']);
             Route::delete('/{user}', [\App\Http\Controllers\VendorUserController::class, 'destroy']);

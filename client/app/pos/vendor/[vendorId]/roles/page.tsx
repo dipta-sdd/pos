@@ -16,13 +16,14 @@ import {
 import { useRouter } from "next/navigation";
 
 import { SearchIcon } from "@/components/icons";
-import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
+import { PageHeader } from "@/components/ui/PageHeader";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
 import Confirm from "@/components/ui/Confirm";
 import { formatDateTime } from "@/lib/helper/dates";
 import { Role } from "@/lib/types/auth";
+import api from "@/lib/api";
 
 const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
@@ -227,15 +228,19 @@ export default function RolesPage() {
   return (
     <PermissionGuard permission="can_manage_roles_and_permissions">
       <div className="p-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Roles
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">
-            Manage your staff roles and permissions
-          </p>
-        </div>
-        <div className="flex justify-between gap-3 items-end">
+        <PageHeader
+          description="Manage your staff roles and permissions"
+          title="Roles"
+        >
+          <Button
+            color="primary"
+            radius="sm"
+            onPress={() => router.push(`/pos/vendor/${vendor?.id}/roles/new`)}
+          >
+            Add New Role
+          </Button>
+        </PageHeader>
+        <div className="flex justify-between gap-3 items-end mb-4">
           <Input
             isClearable
             classNames={{
@@ -274,13 +279,6 @@ export default function RolesPage() {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button
-              color="primary"
-              radius="sm"
-              onPress={() => router.push(`/pos/vendor/${vendor?.id}/roles/new`)}
-            >
-              Add New Role
-            </Button>
           </div>
         </div>
 

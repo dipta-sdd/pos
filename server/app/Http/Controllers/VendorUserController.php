@@ -24,6 +24,7 @@ class VendorUserController extends Controller
             'search' => 'nullable|string',
             'sort_by' => 'nullable|string',
             'sort_direction' => 'nullable|in:asc,desc',
+            'role_id' => 'nullable|exists:roles,id',
         ]);
 
         $vendorId = $request->vendor_id;
@@ -31,10 +32,14 @@ class VendorUserController extends Controller
         $search = $request->search;
         $sortBy = $request->sort_by ?? 'created_at';
         $sortDirection = $request->sort_direction ?? 'desc';
+        $roleId = $request->role_id;
 
         $query = User::query()
-            ->whereHas('memberships', function ($q) use ($vendorId) {
+            ->whereHas('memberships', function ($q) use ($vendorId, $roleId) {
                 $q->where('vendor_id', $vendorId);
+                if ($roleId) {
+                    $q->where('role_id', $roleId);
+                }
             })
             ->with([
                 'memberships' => function ($q) use ($vendorId) {
@@ -257,5 +262,35 @@ class VendorUserController extends Controller
         UserBranchAssignment::where('membership_id', $membership->id)->delete();
 
         return response()->json(['message' => 'User removed from vendor successfully.']);
+    }
+
+    /**
+     * Remove multiple users from the vendor.
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'vendor_id' => 'required|exists:vendors,id',
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id',
+        ]);
+
+        $vendorId = $request->vendor_id;
+        $userIds = $request->user_ids;
+
+        return DB::transaction(function () use ($vendorId, $userIds) {
+            $memberships = Membership::whereIn('user_id', $userIds)
+                ->where('vendor_id', $vendorId)
+                ->get();
+
+            $membershipIds = $memberships->pluck('id');
+
+            Membership::whereIn('id', $membershipIds)->delete();
+            UserBranchAssignment::whereIn('membership_id', $membershipIds)->delete();
+
+            return response()->json([
+                'message' => count($membershipIds) . ' users removed from vendor successfully.'
+            ]);
+        });
     }
 }

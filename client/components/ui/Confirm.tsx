@@ -10,8 +10,8 @@ import {
 import { Button } from "@heroui/button";
 
 interface ConfirmProps {
-  onConfirmProp: string | number;
-  onConfirm: (prop: string | number) => void;
+  onConfirmProp?: string | number;
+  onConfirm: (prop?: string | number) => void;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   color?:

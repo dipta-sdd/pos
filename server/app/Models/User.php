@@ -75,7 +75,7 @@ class User extends Authenticatable implements JWTSubject
     // Relationships
     public function memberships(): HasMany
     {
-        return $this->hasMany(Membership::class)->with('vendor');
+        return $this->hasMany(Membership::class)->with('vendor')->with('userBranchAssignments');
     }
 
     public function ownedVendors(): HasMany

@@ -34,6 +34,7 @@ import BranchForm from "./_components/BranchForm";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import { SearchIcon } from "@/components/icons";
+import { PageHeader } from "@/components/ui/PageHeader";
 import api from "@/lib/api";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
 import Confirm from "@/components/ui/Confirm";
@@ -289,15 +290,12 @@ export default function BranchesPage() {
   return (
     <PermissionGuard permission="can_manage_branches_and_counters">
       <div className="p-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Branches
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">
-            Manage your shop locations
-          </p>
-        </div>
-        <div className="flex justify-between gap-3 items-end">
+        <PageHeader description="Manage your shop locations" title="Branches">
+          <Button color="primary" radius="sm" onPress={handleCreate}>
+            Add New Branch
+          </Button>
+        </PageHeader>
+        <div className="flex justify-between gap-3 items-end mb-4">
           <Input
             isClearable
             classNames={{
@@ -336,9 +334,6 @@ export default function BranchesPage() {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button color="primary" radius="sm" onPress={handleCreate}>
-              Add New Branch
-            </Button>
           </div>
         </div>
 

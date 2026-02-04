@@ -10,6 +10,7 @@ import {
   Building2,
   ArrowLeft,
 } from "lucide-react";
+import { Button } from "@heroui/react";
 
 import { UserInfo } from "@/components/user-info";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -85,7 +86,7 @@ export default function VendorPOS() {
       <div className="">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
+          <div className="flex items-center gap-4 mb-6">
             <button
               className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
               onClick={() => router.push("/pos")}
@@ -95,26 +96,41 @@ export default function VendorPOS() {
             </button>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-              <Building2 className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                {selectedVendor.name}
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400">
-                Welcome back, {user?.firstName}! Here&apos;s what&apos;s
-                happening with {selectedVendor.name} today.
-              </p>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
-                  {userMembership.role.name}
-                </span>
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
-                  {selectedVendor.subscription_tier}
-                </span>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center shrink-0">
+                <Building2 className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                  {selectedVendor.name}
+                </h1>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Welcome back, {user?.firstName}! Here&apos;s what&apos;s
+                  happening with {selectedVendor.name} today.
+                </p>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
+                    {userMembership.role.name}
+                  </span>
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
+                    {selectedVendor.subscription_tier}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                color="primary"
+                size="lg"
+                startContent={<CreditCard className="w-5 h-5" />}
+                onPress={() =>
+                  router.push(`/pos/vendor/${selectedVendor.id}/pos`)
+                }
+              >
+                New Sale
+              </Button>
             </div>
           </div>
         </div>
