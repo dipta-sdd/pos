@@ -154,6 +154,68 @@ export interface CashRegisterSession {
   };
 }
 
+export interface Promotion {
+  id: number;
+  vendor_id: number;
+  branch_id?: number;
+  name: string;
+  discount_type: string;
+  discount_value: string | number;
+  applies_to: string;
+  product_id?: number;
+  variant_id?: number;
+  category_id?: number;
+  start_date: string;
+  end_date: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StockTransfer {
+  id: number;
+  vendor_id: number;
+  from_branch_id: number;
+  to_branch_id: number;
+  status: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+  from_branch?: Branch;
+  to_branch?: Branch;
+}
+
+export interface Expense {
+  id: number;
+  vendor_id: number;
+  branch_id: number;
+  expense_category_id: number;
+  amount: string | number;
+  description?: string;
+  expense_date: string;
+  created_at: string;
+  updated_at: string;
+  expense_category?: ExpenseCategory;
+  branch?: Branch;
+}
+
+export interface ExpenseCategory {
+  id: number;
+  vendor_id: number;
+  name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BillingCounter {
+  id: number;
+  branch_id: number;
+  name: string;
+  created_at: string;
+  updated_at: string;
+  branch?: Branch;
+}
+
 export interface PaymentMethod {
   id: number;
   vendor_id: number;

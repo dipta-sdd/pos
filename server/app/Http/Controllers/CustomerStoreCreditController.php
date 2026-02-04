@@ -7,9 +7,29 @@ use Illuminate\Http\Request;
 
 class CustomerStoreCreditController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return CustomerStoreCredit::paginate();
+        $query = CustomerStoreCredit::with('customer');
+
+        if ($request->has('vendor_id')) {
+            $query->whereHas('customer', function ($q) use ($request) {
+                $q->where('vendor_id', $request->vendor_id);
+            });
+        }
+
+        if ($request->has('customer_id')) {
+            $query->where('customer_id', $request->customer_id);
+        }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->whereHas('customer', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        $perPage = $request->input('per_page', 15);
+        return $query->paginate($perPage);
     }
 
     public function store(Request $request)
@@ -29,7 +49,7 @@ class CustomerStoreCreditController extends Controller
 
     public function show(CustomerStoreCredit $customerStoreCredit)
     {
-        return $customerStoreCredit;
+        return $customerStoreCredit->load('customer');
     }
 
     public function update(Request $request, CustomerStoreCredit $customerStoreCredit)

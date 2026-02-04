@@ -74,10 +74,10 @@ export default function UsersPage() {
 
   // table states
   const [users, setUsers] = useState<VendorUser[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [lastPage, setLastPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [lastPage, setLastPage] = useState<number>(1);
+  const [perPage, setPerPage] = useState<number>(10);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "joined_at",
     direction: "descending",
@@ -89,10 +89,10 @@ export default function UsersPage() {
   // modal states
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [selectedUser, setSelectedUser] = useState<VendorUser | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
 
   // search states
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState<string>("");
 
   // delete confirm states
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
@@ -100,7 +100,7 @@ export default function UsersPage() {
     "",
   );
 
-  const [initialLoad, setInitialLoad] = useState(true);
+  const [initialLoad, setInitialLoad] = useState<boolean>(true);
 
   useEffect(() => {
     if (vendor?.id) {
@@ -138,24 +138,20 @@ export default function UsersPage() {
       const sortDirection =
         sortDescriptor.direction === "ascending" ? "asc" : "desc";
 
-      const response = await api.get(`/users`, {
+      const response: any = await api.get(`/users`, {
         params: {
           page,
           per_page: perPage,
-          vendor_id: vendor?.id,
           search: searchValue,
           sort_by: sortBy,
           sort_direction: sortDirection,
         },
       });
 
-      // @ts-ignore
-      setUsers(response?.data?.data);
-      // @ts-ignore
-      setCurrentPage(response?.data?.current_page);
-      // @ts-ignore
-      setLastPage(response?.data?.last_page);
-    } catch (_error) {
+      setUsers(response?.data?.data || []);
+      setCurrentPage(response?.data?.current_page || 1);
+      setLastPage(response?.data?.last_page || 1);
+    } catch (_error: any) {
       // console.error("Failed to fetch users:", error);
     } finally {
       setLoading(false);
@@ -170,24 +166,6 @@ export default function UsersPage() {
   };
 
   const handleEdit = (user: VendorUser) => {
-    // Transform user data to match format expected by UserForm if necessary
-    // UserForm expects standard fields + role_id + branch_ids
-    // The table fetch response seems to put branches in user.branches object array and role in user.role object
-    // We might need raw IDs for form initialData
-    // However, the backend show/index response might already be optimized or we might rely on UserForm re-fetching if we passed ID?
-    // UserForm accepts `initialData` which usually matches the form fields.
-    // Let's ensure `user` has `role_id` and `branch_ids` or UserForm handles it.
-    // Looking at VendorUserController index: it returns role object and branches object array.
-    // It also populates `role_id` and `branch_ids` (check backend implementation plan vs code).
-    // The controller index transformation does:
-    // $user->membership_id = ...
-    // $user->role = ...
-    // $user->branches = ...
-    // It MISSES `role_id` and `branch_ids` in index transformation?
-    // Let's quickly re-check controller code or assume we might need to fetch single user or augment here.
-    // Actually, getting full details for edit is safer. But for modal speed, we can assume.
-    // Let's pass the user object, and if UserForm needs more it might need adjustment or we map it here.
-
     // Mapping for UserForm:
     const mappedUser = {
       ...user,
@@ -207,7 +185,7 @@ export default function UsersPage() {
 
   const handleDelete = async (userId: number) => {
     try {
-      await api.delete(`/users/${userId}?vendor_id=${vendor?.id}`);
+      await api.delete(`/users/${userId}`);
       toast.success("User removed successfully");
       fetchUsers(currentPage);
     } catch (error: any) {

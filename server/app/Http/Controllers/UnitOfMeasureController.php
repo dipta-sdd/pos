@@ -19,7 +19,7 @@ class UnitOfMeasureController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('short_code', 'like', "%{$search}%");
+                    ->orWhere('abbreviation', 'like', "%{$search}%");
             });
         }
 
@@ -31,7 +31,8 @@ class UnitOfMeasureController extends Controller
     {
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'short_code' => 'required|string|max:255',
+            'abbreviation' => 'required|string|max:255',
+            'is_decimal_allowed' => 'boolean',
             'vendor_id' => 'required|exists:vendors,id',
         ]);
 
@@ -52,7 +53,8 @@ class UnitOfMeasureController extends Controller
     {
         $validatedData = $request->validate([
             'name' => 'string|max:255',
-            'short_code' => 'string|max:255',
+            'abbreviation' => 'string|max:255',
+            'is_decimal_allowed' => 'boolean',
         ]);
 
         $validatedData['updated_by'] = $request->user()->id;

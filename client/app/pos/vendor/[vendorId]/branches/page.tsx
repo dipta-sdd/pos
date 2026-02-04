@@ -68,10 +68,10 @@ export default function BranchesPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
   // table states
   const [branches, setBranches] = useState<Branch[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [lastPage, setLastPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [lastPage, setLastPage] = useState<number>(1);
+  const [perPage, setPerPage] = useState<number>(10);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "created_at",
     direction: "descending",
@@ -82,7 +82,7 @@ export default function BranchesPage() {
 
   // end table states
   // modal states
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState<string>("");
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
   // end modal states
@@ -93,7 +93,7 @@ export default function BranchesPage() {
   );
 
   // end delete confirm states
-  const [initialLoad, setInitialLoad] = useState(true);
+  const [initialLoad, setInitialLoad] = useState<boolean>(true);
 
   useEffect(() => {
     if (vendor?.id) {
@@ -128,24 +128,20 @@ export default function BranchesPage() {
       const sortDirection =
         sortDescriptor.direction === "ascending" ? "asc" : "desc";
 
-      const response = await api.get(`/branches`, {
+      const response: any = await api.get(`/branches`, {
         params: {
           page,
           per_page: perPage,
-          vendor_id: vendor?.id,
           search: searchValue,
           sort_by: sortBy,
           sort_direction: sortDirection,
         },
       });
 
-      // @ts-ignore
-      setBranches(response?.data?.data);
-      // @ts-ignore
-      setCurrentPage(response?.data?.current_page);
-      // @ts-ignore
-      setLastPage(response?.data?.last_page);
-    } catch (_error) {
+      setBranches(response?.data?.data || []);
+      setCurrentPage(response?.data?.current_page || 1);
+      setLastPage(response?.data?.last_page || 1);
+    } catch (_error: any) {
       // console.error("Failed to fetch branches:", error);
     } finally {
       setLoading(false);
@@ -155,7 +151,7 @@ export default function BranchesPage() {
 
   const handleDelete = async (branchId: number) => {
     try {
-      await api.delete(`/branches/${branchId}?vendor_id=${vendor?.id}`);
+      await api.delete(`/branches/${branchId}`);
       toast.success("Branch deleted successfully");
       fetchBranches(currentPage);
     } catch (error: any) {

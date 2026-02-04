@@ -18,6 +18,8 @@ class UnitOfMeasure extends Model
         'name',
         'abbreviation',
         'is_decimal_allowed',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [

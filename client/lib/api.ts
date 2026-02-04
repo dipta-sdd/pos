@@ -24,6 +24,21 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    // Automatically add vendor_id from URL if we are in the POS vendor context
+    if (typeof window !== "undefined") {
+      const pathname = window.location.pathname;
+      const match = pathname.match(/\/pos\/vendor\/(\d+)/);
+
+      if (match && match[1]) {
+        const vendorId = match[1];
+
+        config.params = {
+          vendor_id: vendorId,
+          ...(config.params as Record<string, unknown>),
+        };
+      }
+    }
+
     return config;
   },
   (error) => {
