@@ -71,7 +71,13 @@ function capitalize(s: string) {
 
 export default function UsersPage() {
   const router = useRouter();
-  const { vendor, isLoading: contextLoading, membership } = useVendor();
+  const {
+    vendor,
+    isLoading: contextLoading,
+    membership,
+    selectedBranchIds,
+    updateBranchFilter,
+  } = useVendor();
 
   // table states
   const [users, setUsers] = useState<VendorUser[]>([]);
@@ -98,7 +104,6 @@ export default function UsersPage() {
   // Filter states
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [roles, setRoles] = useState<any[]>([]);
-  const [branchFilter, setBranchFilter] = useState<Selection>(new Set([]));
 
   // Selection states
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
@@ -124,7 +129,7 @@ export default function UsersPage() {
     if (vendor?.id && !initialLoad) {
       fetchUsers(1);
     }
-  }, [perPage, sortDescriptor, roleFilter, branchFilter]);
+  }, [perPage, sortDescriptor, roleFilter, selectedBranchIds]);
 
   useEffect(() => {
     if (vendor?.id && !initialLoad) {
@@ -157,9 +162,6 @@ export default function UsersPage() {
       const sortDirection =
         sortDescriptor.direction === "ascending" ? "asc" : "desc";
 
-      const branchIds =
-        branchFilter === "all" ? [] : Array.from(branchFilter as Set<string>);
-
       const response: any = await api.get(`/users`, {
         params: {
           page,
@@ -169,7 +171,8 @@ export default function UsersPage() {
           sort_by: sortBy,
           sort_direction: sortDirection,
           role_id: roleFilter !== "all" ? roleFilter : undefined,
-          branch_ids: branchIds.length > 0 ? branchIds : undefined,
+          branch_ids:
+            selectedBranchIds.length > 0 ? selectedBranchIds : undefined,
         },
       });
 
@@ -386,20 +389,21 @@ export default function UsersPage() {
                   variant="flat"
                 >
                   Branch:{" "}
-                  {branchFilter === "all"
+                  {selectedBranchIds.length === 0
                     ? "All"
-                    : (branchFilter as Set<string>).size === 0
-                      ? "All"
-                      : `${(branchFilter as Set<string>).size} Selected`}
+                    : `${selectedBranchIds.length} Selected`}
                 </Button>
               </DropdownTrigger>
               <DropdownMenu
                 aria-label="Filter by Branch"
                 closeOnSelect={false}
                 disallowEmptySelection={false}
-                selectedKeys={branchFilter}
+                selectedKeys={new Set(selectedBranchIds)}
                 selectionMode="multiple"
-                onSelectionChange={setBranchFilter}
+                onSelectionChange={(keys) => {
+                  const ids = Array.from(keys as Set<string>);
+                  updateBranchFilter(ids);
+                }}
               >
                 {membership?.user_branch_assignments?.map((assignment) => (
                   <DropdownItem key={String(assignment.branch.id)}>

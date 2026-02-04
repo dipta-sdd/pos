@@ -9,7 +9,12 @@ import {
   useState,
   ReactNode,
 } from "react";
-import { useParams, useRouter } from "next/navigation";
+import {
+  useParams,
+  useRouter,
+  useSearchParams,
+  usePathname,
+} from "next/navigation";
 
 import { useAuth } from "../hooks/useAuth";
 
@@ -18,6 +23,8 @@ interface VendorContextType {
   membership: Membership | null;
   currentRole: Role | null;
   isLoading: boolean;
+  selectedBranchIds: string[];
+  updateBranchFilter: (ids: string[]) => void;
 }
 
 const VendorContext = createContext<VendorContextType | undefined>(undefined);
@@ -39,11 +46,54 @@ interface VendorProviderProps {
 export const VendorProvider = ({ children }: VendorProviderProps) => {
   const { user, isLoading: authLoading } = useAuth();
   const params = useParams();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const router = useRouter();
 
   const [vendor, setVendor] = useState<Vendor | null>(null);
   const [membership, setMembership] = useState<Membership | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedBranchIds, setSelectedBranchIds] = useState<string[]>([]);
+
+  // Initialize from URL on mount
+  useEffect(() => {
+    const branchIds = searchParams.getAll("branch_ids[]");
+    // Handle both array notation and single value (or comma separated if we supported that, but stick to array notation standard)
+    // Next.js readable params might be key=val&key=val2 for branch_ids
+    // Or users might manually navigate.
+    // The previous implementation used get("branch_ids") which implies single. Usually frameworks differentiate.
+    // Let's rely on getAll for 'branch_ids' or 'branch_ids[]'
+    let ids = searchParams.getAll("branch_ids");
+    if (ids.length === 0) {
+      ids = searchParams.getAll("branch_ids[]");
+    }
+
+    if (ids.length > 0) {
+      setSelectedBranchIds(ids);
+    }
+  }, [searchParams]);
+
+  const updateBranchFilter = (ids: string[]) => {
+    setSelectedBranchIds(ids);
+
+    const current = new URLSearchParams(
+      Array.from(searchParams.entries()) as [string, string][],
+    );
+
+    // Clear existing
+    current.delete("branch_ids");
+    current.delete("branch_ids[]");
+
+    // Append new
+    ids.forEach((id) => {
+      current.append("branch_ids[]", id);
+    });
+
+    const search = current.toString();
+    const query = search ? `?${search}` : "";
+
+    router.push(`${pathname}${query}`);
+  };
 
   useEffect(() => {
     if (authLoading) return;
@@ -82,6 +132,8 @@ export const VendorProvider = ({ children }: VendorProviderProps) => {
     membership,
     currentRole: membership?.role || null,
     isLoading: isLoading || authLoading,
+    selectedBranchIds,
+    updateBranchFilter,
   };
 
   return (

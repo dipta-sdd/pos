@@ -53,11 +53,16 @@ export type MenuItem = {
 };
 
 export default function Sidebar() {
-  const { vendor, currentRole, isLoading } = useVendor();
+  const { vendor, currentRole, isLoading, selectedBranchIds } = useVendor();
   // const [isOpen, setIsOpen] = useState(false); // Mobile off-canvas state
 
   const { isOpen, setIsOpen } = useSidebar();
   const pathname = usePathname();
+
+  // Helper to construct query string
+  const queryString = selectedBranchIds?.length
+    ? "?" + selectedBranchIds.map((id) => `branch_ids[]=${id}`).join("&")
+    : "";
 
   if (isLoading || !vendor) return null;
 
@@ -333,7 +338,12 @@ export default function Sidebar() {
         {/* Navigation Menu */}
         <nav className="flex-1 p-0 space-y-2 pt-2 overflow-y-auto overflow-x-hidden">
           {filteredItems.map((item, index) => (
-            <SidebarOption key={index} activeItem={pathname} item={item} />
+            <SidebarOption
+              key={index}
+              activeItem={pathname}
+              item={item}
+              queryParams={queryString}
+            />
           ))}
         </nav>
       </div>
@@ -344,15 +354,27 @@ export default function Sidebar() {
 export function SidebarOption({
   item,
   activeItem,
+  queryParams,
 }: {
   item: MenuItem;
   activeItem: string | null;
+  queryParams: string;
 }) {
   const [isDropDownOpen, setIsDropDownOpen] = useState(false);
   const isDropDown = item.subItems && item.subItems.length > 0;
 
+  const appendParams = (href?: string) => {
+    if (!href) return "";
+    return href + queryParams;
+  };
+
   // Check if any subitem is active
-  const isSubItemActive = item.subItems?.some((sub) => activeItem === sub.href);
+  const isSubItemActive = item.subItems?.some((sub) => {
+    // Stripping query params from pathname/params is usually automatic in checking active state?
+    // activeItem (pathname) usually doesn't have query params.
+    // sub.href matches pathname.
+    return activeItem === sub.href;
+  });
 
   // Auto open dropdown if active
   if (isSubItemActive && !isDropDownOpen) {
@@ -377,7 +399,7 @@ export function SidebarOption({
 
       <Link
         className="block"
-        href={!isDropDown ? item.href || "#" : "#"}
+        href={!isDropDown ? appendParams(item.href) : "#"}
         onClick={(e) => {
           if (isDropDown) {
             e.preventDefault();
@@ -418,7 +440,7 @@ export function SidebarOption({
                           : "text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                       }
                     `}
-                href={subItem.href || ""}
+                href={appendParams(subItem.href)}
               >
                 <subItem.icon className="w-4 h-4 flex-shrink-0" />
                 <span className="whitespace-nowrap">{subItem.label}</span>
