@@ -75,6 +75,7 @@ export default function RolesPage() {
 
   // end delete confirm states
   const [initialLoad, setInitialLoad] = useState(true);
+
   useEffect(() => {
     if (vendor?.id) {
       fetchRoles(1);
@@ -286,7 +287,7 @@ export default function RolesPage() {
         </div>
 
         <CustomTable
-        ariaLabel="Roles Table"
+          ariaLabel="Roles Table"
           columns={columns}
           currentPage={currentPage}
           isLoading={loading}

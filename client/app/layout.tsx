@@ -7,6 +7,7 @@ import { Providers } from "./providers";
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { Toaster } from "@/components/ui/sonner";
+import { getUser } from "@/lib/auth-server";
 
 export const metadata: Metadata = {
   title: {
@@ -19,11 +20,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const user = await getUser();
+
   return (
     <html suppressHydrationWarning lang="en">
       <head />
@@ -33,7 +36,10 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+        <Providers
+          initialUser={user}
+          themeProps={{ attribute: "class", defaultTheme: "dark" }}
+        >
           {children}
           <Toaster />
         </Providers>

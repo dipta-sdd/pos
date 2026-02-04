@@ -45,14 +45,20 @@ export const useAuth = () => {
 
 interface AuthProviderProps {
   children: ReactNode;
+  initialUser?: User | null;
 }
 
-export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+export const AuthProvider = ({
+  children,
+  initialUser = null,
+}: AuthProviderProps) => {
+  const [user, setUser] = useState<User | null>(initialUser);
+  const [isLoading, setIsLoading] = useState(!initialUser);
   const router = useRouter();
 
   useEffect(() => {
+    if (initialUser) return;
+
     const checkAuth = async () => {
       try {
         if (getToken()) {
@@ -68,7 +74,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
 
     checkAuth();
-  }, []);
+  }, [initialUser]);
 
   const login = async (
     email: string,

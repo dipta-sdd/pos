@@ -8,10 +8,12 @@ import { HeroUIProvider } from "@heroui/react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 
 import { AuthProvider } from "../lib/hooks/useAuth";
+import { User } from "../lib/types/auth";
 
 export interface ProvidersProps {
   children: React.ReactNode;
   themeProps?: ThemeProviderProps;
+  initialUser?: User | null;
 }
 
 declare module "@react-types/shared" {
@@ -22,11 +24,15 @@ declare module "@react-types/shared" {
   }
 }
 
-export function Providers({ children, themeProps }: ProvidersProps) {
+export function Providers({
+  children,
+  themeProps,
+  initialUser,
+}: ProvidersProps) {
   const router = useRouter();
 
   return (
-    <AuthProvider>
+    <AuthProvider initialUser={initialUser}>
       <HeroUIProvider navigate={router.push}>
         <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
       </HeroUIProvider>

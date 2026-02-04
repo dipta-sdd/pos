@@ -90,8 +90,9 @@ export default function UserForm({
   const fetchRoles = async () => {
     try {
       const response = await api.get(
-        `/roles?vendor_id=${vendor?.id}&per_page=100`
+        `/roles?vendor_id=${vendor?.id}&per_page=100`,
       );
+
       // @ts-ignore
       setRoles(response.data.data);
     } catch (error) {
@@ -102,8 +103,9 @@ export default function UserForm({
   const fetchBranches = async () => {
     try {
       const response = await api.get(
-        `/branches?vendor_id=${vendor?.id}&per_page=100`
+        `/branches?vendor_id=${vendor?.id}&per_page=100`,
       );
+
       // @ts-ignore
       setBranches(response.data.data);
     } catch (error) {
@@ -153,8 +155,8 @@ export default function UserForm({
           variant="bordered"
           {...register("firstName")}
           errorMessage={errors.firstName?.message}
-          isInvalid={!!errors.firstName}
           isDisabled={readOnly}
+          isInvalid={!!errors.firstName}
         />
 
         <Input
@@ -164,8 +166,8 @@ export default function UserForm({
           variant="bordered"
           {...register("lastName")}
           errorMessage={errors.lastName?.message}
-          isInvalid={!!errors.lastName}
           isDisabled={readOnly}
+          isInvalid={!!errors.lastName}
         />
       </div>
 
@@ -178,8 +180,8 @@ export default function UserForm({
           variant="bordered"
           {...register("email")}
           errorMessage={errors.email?.message}
-          isInvalid={!!errors.email}
           isDisabled={readOnly || isEditing} // Prevent email change generally or use specific logic
+          isInvalid={!!errors.email}
         />
 
         <Input
@@ -188,8 +190,8 @@ export default function UserForm({
           variant="bordered"
           {...register("mobile")}
           errorMessage={errors.mobile?.message}
-          isInvalid={!!errors.mobile}
           isDisabled={readOnly}
+          isInvalid={!!errors.mobile}
         />
       </div>
 
@@ -202,8 +204,8 @@ export default function UserForm({
           variant="bordered"
           {...register("password")}
           errorMessage={errors.password?.message}
-          isInvalid={!!errors.password}
           isDisabled={readOnly}
+          isInvalid={!!errors.password}
         />
       )}
 
@@ -211,14 +213,14 @@ export default function UserForm({
         {/* Role Selection */}
         <Select
           isRequired
+          errorMessage={errors.role_id?.message}
+          isDisabled={readOnly}
+          isInvalid={!!errors.role_id}
           label="Role"
           placeholder="Select a role"
-          variant="bordered"
           selectedKeys={watch("role_id") ? [String(watch("role_id"))] : []}
+          variant="bordered"
           onChange={(e) => setValue("role_id", Number(e.target.value))}
-          errorMessage={errors.role_id?.message}
-          isInvalid={!!errors.role_id}
-          isDisabled={readOnly}
         >
           {roles.map((role) => (
             <SelectItem key={role.id} textValue={role.name}>
@@ -230,21 +232,22 @@ export default function UserForm({
         {/* Branch Selection */}
         <Select
           isRequired
+          errorMessage={errors.branches?.message}
+          isDisabled={readOnly}
+          isInvalid={!!errors.branches}
           label="Branches"
           placeholder="Select branches"
-          variant="bordered"
-          selectionMode="multiple"
           selectedKeys={watch("branches") ? watch("branches")?.map(String) : []}
+          selectionMode="multiple"
+          variant="bordered"
           onChange={(e) => {
             const values = e.target.value
               .split(",")
               .filter((v) => v)
               .map(Number);
+
             setValue("branches", values);
           }}
-          errorMessage={errors.branches?.message}
-          isInvalid={!!errors.branches}
-          isDisabled={readOnly}
         >
           {branches.map((branch) => (
             <SelectItem key={branch.id} textValue={branch.name}>
