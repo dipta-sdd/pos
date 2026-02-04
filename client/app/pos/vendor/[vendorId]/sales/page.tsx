@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { SortDescriptor } from "@heroui/table";
@@ -43,6 +44,7 @@ function capitalize(s: string) {
 }
 
 export default function SalesPage() {
+  const router = useRouter();
   const { vendor, isLoading: contextLoading } = useVendor();
   const [items, setItems] = useState<Sale[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -118,7 +120,11 @@ export default function SalesPage() {
           description="View and manage sales transactions"
           title="Sales History"
         >
-          <Button color="primary" startContent={<Plus className="w-4 h-4" />}>
+          <Button
+            color="primary"
+            startContent={<Plus className="w-4 h-4" />}
+            onPress={() => router.push(`/pos/vendor/${vendor?.id}/pos`)}
+          >
             New Sale
           </Button>
         </PageHeader>

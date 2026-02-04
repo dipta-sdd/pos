@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { SortDescriptor } from "@heroui/table";
-import { Plus, ChevronDown } from "lucide-react";
+import { Plus, ChevronDown, Edit, Trash2 } from "lucide-react";
 import {
   Dropdown,
   DropdownTrigger,
@@ -12,6 +12,16 @@ import {
   DropdownItem,
 } from "@heroui/dropdown";
 import { Selection } from "@heroui/react";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  useDisclosure,
+} from "@heroui/modal";
+import { toast } from "sonner";
+
+import TaxForm from "./_components/TaxForm";
 
 import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
@@ -21,14 +31,17 @@ import CustomTable, { Column } from "@/components/ui/CustomTable";
 import api from "@/lib/api";
 import { Tax } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
+import Confirm from "@/components/ui/Confirm";
 
 const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
   { name: "RATE (%)", uid: "rate_percentage", sortable: true },
+  { name: "DEFAULT", uid: "is_default", sortable: true },
   { name: "CREATED AT", uid: "created_at", sortable: true },
+  { name: "ACTIONS", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "rate_percentage", "created_at"];
+const INITIAL_VISIBLE_COLUMNS = ["name", "rate_percentage", "is_default", "created_at", "actions"];
 
 function capitalize(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
@@ -49,6 +62,12 @@ export default function TaxesPage() {
   const [visibleColumns, setVisibleColumns] = useState<Selection>(
     new Set(INITIAL_VISIBLE_COLUMNS),
   );
+
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const [selectedItem, setSelectedItem] = useState<Tax | null>(null);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   const fetchItems = async (page: number) => {
     if (!vendor?.id) return;
@@ -82,10 +101,54 @@ export default function TaxesPage() {
     }
   }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
 
+  const handleCreate = () => {
+    setSelectedItem(null);
+    setIsEditing(false);
+    onOpen();
+  };
+
+  const handleEdit = (item: Tax) => {
+    setSelectedItem(item);
+    setIsEditing(true);
+    onOpen();
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      await api.delete(`/taxes/${id}`);
+      toast.success("Tax deleted successfully");
+      fetchItems(currentPage);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to delete tax");
+    }
+    setDeleteConfirmOpen(false);
+  };
+
   const renderCell = useCallback((item: Tax, columnKey: React.Key) => {
     switch (columnKey) {
+      case "is_default":
+        return item.is_default ? "Yes" : "No";
       case "created_at":
         return formatDateTime(item.created_at);
+      case "actions":
+        return (
+          <div className="flex items-center justify-end gap-2">
+            <Button isIconOnly size="sm" variant="light" onPress={() => handleEdit(item)}>
+              <Edit className="w-4 h-4 text-default-400" />
+            </Button>
+            <Button
+              isIconOnly
+              size="sm"
+              variant="light"
+              onPress={() => {
+                setDeleteConfirmId(item.id);
+                setDeleteConfirmOpen(true);
+              }}
+            >
+              <Trash2 className="w-4 h-4 text-danger" />
+            </Button>
+          </div>
+        );
       default:
         return (item as any)[columnKey as keyof Tax];
     }
@@ -100,7 +163,7 @@ export default function TaxesPage() {
           description="Configure tax rates for your products"
           title="Taxes"
         >
-          <Button color="primary" startContent={<Plus className="w-4 h-4" />}>
+          <Button color="primary" startContent={<Plus className="w-4 h-4" />} onPress={handleCreate}>
             Add Tax
           </Button>
         </PageHeader>
@@ -155,6 +218,36 @@ export default function TaxesPage() {
           setSortDescriptor={setSortDescriptor}
           sortDescriptor={sortDescriptor}
           visibleColumns={visibleColumns}
+        />
+
+        <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader>{isEditing ? "Edit Tax" : "Add Tax"}</ModalHeader>
+                <ModalBody>
+                  <TaxForm
+                    initialData={selectedItem}
+                    isEditing={isEditing}
+                    onCancel={onClose}
+                    onSuccess={() => {
+                      onClose();
+                      fetchItems(currentPage);
+                    }}
+                  />
+                </ModalBody>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
+
+        <Confirm
+          isOpen={deleteConfirmOpen}
+          message="Are you sure you want to delete this tax?"
+          title="Delete Tax"
+          onConfirm={(id) => handleDelete(id as number)}
+          onConfirmProp={deleteConfirmId || ""}
+          onOpenChange={setDeleteConfirmOpen}
         />
       </div>
     </PermissionGuard>

@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { SortDescriptor } from "@heroui/table";
-import { Plus, ChevronDown } from "lucide-react";
+import { Plus, ChevronDown, Edit, Trash2 } from "lucide-react";
 import {
   Dropdown,
   DropdownTrigger,
@@ -12,6 +12,8 @@ import {
   DropdownItem,
 } from "@heroui/dropdown";
 import { Selection } from "@heroui/react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
@@ -21,6 +23,7 @@ import CustomTable, { Column } from "@/components/ui/CustomTable";
 import api from "@/lib/api";
 import { StockTransfer } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
+import Confirm from "@/components/ui/Confirm";
 
 const columns: Column[] = [
   { name: "TRANSFER ID", uid: "id", sortable: true },
@@ -28,15 +31,17 @@ const columns: Column[] = [
   { name: "TO BRANCH", uid: "to_branch", sortable: false },
   { name: "STATUS", uid: "status", sortable: true },
   { name: "CREATED AT", uid: "created_at", sortable: true },
+  { name: "ACTIONS", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = ["id", "from_branch", "to_branch", "status", "created_at"];
+const INITIAL_VISIBLE_COLUMNS = ["id", "from_branch", "to_branch", "status", "created_at", "actions"];
 
 function capitalize(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
 }
 
 export default function StockTransfersPage() {
+  const router = useRouter();
   const { vendor, isLoading: contextLoading } = useVendor();
   const [items, setItems] = useState<StockTransfer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -51,6 +56,9 @@ export default function StockTransfersPage() {
   const [visibleColumns, setVisibleColumns] = useState<Selection>(
     new Set(INITIAL_VISIBLE_COLUMNS),
   );
+
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   const fetchItems = async (page: number) => {
     if (!vendor?.id) return;
@@ -84,6 +92,17 @@ export default function StockTransfersPage() {
     }
   }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
 
+  const handleDelete = async (id: number) => {
+    try {
+      await api.delete(`/stock-transfers/${id}`);
+      toast.success("Transfer deleted successfully");
+      fetchItems(currentPage);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to delete transfer");
+    }
+    setDeleteConfirmOpen(false);
+  };
+
   const renderCell = useCallback((item: StockTransfer, columnKey: React.Key) => {
     switch (columnKey) {
       case "from_branch":
@@ -92,10 +111,34 @@ export default function StockTransfersPage() {
         return item.to_branch?.name || "N/A";
       case "created_at":
         return formatDateTime(item.created_at);
+      case "actions":
+        return (
+          <div className="flex items-center justify-end gap-2">
+            <Button
+              isIconOnly
+              size="sm"
+              variant="light"
+              onPress={() => router.push(`/pos/vendor/${vendor?.id}/inventory/transfers/${item.id}`)}
+            >
+              <Edit className="w-4 h-4 text-default-400" />
+            </Button>
+            <Button
+              isIconOnly
+              size="sm"
+              variant="light"
+              onPress={() => {
+                setDeleteConfirmId(item.id);
+                setDeleteConfirmOpen(true);
+              }}
+            >
+              <Trash2 className="w-4 h-4 text-danger" />
+            </Button>
+          </div>
+        );
       default:
         return (item as any)[columnKey as keyof StockTransfer];
     }
-  }, []);
+  }, [vendor?.id, router]);
 
   if (contextLoading) return <div>Loading...</div>;
 
@@ -106,7 +149,11 @@ export default function StockTransfersPage() {
           description="Move stock between branches"
           title="Stock Transfers"
         >
-          <Button color="primary" startContent={<Plus className="w-4 h-4" />}>
+          <Button
+            color="primary"
+            startContent={<Plus className="w-4 h-4" />}
+            onPress={() => router.push(`/pos/vendor/${vendor?.id}/inventory/transfers/new`)}
+          >
             New Transfer
           </Button>
         </PageHeader>
@@ -161,6 +208,15 @@ export default function StockTransfersPage() {
           setSortDescriptor={setSortDescriptor}
           sortDescriptor={sortDescriptor}
           visibleColumns={visibleColumns}
+        />
+
+        <Confirm
+          isOpen={deleteConfirmOpen}
+          message="Are you sure you want to delete this transfer?"
+          title="Delete Transfer"
+          onConfirm={(id) => handleDelete(id as number)}
+          onConfirmProp={deleteConfirmId || ""}
+          onOpenChange={setDeleteConfirmOpen}
         />
       </div>
     </PermissionGuard>
