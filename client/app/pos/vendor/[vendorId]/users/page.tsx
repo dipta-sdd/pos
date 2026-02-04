@@ -32,7 +32,6 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
 import Confirm from "@/components/ui/Confirm";
 import { formatDateTime } from "@/lib/helper/dates";
-import { useAuth } from "@/lib/hooks/useAuth";
 
 interface VendorUser {
   id: number;
@@ -72,7 +71,7 @@ function capitalize(s: string) {
 
 export default function UsersPage() {
   const router = useRouter();
-  const { vendor, isLoading: contextLoading } = useVendor();
+  const { vendor, isLoading: contextLoading , membership} = useVendor();
 
   // table states
   const [users, setUsers] = useState<VendorUser[]>([]);
@@ -249,8 +248,6 @@ export default function UsersPage() {
     setCurrentPage(1);
   }, []);
 
-  const { user } = useAuth();
-  console.log(user);
 
   const renderCell = useCallback(
     (user: VendorUser, columnKey: React.Key) => {

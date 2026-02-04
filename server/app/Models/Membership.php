@@ -41,6 +41,6 @@ class Membership extends Model
 
     public function userBranchAssignments(): HasMany
     {
-        return $this->hasMany(UserBranchAssignment::class);
+        return $this->hasMany(UserBranchAssignment::class)->with('branch');
     }
 }

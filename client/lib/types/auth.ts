@@ -1,5 +1,7 @@
 // Auth utility types for managing authentication state
 
+import { Branch } from "./general";
+
 export interface Role {
   id: number;
   vendor_id: number;
@@ -69,6 +71,19 @@ export interface Vendor {
   branches: any[]; // You can define a Branch interface if needed
 }
 
+
+interface UserBranchAssignment {
+  id: number;
+  membership_id: number;
+  branch_id: number;
+  branch: Branch;
+  created_by: number;
+  updated_by: number;
+  created_by_name?: string;
+  updated_by_name?: string;
+  created_at: string;
+  updated_at: string;
+}
 export interface Membership {
   id: number;
   user_id: number;
@@ -78,6 +93,7 @@ export interface Membership {
   updated_at: string;
   vendor: Vendor;
   role: Role;
+  user_branch_assignments: UserBranchAssignment[];
 }
 
 export interface User {
