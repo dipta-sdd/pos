@@ -35,7 +35,13 @@ function capitalize(s: string) {
 }
 
 export default function InventoryPage() {
-  const { vendor, isLoading: contextLoading } = useVendor();
+  const {
+    vendor,
+    isLoading: contextLoading,
+    membership,
+    selectedBranchIds,
+    updateBranchFilter,
+  } = useVendor();
   const [items, setItems] = useState<Variant[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -63,6 +69,8 @@ export default function InventoryPage() {
           sort_by: sortDescriptor.column,
           sort_direction:
             sortDescriptor.direction === "ascending" ? "asc" : "desc",
+          branch_ids:
+            selectedBranchIds.length > 0 ? selectedBranchIds : undefined,
         },
       });
 
@@ -80,7 +88,14 @@ export default function InventoryPage() {
     if (vendor?.id) {
       fetchItems(currentPage);
     }
-  }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
+  }, [
+    vendor?.id,
+    currentPage,
+    perPage,
+    sortDescriptor,
+    searchValue,
+    selectedBranchIds,
+  ]);
 
   const renderCell = useCallback((item: Variant, columnKey: React.Key) => {
     if (columnKey === "product") return item.product?.name || "N/A";
@@ -107,6 +122,37 @@ export default function InventoryPage() {
             onValueChange={setSearchValue}
           />
           <div className="flex gap-3">
+            <Dropdown radius="sm">
+              <DropdownTrigger className="flex">
+                <Button
+                  endContent={<ChevronDown className="text-small" />}
+                  variant="flat"
+                >
+                  Branch:{" "}
+                  {selectedBranchIds.length === 0
+                    ? "All"
+                    : `${selectedBranchIds.length} Selected`}
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                aria-label="Filter by Branch"
+                closeOnSelect={false}
+                disallowEmptySelection={false}
+                selectedKeys={new Set(selectedBranchIds)}
+                selectionMode="multiple"
+                onSelectionChange={(keys) => {
+                  const ids = Array.from(keys as Set<string>);
+                  updateBranchFilter(ids);
+                }}
+              >
+                {membership?.user_branch_assignments?.map((assignment) => (
+                  <DropdownItem key={String(assignment.branch.id)}>
+                    {assignment.branch.name}
+                  </DropdownItem>
+                )) || []}
+              </DropdownMenu>
+            </Dropdown>
+
             <Dropdown radius="sm">
               <DropdownTrigger className="flex">
                 <Button

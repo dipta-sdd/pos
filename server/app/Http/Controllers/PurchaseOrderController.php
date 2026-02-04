@@ -20,6 +20,10 @@ class PurchaseOrderController extends Controller
             $query->where('branch_id', $request->branch_id);
         }
 
+        if ($request->has('branch_ids')) {
+            $query->whereIn('branch_id', $request->branch_ids);
+        }
+
         if ($request->has('supplier_id')) {
             $query->where('supplier_id', $request->supplier_id);
         }

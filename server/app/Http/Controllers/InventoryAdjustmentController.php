@@ -11,8 +11,12 @@ class InventoryAdjustmentController extends Controller
     {
         $query = InventoryAdjustment::with(['user', 'variant.product']);
 
-        if ($request->has('vendor_id')) {
-            $query->where('vendor_id', $request->vendor_id);
+        if ($request->has('branch_id')) {
+            $query->where('branch_id', $request->branch_id);
+        }
+
+        if ($request->has('branch_ids')) {
+            $query->whereIn('branch_id', $request->branch_ids);
         }
 
         if ($request->has('search')) {

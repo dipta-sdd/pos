@@ -41,14 +41,26 @@ const columns: Column[] = [
   { name: "ACTIONS", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "email", "phone", "created_at", "actions"];
+const INITIAL_VISIBLE_COLUMNS = [
+  "name",
+  "email",
+  "phone",
+  "created_at",
+  "actions",
+];
 
 function capitalize(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
 }
 
 export default function CustomersPage() {
-  const { vendor, isLoading: contextLoading } = useVendor();
+  const {
+    vendor,
+    isLoading: contextLoading,
+    membership,
+    selectedBranchIds,
+    updateBranchFilter,
+  } = useVendor();
   const [items, setItems] = useState<Customer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);

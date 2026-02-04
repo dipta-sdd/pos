@@ -40,4 +40,9 @@ class Variant extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
+    public function branchProducts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(BranchProduct::class);
+    }
 }

@@ -7,9 +7,25 @@ use Illuminate\Http\Request;
 
 class CashRegisterSessionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return CashRegisterSession::paginate();
+        $query = CashRegisterSession::with(['billingCounter', 'user', 'billingCounter.branch']);
+
+        if ($request->has('vendor_id')) {
+            $query->whereHas('billingCounter', function ($q) use ($request) {
+                $q->where('vendor_id', $request->vendor_id);
+            });
+        }
+
+        if ($request->has('branch_ids')) {
+            $branchIds = $request->branch_ids;
+            $query->whereHas('billingCounter', function ($q) use ($branchIds) {
+                $q->whereIn('branch_id', $branchIds);
+            });
+        }
+
+        $perPage = $request->input('per_page', 15);
+        return $query->paginate($perPage);
     }
 
     public function store(Request $request)

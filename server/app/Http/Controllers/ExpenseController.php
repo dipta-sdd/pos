@@ -19,6 +19,10 @@ class ExpenseController extends Controller
             $query->where('branch_id', $request->branch_id);
         }
 
+        if ($request->has('branch_ids')) {
+            $query->whereIn('branch_id', $request->branch_ids);
+        }
+
         if ($request->has('expense_category_id')) {
             $query->where('expense_category_id', $request->expense_category_id);
         }

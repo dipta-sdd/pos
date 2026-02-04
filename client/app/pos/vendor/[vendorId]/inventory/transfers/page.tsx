@@ -34,7 +34,14 @@ const columns: Column[] = [
   { name: "ACTIONS", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = ["id", "from_branch", "to_branch", "status", "created_at", "actions"];
+const INITIAL_VISIBLE_COLUMNS = [
+  "id",
+  "from_branch",
+  "to_branch",
+  "status",
+  "created_at",
+  "actions",
+];
 
 function capitalize(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
@@ -42,7 +49,13 @@ function capitalize(s: string) {
 
 export default function StockTransfersPage() {
   const router = useRouter();
-  const { vendor, isLoading: contextLoading } = useVendor();
+  const {
+    vendor,
+    isLoading: contextLoading,
+    membership,
+    selectedBranchIds,
+    updateBranchFilter,
+  } = useVendor();
   const [items, setItems] = useState<StockTransfer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -73,6 +86,8 @@ export default function StockTransfersPage() {
           sort_by: sortDescriptor.column,
           sort_direction:
             sortDescriptor.direction === "ascending" ? "asc" : "desc",
+          branch_ids:
+            selectedBranchIds.length > 0 ? selectedBranchIds : undefined,
         },
       });
 
@@ -90,7 +105,14 @@ export default function StockTransfersPage() {
     if (vendor?.id) {
       fetchItems(currentPage);
     }
-  }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
+  }, [
+    vendor?.id,
+    currentPage,
+    perPage,
+    sortDescriptor,
+    searchValue,
+    selectedBranchIds,
+  ]);
 
   const handleDelete = async (id: number) => {
     try {
@@ -103,42 +125,49 @@ export default function StockTransfersPage() {
     setDeleteConfirmOpen(false);
   };
 
-  const renderCell = useCallback((item: StockTransfer, columnKey: React.Key) => {
-    switch (columnKey) {
-      case "from_branch":
-        return item.from_branch?.name || "N/A";
-      case "to_branch":
-        return item.to_branch?.name || "N/A";
-      case "created_at":
-        return formatDateTime(item.created_at);
-      case "actions":
-        return (
-          <div className="flex items-center justify-end gap-2">
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onPress={() => router.push(`/pos/vendor/${vendor?.id}/inventory/transfers/${item.id}`)}
-            >
-              <Edit className="w-4 h-4 text-default-400" />
-            </Button>
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onPress={() => {
-                setDeleteConfirmId(item.id);
-                setDeleteConfirmOpen(true);
-              }}
-            >
-              <Trash2 className="w-4 h-4 text-danger" />
-            </Button>
-          </div>
-        );
-      default:
-        return (item as any)[columnKey as keyof StockTransfer];
-    }
-  }, [vendor?.id, router]);
+  const renderCell = useCallback(
+    (item: StockTransfer, columnKey: React.Key) => {
+      switch (columnKey) {
+        case "from_branch":
+          return item.from_branch?.name || "N/A";
+        case "to_branch":
+          return item.to_branch?.name || "N/A";
+        case "created_at":
+          return formatDateTime(item.created_at);
+        case "actions":
+          return (
+            <div className="flex items-center justify-end gap-2">
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onPress={() =>
+                  router.push(
+                    `/pos/vendor/${vendor?.id}/inventory/transfers/${item.id}`,
+                  )
+                }
+              >
+                <Edit className="w-4 h-4 text-default-400" />
+              </Button>
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onPress={() => {
+                  setDeleteConfirmId(item.id);
+                  setDeleteConfirmOpen(true);
+                }}
+              >
+                <Trash2 className="w-4 h-4 text-danger" />
+              </Button>
+            </div>
+          );
+        default:
+          return (item as any)[columnKey as keyof StockTransfer];
+      }
+    },
+    [vendor?.id, router],
+  );
 
   if (contextLoading) return <div>Loading...</div>;
 
@@ -152,7 +181,9 @@ export default function StockTransfersPage() {
           <Button
             color="primary"
             startContent={<Plus className="w-4 h-4" />}
-            onPress={() => router.push(`/pos/vendor/${vendor?.id}/inventory/transfers/new`)}
+            onPress={() =>
+              router.push(`/pos/vendor/${vendor?.id}/inventory/transfers/new`)
+            }
           >
             New Transfer
           </Button>
@@ -168,6 +199,37 @@ export default function StockTransfersPage() {
             onValueChange={setSearchValue}
           />
           <div className="flex gap-3">
+            <Dropdown radius="sm">
+              <DropdownTrigger className="flex">
+                <Button
+                  endContent={<ChevronDown className="text-small" />}
+                  variant="flat"
+                >
+                  Branch:{" "}
+                  {selectedBranchIds.length === 0
+                    ? "All"
+                    : `${selectedBranchIds.length} Selected`}
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                aria-label="Filter by Branch"
+                closeOnSelect={false}
+                disallowEmptySelection={false}
+                selectedKeys={new Set(selectedBranchIds)}
+                selectionMode="multiple"
+                onSelectionChange={(keys) => {
+                  const ids = Array.from(keys as Set<string>);
+                  updateBranchFilter(ids);
+                }}
+              >
+                {membership?.user_branch_assignments?.map((assignment) => (
+                  <DropdownItem key={String(assignment.branch.id)}>
+                    {assignment.branch.name}
+                  </DropdownItem>
+                )) || []}
+              </DropdownMenu>
+            </Dropdown>
+
             <Dropdown radius="sm">
               <DropdownTrigger className="flex">
                 <Button

@@ -29,6 +29,14 @@ class VariantController extends Controller
             });
         }
 
+        if ($request->has('branch_ids')) {
+            $branchIds = $request->branch_ids;
+            $query->whereHas('branchProducts', function ($q) use ($branchIds) {
+                $q->whereIn('branch_id', $branchIds)
+                  ->where('is_active', true);
+            });
+        }
+
         $perPage = $request->input('per_page', 15);
         return $query->paginate($perPage);
     }

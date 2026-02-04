@@ -33,7 +33,13 @@ const columns: Column[] = [
   { name: "ACTIONS", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "sku", "base_price", "created_at", "actions"];
+const INITIAL_VISIBLE_COLUMNS = [
+  "name",
+  "sku",
+  "base_price",
+  "created_at",
+  "actions",
+];
 
 function capitalize(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
@@ -41,7 +47,14 @@ function capitalize(s: string) {
 
 export default function ProductsPage() {
   const router = useRouter();
-  const { vendor, isLoading: contextLoading } = useVendor();
+
+  const {
+    vendor,
+    isLoading: contextLoading,
+    membership,
+    selectedBranchIds,
+    updateBranchFilter,
+  } = useVendor();
   const [items, setItems] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -72,6 +85,8 @@ export default function ProductsPage() {
           sort_by: sortDescriptor.column,
           sort_direction:
             sortDescriptor.direction === "ascending" ? "asc" : "desc",
+          branch_ids:
+            selectedBranchIds.length > 0 ? selectedBranchIds : undefined,
         },
       });
 
@@ -89,7 +104,14 @@ export default function ProductsPage() {
     if (vendor?.id) {
       fetchItems(currentPage);
     }
-  }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
+  }, [
+    vendor?.id,
+    currentPage,
+    perPage,
+    sortDescriptor,
+    searchValue,
+    selectedBranchIds,
+  ]);
 
   const handleDelete = async (id: number) => {
     try {
@@ -102,42 +124,47 @@ export default function ProductsPage() {
     setDeleteConfirmOpen(false);
   };
 
-  const renderCell = useCallback((item: Product, columnKey: React.Key) => {
-    switch (columnKey) {
-      case "created_at":
-        return formatDateTime(item.created_at);
-      case "base_price":
-        return typeof item.base_price === "number"
-          ? item.base_price.toFixed(2)
-          : item.base_price || "0.00";
-      case "actions":
-        return (
-          <div className="flex items-center justify-end gap-2">
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onPress={() => router.push(`/pos/vendor/${vendor?.id}/products/${item.id}`)}
-            >
-              <Edit className="w-4 h-4 text-default-400" />
-            </Button>
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onPress={() => {
-                setDeleteConfirmId(item.id);
-                setDeleteConfirmOpen(true);
-              }}
-            >
-              <Trash2 className="w-4 h-4 text-danger" />
-            </Button>
-          </div>
-        );
-      default:
-        return (item as any)[columnKey as keyof Product];
-    }
-  }, [vendor?.id, router]);
+  const renderCell = useCallback(
+    (item: Product, columnKey: React.Key) => {
+      switch (columnKey) {
+        case "created_at":
+          return formatDateTime(item.created_at);
+        case "base_price":
+          return typeof item.base_price === "number"
+            ? item.base_price.toFixed(2)
+            : item.base_price || "0.00";
+        case "actions":
+          return (
+            <div className="flex items-center justify-end gap-2">
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onPress={() =>
+                  router.push(`/pos/vendor/${vendor?.id}/products/${item.id}`)
+                }
+              >
+                <Edit className="w-4 h-4 text-default-400" />
+              </Button>
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onPress={() => {
+                  setDeleteConfirmId(item.id);
+                  setDeleteConfirmOpen(true);
+                }}
+              >
+                <Trash2 className="w-4 h-4 text-danger" />
+              </Button>
+            </div>
+          );
+        default:
+          return (item as any)[columnKey as keyof Product];
+      }
+    },
+    [vendor?.id, router],
+  );
 
   if (contextLoading) return <div>Loading...</div>;
 
@@ -148,7 +175,9 @@ export default function ProductsPage() {
           <Button
             color="primary"
             startContent={<Plus className="w-4 h-4" />}
-            onPress={() => router.push(`/pos/vendor/${vendor?.id}/products/new`)}
+            onPress={() =>
+              router.push(`/pos/vendor/${vendor?.id}/products/new`)
+            }
           >
             Add Product
           </Button>
@@ -164,6 +193,37 @@ export default function ProductsPage() {
             onValueChange={setSearchValue}
           />
           <div className="flex gap-3">
+            <Dropdown radius="sm">
+              <DropdownTrigger className="flex">
+                <Button
+                  endContent={<ChevronDown className="text-small" />}
+                  variant="flat"
+                >
+                  Branch:{" "}
+                  {selectedBranchIds.length === 0
+                    ? "All"
+                    : `${selectedBranchIds.length} Selected`}
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                aria-label="Filter by Branch"
+                closeOnSelect={false}
+                disallowEmptySelection={false}
+                selectedKeys={new Set(selectedBranchIds)}
+                selectionMode="multiple"
+                onSelectionChange={(keys) => {
+                  const ids = Array.from(keys as Set<string>);
+                  updateBranchFilter(ids);
+                }}
+              >
+                {membership?.user_branch_assignments?.map((assignment) => (
+                  <DropdownItem key={String(assignment.branch.id)}>
+                    {assignment.branch.name}
+                  </DropdownItem>
+                )) || []}
+              </DropdownMenu>
+            </Dropdown>
+
             <Dropdown radius="sm">
               <DropdownTrigger className="flex">
                 <Button

@@ -20,6 +20,10 @@ class SaleController extends Controller
             $query->where('branch_id', $request->branch_id);
         }
 
+        if ($request->has('branch_ids')) {
+            $query->whereIn('branch_id', $request->branch_ids);
+        }
+
         if ($request->has('customer_id')) {
             $query->where('customer_id', $request->customer_id);
         }

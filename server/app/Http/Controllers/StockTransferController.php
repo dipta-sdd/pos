@@ -24,6 +24,14 @@ class StockTransferController extends Controller
             $query->where('to_branch_id', $request->to_branch_id);
         }
 
+        if ($request->has('branch_ids')) {
+            $branchIds = $request->branch_ids;
+            $query->where(function ($q) use ($branchIds) {
+                $q->whereIn('from_branch_id', $branchIds)
+                  ->orWhereIn('to_branch_id', $branchIds);
+            });
+        }
+
         if ($request->has('status')) {
             $query->where('status', $request->status);
         }

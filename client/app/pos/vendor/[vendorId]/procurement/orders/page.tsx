@@ -34,7 +34,14 @@ const columns: Column[] = [
   { name: "ACTIONS", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = ["id", "supplier", "total_amount", "status", "created_at", "actions"];
+const INITIAL_VISIBLE_COLUMNS = [
+  "id",
+  "supplier",
+  "total_amount",
+  "status",
+  "created_at",
+  "actions",
+];
 
 function capitalize(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
@@ -42,7 +49,13 @@ function capitalize(s: string) {
 
 export default function PurchaseOrdersPage() {
   const router = useRouter();
-  const { vendor, isLoading: contextLoading } = useVendor();
+  const {
+    vendor,
+    isLoading: contextLoading,
+    membership,
+    selectedBranchIds,
+    updateBranchFilter,
+  } = useVendor();
   const [items, setItems] = useState<PurchaseOrder[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -73,6 +86,8 @@ export default function PurchaseOrdersPage() {
           sort_by: sortDescriptor.column,
           sort_direction:
             sortDescriptor.direction === "ascending" ? "asc" : "desc",
+          branch_ids:
+            selectedBranchIds.length > 0 ? selectedBranchIds : undefined,
         },
       });
 
@@ -90,7 +105,14 @@ export default function PurchaseOrdersPage() {
     if (vendor?.id) {
       fetchItems(currentPage);
     }
-  }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
+  }, [
+    vendor?.id,
+    currentPage,
+    perPage,
+    sortDescriptor,
+    searchValue,
+    selectedBranchIds,
+  ]);
 
   const handleDelete = async (id: number) => {
     try {
@@ -103,44 +125,51 @@ export default function PurchaseOrdersPage() {
     setDeleteConfirmOpen(false);
   };
 
-  const renderCell = useCallback((item: PurchaseOrder, columnKey: React.Key) => {
-    switch (columnKey) {
-      case "supplier":
-        return item.supplier?.name || "N/A";
-      case "created_at":
-        return formatDateTime(item.created_at);
-      case "total_amount":
-        return typeof item.total_amount === "number"
-          ? item.total_amount.toFixed(2)
-          : item.total_amount;
-      case "actions":
-        return (
-          <div className="flex items-center justify-end gap-2">
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onPress={() => router.push(`/pos/vendor/${vendor?.id}/procurement/orders/${item.id}`)}
-            >
-              <Edit className="w-4 h-4 text-default-400" />
-            </Button>
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onPress={() => {
-                setDeleteConfirmId(item.id);
-                setDeleteConfirmOpen(true);
-              }}
-            >
-              <Trash2 className="w-4 h-4 text-danger" />
-            </Button>
-          </div>
-        );
-      default:
-        return (item as any)[columnKey as keyof PurchaseOrder];
-    }
-  }, [vendor?.id, router]);
+  const renderCell = useCallback(
+    (item: PurchaseOrder, columnKey: React.Key) => {
+      switch (columnKey) {
+        case "supplier":
+          return item.supplier?.name || "N/A";
+        case "created_at":
+          return formatDateTime(item.created_at);
+        case "total_amount":
+          return typeof item.total_amount === "number"
+            ? item.total_amount.toFixed(2)
+            : item.total_amount;
+        case "actions":
+          return (
+            <div className="flex items-center justify-end gap-2">
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onPress={() =>
+                  router.push(
+                    `/pos/vendor/${vendor?.id}/procurement/orders/${item.id}`,
+                  )
+                }
+              >
+                <Edit className="w-4 h-4 text-default-400" />
+              </Button>
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onPress={() => {
+                  setDeleteConfirmId(item.id);
+                  setDeleteConfirmOpen(true);
+                }}
+              >
+                <Trash2 className="w-4 h-4 text-danger" />
+              </Button>
+            </div>
+          );
+        default:
+          return (item as any)[columnKey as keyof PurchaseOrder];
+      }
+    },
+    [vendor?.id, router],
+  );
 
   if (contextLoading) return <div>Loading...</div>;
 
@@ -154,7 +183,9 @@ export default function PurchaseOrdersPage() {
           <Button
             color="primary"
             startContent={<Plus className="w-4 h-4" />}
-            onPress={() => router.push(`/pos/vendor/${vendor?.id}/procurement/orders/new`)}
+            onPress={() =>
+              router.push(`/pos/vendor/${vendor?.id}/procurement/orders/new`)
+            }
           >
             New Order
           </Button>
@@ -170,6 +201,37 @@ export default function PurchaseOrdersPage() {
             onValueChange={setSearchValue}
           />
           <div className="flex gap-3">
+            <Dropdown radius="sm">
+              <DropdownTrigger className="flex">
+                <Button
+                  endContent={<ChevronDown className="text-small" />}
+                  variant="flat"
+                >
+                  Branch:{" "}
+                  {selectedBranchIds.length === 0
+                    ? "All"
+                    : `${selectedBranchIds.length} Selected`}
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                aria-label="Filter by Branch"
+                closeOnSelect={false}
+                disallowEmptySelection={false}
+                selectedKeys={new Set(selectedBranchIds)}
+                selectionMode="multiple"
+                onSelectionChange={(keys) => {
+                  const ids = Array.from(keys as Set<string>);
+                  updateBranchFilter(ids);
+                }}
+              >
+                {membership?.user_branch_assignments?.map((assignment) => (
+                  <DropdownItem key={String(assignment.branch.id)}>
+                    {assignment.branch.name}
+                  </DropdownItem>
+                )) || []}
+              </DropdownMenu>
+            </Dropdown>
+
             <Dropdown radius="sm">
               <DropdownTrigger className="flex">
                 <Button
