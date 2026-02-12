@@ -36,7 +36,10 @@ import { useVendor } from "@/lib/contexts/VendorContext";
 import { SearchIcon } from "@/components/icons";
 import { PageHeader } from "@/components/ui/PageHeader";
 import api from "@/lib/api";
-import CustomTable, { Column } from "@/components/ui/CustomTable";
+import CustomTable, {
+  Column,
+  loggerColumns,
+} from "@/components/ui/CustomTable";
 import Confirm from "@/components/ui/Confirm";
 import { Branch } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
@@ -209,7 +212,7 @@ export default function BranchesPage() {
       case "phone":
         return branch.phone ? (
           <div className="flex items-center gap-2 text-small">
-            <Phone className="w-4 h-4 text-default-400" />
+            <Phone className="w-4 min-w-4 h-4 text-default-400" />
             {branch.phone}
           </div>
         ) : (
@@ -218,39 +221,17 @@ export default function BranchesPage() {
       case "address":
         return branch.address ? (
           <div className="flex items-center gap-2 text-small">
-            <MapPin className="w-4 h-4 text-default-400" />
+            <MapPin className="w-4 min-w-4 h-4 text-default-400" />
             {branch.address}
           </div>
         ) : (
           <span className="text-default-500">-</span>
         );
       case "created_at":
-        return branch.created_at ? (
-          <div className="flex items-center gap-2 text-small">
-            <Calendar className="w-4 h-4 text-default-400" />
-            {formatDateTime(branch.created_at)}
-          </div>
-        ) : (
-          <span className="text-default-500">-</span>
-        );
       case "updated_at":
-        return branch.updated_at ? (
-          <div className="flex items-center gap-2 text-small">
-            <Calendar className="w-4 h-4 text-default-400" />
-            {formatDateTime(branch.updated_at)}
-          </div>
-        ) : (
-          <span className="text-default-500">-</span>
-        );
+      case "created_by_name":
       case "updated_by_name":
-        return branch.updated_by_name ? (
-          <div className="flex items-center gap-2 text-small">
-            <User className="w-4 h-4 text-default-400" />
-            {branch.updated_by_name}
-          </div>
-        ) : (
-          <span className="text-default-500">-</span>
-        );
+        return loggerColumns(columnKey, branch);
       case "actions":
         return (
           <div className="flex items-center justify-end gap-2">

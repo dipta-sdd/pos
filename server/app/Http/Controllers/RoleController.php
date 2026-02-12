@@ -9,11 +9,11 @@ class RoleController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Role::query();
+        $query = Role::selectRaw('roles.*, CONCAT(created_by.firstName, " ", created_by.lastName) as created_by_name, CONCAT(updated_by.firstName, " ", updated_by.lastName) as updated_by_name')
+            ->leftJoin('users as created_by', 'roles.created_by', '=', 'created_by.id')
+            ->leftJoin('users as updated_by', 'roles.updated_by', '=', 'updated_by.id');
 
-        if ($request->has('vendor_id')) {
-            $query->where('vendor_id', $request->vendor_id);
-        }
+        $query->where('vendor_id', $request->vendor_id);
 
         // Always exclude System/Owner role from general listing if desired, 
         // or keep standard behavior. The original excluded Owner.

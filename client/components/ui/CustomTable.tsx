@@ -1,4 +1,5 @@
 "use client";
+import { formatDateTime } from "@/lib/helper/dates";
 import { Pagination, Select, SelectItem, Skeleton } from "@heroui/react";
 import {
   SortDescriptor,
@@ -10,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@heroui/table";
+import { Calendar, User } from "lucide-react";
 import { useMemo } from "react";
 
 export interface Column {
@@ -179,3 +181,44 @@ const CustomTable: React.FC<CustomTableProps> = ({
 };
 
 export default CustomTable;
+
+export const loggerColumns = (key: string , item:any) => {
+  switch (key) {
+    case "created_at":
+      return item?.created_at ? (
+        <div className="flex items-center gap-2 text-small">
+          <Calendar className="w-4 min-w-4 h-4 text-default-400" />
+          {formatDateTime(item.created_at)}
+        </div>
+      ) : (
+        <span className="text-default-500">-</span>
+      );
+    case "updated_at":
+      return item?.updated_at ? (
+        <div className="flex items-center gap-2 text-small">
+          <Calendar className="w-4 min-w-4 h-4 text-default-400" />
+          {formatDateTime(item.updated_at)}
+        </div>
+      ) : (
+        <span className="text-default-500">-</span>
+      );
+    case "created_by_name":
+      return item?.created_by_name ? (
+        <div className="flex items-center gap-2 text-small">
+          <User className="w-4 min-w-4 h-4 text-default-400" />
+          {item.created_by_name}
+        </div>
+      ) : (
+        <span className="text-default-500">-</span>
+      );
+    case "updated_by_name":
+      return item?.updated_by_name ? (
+        <div className="flex items-center gap-2 text-small">
+          <User className="w-4 min-w-4 h-4 text-default-400" />
+          {item.updated_by_name}
+        </div>
+      ) : (
+        <span className="text-default-500">-</span>
+      );
+  }
+};

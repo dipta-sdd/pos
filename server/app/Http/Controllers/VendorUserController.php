@@ -3,21 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Role;
 use App\Models\Membership;
 use App\Models\UserBranchAssignment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Handles user management within the context of a specific Vendor.
+ * User relationships (roles, branches) are scoped via the Membership model.
+ */
 class VendorUserController extends Controller
 {
     /**
-     * Display a listing of the users for the specified vendor.
+     * Display a paginated listing of users belonging to a specific vendor.
+     * Supports searching, sorting, and filtering by role or branch.
      */
     public function index(Request $request)
     {
+        // 1. Validate incoming filter and pagination parameters
         $request->validate([
             'vendor_id' => 'required|exists:vendors,id',
             'per_page' => 'nullable|integer',
@@ -29,7 +33,6 @@ class VendorUserController extends Controller
             'branch_ids.*' => 'exists:branches,id',
         ]);
 
-
         $vendorId = $request->vendor_id;
         $perPage = $request->per_page ?? 15;
         $search = $request->search;
@@ -38,24 +41,31 @@ class VendorUserController extends Controller
         $roleId = $request->role_id;
         $branchIds = $request->branch_ids;
 
+        // 2. Build the query to find users who have a membership with this vendor
         $query = User::query()
             ->whereHas('memberships', function ($q) use ($vendorId, $roleId, $branchIds) {
                 $q->where('vendor_id', $vendorId);
+                
+                // Filter by a specific role if provided
                 if ($roleId && $roleId !== 'all') {
                     $q->where('role_id', $roleId);
                 }
+                
+                // Filter by assigned branches if provided
                 if ($branchIds && count($branchIds) > 0) {
                     $q->whereHas('userBranchAssignments', function ($bq) use ($branchIds) {
                         $bq->whereIn('branch_id', $branchIds);
                     });
                 }
             })
+            // Eager load vendor-specific relationships to avoid N+1 issues
             ->with([
                 'memberships' => function ($q) use ($vendorId) {
                     $q->where('vendor_id', $vendorId)->with(['role', 'userBranchAssignments.branch']);
                 }
             ]);
 
+        // 3. Apply search filters (Name or Email)
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('firstName', 'like', "%{$search}%")
@@ -64,10 +74,11 @@ class VendorUserController extends Controller
             });
         }
 
-        // Sorting logic
+        // 4. Apply sorting logic
         if (in_array($sortBy, ['firstName', 'lastName', 'email', 'created_at'])) {
             $query->orderBy($sortBy, $sortDirection);
         } else if ($sortBy === 'role') {
+            // Complex sort: join roles table to order by role name
             $query->select('users.*')
                 ->join('memberships', 'users.id', '=', 'memberships.user_id')
                 ->join('roles', 'memberships.role_id', '=', 'roles.id')
@@ -77,7 +88,8 @@ class VendorUserController extends Controller
 
         $users = $query->paginate($perPage);
 
-        // Transform collection to include the specific role and branches for this vendor context
+        // 5. Transform the result to flatten vendor-specific data (role, branches, etc.)
+        // This makes it easier for the frontend to consume the specific context of this vendor.
         $users->getCollection()->transform(function ($user) {
             $membership = $user->memberships->first();
             $user->role = $membership ? $membership->role : null;
@@ -86,7 +98,7 @@ class VendorUserController extends Controller
             $user->branches = $membership ? $membership->userBranchAssignments->map(function ($assignment) {
                 return $assignment->branch;
             }) : [];
-            unset($user->memberships);
+            unset($user->memberships); // Remove intermediate relationship
             return $user;
         });
 
@@ -94,7 +106,8 @@ class VendorUserController extends Controller
     }
 
     /**
-     * Store a new user (or add existing) to the vendor.
+     * Invite a new user or register an existing global user to a vendor.
+     * Uses a Database Transaction to ensure atomicity.
      */
     public function store(Request $request)
     {
@@ -110,19 +123,23 @@ class VendorUserController extends Controller
             'branches.*' => 'exists:branches,id',
         ]);
 
-
         return DB::transaction(function () use ($request) {
+            // Check if a global user already exists with this email
             $user = User::where('email', $request->email)->first();
 
             if (!$user) {
+                // Create a completely new global user
                 $user = User::create([
                     'firstName' => $request->firstName,
                     'lastName' => $request->lastName,
                     'email' => $request->email,
                     'mobile' => $request->mobile,
                     'password' => Hash::make($request->password),
+                    'created_by' => $request->user()->id,
+                    'updated_by' => $request->user()->id,
                 ]);
             } else {
+                // If user exists, check if they are already part of this vendor
                 $exists = Membership::where('user_id', $user->id)
                     ->where('vendor_id', $request->vendor_id)
                     ->exists();
@@ -132,6 +149,7 @@ class VendorUserController extends Controller
                 }
             }
 
+            // Create the membership link between the global User and the specific Vendor
             $membership = Membership::create([
                 'user_id' => $user->id,
                 'vendor_id' => $request->vendor_id,
@@ -140,7 +158,7 @@ class VendorUserController extends Controller
                 'updated_by' => $request->user()->id,
             ]);
 
-            // Assign branches
+            // Assign the user to specific vendor branches if provided
             if ($request->has('branches')) {
                 foreach ($request->branches as $branchId) {
                     UserBranchAssignment::create([
@@ -152,8 +170,8 @@ class VendorUserController extends Controller
                 }
             }
 
+            // Prepare the response model
             $membership->load(['role', 'userBranchAssignments.branch']);
-
             $user->role = $membership->role;
             $user->membership_id = $membership->id;
             $user->joined_at = $membership->created_at;
@@ -164,7 +182,7 @@ class VendorUserController extends Controller
     }
 
     /**
-     * Display the specified user (contextualized to the vendor).
+     * Display the specific user details within the context of the vendor.
      */
     public function show(Request $request, $id)
     {
@@ -172,7 +190,7 @@ class VendorUserController extends Controller
             'vendor_id' => 'required|exists:vendors,id',
         ]);
 
-
+        // Fetch user ensuring they belong to the vendor
         $user = User::where('id', $id)
             ->whereHas('memberships', function ($q) use ($request) {
                 $q->where('vendor_id', $request->vendor_id);
@@ -184,6 +202,7 @@ class VendorUserController extends Controller
             ])
             ->firstOrFail();
 
+        // Flatten attributes for the response
         $membership = $user->memberships->first();
         $user->role = $membership ? $membership->role : null;
         $user->role_id = $membership ? $membership->role_id : null;
@@ -197,7 +216,7 @@ class VendorUserController extends Controller
     }
 
     /**
-     * Update the specified user's details or role within the vendor.
+     * Update user profile information or their role/branch permissions within the vendor.
      */
     public function update(Request $request, $id)
     {
@@ -211,16 +230,18 @@ class VendorUserController extends Controller
             'branches.*' => 'exists:branches,id',
         ]);
 
-
         return DB::transaction(function () use ($request, $id) {
             $user = User::findOrFail($id);
 
+            // Update basic profile info
             $user->update([
                 'firstName' => $request->firstName,
                 'lastName' => $request->lastName,
                 'mobile' => $request->mobile,
+                'updated_by' => $request->user()->id
             ]);
 
+            // Find membership to update role context
             $membership = Membership::where('user_id', $id)
                 ->where('vendor_id', $request->vendor_id)
                 ->firstOrFail();
@@ -232,11 +253,9 @@ class VendorUserController extends Controller
                 ]);
             }
 
-            // Sync Branches
-            // Remove existing assignments for this membership
+            // Sync Branch Assignments (Re-create strategy)
             UserBranchAssignment::where('membership_id', $membership->id)->delete();
 
-            // Add new assignments
             if ($request->has('branches')) {
                 foreach ($request->branches as $branchId) {
                     UserBranchAssignment::create([
@@ -248,6 +267,7 @@ class VendorUserController extends Controller
                 }
             }
 
+            // Re-load and prepare response
             $membership->load(['role', 'userBranchAssignments.branch']);
             $user->role = $membership->role;
             $user->role_id = $membership->role_id;
@@ -258,7 +278,7 @@ class VendorUserController extends Controller
     }
 
     /**
-     * Remove the specified user from the vendor.
+     * Remove a user's access from a vendor by deleting their membership link.
      */
     public function destroy(Request $request, $id)
     {
@@ -266,19 +286,19 @@ class VendorUserController extends Controller
             'vendor_id' => 'required|exists:vendors,id',
         ]);
 
-
         $membership = Membership::where('user_id', $id)
             ->where('vendor_id', $request->vendor_id)
             ->firstOrFail();
 
-        $membership->delete();
+        // Cleanup assignments before removing membership
         UserBranchAssignment::where('membership_id', $membership->id)->delete();
+        $membership->delete();
 
         return response()->json(['message' => 'User removed from vendor successfully.']);
     }
 
     /**
-     * Remove multiple users from the vendor.
+     * Bulk remove multiple users from a vendor.
      */
     public function bulkDestroy(Request $request)
     {
@@ -292,12 +312,14 @@ class VendorUserController extends Controller
         $userIds = $request->user_ids;
 
         return DB::transaction(function () use ($vendorId, $userIds) {
+            // Find all memberships belonging to the user list within this vendor
             $memberships = Membership::whereIn('user_id', $userIds)
                 ->where('vendor_id', $vendorId)
                 ->get();
 
             $membershipIds = $memberships->pluck('id');
 
+            // Delete memberships and their associated branch assignments
             Membership::whereIn('id', $membershipIds)->delete();
             UserBranchAssignment::whereIn('membership_id', $membershipIds)->delete();
 

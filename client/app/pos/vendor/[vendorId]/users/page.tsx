@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { type Selection } from "@heroui/react";
-import { Edit, Trash2, ChevronDown, Calendar, Plus } from "lucide-react";
+import { Edit, Trash2, ChevronDown, Calendar, Plus, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { type SortDescriptor } from "@heroui/table";
 import { Input } from "@heroui/input";
@@ -29,7 +29,10 @@ import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
-import CustomTable, { Column } from "@/components/ui/CustomTable";
+import CustomTable, {
+  Column,
+  loggerColumns,
+} from "@/components/ui/CustomTable";
 import Confirm from "@/components/ui/Confirm";
 import { formatDateTime } from "@/lib/helper/dates";
 
@@ -52,14 +55,21 @@ interface VendorUser {
 const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
   { name: "EMAIL", uid: "email", sortable: true },
+  { name: "PHONE", uid: "phone", sortable: true },
   { name: "ROLE", uid: "role", sortable: false }, // Sorting by nested role needs backend support, currently simplified
   { name: "JOINED AT", uid: "joined_at", sortable: true },
+  { name: "ADDRESS", uid: "address", sortable: true },
+  { name: "CREATED AT", uid: "created_at", sortable: true },
+  { name: "CREATED BY", uid: "created_by_name", sortable: true },
+  { name: "UPDATED AT", uid: "updated_at", sortable: true },
+  { name: "UPDATED BY", uid: "updated_by_name", sortable: true },
   { name: "ACTIONS", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
   "name",
   "email",
+  "phone",
   "role",
   "joined_at",
   "actions",
@@ -278,6 +288,15 @@ export default function UsersPage() {
           );
         case "email":
           return <span className="text-small">{user.email}</span>;
+        case "phone":
+          return user.mobile ? (
+            <div className="flex items-center gap-2 text-small">
+              <Phone className="w-4 min-w-4 h-4 text-default-400" />
+              {user.mobile}
+            </div>
+          ) : (
+            <span className="text-default-500">-</span>
+          );
         case "role":
           return (
             <span className="text-tiny bg-default-100 px-2 py-0.5 rounded-full inline-block w-fit">
@@ -291,6 +310,12 @@ export default function UsersPage() {
               {formatDateTime(user.joined_at)}
             </div>
           );
+
+        case "created_at":
+        case "updated_at":
+        case "created_by_name":
+        case "updated_by_name":
+          return loggerColumns(columnKey, user);
         case "actions":
           return (
             <div className="flex items-center justify-end gap-2">

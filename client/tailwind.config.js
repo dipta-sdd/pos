@@ -34,6 +34,7 @@ const config = {
       dark: {
         colors: {
           background: "#000000",
+          focus: "#5900fdff",
           content1: "#070d22",
           content2: "#111827",
           content3: "#1f2937",
