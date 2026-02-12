@@ -175,13 +175,7 @@ export default function Sidebar() {
           icon: Contact,
           label: "Users",
           href: `/pos/vendor/${vendor.id}/users`,
-          permission: "can_manage_staff",
-        },
-        {
-          icon: Users,
-          label: "Staff (Legacy)", // Keeping existing just in case, or replacing it if it was placeholder
-          href: `/pos/vendor/${vendor.id}/settings/staff`,
-          permission: "can_manage_staff",
+          permission: "can_view_users",
         },
       ],
     },

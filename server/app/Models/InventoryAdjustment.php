@@ -12,6 +12,7 @@ class InventoryAdjustment extends Model
 
     protected $fillable = [
         'vendor_id',
+        'branch_id',
         'variant_id',
         'quantity',
         'type',
@@ -22,6 +23,11 @@ class InventoryAdjustment extends Model
     public function vendor(): BelongsTo
     {
         return $this->belongsTo(Vendor::class);
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
     }
 
     public function variant(): BelongsTo

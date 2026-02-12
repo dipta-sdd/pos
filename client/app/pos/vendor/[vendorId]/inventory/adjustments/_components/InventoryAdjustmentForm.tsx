@@ -26,9 +26,11 @@ export default function InventoryAdjustmentForm({
 }: InventoryAdjustmentFormProps) {
   const { vendor } = useVendor();
   const [variants, setVariants] = useState<Variant[]>([]);
+  const [branches, setBranches] = useState<any[]>([]);
 
   const schema = z.object({
     variant_id: z.any(),
+    branch_id: z.number().min(1, "Branch is required"),
     quantity: z.coerce.number().min(0.01, "Quantity must be positive"),
     type: z.enum(["addition", "subtraction"]),
     reason: z.string().min(1, "Reason is required"),
@@ -37,6 +39,7 @@ export default function InventoryAdjustmentForm({
 
   type FormData = {
     variant_id: number;
+    branch_id: number;
     quantity: number;
     type: "addition" | "subtraction";
     reason: string;
@@ -54,6 +57,7 @@ export default function InventoryAdjustmentForm({
     resolver: zodResolver(schema) as any,
     defaultValues: {
       variant_id: initialData?.variant_id,
+      branch_id: initialData?.branch_id || undefined,
       quantity: initialData?.quantity || 1,
       type: initialData?.type || "addition",
       reason: initialData?.reason || "",
@@ -64,15 +68,29 @@ export default function InventoryAdjustmentForm({
   useEffect(() => {
     if (vendor?.id) {
       fetchVariants();
+      fetchBranches();
     }
   }, [vendor?.id]);
 
   const fetchVariants = async () => {
     try {
-      const response: any = await api.get(`/variants?vendor_id=${vendor?.id}&per_page=1000`);
+      const response: any = await api.get(
+        `/variants?vendor_id=${vendor?.id}&per_page=1000`,
+      );
       setVariants(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch variants", error);
+    }
+  };
+
+  const fetchBranches = async () => {
+    try {
+      const response: any = await api.get(
+        `/branches?vendor_id=${vendor?.id}&per_page=100`,
+      );
+      setBranches(response?.data?.data || []);
+    } catch (error) {
+      console.error("Failed to fetch branches", error);
     }
   };
 
@@ -82,14 +100,20 @@ export default function InventoryAdjustmentForm({
         await api.put(`/inventory-adjustments/${initialData.id}`, data);
         toast.success("Adjustment updated successfully");
       } else {
-        await api.post("/inventory-adjustments", data);
+        await api.post("/inventory-adjustments", {
+          ...data,
+          vendor_id: vendor?.id,
+        });
         toast.success("Adjustment recorded successfully");
       }
       if (onSuccess) onSuccess();
     } catch (error: any) {
       if (error.response?.data?.errors) {
         Object.entries(error.response?.data?.errors).forEach(([key, value]) => {
-          setError(key as any, { type: "manual", message: (value as string[])[0] });
+          setError(key as any, {
+            type: "manual",
+            message: (value as string[])[0],
+          });
         });
       }
       toast.error(error.response?.data?.message || "Something went wrong");
@@ -98,20 +122,43 @@ export default function InventoryAdjustmentForm({
 
   return (
     <form className="space-y-4 w-full" onSubmit={handleSubmit(onSubmit)}>
-      <Select
-        isRequired
-        label="Product Variant"
-        placeholder="Select variant"
-        selectedKeys={watch("variant_id") ? [String(watch("variant_id"))] : []}
-        variant="bordered"
-        onChange={(e) => setValue("variant_id", Number(e.target.value))}
-      >
-        {variants.map((v) => (
-          <SelectItem key={v.id} textValue={`${v.product?.name} - ${v.name}`}>
-            {v.product?.name} - {v.name} ({v.sku})
-          </SelectItem>
-        ))}
-      </Select>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Select
+          isRequired
+          label="Branch"
+          placeholder="Select branch"
+          selectedKeys={watch("branch_id") ? [String(watch("branch_id"))] : []}
+          variant="bordered"
+          onChange={(e) => setValue("branch_id", Number(e.target.value))}
+          errorMessage={errors.branch_id?.message}
+          isInvalid={!!errors.branch_id}
+        >
+          {branches.map((b) => (
+            <SelectItem key={b.id} textValue={b.name}>
+              {b.name}
+            </SelectItem>
+          ))}
+        </Select>
+
+        <Select
+          isRequired
+          label="Product Variant"
+          placeholder="Select variant"
+          selectedKeys={
+            watch("variant_id") ? [String(watch("variant_id"))] : []
+          }
+          variant="bordered"
+          onChange={(e) => setValue("variant_id", Number(e.target.value))}
+          errorMessage={errors.variant_id?.message}
+          isInvalid={!!errors.variant_id}
+        >
+          {variants.map((v) => (
+            <SelectItem key={v.id} textValue={`${v.product?.name} - ${v.name}`}>
+              {v.product?.name} - {v.name} ({v.sku})
+            </SelectItem>
+          ))}
+        </Select>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Select
@@ -121,8 +168,12 @@ export default function InventoryAdjustmentForm({
           variant="bordered"
           onChange={(e) => setValue("type", e.target.value as any)}
         >
-          <SelectItem key="addition" textValue="Addition (+)">Addition (+)</SelectItem>
-          <SelectItem key="subtraction" textValue="Subtraction (-)">Subtraction (-)</SelectItem>
+          <SelectItem key="addition" textValue="Addition (+)">
+            Addition (+)
+          </SelectItem>
+          <SelectItem key="subtraction" textValue="Subtraction (-)">
+            Subtraction (-)
+          </SelectItem>
         </Select>
 
         <Input
@@ -147,7 +198,9 @@ export default function InventoryAdjustmentForm({
       />
 
       <div className="flex justify-end gap-3 pt-4">
-        <Button color="default" variant="flat" onPress={onCancel}>Cancel</Button>
+        <Button color="default" variant="flat" onPress={onCancel}>
+          Cancel
+        </Button>
         <Button color="primary" isLoading={isSubmitting} type="submit">
           {isEditing ? "Update Adjustment" : "Record Adjustment"}
         </Button>

@@ -294,56 +294,62 @@ export default function UsersPage() {
         case "actions":
           return (
             <div className="flex items-center justify-end gap-2">
-              <Button
-                className="min-w-none"
-                color="primary"
-                size="sm"
-                title="Edit"
-                variant="light"
-                onPress={() => handleEdit(user)}
-              >
-                <Edit className="w-4 h-4" />
-              </Button>
+              {membership?.role?.can_edit_users && (
+                <Button
+                  className="min-w-none"
+                  color="primary"
+                  size="sm"
+                  title="Edit"
+                  variant="light"
+                  onPress={() => handleEdit(user)}
+                >
+                  <Edit className="w-4 h-4" />
+                </Button>
+              )}
 
-              <Button
-                className="min-w-none"
-                color="danger"
-                size="sm"
-                title="Remove"
-                variant="light"
-                onPress={() => {
-                  setDeleteConfirmOpen(true);
-                  setDeleteConfirmProp(user.id);
-                }}
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
+              {membership?.role?.can_delete_users && (
+                <Button
+                  className="min-w-none"
+                  color="danger"
+                  size="sm"
+                  title="Remove"
+                  variant="light"
+                  onPress={() => {
+                    setDeleteConfirmOpen(true);
+                    setDeleteConfirmProp(user.id);
+                  }}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              )}
             </div>
           );
         default:
           return null;
       }
     },
-    [vendor?.id, router],
+    [vendor?.id, router, membership],
   );
 
   if (contextLoading) return <div>Loading...</div>;
 
   return (
-    <PermissionGuard permission="can_manage_staff">
+    <PermissionGuard permission="can_view_users">
       <div className="p-6">
         <PageHeader
           description="Manage staff members and their roles"
           title="User Management"
         >
-          <Button
-            color="primary"
-            radius="sm"
-            startContent={<Plus className="w-4 h-4" />}
-            onPress={handleCreate}
-          >
-            Add New User
-          </Button>
+          {membership?.role?.can_edit_users && (
+            <Button
+              color="primary"
+              radius="sm"
+              startContent={<Plus className="w-4 h-4" />}
+              onPress={handleCreate}
+            >
+              Add New User
+            </Button>
+          )}
         </PageHeader>
         <div className="flex justify-between gap-3 items-end mb-4">
           <Input
@@ -360,7 +366,9 @@ export default function UsersPage() {
             onValueChange={onSearchChange}
           />
           <div className="flex gap-3">
-            {selectedKeys !== "all" && (selectedKeys as any).size > 0 ? (
+            {membership?.role?.can_delete_users &&
+            selectedKeys !== "all" &&
+            (selectedKeys as any).size > 0 ? (
               <Button
                 color="danger"
                 radius="sm"
@@ -370,7 +378,7 @@ export default function UsersPage() {
               >
                 Delete Selected ({(selectedKeys as any).size})
               </Button>
-            ) : selectedKeys === "all" ? (
+            ) : membership?.role?.can_delete_users && selectedKeys === "all" ? (
               <Button
                 color="danger"
                 radius="sm"

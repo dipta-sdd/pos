@@ -12,7 +12,9 @@ export interface Role {
   can_manage_payment_methods: boolean;
   can_configure_taxes: boolean;
   can_customize_receipts: boolean;
-  can_manage_staff: boolean;
+  can_view_users: boolean;
+  can_edit_users: boolean;
+  can_delete_users: boolean;
   can_manage_roles_and_permissions: boolean;
   can_view_roles: boolean;
   can_view_user_activity_log: boolean;

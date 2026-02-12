@@ -35,6 +35,10 @@ import Confirm from "@/components/ui/Confirm";
 
 const columns: Column[] = [
   { name: "ADJUSTMENT ID", uid: "id", sortable: true },
+  { name: "BRANCH", uid: "branch", sortable: false },
+  { name: "VARIANT", uid: "variant", sortable: false },
+  { name: "QUANTITY", uid: "quantity", sortable: true },
+  { name: "TYPE", uid: "type", sortable: true },
   { name: "REASON", uid: "reason", sortable: true },
   { name: "CREATED BY", uid: "user", sortable: false },
   { name: "CREATED AT", uid: "created_at", sortable: true },
@@ -43,6 +47,9 @@ const columns: Column[] = [
 
 const INITIAL_VISIBLE_COLUMNS = [
   "id",
+  "branch",
+  "variant",
+  "quantity",
   "reason",
   "user",
   "created_at",
@@ -152,6 +159,12 @@ export default function StockAdjustmentsPage() {
   const renderCell = useCallback(
     (item: InventoryAdjustment, columnKey: React.Key) => {
       switch (columnKey) {
+        case "branch":
+          return item.branch?.name || "N/A";
+        case "variant":
+          return (
+            `${item.variant?.product?.name} - ${item.variant?.name}` || "N/A"
+          );
         case "user":
           return item.user?.name || "N/A";
         case "created_at":

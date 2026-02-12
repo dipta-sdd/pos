@@ -9,7 +9,7 @@ class InventoryAdjustmentController extends Controller
 {
     public function index(Request $request)
     {
-        $query = InventoryAdjustment::with(['user', 'variant.product']);
+        $query = InventoryAdjustment::with(['user', 'variant.product', 'branch']);
 
         if ($request->has('branch_id')) {
             $query->where('branch_id', $request->branch_id);
@@ -32,6 +32,7 @@ class InventoryAdjustmentController extends Controller
     {
         $validatedData = $request->validate([
             'vendor_id' => 'required|exists:vendors,id',
+            'branch_id' => 'required|exists:branches,id',
             'variant_id' => 'required|exists:variants,id',
             'quantity' => 'required|numeric|min:0.01',
             'type' => 'required|in:addition,subtraction',

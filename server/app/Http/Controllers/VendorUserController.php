@@ -29,6 +29,7 @@ class VendorUserController extends Controller
             'branch_ids.*' => 'exists:branches,id',
         ]);
 
+
         $vendorId = $request->vendor_id;
         $perPage = $request->per_page ?? 15;
         $search = $request->search;
@@ -109,6 +110,7 @@ class VendorUserController extends Controller
             'branches.*' => 'exists:branches,id',
         ]);
 
+
         return DB::transaction(function () use ($request) {
             $user = User::where('email', $request->email)->first();
 
@@ -170,6 +172,7 @@ class VendorUserController extends Controller
             'vendor_id' => 'required|exists:vendors,id',
         ]);
 
+
         $user = User::where('id', $id)
             ->whereHas('memberships', function ($q) use ($request) {
                 $q->where('vendor_id', $request->vendor_id);
@@ -207,6 +210,7 @@ class VendorUserController extends Controller
             'branches' => 'nullable|array',
             'branches.*' => 'exists:branches,id',
         ]);
+
 
         return DB::transaction(function () use ($request, $id) {
             $user = User::findOrFail($id);
@@ -261,6 +265,7 @@ class VendorUserController extends Controller
         $request->validate([
             'vendor_id' => 'required|exists:vendors,id',
         ]);
+
 
         $membership = Membership::where('user_id', $id)
             ->where('vendor_id', $request->vendor_id)

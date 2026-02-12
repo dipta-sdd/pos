@@ -251,10 +251,15 @@ export interface InventoryAdjustment {
   id: number;
   vendor_id: number;
   branch_id: number;
+  variant_id: number;
+  quantity: string | number;
+  type: "addition" | "subtraction";
   reason: string;
   created_at: string;
   updated_at: string;
   user?: {
     name: string;
   };
+  branch?: Branch;
+  variant?: Variant;
 }

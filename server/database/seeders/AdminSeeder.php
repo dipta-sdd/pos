@@ -71,9 +71,12 @@ class AdminSeeder extends Seeder
             
             // List of permissions from Role.php
             $permissions = [
+                // Confirmed Permissions
+                'can_view_users', 'can_edit_users', 'can_delete_users',
+                // Legacy/Existing Permissions
                 'can_manage_shop_settings', 'can_manage_billing_and_plan', 'can_manage_branches_and_counters',
                 'can_manage_payment_methods', 'can_configure_taxes', 'can_customize_receipts',
-                'can_manage_staff', 'can_manage_roles_and_permissions', 'can_view_roles', 'can_view_user_activity_log',
+                'can_manage_roles_and_permissions', 'can_view_roles', 'can_view_user_activity_log',
                 'can_view_products', 'can_manage_products', 'can_manage_categories', 'can_manage_units_of_measure',
                 'can_import_products', 'can_export_products',
                 'can_view_inventory_levels', 'can_perform_stock_adjustments', 'can_manage_stock_transfers',

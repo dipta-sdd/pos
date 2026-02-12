@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('inventory_adjustments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('vendor_id')->constrained()->onDelete('cascade');
+            $table->foreignId('branch_id')->constrained()->onDelete('cascade');
             $table->foreignId('variant_id')->constrained()->onDelete('cascade');
             $table->decimal('quantity', 15, 2);
             $table->enum('type', ['addition', 'subtraction']);

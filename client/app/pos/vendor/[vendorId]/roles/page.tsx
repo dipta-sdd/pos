@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { type Selection } from "@heroui/react";
-import { Edit, Trash2, ChevronDown, User, Calendar } from "lucide-react";
+import { Edit, Trash2, ChevronDown, User, Calendar, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { type SortDescriptor } from "@heroui/table";
 import { Input } from "@heroui/input";
@@ -49,7 +49,7 @@ function capitalize(s: string) {
 
 export default function RolesPage() {
   const router = useRouter();
-  const { vendor, isLoading: contextLoading } = useVendor();
+  const { vendor, isLoading: contextLoading, membership } = useVendor();
   // table states
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -154,91 +154,108 @@ export default function RolesPage() {
     setCurrentPage(1);
   }, []);
 
-  const renderCell = useCallback((role: Role, columnKey: React.Key) => {
-    const cellValue = role[columnKey as keyof Role];
+  const renderCell = useCallback(
+    (role: Role, columnKey: React.Key) => {
+      const cellValue = role[columnKey as keyof Role];
 
-    switch (columnKey) {
-      case "name":
-        return <span className="">{role.name}</span>;
-      case "created_at":
-        return role.created_at ? (
-          <div className="flex items-center gap-2 text-small">
-            <Calendar className="w-4 h-4 text-default-400" />
-            {formatDateTime(role.created_at)}
-          </div>
-        ) : (
-          <span className="text-default-500">-</span>
-        );
-      case "updated_at":
-        return role.updated_at ? (
-          <div className="flex items-center gap-2 text-small">
-            <Calendar className="w-4 h-4 text-default-400" />
-            {formatDateTime(role.updated_at)}
-          </div>
-        ) : (
-          <span className="text-default-500">-</span>
-        );
-      case "updated_by_name":
-        return role?.updated_by_name ? (
-          <div className="flex items-center gap-2 text-small">
-            <User className="w-4 h-4 text-default-400" />
-            {role.updated_by_name}
-          </div>
-        ) : (
-          <span className="text-default-500">-</span>
-        );
-      case "actions":
-        return (
-          <div className="flex items-center justify-end gap-2">
-            <Button
-              className="min-w-none"
-              color="primary"
-              size="sm"
-              title="Edit"
-              variant="light"
-              onPress={() =>
-                router.push(`/pos/vendor/${vendor?.id}/roles/${role.id}`)
-              }
-            >
-              <Edit className="w-4 h-4" />
-            </Button>
+      switch (columnKey) {
+        case "name":
+          return <span className="">{role.name}</span>;
+        case "created_at":
+          return role.created_at ? (
+            <div className="flex items-center gap-2 text-small">
+              <Calendar className="w-4 h-4 text-default-400" />
+              {formatDateTime(role.created_at)}
+            </div>
+          ) : (
+            <span className="text-default-500">-</span>
+          );
+        case "updated_at":
+          return role.updated_at ? (
+            <div className="flex items-center gap-2 text-small">
+              <Calendar className="w-4 h-4 text-default-400" />
+              {formatDateTime(role.updated_at)}
+            </div>
+          ) : (
+            <span className="text-default-500">-</span>
+          );
+        case "updated_by_name":
+          return role?.updated_by_name ? (
+            <div className="flex items-center gap-2 text-small">
+              <User className="w-4 h-4 text-default-400" />
+              {role.updated_by_name}
+            </div>
+          ) : (
+            <span className="text-default-500">-</span>
+          );
+        case "actions":
+          return (
+            <div className="flex items-center justify-end gap-2">
+              {vendor?.id && (
+                <Button
+                  className="min-w-none"
+                  color="primary"
+                  size="sm"
+                  title={
+                    membership?.role?.can_manage_roles_and_permissions
+                      ? "Edit"
+                      : "View"
+                  }
+                  variant="light"
+                  onPress={() =>
+                    router.push(`/pos/vendor/${vendor?.id}/roles/${role.id}`)
+                  }
+                >
+                  {membership?.role?.can_manage_roles_and_permissions ? (
+                    <Edit className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </Button>
+              )}
 
-            <Button
-              className="min-w-none"
-              color="danger"
-              size="sm"
-              title="Delete"
-              variant="light"
-              onPress={() => {
-                setDeleteConfirmOpen(true);
-                setDeleteConfirmProp(role.id);
-              }}
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
-        );
-      default:
-        return cellValue;
-    }
-  }, []);
+              {membership?.role?.can_manage_roles_and_permissions && (
+                <Button
+                  className="min-w-none"
+                  color="danger"
+                  size="sm"
+                  title="Delete"
+                  variant="light"
+                  onPress={() => {
+                    setDeleteConfirmOpen(true);
+                    setDeleteConfirmProp(role.id);
+                  }}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+          );
+        default:
+          return cellValue;
+      }
+    },
+    [vendor?.id, router, membership],
+  );
 
   if (contextLoading) return <div>Loading...</div>;
 
   return (
-    <PermissionGuard permission="can_manage_roles_and_permissions">
+    <PermissionGuard permission="can_view_roles">
       <div className="p-6">
         <PageHeader
           description="Manage your staff roles and permissions"
           title="Roles"
         >
-          <Button
-            color="primary"
-            radius="sm"
-            onPress={() => router.push(`/pos/vendor/${vendor?.id}/roles/new`)}
-          >
-            Add New Role
-          </Button>
+          {membership?.role?.can_manage_roles_and_permissions && (
+            <Button
+              color="primary"
+              radius="sm"
+              onPress={() => router.push(`/pos/vendor/${vendor?.id}/roles/new`)}
+            >
+              Add New Role
+            </Button>
+          )}
         </PageHeader>
         <div className="flex justify-between gap-3 items-end mb-4">
           <Input

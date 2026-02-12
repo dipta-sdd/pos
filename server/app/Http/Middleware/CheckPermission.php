@@ -13,7 +13,7 @@ class CheckPermission
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
      * @param  string  $permission
-     * @return mixed
+     * @return mixed 
      */
     public function handle(Request $request, Closure $next, $permission)
     {

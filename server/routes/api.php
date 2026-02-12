@@ -284,33 +284,33 @@ Route::middleware('log.api')->group(function () {
         });
 
         // Membership routes (protected)
-        Route::prefix('memberships')->middleware('permission:can_manage_staff')->group(function () {
-            Route::get('/', [MembershipController::class, 'index']);
-            Route::post('/', [MembershipController::class, 'store']);
-            Route::get('/{membership}', [MembershipController::class, 'show']);
-            Route::put('/{membership}', [MembershipController::class, 'update']);
-            Route::delete('/{membership}', [MembershipController::class, 'destroy']);
+        Route::prefix('memberships')->group(function () {
+            Route::get('/', [MembershipController::class, 'index'])->middleware('permission:can_view_roles|can_view_users');
+            Route::post('/', [MembershipController::class, 'store'])->middleware('permission:can_edit_users');
+            Route::get('/{membership}', [MembershipController::class, 'show'])->middleware('permission:can_view_roles|can_view_users');
+            Route::put('/{membership}', [MembershipController::class, 'update'])->middleware('permission:can_edit_users');
+            Route::delete('/{membership}', [MembershipController::class, 'destroy'])->middleware('permission:can_delete_users');
         });
 
         // User Branch Assignment routes (protected)
-        Route::prefix('user-branch-assignments')->middleware('permission:can_manage_staff')->group(function () {
-            Route::get('/', [UserBranchAssignmentController::class, 'index']);
-            Route::post('/', [UserBranchAssignmentController::class, 'store']);
-            Route::get('/{userBranchAssignment}', [UserBranchAssignmentController::class, 'show']);
-            Route::put('/{userBranchAssignment}', [UserBranchAssignmentController::class, 'update']);
-            Route::delete('/{userBranchAssignment}', [UserBranchAssignmentController::class, 'destroy']);
+        Route::prefix('user-branch-assignments')->group(function () {
+            Route::get('/', [UserBranchAssignmentController::class, 'index'])->middleware('permission:can_view_users');
+            Route::post('/', [UserBranchAssignmentController::class, 'store'])->middleware('permission:can_edit_users');
+            Route::get('/{userBranchAssignment}', [UserBranchAssignmentController::class, 'show'])->middleware('permission:can_view_users');
+            Route::put('/{userBranchAssignment}', [UserBranchAssignmentController::class, 'update'])->middleware('permission:can_edit_users');
+            Route::delete('/{userBranchAssignment}', [UserBranchAssignmentController::class, 'destroy'])->middleware('permission:can_delete_users');
         });
 
         // Vendor User routes (protected) - explicitly using VendorUserController
         // These routes are usually context-dependent on the vendor passed in query or body
         // but typically 'users' endpoint suggests managing users under the current context
-        Route::prefix('users')->middleware('permission:can_manage_staff')->group(function () {
-            Route::get('/', [\App\Http\Controllers\VendorUserController::class, 'index']);
-            Route::post('/', [\App\Http\Controllers\VendorUserController::class, 'store']);
-            Route::delete('/bulk', [\App\Http\Controllers\VendorUserController::class, 'bulkDestroy']);
-            Route::get('/{user}', [\App\Http\Controllers\VendorUserController::class, 'show']);
-            Route::put('/{user}', [\App\Http\Controllers\VendorUserController::class, 'update']);
-            Route::delete('/{user}', [\App\Http\Controllers\VendorUserController::class, 'destroy']);
+        Route::prefix('users')->group(function () {
+            Route::get('/', [\App\Http\Controllers\VendorUserController::class, 'index'])->middleware('permission:can_view_users');
+            Route::post('/', [\App\Http\Controllers\VendorUserController::class, 'store'])->middleware('permission:can_edit_users');
+            Route::delete('/bulk', [\App\Http\Controllers\VendorUserController::class, 'bulkDestroy'])->middleware('permission:can_delete_users');
+            Route::get('/{user}', [\App\Http\Controllers\VendorUserController::class, 'show'])->middleware('permission:can_view_users');
+            Route::put('/{user}', [\App\Http\Controllers\VendorUserController::class, 'update'])->middleware('permission:can_edit_users');
+            Route::delete('/{user}', [\App\Http\Controllers\VendorUserController::class, 'destroy'])->middleware('permission:can_delete_users');
         });
     });
 

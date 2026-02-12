@@ -18,6 +18,9 @@ return new class extends Migration {
             // we have many permissions , we dont even know which one we are using which are not using ,and we also need to add more permisiions , so we can do one thing  we will devide our permisions in 3 sections , confirmed , depricated , dont-know
 
             // confirmed start - we will manualy add perssions here one by one 
+            $table->boolean('can_view_users')->default(false);
+            $table->boolean('can_edit_users')->default(false);
+            $table->boolean('can_delete_users')->default(false);
             // confirmed end
 
             // depricated start - this permissions will be later we first have to make sure where they are in use
@@ -33,7 +36,6 @@ return new class extends Migration {
             $table->boolean('can_customize_receipts')->default(false);
 
             // User Management Permissions
-            $table->boolean('can_manage_staff')->default(false);
             $table->boolean('can_manage_roles_and_permissions')->default(false);
             $table->boolean('can_view_roles')->default(false);
 
