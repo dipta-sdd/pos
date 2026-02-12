@@ -32,6 +32,7 @@ import api from "@/lib/api";
 import { SaleReturn } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
 import Confirm from "@/components/ui/Confirm";
+import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "RETURN ID", uid: "id", sortable: true },
@@ -164,7 +165,7 @@ export default function ReturnsPage() {
     }
   }, []);
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_process_returns">
@@ -212,6 +213,7 @@ export default function ReturnsPage() {
                 selectionMode="multiple"
                 onSelectionChange={(keys) => {
                   const ids = Array.from(keys as Set<string>);
+
                   updateBranchFilter(ids);
                 }}
               >
@@ -265,7 +267,7 @@ export default function ReturnsPage() {
           visibleColumns={visibleColumns}
         />
 
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="2xl">
+        <Modal isOpen={isOpen} size="2xl" onOpenChange={onOpenChange}>
           <ModalContent>
             {(onClose) => (
               <>

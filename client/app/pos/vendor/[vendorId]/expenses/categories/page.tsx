@@ -32,6 +32,7 @@ import api from "@/lib/api";
 import { ExpenseCategory } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
 import Confirm from "@/components/ui/Confirm";
+import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
@@ -62,7 +63,9 @@ export default function ExpenseCategoriesPage() {
   );
 
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const [selectedItem, setSelectedItem] = useState<ExpenseCategory | null>(null);
+  const [selectedItem, setSelectedItem] = useState<ExpenseCategory | null>(
+    null,
+  );
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
@@ -122,41 +125,56 @@ export default function ExpenseCategoriesPage() {
     setDeleteConfirmOpen(false);
   };
 
-  const renderCell = useCallback((item: ExpenseCategory, columnKey: React.Key) => {
-    switch (columnKey) {
-      case "created_at":
-        return formatDateTime(item.created_at);
-      case "actions":
-        return (
-          <div className="flex items-center justify-end gap-2">
-            <Button isIconOnly size="sm" variant="light" onPress={() => handleEdit(item)}>
-              <Edit className="w-4 h-4 text-default-400" />
-            </Button>
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onPress={() => {
-                setDeleteConfirmId(item.id);
-                setDeleteConfirmOpen(true);
-              }}
-            >
-              <Trash2 className="w-4 h-4 text-danger" />
-            </Button>
-          </div>
-        );
-      default:
-        return (item as any)[columnKey as keyof ExpenseCategory];
-    }
-  }, []);
+  const renderCell = useCallback(
+    (item: ExpenseCategory, columnKey: React.Key) => {
+      switch (columnKey) {
+        case "created_at":
+          return formatDateTime(item.created_at);
+        case "actions":
+          return (
+            <div className="flex items-center justify-end gap-2">
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onPress={() => handleEdit(item)}
+              >
+                <Edit className="w-4 h-4 text-default-400" />
+              </Button>
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onPress={() => {
+                  setDeleteConfirmId(item.id);
+                  setDeleteConfirmOpen(true);
+                }}
+              >
+                <Trash2 className="w-4 h-4 text-danger" />
+              </Button>
+            </div>
+          );
+        default:
+          return (item as any)[columnKey as keyof ExpenseCategory];
+      }
+    },
+    [],
+  );
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_manage_expenses">
       <div className="p-6">
-        <PageHeader description="Manage expense categories" title="Expense Categories">
-          <Button color="primary" startContent={<Plus className="w-4 h-4" />} onPress={handleCreate}>
+        <PageHeader
+          description="Manage expense categories"
+          title="Expense Categories"
+        >
+          <Button
+            color="primary"
+            startContent={<Plus className="w-4 h-4" />}
+            onPress={handleCreate}
+          >
             Add Category
           </Button>
         </PageHeader>
@@ -173,7 +191,10 @@ export default function ExpenseCategoriesPage() {
           <div className="flex gap-3">
             <Dropdown radius="sm">
               <DropdownTrigger className="flex">
-                <Button endContent={<ChevronDown className="text-small" />} variant="flat">
+                <Button
+                  endContent={<ChevronDown className="text-small" />}
+                  variant="flat"
+                >
                   Columns
                 </Button>
               </DropdownTrigger>
@@ -214,7 +235,9 @@ export default function ExpenseCategoriesPage() {
           <ModalContent>
             {(onClose) => (
               <>
-                <ModalHeader>{isEditing ? "Edit Category" : "Add Category"}</ModalHeader>
+                <ModalHeader>
+                  {isEditing ? "Edit Category" : "Add Category"}
+                </ModalHeader>
                 <ModalBody>
                   <ExpenseCategoryForm
                     initialData={selectedItem}

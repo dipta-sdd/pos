@@ -32,7 +32,11 @@ export default function PromotionForm({
     name: z.string().min(1, "Name is required"),
     discount_type: z.enum(["percentage", "fixed"]),
     discount_value: z.coerce.number().min(0, "Value must be positive"),
-    applies_to: z.enum(["all_products", "specific_product", "specific_category"]),
+    applies_to: z.enum([
+      "all_products",
+      "specific_product",
+      "specific_category",
+    ]),
     product_id: z.any().optional(),
     category_id: z.any().optional(),
     start_date: z.string().min(1, "Start date is required"),
@@ -66,12 +70,18 @@ export default function PromotionForm({
     defaultValues: {
       name: initialData?.name || "",
       discount_type: (initialData?.discount_type as any) || "percentage",
-      discount_value: initialData?.discount_value ? Number(initialData.discount_value) : 0,
+      discount_value: initialData?.discount_value
+        ? Number(initialData.discount_value)
+        : 0,
       applies_to: (initialData?.applies_to as any) || "all_products",
       product_id: initialData?.product_id,
       category_id: initialData?.category_id,
-      start_date: initialData?.start_date ? new Date(initialData.start_date).toISOString().split('T')[0] : undefined,
-      end_date: initialData?.end_date ? new Date(initialData.end_date).toISOString().split('T')[0] : undefined,
+      start_date: initialData?.start_date
+        ? new Date(initialData.start_date).toISOString().split("T")[0]
+        : undefined,
+      end_date: initialData?.end_date
+        ? new Date(initialData.end_date).toISOString().split("T")[0]
+        : undefined,
       is_active: initialData?.is_active ?? true,
       vendor_id: vendor?.id,
     },
@@ -86,7 +96,10 @@ export default function PromotionForm({
 
   const fetchProducts = async () => {
     try {
-      const response: any = await api.get(`/products?vendor_id=${vendor?.id}&per_page=100`);
+      const response: any = await api.get(
+        `/products?vendor_id=${vendor?.id}&per_page=100`,
+      );
+
       setProducts(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch products", error);
@@ -95,7 +108,10 @@ export default function PromotionForm({
 
   const fetchCategories = async () => {
     try {
-      const response: any = await api.get(`/categories?vendor_id=${vendor?.id}&per_page=100`);
+      const response: any = await api.get(
+        `/categories?vendor_id=${vendor?.id}&per_page=100`,
+      );
+
       setCategories(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch categories", error);
@@ -150,8 +166,12 @@ export default function PromotionForm({
           variant="bordered"
           onChange={(e) => setValue("discount_type", e.target.value as any)}
         >
-          <SelectItem key="percentage" textValue="Percentage (%)">Percentage (%)</SelectItem>
-          <SelectItem key="fixed" textValue="Fixed Amount">Fixed Amount</SelectItem>
+          <SelectItem key="percentage" textValue="Percentage (%)">
+            Percentage (%)
+          </SelectItem>
+          <SelectItem key="fixed" textValue="Fixed Amount">
+            Fixed Amount
+          </SelectItem>
         </Select>
 
         <Input
@@ -172,21 +192,31 @@ export default function PromotionForm({
         variant="bordered"
         onChange={(e) => setValue("applies_to", e.target.value as any)}
       >
-        <SelectItem key="all_products" textValue="All Products">All Products</SelectItem>
-        <SelectItem key="specific_product" textValue="Specific Product">Specific Product</SelectItem>
-        <SelectItem key="specific_category" textValue="Specific Category">Specific Category</SelectItem>
+        <SelectItem key="all_products" textValue="All Products">
+          All Products
+        </SelectItem>
+        <SelectItem key="specific_product" textValue="Specific Product">
+          Specific Product
+        </SelectItem>
+        <SelectItem key="specific_category" textValue="Specific Category">
+          Specific Category
+        </SelectItem>
       </Select>
 
       {appliesTo === "specific_product" && (
         <Select
           isRequired
           label="Product"
-          selectedKeys={watch("product_id") ? [String(watch("product_id"))] : []}
+          selectedKeys={
+            watch("product_id") ? [String(watch("product_id"))] : []
+          }
           variant="bordered"
           onChange={(e) => setValue("product_id", Number(e.target.value))}
         >
           {products.map((p) => (
-            <SelectItem key={p.id} textValue={p.name}>{p.name}</SelectItem>
+            <SelectItem key={p.id} textValue={p.name}>
+              {p.name}
+            </SelectItem>
           ))}
         </Select>
       )}
@@ -195,12 +225,16 @@ export default function PromotionForm({
         <Select
           isRequired
           label="Category"
-          selectedKeys={watch("category_id") ? [String(watch("category_id"))] : []}
+          selectedKeys={
+            watch("category_id") ? [String(watch("category_id"))] : []
+          }
           variant="bordered"
           onChange={(e) => setValue("category_id", Number(e.target.value))}
         >
           {categories.map((c) => (
-            <SelectItem key={c.id} textValue={c.name}>{c.name}</SelectItem>
+            <SelectItem key={c.id} textValue={c.name}>
+              {c.name}
+            </SelectItem>
           ))}
         </Select>
       )}

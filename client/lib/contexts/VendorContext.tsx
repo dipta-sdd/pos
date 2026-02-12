@@ -64,6 +64,7 @@ export const VendorProvider = ({ children }: VendorProviderProps) => {
     // The previous implementation used get("branch_ids") which implies single. Usually frameworks differentiate.
     // Let's rely on getAll for 'branch_ids' or 'branch_ids[]'
     let ids = searchParams.getAll("branch_ids");
+
     if (ids.length === 0) {
       ids = searchParams.getAll("branch_ids[]");
     }

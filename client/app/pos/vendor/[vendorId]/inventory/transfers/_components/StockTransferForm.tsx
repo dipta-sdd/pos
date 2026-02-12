@@ -5,7 +5,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Input, Button, Select, SelectItem, Card, CardBody, Textarea } from "@heroui/react";
+import {
+  Input,
+  Button,
+  Select,
+  SelectItem,
+  Card,
+  CardBody,
+  Textarea,
+} from "@heroui/react";
 import { useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 
@@ -33,10 +41,16 @@ export default function StockTransferForm({
     notes: z.string().optional(),
     status: z.string().default("pending"),
     vendor_id: z.number(),
-    items: z.array(z.object({
-      variant_id: z.any(),
-      quantity: z.coerce.number().min(0.01, "Quantity must be greater than 0"),
-    })).min(1, "At least one item is required"),
+    items: z
+      .array(
+        z.object({
+          variant_id: z.any(),
+          quantity: z.coerce
+            .number()
+            .min(0.01, "Quantity must be greater than 0"),
+        }),
+      )
+      .min(1, "At least one item is required"),
   });
 
   type TransferFormData = {
@@ -87,7 +101,10 @@ export default function StockTransferForm({
 
   const fetchBranches = async () => {
     try {
-      const response: any = await api.get(`/branches?vendor_id=${vendor?.id}&per_page=100`);
+      const response: any = await api.get(
+        `/branches?vendor_id=${vendor?.id}&per_page=100`,
+      );
+
       setBranches(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch branches", error);
@@ -96,7 +113,10 @@ export default function StockTransferForm({
 
   const fetchVariants = async () => {
     try {
-      const response: any = await api.get(`/variants?vendor_id=${vendor?.id}&per_page=1000`);
+      const response: any = await api.get(
+        `/variants?vendor_id=${vendor?.id}&per_page=1000`,
+      );
+
       setVariants(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch variants", error);
@@ -128,12 +148,18 @@ export default function StockTransferForm({
               isRequired
               label="From Branch"
               placeholder="Select source branch"
-              selectedKeys={watch("from_branch_id") ? [String(watch("from_branch_id"))] : []}
+              selectedKeys={
+                watch("from_branch_id") ? [String(watch("from_branch_id"))] : []
+              }
               variant="bordered"
-              onChange={(e) => setValue("from_branch_id", Number(e.target.value))}
+              onChange={(e) =>
+                setValue("from_branch_id", Number(e.target.value))
+              }
             >
               {branches.map((b) => (
-                <SelectItem key={b.id} textValue={b.name}>{b.name}</SelectItem>
+                <SelectItem key={b.id} textValue={b.name}>
+                  {b.name}
+                </SelectItem>
               ))}
             </Select>
 
@@ -141,12 +167,16 @@ export default function StockTransferForm({
               isRequired
               label="To Branch"
               placeholder="Select destination branch"
-              selectedKeys={watch("to_branch_id") ? [String(watch("to_branch_id"))] : []}
+              selectedKeys={
+                watch("to_branch_id") ? [String(watch("to_branch_id"))] : []
+              }
               variant="bordered"
               onChange={(e) => setValue("to_branch_id", Number(e.target.value))}
             >
               {branches.map((b) => (
-                <SelectItem key={b.id} textValue={b.name}>{b.name}</SelectItem>
+                <SelectItem key={b.id} textValue={b.name}>
+                  {b.name}
+                </SelectItem>
               ))}
             </Select>
 
@@ -179,19 +209,34 @@ export default function StockTransferForm({
 
           <div className="space-y-4">
             {fields.map((field, index) => (
-              <div key={field.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end border-b pb-4 last:border-0">
+              <div
+                key={field.id}
+                className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end border-b pb-4 last:border-0"
+              >
                 <div className="md:col-span-8">
                   <Select
                     isRequired
                     label="Product Variant"
                     placeholder="Select variant"
-                    selectedKeys={watch(`items.${index}.variant_id`) ? [String(watch(`items.${index}.variant_id`))] : []}
+                    selectedKeys={
+                      watch(`items.${index}.variant_id`)
+                        ? [String(watch(`items.${index}.variant_id`))]
+                        : []
+                    }
                     size="sm"
                     variant="bordered"
-                    onChange={(e) => setValue(`items.${index}.variant_id`, Number(e.target.value))}
+                    onChange={(e) =>
+                      setValue(
+                        `items.${index}.variant_id`,
+                        Number(e.target.value),
+                      )
+                    }
                   >
                     {variants.map((v) => (
-                      <SelectItem key={v.id} textValue={`${v.product?.name} - ${v.name}`}>
+                      <SelectItem
+                        key={v.id}
+                        textValue={`${v.product?.name} - ${v.name}`}
+                      >
                         {v.product?.name} - {v.name} ({v.sku})
                       </SelectItem>
                     ))}
@@ -225,7 +270,9 @@ export default function StockTransferForm({
       </Card>
 
       <div className="flex justify-end gap-3">
-        <Button color="default" variant="flat" onPress={() => router.back()}>Cancel</Button>
+        <Button color="default" variant="flat" onPress={() => router.back()}>
+          Cancel
+        </Button>
         <Button color="primary" isLoading={isSubmitting} type="submit">
           {isEditing ? "Update Transfer" : "Create Transfer"}
         </Button>

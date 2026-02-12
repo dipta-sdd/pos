@@ -59,7 +59,10 @@ export default function BillingCounterForm({
 
   const fetchBranches = async () => {
     try {
-      const response: any = await api.get(`/branches?vendor_id=${vendor?.id}&per_page=100`);
+      const response: any = await api.get(
+        `/branches?vendor_id=${vendor?.id}&per_page=100`,
+      );
+
       setBranches(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch branches", error);
@@ -101,12 +104,16 @@ export default function BillingCounterForm({
         onChange={(e) => setValue("branch_id", Number(e.target.value))}
       >
         {branches.map((b) => (
-          <SelectItem key={b.id} textValue={b.name}>{b.name}</SelectItem>
+          <SelectItem key={b.id} textValue={b.name}>
+            {b.name}
+          </SelectItem>
         ))}
       </Select>
 
       <div className="flex justify-end gap-3 pt-4">
-        <Button color="default" variant="flat" onPress={onCancel}>Cancel</Button>
+        <Button color="default" variant="flat" onPress={onCancel}>
+          Cancel
+        </Button>
         <Button color="primary" isLoading={isSubmitting} type="submit">
           {isEditing ? "Update Counter" : "Create Counter"}
         </Button>

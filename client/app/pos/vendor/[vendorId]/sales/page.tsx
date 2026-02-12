@@ -24,6 +24,7 @@ import api from "@/lib/api";
 import { Sale } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
 import Confirm from "@/components/ui/Confirm";
+import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "SALE ID", uid: "id", sortable: true },
@@ -129,6 +130,7 @@ export default function SalesPage() {
     switch (columnKey) {
       case "customer":
         if (!item.customer) return "Walk-in";
+
         return (
           item.customer.name ||
           `${item.customer.first_name || ""} ${item.customer.last_name || ""}`.trim()
@@ -160,7 +162,7 @@ export default function SalesPage() {
     }
   }, []);
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_view_sales_history">
@@ -208,6 +210,7 @@ export default function SalesPage() {
                 selectionMode="multiple"
                 onSelectionChange={(keys) => {
                   const ids = Array.from(keys as Set<string>);
+
                   updateBranchFilter(ids);
                 }}
               >

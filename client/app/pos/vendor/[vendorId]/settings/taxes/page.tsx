@@ -32,6 +32,7 @@ import api from "@/lib/api";
 import { Tax } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
 import Confirm from "@/components/ui/Confirm";
+import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
@@ -41,7 +42,13 @@ const columns: Column[] = [
   { name: "ACTIONS", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "rate_percentage", "is_default", "created_at", "actions"];
+const INITIAL_VISIBLE_COLUMNS = [
+  "name",
+  "rate_percentage",
+  "is_default",
+  "created_at",
+  "actions",
+];
 
 function capitalize(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
@@ -133,7 +140,12 @@ export default function TaxesPage() {
       case "actions":
         return (
           <div className="flex items-center justify-end gap-2">
-            <Button isIconOnly size="sm" variant="light" onPress={() => handleEdit(item)}>
+            <Button
+              isIconOnly
+              size="sm"
+              variant="light"
+              onPress={() => handleEdit(item)}
+            >
               <Edit className="w-4 h-4 text-default-400" />
             </Button>
             <Button
@@ -154,7 +166,7 @@ export default function TaxesPage() {
     }
   }, []);
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_configure_taxes">
@@ -163,7 +175,11 @@ export default function TaxesPage() {
           description="Configure tax rates for your products"
           title="Taxes"
         >
-          <Button color="primary" startContent={<Plus className="w-4 h-4" />} onPress={handleCreate}>
+          <Button
+            color="primary"
+            startContent={<Plus className="w-4 h-4" />}
+            onPress={handleCreate}
+          >
             Add Tax
           </Button>
         </PageHeader>

@@ -2,15 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { type Selection } from "@heroui/react";
-import {
-  Edit,
-  Trash2,
-  MapPin,
-  Phone,
-  ChevronDown,
-  User,
-  Calendar,
-} from "lucide-react";
+import { Edit, Trash2, MapPin, Phone, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { type SortDescriptor } from "@heroui/table";
 import { Input } from "@heroui/input";
@@ -42,7 +34,7 @@ import CustomTable, {
 } from "@/components/ui/CustomTable";
 import Confirm from "@/components/ui/Confirm";
 import { Branch } from "@/lib/types/general";
-import { formatDateTime } from "@/lib/helper/dates";
+import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "BRANCH NAME", uid: "name", sortable: true },
@@ -266,7 +258,7 @@ export default function BranchesPage() {
     }
   }, []);
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_manage_branches_and_counters">

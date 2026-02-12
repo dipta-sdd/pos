@@ -5,7 +5,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Input, Button, Select, SelectItem, Card, CardBody, Textarea } from "@heroui/react";
+import {
+  Input,
+  Button,
+  Select,
+  SelectItem,
+  Card,
+  CardBody,
+} from "@heroui/react";
 import { useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 
@@ -36,11 +43,17 @@ export default function PurchaseOrderForm({
     notes: z.string().optional(),
     status: z.string().default("pending"),
     vendor_id: z.number(),
-    items: z.array(z.object({
-      variant_id: z.any(),
-      quantity: z.coerce.number().min(0.01, "Quantity must be greater than 0"),
-      unit_price: z.coerce.number().min(0, "Price must be positive"),
-    })).min(1, "At least one item is required"),
+    items: z
+      .array(
+        z.object({
+          variant_id: z.any(),
+          quantity: z.coerce
+            .number()
+            .min(0.01, "Quantity must be greater than 0"),
+          unit_price: z.coerce.number().min(0, "Price must be positive"),
+        }),
+      )
+      .min(1, "At least one item is required"),
   });
 
   type OrderFormData = {
@@ -70,8 +83,14 @@ export default function PurchaseOrderForm({
     defaultValues: {
       supplier_id: initialData?.supplier_id,
       branch_id: initialData?.branch_id,
-      order_date: initialData?.order_date ? new Date(initialData.order_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-      expected_delivery_date: initialData?.expected_delivery_date ? new Date(initialData.expected_delivery_date).toISOString().split('T')[0] : "",
+      order_date: initialData?.order_date
+        ? new Date(initialData.order_date).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      expected_delivery_date: initialData?.expected_delivery_date
+        ? new Date(initialData.expected_delivery_date)
+            .toISOString()
+            .split("T")[0]
+        : "",
       notes: initialData?.notes || "",
       status: initialData?.status || "pending",
       vendor_id: vendor?.id,
@@ -98,7 +117,10 @@ export default function PurchaseOrderForm({
 
   const fetchSuppliers = async () => {
     try {
-      const response: any = await api.get(`/suppliers?vendor_id=${vendor?.id}&per_page=100`);
+      const response: any = await api.get(
+        `/suppliers?vendor_id=${vendor?.id}&per_page=100`,
+      );
+
       setSuppliers(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch suppliers", error);
@@ -107,7 +129,10 @@ export default function PurchaseOrderForm({
 
   const fetchBranches = async () => {
     try {
-      const response: any = await api.get(`/branches?vendor_id=${vendor?.id}&per_page=100`);
+      const response: any = await api.get(
+        `/branches?vendor_id=${vendor?.id}&per_page=100`,
+      );
+
       setBranches(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch branches", error);
@@ -116,7 +141,10 @@ export default function PurchaseOrderForm({
 
   const fetchVariants = async () => {
     try {
-      const response: any = await api.get(`/variants?vendor_id=${vendor?.id}&per_page=1000`);
+      const response: any = await api.get(
+        `/variants?vendor_id=${vendor?.id}&per_page=1000`,
+      );
+
       setVariants(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch variants", error);
@@ -148,12 +176,16 @@ export default function PurchaseOrderForm({
               isRequired
               label="Supplier"
               placeholder="Select supplier"
-              selectedKeys={watch("supplier_id") ? [String(watch("supplier_id"))] : []}
+              selectedKeys={
+                watch("supplier_id") ? [String(watch("supplier_id"))] : []
+              }
               variant="bordered"
               onChange={(e) => setValue("supplier_id", Number(e.target.value))}
             >
               {suppliers.map((s) => (
-                <SelectItem key={s.id} textValue={s.name}>{s.name}</SelectItem>
+                <SelectItem key={s.id} textValue={s.name}>
+                  {s.name}
+                </SelectItem>
               ))}
             </Select>
 
@@ -161,12 +193,16 @@ export default function PurchaseOrderForm({
               isRequired
               label="Branch"
               placeholder="Select destination branch"
-              selectedKeys={watch("branch_id") ? [String(watch("branch_id"))] : []}
+              selectedKeys={
+                watch("branch_id") ? [String(watch("branch_id"))] : []
+              }
               variant="bordered"
               onChange={(e) => setValue("branch_id", Number(e.target.value))}
             >
               {branches.map((b) => (
-                <SelectItem key={b.id} textValue={b.name}>{b.name}</SelectItem>
+                <SelectItem key={b.id} textValue={b.name}>
+                  {b.name}
+                </SelectItem>
               ))}
             </Select>
 
@@ -199,7 +235,9 @@ export default function PurchaseOrderForm({
               size="sm"
               startContent={<Plus className="w-4 h-4" />}
               variant="flat"
-              onPress={() => append({ variant_id: 0, quantity: 1, unit_price: 0 })}
+              onPress={() =>
+                append({ variant_id: 0, quantity: 1, unit_price: 0 })
+              }
             >
               Add Item
             </Button>
@@ -207,19 +245,34 @@ export default function PurchaseOrderForm({
 
           <div className="space-y-4">
             {fields.map((field, index) => (
-              <div key={field.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end border-b pb-4 last:border-0">
+              <div
+                key={field.id}
+                className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end border-b pb-4 last:border-0"
+              >
                 <div className="md:col-span-6">
                   <Select
                     isRequired
                     label="Product Variant"
                     placeholder="Select variant"
-                    selectedKeys={watch(`items.${index}.variant_id`) ? [String(watch(`items.${index}.variant_id`))] : []}
+                    selectedKeys={
+                      watch(`items.${index}.variant_id`)
+                        ? [String(watch(`items.${index}.variant_id`))]
+                        : []
+                    }
                     size="sm"
                     variant="bordered"
-                    onChange={(e) => setValue(`items.${index}.variant_id`, Number(e.target.value))}
+                    onChange={(e) =>
+                      setValue(
+                        `items.${index}.variant_id`,
+                        Number(e.target.value),
+                      )
+                    }
                   >
                     {variants.map((v) => (
-                      <SelectItem key={v.id} textValue={`${v.product?.name} - ${v.name}`}>
+                      <SelectItem
+                        key={v.id}
+                        textValue={`${v.product?.name} - ${v.name}`}
+                      >
                         {v.product?.name} - {v.name} ({v.sku})
                       </SelectItem>
                     ))}
@@ -263,7 +316,9 @@ export default function PurchaseOrderForm({
       </Card>
 
       <div className="flex justify-end gap-3">
-        <Button color="default" variant="flat" onPress={() => router.back()}>Cancel</Button>
+        <Button color="default" variant="flat" onPress={() => router.back()}>
+          Cancel
+        </Button>
         <Button color="primary" isLoading={isSubmitting} type="submit">
           {isEditing ? "Update Order" : "Create Order"}
         </Button>

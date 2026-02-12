@@ -24,6 +24,7 @@ import api from "@/lib/api";
 import { StockTransfer } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
 import Confirm from "@/components/ui/Confirm";
+import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "TRANSFER ID", uid: "id", sortable: true },
@@ -169,7 +170,7 @@ export default function StockTransfersPage() {
     [vendor?.id, router],
   );
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_manage_stock_transfers">
@@ -219,6 +220,7 @@ export default function StockTransfersPage() {
                 selectionMode="multiple"
                 onSelectionChange={(keys) => {
                   const ids = Array.from(keys as Set<string>);
+
                   updateBranchFilter(ids);
                 }}
               >

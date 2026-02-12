@@ -59,7 +59,9 @@ export default function ExpenseForm({
       description: initialData?.description || "",
       expense_category_id: initialData?.expense_category_id,
       branch_id: initialData?.branch_id,
-      expense_date: initialData?.expense_date ? new Date(initialData.expense_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      expense_date: initialData?.expense_date
+        ? new Date(initialData.expense_date).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
       vendor_id: vendor?.id,
     },
   });
@@ -73,7 +75,10 @@ export default function ExpenseForm({
 
   const fetchCategories = async () => {
     try {
-      const response: any = await api.get(`/expense-categories?vendor_id=${vendor?.id}&per_page=100`);
+      const response: any = await api.get(
+        `/expense-categories?vendor_id=${vendor?.id}&per_page=100`,
+      );
+
       setCategories(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch expense categories", error);
@@ -82,7 +87,10 @@ export default function ExpenseForm({
 
   const fetchBranches = async () => {
     try {
-      const response: any = await api.get(`/branches?vendor_id=${vendor?.id}&per_page=100`);
+      const response: any = await api.get(
+        `/branches?vendor_id=${vendor?.id}&per_page=100`,
+      );
+
       setBranches(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch branches", error);
@@ -135,12 +143,20 @@ export default function ExpenseForm({
         <Select
           isRequired
           label="Category"
-          selectedKeys={watch("expense_category_id") ? [String(watch("expense_category_id"))] : []}
+          selectedKeys={
+            watch("expense_category_id")
+              ? [String(watch("expense_category_id"))]
+              : []
+          }
           variant="bordered"
-          onChange={(e) => setValue("expense_category_id", Number(e.target.value))}
+          onChange={(e) =>
+            setValue("expense_category_id", Number(e.target.value))
+          }
         >
           {categories.map((c) => (
-            <SelectItem key={c.id} textValue={c.name}>{c.name}</SelectItem>
+            <SelectItem key={c.id} textValue={c.name}>
+              {c.name}
+            </SelectItem>
           ))}
         </Select>
 
@@ -152,7 +168,9 @@ export default function ExpenseForm({
           onChange={(e) => setValue("branch_id", Number(e.target.value))}
         >
           {branches.map((b) => (
-            <SelectItem key={b.id} textValue={b.name}>{b.name}</SelectItem>
+            <SelectItem key={b.id} textValue={b.name}>
+              {b.name}
+            </SelectItem>
           ))}
         </Select>
       </div>
@@ -165,7 +183,9 @@ export default function ExpenseForm({
       />
 
       <div className="flex justify-end gap-3 pt-4">
-        <Button color="default" variant="flat" onPress={onCancel}>Cancel</Button>
+        <Button color="default" variant="flat" onPress={onCancel}>
+          Cancel
+        </Button>
         <Button color="primary" isLoading={isSubmitting} type="submit">
           {isEditing ? "Update Expense" : "Create Expense"}
         </Button>

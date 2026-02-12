@@ -18,7 +18,6 @@ import {
   FileIcon as FileWrench,
   GanttChartSquare,
   Wallet,
-  Users,
   AreaChart,
   BookOpen,
   BarChart3,
@@ -359,6 +358,7 @@ export function SidebarOption({
 
   const appendParams = (href?: string) => {
     if (!href) return "";
+
     return href + queryParams;
   };
 
@@ -427,7 +427,7 @@ export function SidebarOption({
               <Link
                 key={subIndex}
                 className={`
-                      flex items-center space-x-3 px-3 py-2 text-sm rounded-md transition-colors duration-200
+                      flex items-center space-x-3 px-3 py-2 pl-5.5 text-sm rounded-md transition-colors duration-200
                       ${
                         activeItem === subItem.href
                           ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 font-medium"

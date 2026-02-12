@@ -1,5 +1,4 @@
 "use client";
-import { formatDateTime } from "@/lib/helper/dates";
 import { Pagination, Select, SelectItem, Skeleton } from "@heroui/react";
 import {
   SortDescriptor,
@@ -13,6 +12,8 @@ import {
 } from "@heroui/table";
 import { Calendar, User } from "lucide-react";
 import { useMemo } from "react";
+
+import { formatDateTime } from "@/lib/helper/dates";
 
 export interface Column {
   name: string;
@@ -141,11 +142,11 @@ const CustomTable: React.FC<CustomTableProps> = ({
       bottomContent={bottomContent}
       bottomContentPlacement="inside"
       classNames={classNames}
-      sortDescriptor={sortDescriptor}
-      onSortChange={setSortDescriptor}
       selectedKeys={selectedKeys}
       selectionMode={selectionMode}
+      sortDescriptor={sortDescriptor}
       onSelectionChange={onSelectionChange}
+      onSortChange={setSortDescriptor}
     >
       <TableHeader columns={headerColumns}>
         {(column) => (
@@ -182,7 +183,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
 
 export default CustomTable;
 
-export const loggerColumns = (key: string , item:any) => {
+export const loggerColumns = (key: string, item: any) => {
   switch (key) {
     case "created_at":
       return item?.created_at ? (

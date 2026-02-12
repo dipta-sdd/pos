@@ -76,14 +76,17 @@ export function AuthGuard({
       requireVerification,
       isVerified,
     });
+
     return <Loading />;
   }
   if (requireAuth && !isAuthenticated) {
     console.log("Not Authenticated");
+
     return <AccessDenied />;
   }
   if (!requireAuth && isAuthenticated) {
     console.log("Already Authenticated");
+
     return <AlreadyAuthenticated />;
   }
 

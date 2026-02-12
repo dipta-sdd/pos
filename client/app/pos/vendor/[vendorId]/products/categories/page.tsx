@@ -32,6 +32,7 @@ import api from "@/lib/api";
 import { Category } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
 import Confirm from "@/components/ui/Confirm";
+import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
@@ -40,7 +41,12 @@ const columns: Column[] = [
   { name: "ACTIONS", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "description", "created_at", "actions"];
+const INITIAL_VISIBLE_COLUMNS = [
+  "name",
+  "description",
+  "created_at",
+  "actions",
+];
 
 function capitalize(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
@@ -156,7 +162,7 @@ export default function CategoriesPage() {
     }
   }, []);
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_manage_categories">

@@ -65,7 +65,10 @@ export default function CashSessionForm({
 
   const fetchCounters = async () => {
     try {
-      const response: any = await api.get(`/billing-counters?vendor_id=${vendor?.id}&per_page=100`);
+      const response: any = await api.get(
+        `/billing-counters?vendor_id=${vendor?.id}&per_page=100`,
+      );
+
       setCounters(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch counters", error);
@@ -88,12 +91,18 @@ export default function CashSessionForm({
         isRequired
         label="Billing Counter"
         placeholder="Select counter"
-        selectedKeys={watch("billing_counter_id") ? [String(watch("billing_counter_id"))] : []}
+        selectedKeys={
+          watch("billing_counter_id")
+            ? [String(watch("billing_counter_id"))]
+            : []
+        }
         variant="bordered"
         onChange={(e) => setValue("billing_counter_id", Number(e.target.value))}
       >
         {counters.map((c) => (
-          <SelectItem key={c.id} textValue={c.name}>{c.name}</SelectItem>
+          <SelectItem key={c.id} textValue={c.name}>
+            {c.name}
+          </SelectItem>
         ))}
       </Select>
 
@@ -108,8 +117,12 @@ export default function CashSessionForm({
       />
 
       <div className="flex justify-end gap-3 pt-4">
-        <Button color="default" variant="flat" onPress={onCancel}>Cancel</Button>
-        <Button color="primary" isLoading={isSubmitting} type="submit">Open Register</Button>
+        <Button color="default" variant="flat" onPress={onCancel}>
+          Cancel
+        </Button>
+        <Button color="primary" isLoading={isSubmitting} type="submit">
+          Open Register
+        </Button>
       </div>
     </form>
   );

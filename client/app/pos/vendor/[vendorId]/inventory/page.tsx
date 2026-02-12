@@ -20,6 +20,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
 import api from "@/lib/api";
 import { Variant } from "@/lib/types/general";
+import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "PRODUCT", uid: "product", sortable: false },
@@ -99,10 +100,11 @@ export default function InventoryPage() {
 
   const renderCell = useCallback((item: Variant, columnKey: React.Key) => {
     if (columnKey === "product") return item.product?.name || "N/A";
+
     return (item as any)[columnKey as keyof Variant];
   }, []);
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_view_inventory_levels">
@@ -142,6 +144,7 @@ export default function InventoryPage() {
                 selectionMode="multiple"
                 onSelectionChange={(keys) => {
                   const ids = Array.from(keys as Set<string>);
+
                   updateBranchFilter(ids);
                 }}
               >

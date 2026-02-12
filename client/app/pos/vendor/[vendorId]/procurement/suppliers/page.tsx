@@ -32,6 +32,7 @@ import api from "@/lib/api";
 import { Supplier } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
 import Confirm from "@/components/ui/Confirm";
+import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
@@ -165,7 +166,7 @@ export default function SuppliersPage() {
     }
   }, []);
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_manage_suppliers">

@@ -3,12 +3,13 @@
 import RoleForm from "../_components/RoleForm";
 
 import PermissionGuard from "@/components/auth/PermissionGuard";
+import { UserLoding } from "@/components/user-loding";
 import { useVendor } from "@/lib/contexts/VendorContext";
 
 export default function NewRolePage() {
   const { isLoading: contextLoading } = useVendor();
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_manage_roles_and_permissions">

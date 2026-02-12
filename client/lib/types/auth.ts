@@ -73,7 +73,6 @@ export interface Vendor {
   branches: any[]; // You can define a Branch interface if needed
 }
 
-
 interface UserBranchAssignment {
   id: number;
   membership_id: number;

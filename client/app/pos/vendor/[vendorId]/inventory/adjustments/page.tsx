@@ -32,6 +32,7 @@ import api from "@/lib/api";
 import { InventoryAdjustment } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
 import Confirm from "@/components/ui/Confirm";
+import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "ADJUSTMENT ID", uid: "id", sortable: true },
@@ -200,7 +201,7 @@ export default function StockAdjustmentsPage() {
     [],
   );
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_perform_stock_adjustments">
@@ -248,6 +249,7 @@ export default function StockAdjustmentsPage() {
                 selectionMode="multiple"
                 onSelectionChange={(keys) => {
                   const ids = Array.from(keys as Set<string>);
+
                   updateBranchFilter(ids);
                 }}
               >
@@ -301,7 +303,7 @@ export default function StockAdjustmentsPage() {
           visibleColumns={visibleColumns}
         />
 
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="2xl">
+        <Modal isOpen={isOpen} size="2xl" onOpenChange={onOpenChange}>
           <ModalContent>
             {(onClose) => (
               <>

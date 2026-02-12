@@ -32,6 +32,7 @@ import api from "@/lib/api";
 import { PaymentMethod } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
 import Confirm from "@/components/ui/Confirm";
+import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
@@ -118,42 +119,52 @@ export default function PaymentMethodsPage() {
       toast.success("Payment method deleted successfully");
       fetchItems(currentPage);
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to delete payment method");
+      toast.error(
+        error.response?.data?.message || "Failed to delete payment method",
+      );
     }
     setDeleteConfirmOpen(false);
   };
 
-  const renderCell = useCallback((item: PaymentMethod, columnKey: React.Key) => {
-    switch (columnKey) {
-      case "is_active":
-        return item.is_active ? "Yes" : "No";
-      case "created_at":
-        return formatDateTime(item.created_at);
-      case "actions":
-        return (
-          <div className="flex items-center justify-end gap-2">
-            <Button isIconOnly size="sm" variant="light" onPress={() => handleEdit(item)}>
-              <Edit className="w-4 h-4 text-default-400" />
-            </Button>
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onPress={() => {
-                setDeleteConfirmId(item.id);
-                setDeleteConfirmOpen(true);
-              }}
-            >
-              <Trash2 className="w-4 h-4 text-danger" />
-            </Button>
-          </div>
-        );
-      default:
-        return (item as any)[columnKey as keyof PaymentMethod];
-    }
-  }, []);
+  const renderCell = useCallback(
+    (item: PaymentMethod, columnKey: React.Key) => {
+      switch (columnKey) {
+        case "is_active":
+          return item.is_active ? "Yes" : "No";
+        case "created_at":
+          return formatDateTime(item.created_at);
+        case "actions":
+          return (
+            <div className="flex items-center justify-end gap-2">
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onPress={() => handleEdit(item)}
+              >
+                <Edit className="w-4 h-4 text-default-400" />
+              </Button>
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onPress={() => {
+                  setDeleteConfirmId(item.id);
+                  setDeleteConfirmOpen(true);
+                }}
+              >
+                <Trash2 className="w-4 h-4 text-danger" />
+              </Button>
+            </div>
+          );
+        default:
+          return (item as any)[columnKey as keyof PaymentMethod];
+      }
+    },
+    [],
+  );
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_manage_payment_methods">
@@ -162,7 +173,11 @@ export default function PaymentMethodsPage() {
           description="Configure accepted payment methods"
           title="Payment Methods"
         >
-          <Button color="primary" startContent={<Plus className="w-4 h-4" />} onPress={handleCreate}>
+          <Button
+            color="primary"
+            startContent={<Plus className="w-4 h-4" />}
+            onPress={handleCreate}
+          >
             Add Method
           </Button>
         </PageHeader>
@@ -223,7 +238,9 @@ export default function PaymentMethodsPage() {
           <ModalContent>
             {(onClose) => (
               <>
-                <ModalHeader>{isEditing ? "Edit Method" : "Add Method"}</ModalHeader>
+                <ModalHeader>
+                  {isEditing ? "Edit Method" : "Add Method"}
+                </ModalHeader>
                 <ModalBody>
                   <PaymentMethodForm
                     initialData={selectedItem}

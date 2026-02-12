@@ -50,7 +50,9 @@ export default function TaxForm({
     resolver: zodResolver(schema) as any,
     defaultValues: {
       name: initialData?.name || "",
-      rate_percentage: initialData?.rate_percentage ? Number(initialData.rate_percentage) : 0,
+      rate_percentage: initialData?.rate_percentage
+        ? Number(initialData.rate_percentage)
+        : 0,
       is_default: initialData?.is_default ?? false,
       vendor_id: vendor?.id,
     },
@@ -69,7 +71,10 @@ export default function TaxForm({
     } catch (error: any) {
       if (error.response?.data?.errors) {
         Object.entries(error.response?.data?.errors).forEach(([key, value]) => {
-          setError(key as any, { type: "manual", message: (value as string[])[0] });
+          setError(key as any, {
+            type: "manual",
+            message: (value as string[])[0],
+          });
         });
       }
       toast.error(error.response?.data?.message || "Something went wrong");
@@ -108,7 +113,9 @@ export default function TaxForm({
       </div>
 
       <div className="flex justify-end gap-3 pt-4">
-        <Button color="default" variant="flat" onPress={onCancel}>Cancel</Button>
+        <Button color="default" variant="flat" onPress={onCancel}>
+          Cancel
+        </Button>
         <Button color="primary" isLoading={isSubmitting} type="submit">
           {isEditing ? "Update Tax" : "Create Tax"}
         </Button>

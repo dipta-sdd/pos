@@ -32,6 +32,7 @@ import api from "@/lib/api";
 import { Promotion } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
 import Confirm from "@/components/ui/Confirm";
+import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
@@ -44,7 +45,15 @@ const columns: Column[] = [
   { name: "ACTIONS", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "discount_type", "discount_value", "is_active", "start_date", "end_date", "actions"];
+const INITIAL_VISIBLE_COLUMNS = [
+  "name",
+  "discount_type",
+  "discount_value",
+  "is_active",
+  "start_date",
+  "end_date",
+  "actions",
+];
 
 function capitalize(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
@@ -122,7 +131,9 @@ export default function PromotionsPage() {
       toast.success("Promotion deleted successfully");
       fetchItems(currentPage);
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to delete promotion");
+      toast.error(
+        error.response?.data?.message || "Failed to delete promotion",
+      );
     }
     setDeleteConfirmOpen(false);
   };
@@ -170,7 +181,7 @@ export default function PromotionsPage() {
     }
   }, []);
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_view_promotions">
@@ -240,7 +251,7 @@ export default function PromotionsPage() {
           visibleColumns={visibleColumns}
         />
 
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="2xl">
+        <Modal isOpen={isOpen} size="2xl" onOpenChange={onOpenChange}>
           <ModalContent>
             {(onClose) => (
               <>

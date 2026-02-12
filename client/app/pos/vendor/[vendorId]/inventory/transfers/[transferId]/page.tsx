@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+
+import StockTransferForm from "../_components/StockTransferForm";
+
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
-import StockTransferForm from "../_components/StockTransferForm";
 import api from "@/lib/api";
-import { useParams } from "next/navigation";
 
 export default function EditStockTransferPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
@@ -24,6 +26,7 @@ export default function EditStockTransferPage() {
   const fetchTransfer = async () => {
     try {
       const response: any = await api.get(`/stock-transfers/${transferId}`);
+
       setTransfer(response?.data);
     } catch (error) {
       console.error("Failed to fetch transfer", error);
@@ -43,7 +46,7 @@ export default function EditStockTransferPage() {
           title="Edit Stock Transfer"
         />
         <div className="mt-6 max-w-5xl">
-          <StockTransferForm initialData={transfer} isEditing />
+          <StockTransferForm isEditing initialData={transfer} />
         </div>
       </div>
     </PermissionGuard>

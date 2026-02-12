@@ -77,6 +77,7 @@ export default function InventoryAdjustmentForm({
       const response: any = await api.get(
         `/variants?vendor_id=${vendor?.id}&per_page=1000`,
       );
+
       setVariants(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch variants", error);
@@ -88,6 +89,7 @@ export default function InventoryAdjustmentForm({
       const response: any = await api.get(
         `/branches?vendor_id=${vendor?.id}&per_page=100`,
       );
+
       setBranches(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch branches", error);
@@ -125,13 +127,13 @@ export default function InventoryAdjustmentForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Select
           isRequired
+          errorMessage={errors.branch_id?.message}
+          isInvalid={!!errors.branch_id}
           label="Branch"
           placeholder="Select branch"
           selectedKeys={watch("branch_id") ? [String(watch("branch_id"))] : []}
           variant="bordered"
           onChange={(e) => setValue("branch_id", Number(e.target.value))}
-          errorMessage={errors.branch_id?.message}
-          isInvalid={!!errors.branch_id}
         >
           {branches.map((b) => (
             <SelectItem key={b.id} textValue={b.name}>
@@ -142,6 +144,8 @@ export default function InventoryAdjustmentForm({
 
         <Select
           isRequired
+          errorMessage={errors.variant_id?.message}
+          isInvalid={!!errors.variant_id}
           label="Product Variant"
           placeholder="Select variant"
           selectedKeys={
@@ -149,8 +153,6 @@ export default function InventoryAdjustmentForm({
           }
           variant="bordered"
           onChange={(e) => setValue("variant_id", Number(e.target.value))}
-          errorMessage={errors.variant_id?.message}
-          isInvalid={!!errors.variant_id}
         >
           {variants.map((v) => (
             <SelectItem key={v.id} textValue={`${v.product?.name} - ${v.name}`}>

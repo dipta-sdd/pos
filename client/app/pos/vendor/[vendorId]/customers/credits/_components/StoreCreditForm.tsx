@@ -49,7 +49,9 @@ export default function StoreCreditForm({
     resolver: zodResolver(schema) as any,
     defaultValues: {
       customer_id: initialData?.customer_id,
-      current_balance: initialData?.current_balance ? Number(initialData.current_balance) : 0,
+      current_balance: initialData?.current_balance
+        ? Number(initialData.current_balance)
+        : 0,
       vendor_id: vendor?.id,
     },
   });
@@ -62,7 +64,10 @@ export default function StoreCreditForm({
 
   const fetchCustomers = async () => {
     try {
-      const response: any = await api.get(`/customers?vendor_id=${vendor?.id}&per_page=100`);
+      const response: any = await api.get(
+        `/customers?vendor_id=${vendor?.id}&per_page=100`,
+      );
+
       setCustomers(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch customers", error);
@@ -90,12 +95,17 @@ export default function StoreCreditForm({
         isRequired
         isDisabled={isEditing}
         label="Customer"
-        selectedKeys={watch("customer_id") ? [String(watch("customer_id"))] : []}
+        selectedKeys={
+          watch("customer_id") ? [String(watch("customer_id"))] : []
+        }
         variant="bordered"
         onChange={(e) => setValue("customer_id", Number(e.target.value))}
       >
         {customers.map((c) => (
-          <SelectItem key={c.id} textValue={c.name || `${c.first_name} ${c.last_name}`}>
+          <SelectItem
+            key={c.id}
+            textValue={c.name || `${c.first_name} ${c.last_name}`}
+          >
             {c.name || `${c.first_name} ${c.last_name}`}
           </SelectItem>
         ))}
@@ -112,7 +122,9 @@ export default function StoreCreditForm({
       />
 
       <div className="flex justify-end gap-3 pt-4">
-        <Button color="default" variant="flat" onPress={onCancel}>Cancel</Button>
+        <Button color="default" variant="flat" onPress={onCancel}>
+          Cancel
+        </Button>
         <Button color="primary" isLoading={isSubmitting} type="submit">
           {isEditing ? "Update Credit" : "Issue Credit"}
         </Button>

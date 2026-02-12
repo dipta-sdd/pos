@@ -19,11 +19,12 @@ import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
-import CustomTable, { Column } from "@/components/ui/CustomTable";
+import CustomTable, { Column, loggerColumns } from "@/components/ui/CustomTable";
 import Confirm from "@/components/ui/Confirm";
 import { formatDateTime } from "@/lib/helper/dates";
 import { Role } from "@/lib/types/auth";
 import api from "@/lib/api";
+import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
@@ -161,33 +162,12 @@ export default function RolesPage() {
       switch (columnKey) {
         case "name":
           return <span className="">{role.name}</span>;
+
         case "created_at":
-          return role.created_at ? (
-            <div className="flex items-center gap-2 text-small">
-              <Calendar className="w-4 h-4 text-default-400" />
-              {formatDateTime(role.created_at)}
-            </div>
-          ) : (
-            <span className="text-default-500">-</span>
-          );
         case "updated_at":
-          return role.updated_at ? (
-            <div className="flex items-center gap-2 text-small">
-              <Calendar className="w-4 h-4 text-default-400" />
-              {formatDateTime(role.updated_at)}
-            </div>
-          ) : (
-            <span className="text-default-500">-</span>
-          );
+        case "created_by_name":
         case "updated_by_name":
-          return role?.updated_by_name ? (
-            <div className="flex items-center gap-2 text-small">
-              <User className="w-4 h-4 text-default-400" />
-              {role.updated_by_name}
-            </div>
-          ) : (
-            <span className="text-default-500">-</span>
-          );
+          return loggerColumns(columnKey, role);
         case "actions":
           return (
             <div className="flex items-center justify-end gap-2">
@@ -238,7 +218,7 @@ export default function RolesPage() {
     [vendor?.id, router, membership],
   );
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_view_roles">

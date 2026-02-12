@@ -32,6 +32,7 @@ import api from "@/lib/api";
 import { Customer } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
 import Confirm from "@/components/ui/Confirm";
+import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
@@ -140,6 +141,7 @@ export default function CustomersPage() {
     switch (columnKey) {
       case "name":
         if (item.name) return item.name;
+
         return (
           `${item.first_name || ""} ${item.last_name || ""}`.trim() || "N/A"
         );
@@ -174,7 +176,7 @@ export default function CustomersPage() {
     }
   }, []);
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_view_customers">

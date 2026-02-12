@@ -8,6 +8,7 @@ import PermissionGuard from "@/components/auth/PermissionGuard";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import api from "@/lib/api";
 import { Role } from "@/lib/types/auth";
+import { UserLoding } from "@/components/user-loding";
 
 export default function EditRolePage() {
   const { currentRole, isLoading: contextLoading } = useVendor();
@@ -41,7 +42,7 @@ export default function EditRolePage() {
     }
   }, [params.roleId]);
 
-  if (contextLoading || loading) return <div>Loading...</div>;
+  if (contextLoading || loading) return <UserLoding />;
   if (!role) return <div>Role not found</div>;
 
   return (

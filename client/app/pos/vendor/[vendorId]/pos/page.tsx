@@ -7,11 +7,12 @@ import { Search, ShoppingCart, User, CreditCard } from "lucide-react";
 
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { useVendor } from "@/lib/contexts/VendorContext";
+import { UserLoding } from "@/components/user-loding";
 
 export default function PointOfSalePage() {
   const { vendor, isLoading: contextLoading } = useVendor();
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_use_pos">

@@ -32,6 +32,7 @@ import api from "@/lib/api";
 import { CashRegisterSession } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
 import Confirm from "@/components/ui/Confirm";
+import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "SESSION ID", uid: "id", sortable: true },
@@ -165,7 +166,7 @@ export default function CashManagementPage() {
     [],
   );
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_open_close_cash_register">
@@ -214,6 +215,7 @@ export default function CashManagementPage() {
                 selectionMode="multiple"
                 onSelectionChange={(keys) => {
                   const ids = Array.from(keys as Set<string>);
+
                   updateBranchFilter(ids);
                 }}
               >

@@ -5,13 +5,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Input, Button, Textarea, Select, SelectItem, Card, CardBody } from "@heroui/react";
+import {
+  Input,
+  Button,
+  Textarea,
+  Select,
+  SelectItem,
+  Card,
+  CardBody,
+} from "@heroui/react";
 import { useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 
 import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
-import { Product, Category, UnitOfMeasure } from "@/lib/types/general";
+import { Category, UnitOfMeasure } from "@/lib/types/general";
 
 interface ProductFormProps {
   initialData?: any;
@@ -33,14 +41,18 @@ export default function ProductForm({
     category_id: z.any().optional(),
     unit_of_measure_id: z.any().optional(),
     vendor_id: z.number(),
-    variants: z.array(z.object({
-      id: z.number().optional(),
-      name: z.string().min(1, "Variant name is required"),
-      value: z.string().min(1, "Variant value is required"),
-      sku: z.string().optional().nullable(),
-      barcode: z.string().optional().nullable(),
-      unit_of_measure_id: z.any().optional(),
-    })).min(1, "At least one variant is required"),
+    variants: z
+      .array(
+        z.object({
+          id: z.number().optional(),
+          name: z.string().min(1, "Variant name is required"),
+          value: z.string().min(1, "Variant value is required"),
+          sku: z.string().optional().nullable(),
+          barcode: z.string().optional().nullable(),
+          unit_of_measure_id: z.any().optional(),
+        }),
+      )
+      .min(1, "At least one variant is required"),
   });
 
   type ProductFormData = {
@@ -75,7 +87,10 @@ export default function ProductForm({
       category_id: initialData?.category_id,
       unit_of_measure_id: initialData?.unit_of_measure_id,
       vendor_id: vendor?.id,
-      variants: initialData?.variants?.length > 0 ? initialData.variants : [{ name: "Standard", value: "Default", sku: "", barcode: "" }],
+      variants:
+        initialData?.variants?.length > 0
+          ? initialData.variants
+          : [{ name: "Standard", value: "Default", sku: "", barcode: "" }],
     },
   });
 
@@ -93,7 +108,10 @@ export default function ProductForm({
 
   const fetchCategories = async () => {
     try {
-      const response: any = await api.get(`/categories?vendor_id=${vendor?.id}&per_page=100`);
+      const response: any = await api.get(
+        `/categories?vendor_id=${vendor?.id}&per_page=100`,
+      );
+
       setCategories(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch categories", error);
@@ -102,7 +120,10 @@ export default function ProductForm({
 
   const fetchUnits = async () => {
     try {
-      const response: any = await api.get(`/units-of-measure?vendor_id=${vendor?.id}&per_page=100`);
+      const response: any = await api.get(
+        `/units-of-measure?vendor_id=${vendor?.id}&per_page=100`,
+      );
+
       setUnits(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch units", error);
@@ -156,7 +177,9 @@ export default function ProductForm({
             <Select
               label="Category"
               placeholder="Select category"
-              selectedKeys={watch("category_id") ? [String(watch("category_id"))] : []}
+              selectedKeys={
+                watch("category_id") ? [String(watch("category_id"))] : []
+              }
               variant="bordered"
               onChange={(e) => setValue("category_id", Number(e.target.value))}
             >
@@ -181,9 +204,15 @@ export default function ProductForm({
             <Select
               label="Base Unit of Measure"
               placeholder="Select unit"
-              selectedKeys={watch("unit_of_measure_id") ? [String(watch("unit_of_measure_id"))] : []}
+              selectedKeys={
+                watch("unit_of_measure_id")
+                  ? [String(watch("unit_of_measure_id"))]
+                  : []
+              }
               variant="bordered"
-              onChange={(e) => setValue("unit_of_measure_id", Number(e.target.value))}
+              onChange={(e) =>
+                setValue("unit_of_measure_id", Number(e.target.value))
+              }
             >
               {units.map((unit) => (
                 <SelectItem key={unit.id} textValue={unit.name}>
@@ -204,7 +233,9 @@ export default function ProductForm({
               size="sm"
               startContent={<Plus className="w-4 h-4" />}
               variant="flat"
-              onPress={() => append({ name: "", value: "", sku: "", barcode: "" })}
+              onPress={() =>
+                append({ name: "", value: "", sku: "", barcode: "" })
+              }
             >
               Add Variant
             </Button>
@@ -212,7 +243,10 @@ export default function ProductForm({
 
           <div className="space-y-4">
             {fields.map((field, index) => (
-              <div key={field.id} className="p-4 border rounded-lg bg-gray-50/50 space-y-4">
+              <div
+                key={field.id}
+                className="p-4 border rounded-lg bg-gray-50/50 space-y-4"
+              >
                 <div className="flex justify-between items-start">
                   <h4 className="font-medium">Variant #{index + 1}</h4>
                   {fields.length > 1 && (
@@ -267,17 +301,15 @@ export default function ProductForm({
             ))}
           </div>
           {errors.variants?.root && (
-            <p className="text-danger text-sm">{errors.variants.root.message}</p>
+            <p className="text-danger text-sm">
+              {errors.variants.root.message}
+            </p>
           )}
         </CardBody>
       </Card>
 
       <div className="flex justify-end gap-3">
-        <Button
-          color="default"
-          variant="flat"
-          onPress={() => router.back()}
-        >
+        <Button color="default" variant="flat" onPress={() => router.back()}>
           Cancel
         </Button>
         <Button color="primary" isLoading={isSubmitting} type="submit">

@@ -32,6 +32,7 @@ import api from "@/lib/api";
 import { Expense } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
 import Confirm from "@/components/ui/Confirm";
+import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "CATEGORY", uid: "expense_category", sortable: false },
@@ -187,7 +188,7 @@ export default function ExpensesPage() {
     }
   }, []);
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_manage_expenses">
@@ -232,6 +233,7 @@ export default function ExpensesPage() {
                 selectionMode="multiple"
                 onSelectionChange={(keys) => {
                   const ids = Array.from(keys as Set<string>);
+
                   updateBranchFilter(ids);
                 }}
               >
@@ -285,7 +287,7 @@ export default function ExpensesPage() {
           visibleColumns={visibleColumns}
         />
 
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="2xl">
+        <Modal isOpen={isOpen} size="2xl" onOpenChange={onOpenChange}>
           <ModalContent>
             {(onClose) => (
               <>

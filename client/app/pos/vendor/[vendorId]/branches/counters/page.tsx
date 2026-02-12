@@ -32,6 +32,7 @@ import api from "@/lib/api";
 import { BillingCounter } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
 import Confirm from "@/components/ui/Confirm";
+import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
@@ -123,43 +124,58 @@ export default function BillingCountersPage() {
     setDeleteConfirmOpen(false);
   };
 
-  const renderCell = useCallback((item: BillingCounter, columnKey: React.Key) => {
-    switch (columnKey) {
-      case "branch":
-        return item.branch?.name || "N/A";
-      case "created_at":
-        return formatDateTime(item.created_at);
-      case "actions":
-        return (
-          <div className="flex items-center justify-end gap-2">
-            <Button isIconOnly size="sm" variant="light" onPress={() => handleEdit(item)}>
-              <Edit className="w-4 h-4 text-default-400" />
-            </Button>
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onPress={() => {
-                setDeleteConfirmId(item.id);
-                setDeleteConfirmOpen(true);
-              }}
-            >
-              <Trash2 className="w-4 h-4 text-danger" />
-            </Button>
-          </div>
-        );
-      default:
-        return (item as any)[columnKey as keyof BillingCounter];
-    }
-  }, []);
+  const renderCell = useCallback(
+    (item: BillingCounter, columnKey: React.Key) => {
+      switch (columnKey) {
+        case "branch":
+          return item.branch?.name || "N/A";
+        case "created_at":
+          return formatDateTime(item.created_at);
+        case "actions":
+          return (
+            <div className="flex items-center justify-end gap-2">
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onPress={() => handleEdit(item)}
+              >
+                <Edit className="w-4 h-4 text-default-400" />
+              </Button>
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onPress={() => {
+                  setDeleteConfirmId(item.id);
+                  setDeleteConfirmOpen(true);
+                }}
+              >
+                <Trash2 className="w-4 h-4 text-danger" />
+              </Button>
+            </div>
+          );
+        default:
+          return (item as any)[columnKey as keyof BillingCounter];
+      }
+    },
+    [],
+  );
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_manage_branches_and_counters">
       <div className="p-6">
-        <PageHeader description="Manage billing counters for each branch" title="Billing Counters">
-          <Button color="primary" startContent={<Plus className="w-4 h-4" />} onPress={handleCreate}>
+        <PageHeader
+          description="Manage billing counters for each branch"
+          title="Billing Counters"
+        >
+          <Button
+            color="primary"
+            startContent={<Plus className="w-4 h-4" />}
+            onPress={handleCreate}
+          >
             Add Counter
           </Button>
         </PageHeader>
@@ -176,7 +192,10 @@ export default function BillingCountersPage() {
           <div className="flex gap-3">
             <Dropdown radius="sm">
               <DropdownTrigger className="flex">
-                <Button endContent={<ChevronDown className="text-small" />} variant="flat">
+                <Button
+                  endContent={<ChevronDown className="text-small" />}
+                  variant="flat"
+                >
                   Columns
                 </Button>
               </DropdownTrigger>
@@ -217,7 +236,9 @@ export default function BillingCountersPage() {
           <ModalContent>
             {(onClose) => (
               <>
-                <ModalHeader>{isEditing ? "Edit Counter" : "Add Counter"}</ModalHeader>
+                <ModalHeader>
+                  {isEditing ? "Edit Counter" : "Add Counter"}
+                </ModalHeader>
                 <ModalBody>
                   <BillingCounterForm
                     initialData={selectedItem}

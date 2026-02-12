@@ -7,13 +7,14 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@heroui/button";
 import { Card, CardBody } from "@heroui/card";
-import { Printer, FileText } from "lucide-react";
-import { Input, Switch } from "@heroui/react";
+import { Printer } from "lucide-react";
+import { Switch } from "@heroui/react";
 
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import api from "@/lib/api";
+import { UserLoding } from "@/components/user-loding";
 
 export default function ReceiptSettingsPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
@@ -56,6 +57,7 @@ export default function ReceiptSettingsPage() {
   const fetchSettings = async () => {
     try {
       const response: any = await api.get(`/receipt-settings/${vendor?.id}`);
+
       if (response?.data) {
         reset({
           ...response.data,
@@ -81,7 +83,7 @@ export default function ReceiptSettingsPage() {
     }
   };
 
-  if (contextLoading || loading) return <div>Loading...</div>;
+  if (contextLoading || loading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_customize_receipts">
@@ -107,7 +109,10 @@ export default function ReceiptSettingsPage() {
 
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium" htmlFor="header_text">
+                      <label
+                        className="text-sm font-medium"
+                        htmlFor="header_text"
+                      >
                         Header Text
                       </label>
                       <textarea
@@ -118,7 +123,10 @@ export default function ReceiptSettingsPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium" htmlFor="footer_text">
+                      <label
+                        className="text-sm font-medium"
+                        htmlFor="footer_text"
+                      >
                         Footer Text
                       </label>
                       <textarea
@@ -139,7 +147,9 @@ export default function ReceiptSettingsPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex flex-col">
                         <span className="font-medium text-sm">Show Logo</span>
-                        <span className="text-xs text-default-400">Display your vendor logo on the receipt</span>
+                        <span className="text-xs text-default-400">
+                          Display your vendor logo on the receipt
+                        </span>
                       </div>
                       <Switch
                         isSelected={watch("show_logo")}
@@ -148,8 +158,12 @@ export default function ReceiptSettingsPage() {
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex flex-col">
-                        <span className="font-medium text-sm">Show Address</span>
-                        <span className="text-xs text-default-400">Include branch address details</span>
+                        <span className="font-medium text-sm">
+                          Show Address
+                        </span>
+                        <span className="text-xs text-default-400">
+                          Include branch address details
+                        </span>
                       </div>
                       <Switch
                         isSelected={watch("show_address")}
@@ -158,12 +172,18 @@ export default function ReceiptSettingsPage() {
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex flex-col">
-                        <span className="font-medium text-sm">Show Contact Info</span>
-                        <span className="text-xs text-default-400">Include phone and email details</span>
+                        <span className="font-medium text-sm">
+                          Show Contact Info
+                        </span>
+                        <span className="text-xs text-default-400">
+                          Include phone and email details
+                        </span>
                       </div>
                       <Switch
                         isSelected={watch("show_contact_info")}
-                        onValueChange={(val) => setValue("show_contact_info", val)}
+                        onValueChange={(val) =>
+                          setValue("show_contact_info", val)
+                        }
                       />
                     </div>
                   </div>
@@ -174,16 +194,28 @@ export default function ReceiptSettingsPage() {
             <div className="space-y-6">
               <Card>
                 <CardBody className="p-6">
-                  <h3 className="text-sm font-bold mb-4 uppercase text-default-400">Preview</h3>
+                  <h3 className="text-sm font-bold mb-4 uppercase text-default-400">
+                    Preview
+                  </h3>
                   <div className="p-4 bg-white border rounded shadow-inner font-mono text-[10px] space-y-2">
                     <div className="text-center border-b pb-2">
-                      {watch("show_logo") && <div className="w-8 h-8 bg-gray-200 mx-auto mb-1 rounded-full flex items-center justify-center text-[6px]">LOGO</div>}
-                      <div className="font-bold uppercase">{vendor?.name || "VENDOR NAME"}</div>
-                      {watch("show_address") && <div>123 Business St, City</div>}
+                      {watch("show_logo") && (
+                        <div className="w-8 h-8 bg-gray-200 mx-auto mb-1 rounded-full flex items-center justify-center text-[6px]">
+                          LOGO
+                        </div>
+                      )}
+                      <div className="font-bold uppercase">
+                        {vendor?.name || "VENDOR NAME"}
+                      </div>
+                      {watch("show_address") && (
+                        <div>123 Business St, City</div>
+                      )}
                       {watch("show_contact_info") && <div>+1 234 567 890</div>}
                     </div>
                     <div className="py-2 space-y-1">
-                      <div className="text-center italic">{watch("header_text") || "Header Text Goes Here"}</div>
+                      <div className="text-center italic">
+                        {watch("header_text") || "Header Text Goes Here"}
+                      </div>
                       <div className="pt-2 border-t border-dashed">
                         <div className="flex justify-between">
                           <span>Item 1 x 1</span>
@@ -194,7 +226,9 @@ export default function ReceiptSettingsPage() {
                           <span>$10.00</span>
                         </div>
                       </div>
-                      <div className="text-center pt-4 italic">{watch("footer_text") || "Footer Text Goes Here"}</div>
+                      <div className="text-center pt-4 italic">
+                        {watch("footer_text") || "Footer Text Goes Here"}
+                      </div>
                     </div>
                     <div className="text-center text-[6px] text-default-400">
                       {new Date().toLocaleString()}

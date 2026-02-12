@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+
+import ProductForm from "../_components/ProductForm";
+
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
-import ProductForm from "../_components/ProductForm";
 import api from "@/lib/api";
-import { useParams } from "next/navigation";
 
 export default function EditProductPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
@@ -24,6 +26,7 @@ export default function EditProductPage() {
   const fetchProduct = async () => {
     try {
       const response: any = await api.get(`/products/${productId}`);
+
       setProduct(response?.data);
     } catch (error) {
       console.error("Failed to fetch product", error);
@@ -43,7 +46,7 @@ export default function EditProductPage() {
           title="Edit Product"
         />
         <div className="mt-6 max-w-5xl">
-          <ProductForm initialData={product} isEditing />
+          <ProductForm isEditing initialData={product} />
         </div>
       </div>
     </PermissionGuard>

@@ -7,6 +7,7 @@ import { Button } from "@heroui/button";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { UserLoding } from "@/components/user-loding";
 
 const integrations = [
   {
@@ -34,7 +35,7 @@ const integrations = [
 export default function IntegrationsPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_manage_shop_settings">

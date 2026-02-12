@@ -24,6 +24,7 @@ import api from "@/lib/api";
 import { PurchaseOrder } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
 import Confirm from "@/components/ui/Confirm";
+import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "ORDER ID", uid: "id", sortable: true },
@@ -171,7 +172,7 @@ export default function PurchaseOrdersPage() {
     [vendor?.id, router],
   );
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_manage_purchase_orders">
@@ -221,6 +222,7 @@ export default function PurchaseOrdersPage() {
                 selectionMode="multiple"
                 onSelectionChange={(keys) => {
                   const ids = Array.from(keys as Set<string>);
+
                   updateBranchFilter(ids);
                 }}
               >

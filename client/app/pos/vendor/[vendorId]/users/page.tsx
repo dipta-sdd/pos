@@ -35,6 +35,7 @@ import CustomTable, {
 } from "@/components/ui/CustomTable";
 import Confirm from "@/components/ui/Confirm";
 import { formatDateTime } from "@/lib/helper/dates";
+import { UserLoding } from "@/components/user-loding";
 
 interface VendorUser {
   id: number;
@@ -160,6 +161,7 @@ export default function UsersPage() {
   const fetchRoles = async () => {
     try {
       const response: any = await api.get(`/roles?vendor_id=${vendor?.id}`);
+
       setRoles(response?.data?.data || []);
     } catch (_error: any) {}
   };
@@ -356,7 +358,7 @@ export default function UsersPage() {
     [vendor?.id, router, membership],
   );
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_view_users">
@@ -435,6 +437,7 @@ export default function UsersPage() {
                 selectionMode="multiple"
                 onSelectionChange={(keys) => {
                   const ids = Array.from(keys as Set<string>);
+
                   updateBranchFilter(ids);
                 }}
               >
@@ -459,12 +462,13 @@ export default function UsersPage() {
                 </Button>
               </DropdownTrigger>
               <DropdownMenu
-                aria-label="Filter by Role"
                 disallowEmptySelection
+                aria-label="Filter by Role"
                 selectedKeys={new Set([roleFilter])}
                 selectionMode="single"
                 onSelectionChange={(keys) => {
                   const selectedValue = Array.from(keys as Set<string>)[0];
+
                   setRoleFilter(selectedValue);
                 }}
               >

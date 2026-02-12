@@ -7,11 +7,12 @@ import { Building2, Globe, Clock } from "lucide-react";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { UserLoding } from "@/components/user-loding";
 
 export default function BusinessProfilePage() {
   const { vendor, isLoading: contextLoading } = useVendor();
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
   if (!vendor) return null;
 
   return (

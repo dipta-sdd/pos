@@ -1,14 +1,16 @@
 "use client";
 
+import PurchaseOrderForm from "../_components/PurchaseOrderForm";
+
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
-import PurchaseOrderForm from "../_components/PurchaseOrderForm";
+import { UserLoding } from "@/components/user-loding";
 
 export default function NewPurchaseOrderPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
 
-  if (contextLoading) return <div>Loading...</div>;
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_manage_purchase_orders">

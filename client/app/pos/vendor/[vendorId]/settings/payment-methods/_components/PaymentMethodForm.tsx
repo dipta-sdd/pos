@@ -62,7 +62,10 @@ export default function PaymentMethodForm({
     } catch (error: any) {
       if (error.response?.data?.errors) {
         Object.entries(error.response?.data?.errors).forEach(([key, value]) => {
-          setError(key as any, { type: "manual", message: (value as string[])[0] });
+          setError(key as any, {
+            type: "manual",
+            message: (value as string[])[0],
+          });
         });
       }
       toast.error(error.response?.data?.message || "Something went wrong");
@@ -90,7 +93,9 @@ export default function PaymentMethodForm({
       </div>
 
       <div className="flex justify-end gap-3 pt-4">
-        <Button color="default" variant="flat" onPress={onCancel}>Cancel</Button>
+        <Button color="default" variant="flat" onPress={onCancel}>
+          Cancel
+        </Button>
         <Button color="primary" isLoading={isSubmitting} type="submit">
           {isEditing ? "Update Method" : "Create Method"}
         </Button>

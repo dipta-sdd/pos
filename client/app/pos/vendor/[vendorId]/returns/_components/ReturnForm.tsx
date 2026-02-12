@@ -4,7 +4,14 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
-import { Input, Button, Select, SelectItem, Card, CardBody, Textarea } from "@heroui/react";
+import {
+  Input,
+  Button,
+  Select,
+  SelectItem,
+  Card,
+  CardBody,
+} from "@heroui/react";
 import { useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 
@@ -16,10 +23,7 @@ interface ReturnFormProps {
   onCancel?: () => void;
 }
 
-export default function ReturnForm({
-  onSuccess,
-  onCancel,
-}: ReturnFormProps) {
+export default function ReturnForm({ onSuccess, onCancel }: ReturnFormProps) {
   const { vendor } = useVendor();
   const [sales, setSales] = useState<any[]>([]);
   const [selectedSale, setSelectedSale] = useState<any>(null);
@@ -31,10 +35,14 @@ export default function ReturnForm({
     refund_amount: z.coerce.number().min(0, "Amount must be positive"),
     vendor_id: z.number(),
     branch_id: z.any(),
-    items: z.array(z.object({
-      sale_item_id: z.any(),
-      quantity: z.coerce.number().min(0.01, "Quantity must be positive"),
-    })).min(1, "At least one item is required"),
+    items: z
+      .array(
+        z.object({
+          sale_item_id: z.any(),
+          quantity: z.coerce.number().min(0.01, "Quantity must be positive"),
+        }),
+      )
+      .min(1, "At least one item is required"),
   });
 
   type FormData = {
@@ -80,7 +88,10 @@ export default function ReturnForm({
 
   const fetchSales = async () => {
     try {
-      const response: any = await api.get(`/sales?vendor_id=${vendor?.id}&per_page=100`);
+      const response: any = await api.get(
+        `/sales?vendor_id=${vendor?.id}&per_page=100`,
+      );
+
       setSales(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch sales", error);
@@ -92,6 +103,7 @@ export default function ReturnForm({
     try {
       const response: any = await api.get(`/sales/${saleId}`);
       const sale = response?.data;
+
       setSelectedSale(sale);
       setValue("branch_id", sale.branch_id);
     } catch (error) {
@@ -120,8 +132,12 @@ export default function ReturnForm({
           onChange={(e) => onSaleChange(Number(e.target.value))}
         >
           {sales.map((s) => (
-            <SelectItem key={s.id} textValue={`Sale #${s.id} - ${s.final_amount}`}>
-              Sale #{s.id} - {s.final_amount} ({new Date(s.created_at).toLocaleDateString()})
+            <SelectItem
+              key={s.id}
+              textValue={`Sale #${s.id} - ${s.final_amount}`}
+            >
+              Sale #{s.id} - {s.final_amount} (
+              {new Date(s.created_at).toLocaleDateString()})
             </SelectItem>
           ))}
         </Select>
@@ -133,9 +149,15 @@ export default function ReturnForm({
           variant="bordered"
           onChange={(e) => setValue("refund_type", e.target.value as any)}
         >
-          <SelectItem key="cash_back" textValue="Cash Back">Cash Back</SelectItem>
-          <SelectItem key="store_credit" textValue="Store Credit">Store Credit</SelectItem>
-          <SelectItem key="exchange" textValue="Exchange">Exchange</SelectItem>
+          <SelectItem key="cash_back" textValue="Cash Back">
+            Cash Back
+          </SelectItem>
+          <SelectItem key="store_credit" textValue="Store Credit">
+            Store Credit
+          </SelectItem>
+          <SelectItem key="exchange" textValue="Exchange">
+            Exchange
+          </SelectItem>
         </Select>
       </div>
 
@@ -148,10 +170,10 @@ export default function ReturnForm({
           {...register("refund_amount")}
         />
         <Input
-            label="Reason"
-            placeholder="e.g. Defective product"
-            variant="bordered"
-            {...register("reason")}
+          label="Reason"
+          placeholder="e.g. Defective product"
+          variant="bordered"
+          {...register("reason")}
         />
       </div>
 
@@ -180,11 +202,20 @@ export default function ReturnForm({
                     placeholder="Select item"
                     size="sm"
                     variant="bordered"
-                    onChange={(e) => setValue(`items.${index}.sale_item_id` as any, Number(e.target.value))}
+                    onChange={(e) =>
+                      setValue(
+                        `items.${index}.sale_item_id` as any,
+                        Number(e.target.value),
+                      )
+                    }
                   >
                     {selectedSale.sale_items?.map((item: any) => (
-                      <SelectItem key={item.id} textValue={item.variant?.product?.name}>
-                        {item.variant?.product?.name} ({item.quantity} purchased)
+                      <SelectItem
+                        key={item.id}
+                        textValue={item.variant?.product?.name}
+                      >
+                        {item.variant?.product?.name} ({item.quantity}{" "}
+                        purchased)
                       </SelectItem>
                     ))}
                   </Select>
@@ -214,8 +245,12 @@ export default function ReturnForm({
       )}
 
       <div className="flex justify-end gap-3 pt-4">
-        <Button color="default" variant="flat" onPress={onCancel}>Cancel</Button>
-        <Button color="primary" isLoading={isSubmitting} type="submit">Process Return</Button>
+        <Button color="default" variant="flat" onPress={onCancel}>
+          Cancel
+        </Button>
+        <Button color="primary" isLoading={isSubmitting} type="submit">
+          Process Return
+        </Button>
       </div>
     </form>
   );

@@ -31,6 +31,7 @@ import CustomTable, { Column } from "@/components/ui/CustomTable";
 import api from "@/lib/api";
 import { formatDateTime } from "@/lib/helper/dates";
 import Confirm from "@/components/ui/Confirm";
+import { UserLoding } from "@/components/user-loding";
 
 interface CustomerStoreCredit {
   id: number;
@@ -53,7 +54,12 @@ const columns: Column[] = [
   { name: "ACTIONS", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = ["customer", "current_balance", "updated_at", "actions"];
+const INITIAL_VISIBLE_COLUMNS = [
+  "customer",
+  "current_balance",
+  "updated_at",
+  "actions",
+];
 
 function capitalize(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
@@ -76,7 +82,9 @@ export default function StoreCreditsPage() {
   );
 
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const [selectedItem, setSelectedItem] = useState<CustomerStoreCredit | null>(null);
+  const [selectedItem, setSelectedItem] = useState<CustomerStoreCredit | null>(
+    null,
+  );
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
@@ -131,49 +139,64 @@ export default function StoreCreditsPage() {
       toast.success("Store credit deleted successfully");
       fetchItems(currentPage);
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to delete store credit");
+      toast.error(
+        error.response?.data?.message || "Failed to delete store credit",
+      );
     }
     setDeleteConfirmOpen(false);
   };
 
-  const renderCell = useCallback((item: CustomerStoreCredit, columnKey: React.Key) => {
-    switch (columnKey) {
-      case "customer":
-        if (!item.customer) return "N/A";
-        return item.customer.name || `${item.customer.first_name || ""} ${item.customer.last_name || ""}`.trim() || "N/A";
-      case "current_balance":
-        return typeof item.current_balance === "number"
-          ? item.current_balance.toFixed(2)
-          : item.current_balance;
-      case "updated_at":
-        return formatDateTime(item.updated_at);
-      case "created_at":
-        return formatDateTime(item.created_at);
-      case "actions":
-        return (
-          <div className="flex items-center justify-end gap-2">
-            <Button isIconOnly size="sm" variant="light" onPress={() => handleEdit(item)}>
-              <Edit className="w-4 h-4 text-default-400" />
-            </Button>
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onPress={() => {
-                setDeleteConfirmId(item.id);
-                setDeleteConfirmOpen(true);
-              }}
-            >
-              <Trash2 className="w-4 h-4 text-danger" />
-            </Button>
-          </div>
-        );
-      default:
-        return (item as any)[columnKey as string];
-    }
-  }, []);
+  const renderCell = useCallback(
+    (item: CustomerStoreCredit, columnKey: React.Key) => {
+      switch (columnKey) {
+        case "customer":
+          if (!item.customer) return "N/A";
 
-  if (contextLoading) return <div>Loading...</div>;
+          return (
+            item.customer.name ||
+            `${item.customer.first_name || ""} ${item.customer.last_name || ""}`.trim() ||
+            "N/A"
+          );
+        case "current_balance":
+          return typeof item.current_balance === "number"
+            ? item.current_balance.toFixed(2)
+            : item.current_balance;
+        case "updated_at":
+          return formatDateTime(item.updated_at);
+        case "created_at":
+          return formatDateTime(item.created_at);
+        case "actions":
+          return (
+            <div className="flex items-center justify-end gap-2">
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onPress={() => handleEdit(item)}
+              >
+                <Edit className="w-4 h-4 text-default-400" />
+              </Button>
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onPress={() => {
+                  setDeleteConfirmId(item.id);
+                  setDeleteConfirmOpen(true);
+                }}
+              >
+                <Trash2 className="w-4 h-4 text-danger" />
+              </Button>
+            </div>
+          );
+        default:
+          return (item as any)[columnKey as string];
+      }
+    },
+    [],
+  );
+
+  if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_issue_store_credit">
@@ -182,7 +205,11 @@ export default function StoreCreditsPage() {
           description="Manage customer store credit balances"
           title="Store Credits"
         >
-          <Button color="primary" startContent={<Plus className="w-4 h-4" />} onPress={handleCreate}>
+          <Button
+            color="primary"
+            startContent={<Plus className="w-4 h-4" />}
+            onPress={handleCreate}
+          >
             Issue Credit
           </Button>
         </PageHeader>
@@ -243,7 +270,9 @@ export default function StoreCreditsPage() {
           <ModalContent>
             {(onClose) => (
               <>
-                <ModalHeader>{isEditing ? "Edit Credit" : "Issue Credit"}</ModalHeader>
+                <ModalHeader>
+                  {isEditing ? "Edit Credit" : "Issue Credit"}
+                </ModalHeader>
                 <ModalBody>
                   <StoreCreditForm
                     initialData={selectedItem}

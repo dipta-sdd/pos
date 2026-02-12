@@ -27,7 +27,11 @@ export default function CustomerForm({
 
   const customerSchema = z.object({
     name: z.string().min(1, "Name is required"),
-    email: z.string().email("Invalid email address").optional().or(z.literal("")),
+    email: z
+      .string()
+      .email("Invalid email address")
+      .optional()
+      .or(z.literal("")),
     phone: z.string().optional(),
     address: z.string().optional(),
     vendor_id: z.number(),
