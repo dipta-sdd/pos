@@ -65,15 +65,21 @@ export default function VendorNavbar() {
                 let href = "";
 
                 // Map segments to readable labels
-                if (segment === "roles") label = "Roles & Permissions";
-                else if (segment === "new") label = "Create New";
-                else if (!isNaN(Number(segment))) label = "Details"; // Fallback for IDs
-
-                // Construct href
-                if (segment === "roles")
-                  href = `/pos/vendor/${vendor.id}/roles`;
-                else if (segment === "new" && array[index - 1] === "roles")
-                  href = `/pos/vendor/${vendor.id}/roles/new`;
+                console.log("segment", segment);
+                switch (segment) {
+                  case "roles":
+                    label = "Roles & Permissions";
+                    href = `/pos/vendor/${vendor.id}/roles`;
+                    break;
+                  case "new":
+                    label = "Create New";
+                    if (array[index - 1] === "roles") {
+                      href = `/pos/vendor/${vendor.id}/roles/new`;
+                    }
+                    break;
+                  default:
+                    if (!isNaN(Number(segment))) label = "Details";
+                }
 
                 return (
                   <div key={segment} className="flex items-center gap-2">

@@ -12,6 +12,7 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { Upload, X, Crop } from "lucide-react";
+import { BACKEND_URL } from "@/lib/api";
 
 interface ImageUploadProps {
   value?: string;
@@ -79,7 +80,7 @@ export default function ImageUpload({
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const [preview, setPreview] = useState<string | null>(value || null);
+  const [preview, setPreview] = useState<string | null>(value ? BACKEND_URL + value : null);
 
   const onCropComplete = useCallback(
     (_croppedArea: any, croppedAreaPixels: any) => {

@@ -3,11 +3,11 @@ import axios from "axios";
 import { getToken } from "./hooks/useAuth";
 
 // Backend URL - hardcoded as requested
-const BACKEND_URL = "http://localhost:8000/api";
+export const BACKEND_URL = "http://localhost:8000";
 
 // Create axios instance with default configuration
 const api = axios.create({
-  baseURL: BACKEND_URL,
+  baseURL: BACKEND_URL + "/api",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
