@@ -9,11 +9,10 @@ class CategoryController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Category::query();
-
-        if ($request->has('vendor_id')) {
-            $query->where('vendor_id', $request->vendor_id);
-        }
+        $query = Category::selectRaw('categories.*, CONCAT(created_by.firstName, " ", created_by.lastName) as created_by_name, CONCAT(updated_by.firstName, " ", updated_by.lastName) as updated_by_name')
+            ->leftJoin('users as created_by', 'categories.created_by', '=', 'created_by.id')
+            ->leftJoin('users as updated_by', 'categories.updated_by', '=', 'updated_by.id')
+            ->where('vendor_id', $request->vendor_id);
 
         if ($request->has('search')) {
             $search = $request->search;
@@ -23,7 +22,18 @@ class CategoryController extends Controller
             });
         }
 
-        $perPage = $request->input('per_page', 15);
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortDirection = $request->input('sort_direction', 'desc');
+
+        // Whitelist sortable columns
+        $allowedSortColumns = ['name', 'created_at', 'updated_at', 'created_by', 'updated_by'];
+        if (in_array($sortBy, $allowedSortColumns)) {
+            $query->orderBy($sortBy, $sortDirection === 'asc' ? 'asc' : 'desc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $perPage = $request->input('per_page', 10);
         return $query->paginate($perPage);
     }
 

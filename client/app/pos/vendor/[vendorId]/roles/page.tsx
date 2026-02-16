@@ -19,7 +19,11 @@ import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
-import CustomTable, { Column, loggerColumns } from "@/components/ui/CustomTable";
+import CustomTable, {
+  Column,
+  LOGGER_COLUMNS,
+  loggerColumns,
+} from "@/components/ui/CustomTable";
 import Confirm from "@/components/ui/Confirm";
 import { formatDateTime } from "@/lib/helper/dates";
 import { Role } from "@/lib/types/auth";
@@ -28,19 +32,16 @@ import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
-  { name: "CREATED AT", uid: "created_at", sortable: true },
-  { name: "CREATED BY", uid: "created_by_name", sortable: true },
-  { name: "UPDATED AT", uid: "updated_at", sortable: true },
-  { name: "UPDATED BY", uid: "updated_by_name", sortable: true },
+  ...LOGGER_COLUMNS,
   { name: "ACTIONS", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
   "name",
   "created_at",
-  "created_by_name",
+  "created_by",
   "updated_at",
-  "updated_by_name",
+  "updated_by",
   "actions",
 ];
 
@@ -165,8 +166,8 @@ export default function RolesPage() {
 
         case "created_at":
         case "updated_at":
-        case "created_by_name":
-        case "updated_by_name":
+        case "created_by":
+        case "updated_by":
           return loggerColumns(columnKey, role);
         case "actions":
           return (

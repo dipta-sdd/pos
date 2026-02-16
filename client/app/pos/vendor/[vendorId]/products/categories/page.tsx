@@ -27,7 +27,11 @@ import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
-import CustomTable, { Column } from "@/components/ui/CustomTable";
+import CustomTable, {
+  Column,
+  LOGGER_COLUMNS,
+  loggerColumns,
+} from "@/components/ui/CustomTable";
 import api from "@/lib/api";
 import { Category } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
@@ -36,8 +40,8 @@ import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
-  { name: "DESCRIPTION", uid: "description", sortable: true },
-  { name: "CREATED AT", uid: "created_at", sortable: true },
+  { name: "DESCRIPTION", uid: "description", sortable: false },
+  ...LOGGER_COLUMNS,
   { name: "ACTIONS", uid: "actions" },
 ];
 
@@ -45,6 +49,9 @@ const INITIAL_VISIBLE_COLUMNS = [
   "name",
   "description",
   "created_at",
+  "created_by",
+  "updated_at",
+  "updated_by",
   "actions",
 ];
 
@@ -131,8 +138,13 @@ export default function CategoriesPage() {
 
   const renderCell = useCallback((item: Category, columnKey: React.Key) => {
     switch (columnKey) {
+      case "name":
+        return <span className="">{item.name}</span>;
       case "created_at":
-        return formatDateTime(item.created_at);
+      case "updated_at":
+      case "created_by":
+      case "updated_by":
+        return loggerColumns(columnKey, item);
       case "actions":
         return (
           <div className="flex items-center justify-end gap-2">

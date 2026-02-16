@@ -37,7 +37,7 @@ import { UserLoding } from "@/components/user-loding";
 const columns: Column[] = [
   { name: "CATEGORY", uid: "expense_category", sortable: false },
   { name: "AMOUNT", uid: "amount", sortable: true },
-  { name: "DESCRIPTION", uid: "description", sortable: true },
+  { name: "DESCRIPTION", uid: "description", sortable: false },
   { name: "DATE", uid: "expense_date", sortable: true },
   { name: "CREATED AT", uid: "created_at", sortable: true },
   { name: "ACTIONS", uid: "actions" },

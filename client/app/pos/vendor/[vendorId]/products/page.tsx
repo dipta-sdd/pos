@@ -19,7 +19,7 @@ import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
-import CustomTable, { Column } from "@/components/ui/CustomTable";
+import CustomTable, { Column, LOGGER_COLUMNS } from "@/components/ui/CustomTable";
 import api from "@/lib/api";
 import { Product } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
@@ -30,7 +30,7 @@ const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
   { name: "SKU", uid: "sku", sortable: true },
   { name: "PRICE", uid: "base_price", sortable: true },
-  { name: "CREATED AT", uid: "created_at", sortable: true },
+  ...LOGGER_COLUMNS,
   { name: "ACTIONS", uid: "actions" },
 ];
 
@@ -39,6 +39,7 @@ const INITIAL_VISIBLE_COLUMNS = [
   "sku",
   "base_price",
   "created_at",
+  "created_by_name",
   "actions",
 ];
 

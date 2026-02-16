@@ -221,8 +221,8 @@ export default function BranchesPage() {
         );
       case "created_at":
       case "updated_at":
-      case "created_by_name":
-      case "updated_by_name":
+      case "created_by":
+      case "updated_by":
         return loggerColumns(columnKey, branch);
       case "actions":
         return (

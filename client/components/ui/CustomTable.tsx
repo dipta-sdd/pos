@@ -203,7 +203,8 @@ export const loggerColumns = (key: string, item: any) => {
       ) : (
         <span className="text-default-500">-</span>
       );
-    case "created_by_name":
+    case "created_by":
+      // item has created_by_name and also created_by , key is created_by for indexing and sorting
       return item?.created_by_name ? (
         <div className="flex items-center gap-2 text-small">
           <User className="w-4 min-w-4 h-4 text-default-400" />
@@ -212,7 +213,8 @@ export const loggerColumns = (key: string, item: any) => {
       ) : (
         <span className="text-default-500">-</span>
       );
-    case "updated_by_name":
+    case "updated_by":
+      // item has updated_by_name and also updated_by , key is updated_by for indexing and sorting
       return item?.updated_by_name ? (
         <div className="flex items-center gap-2 text-small">
           <User className="w-4 min-w-4 h-4 text-default-400" />
@@ -223,3 +225,10 @@ export const loggerColumns = (key: string, item: any) => {
       );
   }
 };
+
+export const LOGGER_COLUMNS = [
+  { uid: "created_at", name: "CREATED AT", sortable: true },
+  { uid: "created_by", name: "CREATED BY", sortable: true },
+  { uid: "updated_at", name: "UPDATED AT", sortable: true },
+  { uid: "updated_by", name: "UPDATED BY", sortable: true },
+];

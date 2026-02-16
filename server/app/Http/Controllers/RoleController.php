@@ -31,7 +31,7 @@ class RoleController extends Controller
         $sortDirection = $request->input('sort_direction', 'desc');
 
         // Whitelist sortable columns
-        $allowedSortColumns = ['name', 'created_at'];
+        $allowedSortColumns = ['name', 'created_at', 'updated_at', 'created_by', 'updated_by'];
         if (in_array($sortBy, $allowedSortColumns)) {
             $query->orderBy($sortBy, $sortDirection === 'asc' ? 'asc' : 'desc');
         } else {
