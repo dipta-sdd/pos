@@ -16,15 +16,14 @@ return new class extends Migration
             $table->foreignId('branch_id')->constrained('branches')->onDelete('cascade');
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->foreignId('variant_id')->constrained('variants')->onDelete('cascade');
-            $table->foreignId('unit_of_measure_id')->nullable()->constrained('units_of_measure')->onDelete('set null');
             $table->decimal('quantity', 10, 2)->default(0);
             $table->decimal('cost_price', 10, 2)->default(0)->comment('Buy Price');
             $table->decimal('selling_price', 10, 2)->default(0)->comment('Sell Price');
             $table->date('expiry_date')->nullable();
+            // insteed of unit_of_measure_id save name and abbreviation because if unit we need to track unit for separate stocks 
+            $table->string('unit_of_measure_name')->nullable();
+            $table->string('unit_of_measure_abbreviation')->nullable();
             $table->timestamps();
-            
-            // Unique constraint to ensure one stock record per product/variant per branch
-            $table->unique(['branch_id', 'product_id', 'variant_id']);
         });
     }
 

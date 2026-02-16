@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('units_of_measure', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('vendor_id')->constrained('vendors')->nullable()->onDelete('cascade');
+            $table->foreignId('vendor_id')->nullable()->constrained('vendors')->onDelete('cascade');
             $table->string('name');
             $table->string('abbreviation');
             $table->boolean('is_decimal_allowed')->default(false);

@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
+use App\Models\UnitOfMeasure;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -68,25 +70,54 @@ class AdminSeeder extends Seeder
                 'created_by' => $user->id,
                 'updated_by' => $user->id,
             ];
-            
+
             // List of permissions from Role.php
             $permissions = [
                 // Confirmed Permissions
-                'can_view_users', 'can_edit_users', 'can_delete_users',
+                'can_view_users',
+                'can_edit_users',
+                'can_delete_users',
                 // Legacy/Existing Permissions
-                'can_manage_shop_settings', 'can_manage_billing_and_plan', 'can_manage_branches_and_counters',
-                'can_manage_payment_methods', 'can_configure_taxes', 'can_customize_receipts',
-                'can_manage_roles_and_permissions', 'can_view_roles', 'can_view_user_activity_log',
-                'can_view_products', 'can_manage_products', 'can_manage_categories', 'can_manage_units_of_measure',
-                'can_import_products', 'can_export_products',
-                'can_view_inventory_levels', 'can_perform_stock_adjustments', 'can_manage_stock_transfers',
-                'can_manage_purchase_orders', 'can_receive_purchase_orders', 'can_manage_suppliers',
-                'can_use_pos', 'can_view_sales_history', 'can_override_prices', 'can_apply_manual_discounts', 'can_void_sales',
-                'can_process_returns', 'can_issue_cash_refunds', 'can_issue_store_credit',
-                'can_view_customers', 'can_manage_customers',
-                'can_view_promotions', 'can_manage_promotions',
-                'can_open_close_cash_register', 'can_perform_cash_transactions', 'can_manage_expenses',
-                'can_view_dashboard', 'can_view_reports', 'can_view_profit_loss_data', 'can_export_data'
+                'can_manage_shop_settings',
+                'can_manage_billing_and_plan',
+                'can_manage_branches_and_counters',
+                'can_manage_payment_methods',
+                'can_configure_taxes',
+                'can_customize_receipts',
+                'can_manage_roles_and_permissions',
+                'can_view_roles',
+                'can_view_user_activity_log',
+                'can_view_products',
+                'can_manage_products',
+                'can_manage_categories',
+                'can_manage_units_of_measure',
+                'can_import_products',
+                'can_export_products',
+                'can_view_inventory_levels',
+                'can_perform_stock_adjustments',
+                'can_manage_stock_transfers',
+                'can_manage_purchase_orders',
+                'can_receive_purchase_orders',
+                'can_manage_suppliers',
+                'can_use_pos',
+                'can_view_sales_history',
+                'can_override_prices',
+                'can_apply_manual_discounts',
+                'can_void_sales',
+                'can_process_returns',
+                'can_issue_cash_refunds',
+                'can_issue_store_credit',
+                'can_view_customers',
+                'can_manage_customers',
+                'can_view_promotions',
+                'can_manage_promotions',
+                'can_open_close_cash_register',
+                'can_perform_cash_transactions',
+                'can_manage_expenses',
+                'can_view_dashboard',
+                'can_view_reports',
+                'can_view_profit_loss_data',
+                'can_export_data'
             ];
 
             foreach ($permissions as $perm) {
@@ -143,6 +174,93 @@ class AdminSeeder extends Seeder
                 ['membership_id' => $membership->id, 'branch_id' => $branch2->id],
                 ['created_by' => $user->id, 'updated_by' => $user->id]
             );
+
+            // 7. Create Units of Measure
+            $units = [
+                // --- Count Based (No Decimals) ---
+                ['name' => 'Piece', 'abbreviation' => 'Pcs', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Pack', 'abbreviation' => 'Pk', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Box', 'abbreviation' => 'Bx', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Dozen', 'abbreviation' => 'Dzn', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Case', 'abbreviation' => 'Cs', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Each', 'abbreviation' => 'Ea', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Set', 'abbreviation' => 'Set', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Pair', 'abbreviation' => 'Pr', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],
+
+                // --- Weight (Decimals Allowed) ---
+                ['name' => 'Kilogram', 'abbreviation' => 'Kg', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Gram', 'abbreviation' => 'G', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Milligram', 'abbreviation' => 'Mg', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Pound', 'abbreviation' => 'Lb', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Ounce', 'abbreviation' => 'Oz', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Metric Ton', 'abbreviation' => 'Ton', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+
+                // --- Volume (Decimals Allowed) ---
+                ['name' => 'Liter', 'abbreviation' => 'Ltr', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Milliliter', 'abbreviation' => 'Ml', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Gallon', 'abbreviation' => 'Gal', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Fluid Ounce', 'abbreviation' => 'Fl Oz', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+
+                // --- Length & Area (Decimals Allowed) ---
+                ['name' => 'Meter', 'abbreviation' => 'Mtr', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Centimeter', 'abbreviation' => 'Cm', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Inch', 'abbreviation' => 'In', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Foot', 'abbreviation' => 'Ft', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Yard', 'abbreviation' => 'Yd', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Square Meter', 'abbreviation' => 'Sqm', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Square Foot', 'abbreviation' => 'Sqft', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+
+                // --- Hospitality & Food ---
+                ['name' => 'Bottle', 'abbreviation' => 'Btl', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Glass', 'abbreviation' => 'Gls', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Can', 'abbreviation' => 'Can', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Portion', 'abbreviation' => 'Port', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Tablespoon', 'abbreviation' => 'Tbsp', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Teaspoon', 'abbreviation' => 'Tsp', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+
+                // --- Industrial & Bulk ---
+                ['name' => 'Pallet', 'abbreviation' => 'Plt', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Roll', 'abbreviation' => 'Rl', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Bundle', 'abbreviation' => 'Bdl', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Sheet', 'abbreviation' => 'Sht', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Crate', 'abbreviation' => 'Crt', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Drum', 'abbreviation' => 'Drm', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Ream', 'abbreviation' => 'Rm', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],
+
+                // --- Time & Service (Labor) ---
+                ['name' => 'Hour', 'abbreviation' => 'Hr', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Day', 'abbreviation' => 'Day', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Week', 'abbreviation' => 'Wk', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Session', 'abbreviation' => 'Sess', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],
+
+                // --- Specialized ---
+                ['name' => 'Gigabyte', 'abbreviation' => 'GB', 'is_decimal_allowed' => 1, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'User', 'abbreviation' => 'Usr', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Tablet', 'abbreviation' => 'Tab', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Capsule', 'abbreviation' => 'Cap', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],
+            ];
+
+            foreach ($units as $unit) {
+                UnitOfMeasure::firstOrCreate(
+                    ['name' => $unit['name']],
+                    $unit
+                );
+            }
+
+            // 8. Create Categories
+            $categories = [
+                ['name' => 'Electronics', 'vendor_id' => $vendor->id, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Clothing', 'vendor_id' => $vendor->id, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Groceries', 'vendor_id' => $vendor->id, 'created_by' => $user->id, 'updated_by' => $user->id],
+                ['name' => 'Books', 'vendor_id' => $vendor->id, 'created_by' => $user->id, 'updated_by' => $user->id],
+            ];
+
+            foreach ($categories as $category) {
+                Category::firstOrCreate(
+                    ['name' => $category['name'], 'vendor_id' => $vendor->id],
+                    $category
+                );
+            }
         });
     }
 }

@@ -23,6 +23,8 @@ import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import { Category, UnitOfMeasure } from "@/lib/types/general";
 
+import ImageUpload from "@/components/ui/ImageUpload";
+
 interface ProductFormProps {
   initialData?: any;
   isEditing?: boolean;
@@ -36,6 +38,7 @@ export default function ProductForm({
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [units, setUnits] = useState<UnitOfMeasure[]>([]);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const productSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -134,18 +137,52 @@ export default function ProductForm({
 
   const onSubmit = async (data: ProductFormData) => {
     try {
+      const formData = new FormData();
+      formData.append("name", data.name);
+      if (data.description) formData.append("description", data.description);
+      if (data.category_id)
+        formData.append("category_id", String(data.category_id));
+      if (data.unit_of_measure_id)
+        formData.append("unit_of_measure_id", String(data.unit_of_measure_id));
+      formData.append("vendor_id", String(data.vendor_id));
+
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
+
+      data.variants.forEach((variant, index) => {
+        if (variant.id)
+          formData.append(`variants[${index}][id]`, String(variant.id));
+        formData.append(`variants[${index}][name]`, variant.name);
+        formData.append(`variants[${index}][value]`, variant.value);
+        if (variant.sku)
+          formData.append(`variants[${index}][sku]`, variant.sku);
+        if (variant.barcode)
+          formData.append(`variants[${index}][barcode]`, variant.barcode);
+        if (variant.unit_of_measure_id)
+          formData.append(
+            `variants[${index}][unit_of_measure_id]`,
+            String(variant.unit_of_measure_id),
+          );
+      });
+
       if (isEditing && initialData?.id) {
-        await api.put(`/products/${initialData.id}`, data);
+        // Use POST with _method=PUT for multipart updates in Laravel
+        formData.append("_method", "PUT");
+        await api.post(`/products/${initialData.id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
         toast.success("Product updated successfully");
       } else {
-        await api.post("/products", data);
+        await api.post("/products", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
         toast.success("Product created successfully");
       }
       router.push(`/pos/vendor/${vendor?.id}/products`);
     } catch (error: any) {
       if (error.response?.data?.errors) {
         Object.entries(error.response?.data?.errors).forEach(([key, value]) => {
-          // Handle nested errors for variants
           if (key.startsWith("variants.")) {
             toast.error((value as string[])[0]);
           } else {
@@ -165,63 +202,77 @@ export default function ProductForm({
       <Card>
         <CardBody className="p-6 space-y-6">
           <h3 className="text-lg font-semibold">General Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              isRequired
-              label="Product Name"
-              placeholder="iPhone 15 Pro"
-              variant="bordered"
-              {...register("name")}
-              errorMessage={errors.name?.message}
-              isInvalid={!!errors.name}
-            />
-
-            <Select
-              label="Category"
-              placeholder="Select category"
-              selectedKeys={
-                watch("category_id") ? [String(watch("category_id"))] : []
-              }
-              variant="bordered"
-              onChange={(e) => setValue("category_id", Number(e.target.value))}
-            >
-              {categories.map((cat) => (
-                <SelectItem key={cat.id} textValue={cat.name}>
-                  {cat.name}
-                </SelectItem>
-              ))}
-            </Select>
-
-            <div className="md:col-span-2">
-              <Textarea
-                label="Description"
-                placeholder="Product details..."
-                variant="bordered"
-                {...register("description")}
-                errorMessage={errors.description?.message}
-                isInvalid={!!errors.description}
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex-shrink-0">
+              <ImageUpload
+                value={initialData?.image_url}
+                onChange={setImageFile}
               />
             </div>
 
-            <Autocomplete
-              label="Base Unit of Measure"
-              placeholder="Select unit"
-              onSelectionChange={(key) =>
-                setValue("unit_of_measure_id", key ? Number(key) : undefined)
-              }
-              selectedKey={
-                watch("unit_of_measure_id")
-                  ? String(watch("unit_of_measure_id"))
-                  : undefined
-              }
-              variant="bordered"
-            >
-              {units.map((unit) => (
-                <AutocompleteItem key={unit.id} textValue={unit.name + " - " + unit.abbreviation}>
-                  {unit.name} ({unit.abbreviation})
-                </AutocompleteItem>
-              ))}
-            </Autocomplete>
+            <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                isRequired
+                label="Product Name"
+                placeholder="iPhone 15 Pro"
+                variant="bordered"
+                {...register("name")}
+                errorMessage={errors.name?.message}
+                isInvalid={!!errors.name}
+              />
+
+              <Select
+                label="Category"
+                placeholder="Select category"
+                selectedKeys={
+                  watch("category_id") ? [String(watch("category_id"))] : []
+                }
+                variant="bordered"
+                onChange={(e) =>
+                  setValue("category_id", Number(e.target.value))
+                }
+              >
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} textValue={cat.name}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </Select>
+
+              <div className="md:col-span-2">
+                <Textarea
+                  label="Description"
+                  placeholder="Product details..."
+                  variant="bordered"
+                  {...register("description")}
+                  errorMessage={errors.description?.message}
+                  isInvalid={!!errors.description}
+                />
+              </div>
+
+              <Autocomplete
+                label="Base Unit of Measure"
+                placeholder="Select unit"
+                onSelectionChange={(key) =>
+                  setValue("unit_of_measure_id", key ? Number(key) : undefined)
+                }
+                selectedKey={
+                  watch("unit_of_measure_id")
+                    ? String(watch("unit_of_measure_id"))
+                    : undefined
+                }
+                variant="bordered"
+              >
+                {units.map((unit) => (
+                  <AutocompleteItem
+                    key={unit.id}
+                    textValue={unit.name + " - " + unit.abbreviation}
+                  >
+                    {unit.name} ({unit.abbreviation})
+                  </AutocompleteItem>
+                ))}
+              </Autocomplete>
+            </div>
           </div>
         </CardBody>
       </Card>

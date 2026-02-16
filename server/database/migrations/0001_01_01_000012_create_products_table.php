@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('vendor_id')->constrained('vendors')->onDelete('cascade');
             $table->string('name');
+            $table->foreignId('unit_of_measure_id')->nullable()->constrained('units_of_measure')->onDelete('set null');
             $table->text('description')->nullable();
             $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
             $table->string('image_url')->nullable();

@@ -1,0 +1,212 @@
+"use client";
+
+import React, { useState, useCallback } from "react";
+import Cropper from "react-easy-crop";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+} from "@heroui/react";
+import { Upload, X, Crop } from "lucide-react";
+
+interface ImageUploadProps {
+  value?: string;
+  onChange: (file: File | null) => void;
+  label?: string;
+}
+
+export const createImage = (url: string): Promise<HTMLImageElement> =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.addEventListener("load", () => resolve(image));
+    image.addEventListener("error", (error) => reject(error));
+    image.setAttribute("crossOrigin", "anonymous");
+    image.src = url;
+  });
+
+export async function getCroppedImg(
+  imageSrc: string,
+  pixelCrop: { x: number; y: number; width: number; height: number },
+): Promise<File | null> {
+  const image = await createImage(imageSrc);
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+
+  if (!ctx) {
+    return null;
+  }
+
+  canvas.width = pixelCrop.width;
+  canvas.height = pixelCrop.height;
+
+  ctx.drawImage(
+    image,
+    pixelCrop.x,
+    pixelCrop.y,
+    pixelCrop.width,
+    pixelCrop.height,
+    0,
+    0,
+    pixelCrop.width,
+    pixelCrop.height,
+  );
+
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        resolve(null);
+        return;
+      }
+      const file = new File([blob], "cropped-image.jpg", {
+        type: "image/jpeg",
+      });
+      resolve(file);
+    }, "image/jpeg");
+  });
+}
+
+export default function ImageUpload({
+  value,
+  onChange,
+  label = "Product Image",
+}: ImageUploadProps) {
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const [preview, setPreview] = useState<string | null>(value || null);
+
+  const onCropComplete = useCallback(
+    (_croppedArea: any, croppedAreaPixels: any) => {
+      setCroppedAreaPixels(croppedAreaPixels);
+    },
+    [],
+  );
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.addEventListener("load", () => {
+        setImageSrc(reader.result as string);
+        onOpen();
+      });
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSave = async () => {
+    if (imageSrc && croppedAreaPixels) {
+      const croppedFile = await getCroppedImg(imageSrc, croppedAreaPixels);
+      if (croppedFile) {
+        setPreview(URL.createObjectURL(croppedFile));
+        onChange(croppedFile);
+        onClose();
+      }
+    }
+  };
+
+  const handleRemove = () => {
+    setPreview(null);
+    onChange(null);
+    setImageSrc(null);
+  };
+
+  return (
+    <div className="space-y-2">
+      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        {label}
+      </label>
+
+      <div className="relative group w-40 h-40 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 dark:bg-gray-900/50">
+        {preview ? (
+          <>
+            <img
+              src={preview}
+              alt="Preview"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+              <Button
+                isIconOnly
+                size="sm"
+                color="danger"
+                variant="flat"
+                onPress={handleRemove}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </>
+        ) : (
+          <label className="cursor-pointer flex flex-col items-center gap-2 text-gray-500 hover:text-primary transition-colors">
+            <Upload className="w-8 h-8" />
+            <span className="text-xs">Upload Square Image</span>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </label>
+        )}
+      </div>
+
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        size="2xl"
+        backdrop="blur"
+      >
+        <ModalContent>
+          <ModalHeader>Crop Image</ModalHeader>
+          <ModalBody>
+            <div className="relative w-full h-[400px] bg-gray-900 rounded-lg overflow-hidden">
+              {imageSrc && (
+                <Cropper
+                  image={imageSrc}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1}
+                  onCropChange={setCrop}
+                  onCropComplete={onCropComplete}
+                  onZoomChange={setZoom}
+                />
+              )}
+            </div>
+            <div className="mt-4 px-2">
+              <label className="text-sm">Zoom</label>
+              <input
+                type="range"
+                value={zoom}
+                min={1}
+                max={3}
+                step={0.1}
+                aria-labelledby="Zoom"
+                onChange={(e) => setZoom(Number(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 mt-2"
+              />
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="flat" onPress={onClose}>
+              Cancel
+            </Button>
+            <Button
+              color="primary"
+              onPress={handleSave}
+              startContent={<Crop className="w-4 h-4" />}
+            >
+              Crop & Save
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </div>
+  );
+}

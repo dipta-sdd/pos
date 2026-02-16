@@ -17,7 +17,6 @@ return new class extends Migration {
             $table->string('value');
             $table->string('sku')->nullable()->unique();
             $table->string('barcode')->nullable()->unique();
-            $table->foreignId('unit_of_measure_id')->nullable()->constrained('units_of_measure')->onDelete('set null');
 
             $table->timestamps();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
