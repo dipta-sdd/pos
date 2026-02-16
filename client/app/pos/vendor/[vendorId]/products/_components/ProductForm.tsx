@@ -13,6 +13,8 @@ import {
   SelectItem,
   Card,
   CardBody,
+  Autocomplete,
+  AutocompleteItem,
 } from "@heroui/react";
 import { useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
@@ -201,25 +203,25 @@ export default function ProductForm({
               />
             </div>
 
-            <Select
+            <Autocomplete
               label="Base Unit of Measure"
               placeholder="Select unit"
-              selectedKeys={
+              onSelectionChange={(key) =>
+                setValue("unit_of_measure_id", key ? Number(key) : undefined)
+              }
+              selectedKey={
                 watch("unit_of_measure_id")
-                  ? [String(watch("unit_of_measure_id"))]
-                  : []
+                  ? String(watch("unit_of_measure_id"))
+                  : undefined
               }
               variant="bordered"
-              onChange={(e) =>
-                setValue("unit_of_measure_id", Number(e.target.value))
-              }
             >
               {units.map((unit) => (
-                <SelectItem key={unit.id} textValue={unit.name}>
+                <AutocompleteItem key={unit.id} textValue={unit.name + " - " + unit.abbreviation}>
                   {unit.name} ({unit.abbreviation})
-                </SelectItem>
+                </AutocompleteItem>
               ))}
-            </Select>
+            </Autocomplete>
           </div>
         </CardBody>
       </Card>

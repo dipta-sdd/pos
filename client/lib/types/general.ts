@@ -16,6 +16,7 @@ export interface Category {
   name: string;
   description?: string;
   parent_id?: number;
+  parent_category_name?: string;
   created_at: string;
   updated_at: string;
   created_by?: number;

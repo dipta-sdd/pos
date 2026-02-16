@@ -34,13 +34,13 @@ import CustomTable, {
 } from "@/components/ui/CustomTable";
 import api from "@/lib/api";
 import { Category } from "@/lib/types/general";
-import { formatDateTime } from "@/lib/helper/dates";
 import Confirm from "@/components/ui/Confirm";
 import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
   { name: "DESCRIPTION", uid: "description", sortable: false },
+  { name: "PARENT", uid: "parent", sortable: false },
   ...LOGGER_COLUMNS,
   { name: "ACTIONS", uid: "actions" },
 ];
@@ -48,6 +48,7 @@ const columns: Column[] = [
 const INITIAL_VISIBLE_COLUMNS = [
   "name",
   "description",
+  "parent",
   "created_at",
   "created_by",
   "updated_at",
@@ -139,7 +140,11 @@ export default function CategoriesPage() {
   const renderCell = useCallback((item: Category, columnKey: React.Key) => {
     switch (columnKey) {
       case "name":
-        return <span className="">{item.name}</span>;
+        return <span className="capitalize">{item.name}</span>;
+      case "description":
+        return <span className="capitalize">{item.description}</span>;
+      case "parent":
+        return <span className="capitalize">{item.parent_category_name}</span>;
       case "created_at":
       case "updated_at":
       case "created_by":

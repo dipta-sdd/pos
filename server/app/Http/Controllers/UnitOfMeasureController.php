@@ -11,9 +11,10 @@ class UnitOfMeasureController extends Controller
     {
         $query = UnitOfMeasure::query();
 
-        if ($request->has('vendor_id')) {
-            $query->where('vendor_id', $request->vendor_id);
-        }
+        $query->where(function ($q) use ($request) {
+            $q->where('vendor_id', $request->vendor_id)
+                ->orWhereNull('vendor_id');
+        });
 
         if ($request->has('search')) {
             $search = $request->search;

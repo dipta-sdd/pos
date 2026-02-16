@@ -9,31 +9,35 @@ class CategoryController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Category::selectRaw('categories.*, CONCAT(created_by.firstName, " ", created_by.lastName) as created_by_name, CONCAT(updated_by.firstName, " ", updated_by.lastName) as updated_by_name')
+        $query = Category::selectRaw('categories.*, parent_category.name as parent_category_name, CONCAT(created_by.firstName, " ", created_by.lastName) as created_by_name, CONCAT(updated_by.firstName, " ", updated_by.lastName) as updated_by_name')
             ->leftJoin('users as created_by', 'categories.created_by', '=', 'created_by.id')
             ->leftJoin('users as updated_by', 'categories.updated_by', '=', 'updated_by.id')
-            ->where('vendor_id', $request->vendor_id);
+            ->leftJoin('categories as parent_category', 'categories.parent_id', '=', 'parent_category.id')
+            ->where('categories.vendor_id', $request->vendor_id);
 
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
+                $q->where('categories.name', 'like', "%{$search}%")
+                    ->orWhere('categories.description', 'like', "%{$search}%");
             });
         }
 
         $sortBy = $request->input('sort_by', 'created_at');
         $sortDirection = $request->input('sort_direction', 'desc');
 
-        // Whitelist sortable columns
+        // Whitelist sortable columns (prefixed to avoid ambiguity with self-join)
         $allowedSortColumns = ['name', 'created_at', 'updated_at', 'created_by', 'updated_by'];
         if (in_array($sortBy, $allowedSortColumns)) {
-            $query->orderBy($sortBy, $sortDirection === 'asc' ? 'asc' : 'desc');
+            $query->orderBy('categories.' . $sortBy, $sortDirection === 'asc' ? 'asc' : 'desc');
         } else {
-            $query->orderBy('created_at', 'desc');
+            $query->orderBy('categories.created_at', 'desc');
         }
 
         $perPage = $request->input('per_page', 10);
+        if ($perPage == -1) {
+            return $query->get();
+        }   
         return $query->paginate($perPage);
     }
 
