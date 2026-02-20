@@ -22,7 +22,6 @@ import { Plus, Trash2 } from "lucide-react";
 import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import { Category, UnitOfMeasure } from "@/lib/types/general";
-
 import ImageUpload from "@/components/ui/ImageUpload";
 
 interface ProductFormProps {
@@ -138,6 +137,7 @@ export default function ProductForm({
   const onSubmit = async (data: ProductFormData) => {
     try {
       const formData = new FormData();
+
       formData.append("name", data.name);
       if (data.description) formData.append("description", data.description);
       if (data.category_id)
@@ -196,7 +196,6 @@ export default function ProductForm({
       toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
-
   return (
     <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
       <Card>
@@ -253,15 +252,15 @@ export default function ProductForm({
               <Autocomplete
                 label="Base Unit of Measure"
                 placeholder="Select unit"
-                onSelectionChange={(key) =>
-                  setValue("unit_of_measure_id", key ? Number(key) : undefined)
-                }
                 selectedKey={
                   watch("unit_of_measure_id")
                     ? String(watch("unit_of_measure_id"))
                     : undefined
                 }
                 variant="bordered"
+                onSelectionChange={(key) =>
+                  setValue("unit_of_measure_id", key ? Number(key) : undefined)
+                }
               >
                 {units.map((unit) => (
                   <AutocompleteItem
@@ -296,10 +295,7 @@ export default function ProductForm({
 
           <div className="space-y-4">
             {fields.map((field, index) => (
-              <div
-                key={field.id}
-                className="p-4 border rounded-lg bg-gray-50/50 space-y-4"
-              >
+              <div key={field.id} className="p-4 border border-default-200 rounded-lg  space-y-4">
                 <div className="flex justify-between items-start">
                   <h4 className="font-medium">Variant #{index + 1}</h4>
                   {fields.length > 1 && (

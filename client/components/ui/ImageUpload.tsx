@@ -80,7 +80,9 @@ export default function ImageUpload({
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const [preview, setPreview] = useState<string | null>(value ? BACKEND_URL + value : null);
+  const [preview, setPreview] = useState<string | null>(
+    value ? BACKEND_URL + value : null,
+  );
 
   const onCropComplete = useCallback(
     (_croppedArea: any, croppedAreaPixels: any) => {
@@ -120,43 +122,47 @@ export default function ImageUpload({
 
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+      <span className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
         {label}
-      </label>
+      </span>
 
-      <div className="relative group w-40 h-40 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 dark:bg-gray-900/50">
-        {preview ? (
-          <>
-            <img
-              src={preview}
-              alt="Preview"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-              <Button
-                isIconOnly
-                size="sm"
-                color="danger"
-                variant="flat"
-                onPress={handleRemove}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-          </>
-        ) : (
-          <label className="cursor-pointer flex flex-col items-center gap-2 text-gray-500 hover:text-primary transition-colors">
+      {preview ? (
+        <div className="relative group w-40 h-40 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 dark:bg-gray-900/50">
+          <img
+            src={preview}
+            alt="Preview"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+            <Button
+              isIconOnly
+              size="sm"
+              color="danger"
+              variant="flat"
+              onPress={handleRemove}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <label
+          htmlFor="image-upload"
+          className="relative group w-40 h-40 border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-primary hover:dark:border-primary rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 dark:bg-gray-900/50 text-gray-500  hover:text-primary transition-colors cursor-pointer"
+        >
+          <span className="cursor-pointer flex flex-col items-center gap-2 ">
             <Upload className="w-8 h-8" />
-            <span className="text-xs">Upload Square Image</span>
+            <span className="text-xs">Upload Image</span>
             <input
+              id="image-upload"
               type="file"
               accept="image/*"
               className="hidden"
               onChange={handleFileChange}
             />
-          </label>
-        )}
-      </div>
+          </span>
+        </label>
+      )}
 
       <Modal
         isOpen={isOpen}

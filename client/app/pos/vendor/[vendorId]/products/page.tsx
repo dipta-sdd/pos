@@ -19,7 +19,10 @@ import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
-import CustomTable, { Column, LOGGER_COLUMNS } from "@/components/ui/CustomTable";
+import CustomTable, {
+  Column,
+  LOGGER_COLUMNS,
+} from "@/components/ui/CustomTable";
 import api from "@/lib/api";
 import { Product } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
@@ -50,10 +53,7 @@ function capitalize(s: string) {
 export default function ProductsPage() {
   const router = useRouter();
 
-  const {
-    vendor,
-    isLoading: contextLoading,
-  } = useVendor();
+  const { vendor, isLoading: contextLoading } = useVendor();
   const [items, setItems] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -101,13 +101,7 @@ export default function ProductsPage() {
     if (vendor?.id) {
       fetchItems(currentPage);
     }
-  }, [
-    vendor?.id,
-    currentPage,
-    perPage,
-    sortDescriptor,
-    searchValue,
-  ]);
+  }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
 
   const handleDelete = async (id: number) => {
     try {
@@ -189,7 +183,6 @@ export default function ProductsPage() {
             onValueChange={setSearchValue}
           />
           <div className="flex gap-3">
-
             <Dropdown radius="sm">
               <DropdownTrigger className="flex">
                 <Button

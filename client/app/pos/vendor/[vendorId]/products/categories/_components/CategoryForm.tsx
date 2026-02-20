@@ -50,11 +50,13 @@ export default function CategoryForm({
             per_page: -1,
           },
         });
+
         setCategories(response.data);
       } catch (error) {
         console.log(error);
       }
     };
+
     fetchCategories();
   }, []);
 
@@ -125,15 +127,15 @@ export default function CategoryForm({
       />
 
       <Autocomplete
+        errorMessage={errors.parent_id?.message}
+        isInvalid={!!errors.parent_id}
         label="Parent Category"
         placeholder="Select Parent Category"
-        variant="bordered"
         selectedKey={parentId ? String(parentId) : null}
+        variant="bordered"
         onSelectionChange={(key) => {
           setValue("parent_id", key ? Number(key) : null);
         }}
-        errorMessage={errors.parent_id?.message}
-        isInvalid={!!errors.parent_id}
       >
         {categories.map((category) => (
           <AutocompleteItem key={category.id}>{category.name}</AutocompleteItem>

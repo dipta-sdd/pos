@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { type Selection } from "@heroui/react";
-import { Edit, Trash2, ChevronDown, User, Calendar, Eye } from "lucide-react";
+import { Edit, Trash2, ChevronDown, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { type SortDescriptor } from "@heroui/table";
 import { Input } from "@heroui/input";
@@ -25,7 +25,6 @@ import CustomTable, {
   loggerColumns,
 } from "@/components/ui/CustomTable";
 import Confirm from "@/components/ui/Confirm";
-import { formatDateTime } from "@/lib/helper/dates";
 import { Role } from "@/lib/types/auth";
 import api from "@/lib/api";
 import { UserLoding } from "@/components/user-loding";
