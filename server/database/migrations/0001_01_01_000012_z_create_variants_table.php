@@ -21,6 +21,7 @@ return new class extends Migration {
             $table->timestamps();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->unique(['product_id', 'name', 'value']);
         });
     }
 

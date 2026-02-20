@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "use-node": "nvm use 20",
     "dev": "next dev --turbopack",
     "build": "next build",
     "start2": "node server.js",

@@ -35,7 +35,7 @@ class SaleController extends Controller
         // Search options: by ID or Customer Name override if needed, 
         // but for now simple structure is sufficient.
 
-        $perPage = $request->input('per_page', 15);
+        $perPage = $request->input('per_page', 10);
         return $query->paginate($perPage);
     }
 

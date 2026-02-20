@@ -38,7 +38,7 @@ class RoleController extends Controller
             $query->orderBy('created_at', 'desc');
         }
 
-        $perPage = $request->input('per_page', 15);
+        $perPage = $request->input('per_page', 10);
         return $query->paginate($perPage);
     }
 

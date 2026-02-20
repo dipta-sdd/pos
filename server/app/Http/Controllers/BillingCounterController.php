@@ -28,7 +28,7 @@ class BillingCounterController extends Controller
             });
         }
 
-        $perPage = $request->input('per_page', 15);
+        $perPage = $request->input('per_page', 10);
         return $query->paginate($perPage);
     }
 

@@ -28,7 +28,7 @@ class StockTransferController extends Controller
             $branchIds = $request->branch_ids;
             $query->where(function ($q) use ($branchIds) {
                 $q->whereIn('from_branch_id', $branchIds)
-                  ->orWhereIn('to_branch_id', $branchIds);
+                    ->orWhereIn('to_branch_id', $branchIds);
             });
         }
 
@@ -43,7 +43,7 @@ class StockTransferController extends Controller
             });
         }
 
-        $perPage = $request->input('per_page', 15);
+        $perPage = $request->input('per_page', 10);
         return $query->paginate($perPage);
     }
 

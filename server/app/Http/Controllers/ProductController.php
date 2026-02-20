@@ -10,11 +10,12 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with('variants');
-
-        if ($request->has('vendor_id')) {
-            $query->where('vendor_id', $request->vendor_id);
-        }
+        $query = Product::selectRaw('products.*, CONCAT(created_by.firstName, " ", created_by.lastName) as created_by_name, CONCAT(updated_by.firstName, " ", updated_by.lastName) as updated_by_name , categories.name as category_name, units_of_measure.name as unit_of_measure_name , units_of_measure.abbreviation as unit_of_measure_abbreviation')
+            ->leftJoin('users as created_by', 'products.created_by', '=', 'created_by.id')
+            ->leftJoin('users as updated_by', 'products.updated_by', '=', 'updated_by.id')
+            ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
+            ->leftJoin('units_of_measure', 'products.unit_of_measure_id', '=', 'units_of_measure.id')
+            ->where('products.vendor_id', $request->vendor_id);
 
         if ($request->has('category_id')) {
             $query->where('category_id', $request->category_id);
@@ -22,21 +23,9 @@ class ProductController extends Controller
 
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-            });
+            $query->where('products.name', 'like', "%{$search}%");
         }
-
-        if ($request->has('branch_ids')) {
-            $branchIds = $request->branch_ids;
-            $query->whereHas('branchProducts', function ($q) use ($branchIds) {
-                $q->whereIn('branch_id', $branchIds)
-                  ->where('is_active', true);
-            });
-        }
-
-        $perPage = $request->input('per_page', 15);
+        $perPage = $request->input('per_page', 10);
         return $query->paginate($perPage);
     }
 

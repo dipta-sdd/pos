@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BranchProduct;
+use App\Models\Product;
+use App\Models\ProductStock;
 use App\Models\Variant;
 use Illuminate\Http\Request;
 
@@ -9,35 +12,32 @@ class VariantController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Variant::query();
+        $query = ProductStock::selectRaw('product_stocks.*, products.name as product_name, variants.value as variant_value, variants.sku as sku, variants.barcode as barcode')
+            ->leftJoin('variants', 'product_stocks.variant_id', '=', 'variants.id')
+            ->leftJoin('products', 'product_stocks.product_id', '=', 'products.id')
+            ->where('products.vendor_id', $request->vendor_id);
 
         if ($request->has('product_id')) {
             $query->where('product_id', $request->product_id);
         }
 
-        if ($request->has('vendor_id')) {
-            $query->whereHas('product', function ($q) use ($request) {
-                $q->where('vendor_id', $request->vendor_id);
-            });
-        }
 
-        if ($request->has('search')) {
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('value', 'like', "%{$search}%");
+                $q->where('products.name', 'like', "%{$search}%")
+                    ->orWhere('variants.value', 'like', "%{$search}%")
+                    ->orWhere('variants.sku', 'like', "%{$search}%")
+                    ->orWhere('variants.barcode', 'like', "%{$search}%");
             });
         }
 
         if ($request->has('branch_ids')) {
             $branchIds = $request->branch_ids;
-            $query->whereHas('branchProducts', function ($q) use ($branchIds) {
-                $q->whereIn('branch_id', $branchIds)
-                  ->where('is_active', true);
-            });
+            $query->whereIn('branch_id', $branchIds);
         }
 
-        $perPage = $request->input('per_page', 15);
+        $perPage = $request->input('per_page', 10);
         return $query->paginate($perPage);
     }
 

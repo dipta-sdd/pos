@@ -11,7 +11,7 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@heroui/dropdown";
-import { Selection } from "@heroui/react";
+import { Image, Selection } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -22,27 +22,41 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import CustomTable, {
   Column,
   LOGGER_COLUMNS,
+  loggerColumns,
 } from "@/components/ui/CustomTable";
-import api from "@/lib/api";
-import { Product } from "@/lib/types/general";
-import { formatDateTime } from "@/lib/helper/dates";
+import api, { BACKEND_URL } from "@/lib/api";
+import { Product as BaseProduct } from "@/lib/types/general";
 import Confirm from "@/components/ui/Confirm";
 import { UserLoding } from "@/components/user-loding";
+import Link from "next/link";
+
+type Product = BaseProduct & {
+  category_name: string;
+  created_by_name: string;
+  updated_by_name: string;
+  unit_of_measure_name: string;
+  unit_of_measure_abbreviation: string;
+};
 
 const columns: Column[] = [
+  { name: "ID", uid: "id", sortable: true },
+  { name: "IMAGE", uid: "image" },
   { name: "NAME", uid: "name", sortable: true },
-  { name: "SKU", uid: "sku", sortable: true },
-  { name: "PRICE", uid: "base_price", sortable: true },
+  { name: "DESCRIPTION", uid: "description" },
+  { name: "CATEGORY", uid: "category", sortable: true },
+  { name: "UNIT", uid: "unit_of_measure", sortable: true },
   ...LOGGER_COLUMNS,
   { name: "ACTIONS", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
+  "id",
+  "image",
   "name",
-  "sku",
-  "base_price",
+  "category",
+  "unit_of_measure",
   "created_at",
-  "created_by_name",
+  "created_by",
   "actions",
 ];
 
@@ -117,12 +131,58 @@ export default function ProductsPage() {
   const renderCell = useCallback(
     (item: Product, columnKey: React.Key) => {
       switch (columnKey) {
+        case "id":
+          return `#${item.id}`;
+        case "image":
+          return (
+            <Image
+              src={
+                item.image_url
+                  ? BACKEND_URL + item.image_url
+                  : "/placeholder.png"
+              }
+              alt={item.name}
+              className="w-12 h-12 object-cover rounded border border-default-200"
+            />
+          );
+        case "name":
+          return (
+            <Link
+              href={`/pos/vendor/${vendor?.id}/products/${item.id}`}
+              className="text-primary hover:underline hover:underline-offset-4 capitalize"
+            >
+              {item.name}
+            </Link>
+          );
+        case "description":
+          return (
+            <div className="max-w-[200px] text-ellipsis overflow-hidden">
+              {item.description}
+            </div>
+          );
+        case "category":
+          return (
+            <Link
+              href={`/pos/vendor/${vendor?.id}/products/category${item.category_id}`}
+              className="text-primary hover:underline hover:underline-offset-4 capitalize"
+            >
+              {item.category_name}
+            </Link>
+          );
+        case "unit_of_measure":
+          return (
+            <span>
+              {item.unit_of_measure_name +
+                " (" +
+                item.unit_of_measure_abbreviation +
+                ")"}
+            </span>
+          );
         case "created_at":
-          return formatDateTime(item.created_at);
-        case "base_price":
-          return typeof item.base_price === "number"
-            ? item.base_price.toFixed(2)
-            : item.base_price || "0.00";
+        case "updated_at":
+        case "created_by":
+        case "updated_by":
+          return loggerColumns(columnKey, item);
         case "actions":
           return (
             <div className="flex items-center justify-end gap-2">

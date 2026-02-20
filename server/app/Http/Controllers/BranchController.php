@@ -29,14 +29,14 @@ class BranchController extends Controller
         $sortDirection = $request->input('sort_direction', 'desc');
 
         // Whitelist sortable columns
-        $allowedSortColumns = ['name', 'address', 'phone', 'created_at','updated_at','created_by_name','updated_by_name'];
+        $allowedSortColumns = ['name', 'address', 'phone', 'created_at', 'updated_at', 'created_by_name', 'updated_by_name'];
         if (in_array($sortBy, $allowedSortColumns)) {
             $query->orderBy($sortBy, $sortDirection === 'asc' ? 'asc' : 'desc');
         } else {
             $query->orderBy('created_at', 'desc');
         }
 
-        $perPage = $request->input('per_page', 15);
+        $perPage = $request->input('per_page', 10);
         return $query->paginate($perPage);
     }
 
