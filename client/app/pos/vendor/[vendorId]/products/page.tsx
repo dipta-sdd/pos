@@ -14,6 +14,7 @@ import {
 import { Image, Selection } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import Link from "next/link";
 
 import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
@@ -28,7 +29,6 @@ import api, { BACKEND_URL } from "@/lib/api";
 import { Product as BaseProduct } from "@/lib/types/general";
 import Confirm from "@/components/ui/Confirm";
 import { UserLoding } from "@/components/user-loding";
-import Link from "next/link";
 
 type Product = BaseProduct & {
   category_name: string;
@@ -136,20 +136,20 @@ export default function ProductsPage() {
         case "image":
           return (
             <Image
+              alt={item.name}
+              className="w-12 h-12 object-cover rounded border border-default-200"
               src={
                 item.image_url
                   ? BACKEND_URL + item.image_url
                   : "/placeholder.png"
               }
-              alt={item.name}
-              className="w-12 h-12 object-cover rounded border border-default-200"
             />
           );
         case "name":
           return (
             <Link
-              href={`/pos/vendor/${vendor?.id}/products/${item.id}`}
               className="text-primary hover:underline hover:underline-offset-4 capitalize"
+              href={`/pos/vendor/${vendor?.id}/products/${item.id}`}
             >
               {item.name}
             </Link>
@@ -163,8 +163,8 @@ export default function ProductsPage() {
         case "category":
           return (
             <Link
-              href={`/pos/vendor/${vendor?.id}/products/category${item.category_id}`}
               className="text-primary hover:underline hover:underline-offset-4 capitalize"
+              href={`/pos/vendor/${vendor?.id}/products/category${item.category_id}`}
             >
               {item.category_name}
             </Link>

@@ -196,6 +196,7 @@ export default function ProductForm({
       toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
+
   return (
     <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
       <Card>
@@ -295,7 +296,10 @@ export default function ProductForm({
 
           <div className="space-y-4">
             {fields.map((field, index) => (
-              <div key={field.id} className="p-4 border border-default-200 rounded-lg  space-y-4">
+              <div
+                key={field.id}
+                className="p-4 border border-default-200 rounded-lg  space-y-4"
+              >
                 <div className="flex justify-between items-start">
                   <h4 className="font-medium">Variant #{index + 1}</h4>
                   {fields.length > 1 && (

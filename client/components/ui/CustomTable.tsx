@@ -206,9 +206,10 @@ export const loggerColumns = (key: string, item: any) => {
     case "created_by":
       // item has created_by_name and also created_by , key is created_by for indexing and sorting
       return item?.created_by_name ? (
-        <Link size="sm" href={`/pos/users/${item.created_by}`} >
+        <Link href={`/pos/users/${item.created_by}`} size="sm">
           <span className="flex items-center gap-2 text-small">
-            <User className="w-4.5 min-w-4.5 h-4.5 border border-primary rounded-full pt-0.5" />{item.created_by_name}
+            <User className="w-4.5 min-w-4.5 h-4.5 border border-primary rounded-full pt-0.5" />
+            {item.created_by_name}
           </span>
         </Link>
       ) : (
@@ -217,9 +218,10 @@ export const loggerColumns = (key: string, item: any) => {
     case "updated_by":
       // item has updated_by_name and also updated_by , key is updated_by for indexing and sorting
       return item?.updated_by_name ? (
-        <Link size="sm" href={`/pos/users/${item.updated_by}`}>
+        <Link href={`/pos/users/${item.updated_by}`} size="sm">
           <span className="flex items-center gap-2 text-small">
-            <User className="w-4.5 min-w-4.5 h-4.5 border border-primary rounded-full pt-0.5" />{item.updated_by_name}
+            <User className="w-4.5 min-w-4.5 h-4.5 border border-primary rounded-full pt-0.5" />
+            {item.updated_by_name}
           </span>
         </Link>
       ) : (

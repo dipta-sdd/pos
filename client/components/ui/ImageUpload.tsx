@@ -12,6 +12,7 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { Upload, X, Crop } from "lucide-react";
+
 import { BACKEND_URL } from "@/lib/api";
 
 interface ImageUploadProps {
@@ -23,6 +24,7 @@ interface ImageUploadProps {
 export const createImage = (url: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
     const image = new Image();
+
     image.addEventListener("load", () => resolve(image));
     image.addEventListener("error", (error) => reject(error));
     image.setAttribute("crossOrigin", "anonymous");
@@ -60,11 +62,13 @@ export async function getCroppedImg(
     canvas.toBlob((blob) => {
       if (!blob) {
         resolve(null);
+
         return;
       }
       const file = new File([blob], "cropped-image.jpg", {
         type: "image/jpeg",
       });
+
       resolve(file);
     }, "image/jpeg");
   });
@@ -95,6 +99,7 @@ export default function ImageUpload({
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       const reader = new FileReader();
+
       reader.addEventListener("load", () => {
         setImageSrc(reader.result as string);
         onOpen();
@@ -106,6 +111,7 @@ export default function ImageUpload({
   const handleSave = async () => {
     if (imageSrc && croppedAreaPixels) {
       const croppedFile = await getCroppedImg(imageSrc, croppedAreaPixels);
+
       if (croppedFile) {
         setPreview(URL.createObjectURL(croppedFile));
         onChange(croppedFile);
@@ -129,15 +135,15 @@ export default function ImageUpload({
       {preview ? (
         <div className="relative group w-40 h-40 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 dark:bg-gray-900/50">
           <img
-            src={preview}
             alt="Preview"
             className="w-full h-full object-cover"
+            src={preview}
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
             <Button
               isIconOnly
-              size="sm"
               color="danger"
+              size="sm"
               variant="flat"
               onPress={handleRemove}
             >
@@ -147,17 +153,17 @@ export default function ImageUpload({
         </div>
       ) : (
         <label
-          htmlFor="image-upload"
           className="relative group w-40 h-40 border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-primary hover:dark:border-primary rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 dark:bg-gray-900/50 text-gray-500  hover:text-primary transition-colors cursor-pointer"
+          htmlFor="image-upload"
         >
           <span className="cursor-pointer flex flex-col items-center gap-2 ">
             <Upload className="w-8 h-8" />
             <span className="text-xs">Upload Image</span>
             <input
-              id="image-upload"
-              type="file"
               accept="image/*"
               className="hidden"
+              id="image-upload"
+              type="file"
               onChange={handleFileChange}
             />
           </span>
@@ -165,10 +171,10 @@ export default function ImageUpload({
       )}
 
       <Modal
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        size="2xl"
         backdrop="blur"
+        isOpen={isOpen}
+        size="2xl"
+        onOpenChange={onOpenChange}
       >
         <ModalContent>
           <ModalHeader>Crop Image</ModalHeader>
@@ -176,10 +182,10 @@ export default function ImageUpload({
             <div className="relative w-full h-[400px] bg-gray-900 rounded-lg overflow-hidden">
               {imageSrc && (
                 <Cropper
-                  image={imageSrc}
-                  crop={crop}
-                  zoom={zoom}
                   aspect={1}
+                  crop={crop}
+                  image={imageSrc}
+                  zoom={zoom}
                   onCropChange={setCrop}
                   onCropComplete={onCropComplete}
                   onZoomChange={setZoom}
@@ -187,16 +193,19 @@ export default function ImageUpload({
               )}
             </div>
             <div className="mt-4 px-2">
-              <label className="text-sm">Zoom</label>
+              <label className="text-sm" htmlFor="zoom-input">
+                Zoom
+              </label>
               <input
+                aria-label="Zoom"
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 mt-2"
+                id="zoom-input"
+                max={3}
+                min={1}
+                step={0.1}
                 type="range"
                 value={zoom}
-                min={1}
-                max={3}
-                step={0.1}
-                aria-labelledby="Zoom"
                 onChange={(e) => setZoom(Number(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 mt-2"
               />
             </div>
           </ModalBody>
@@ -206,8 +215,8 @@ export default function ImageUpload({
             </Button>
             <Button
               color="primary"
-              onPress={handleSave}
               startContent={<Crop className="w-4 h-4" />}
+              onPress={handleSave}
             >
               Crop & Save
             </Button>
