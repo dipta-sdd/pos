@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { Input } from "@heroui/input";
 import { SortDescriptor } from "@heroui/table";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Edit , Plus} from "lucide-react";
 import {
   Dropdown,
   DropdownTrigger,
@@ -13,7 +13,6 @@ import {
 import { Button } from "@heroui/button";
 import { Selection } from "@heroui/react";
 import { Switch } from "@heroui/switch";
-import { Eye, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import AddStockModal from "./_components/AddStockModal";
@@ -202,25 +201,25 @@ export default function InventoryPage() {
           );
         case "actions":
           return (
-            <div className="flex items-center gap-2">
-              <Button
-                isIconOnly
-                size="sm"
-                variant="flat"
-                onPress={() => openViewStock(item)}
-              >
-                <Eye size={18} />
-              </Button>
-              <Button
-                isIconOnly
-                color="primary"
-                size="sm"
-                variant="flat"
-                onPress={() => openAddStock(item)}
-              >
-                <Plus size={18} />
-              </Button>
-            </div>
+            
+            <div className="flex items-center justify-end gap-2">
+            <Button
+              isIconOnly
+              size="sm"
+              variant="light"
+              onPress={() => openViewStock(item)}
+            >
+              <Edit className="w-4 h-4 text-default-400" />
+            </Button>
+            <Button
+              isIconOnly
+              size="sm"
+              variant="light"
+             onPress={() => openAddStock(item)}
+            >
+              <Plus className="w-4 h-4 text-danger" />
+            </Button>
+          </div>
           );
         default:
           return (item as any)[columnKey as keyof BranchProductItem];
