@@ -24,6 +24,7 @@ import CustomTable, {
   Column,
   LOGGER_COLUMNS,
   loggerColumns,
+  ProductImage,
 } from "@/components/ui/CustomTable";
 import api, { BACKEND_URL } from "@/lib/api";
 import { Product as BaseProduct } from "@/lib/types/general";
@@ -134,17 +135,7 @@ export default function ProductsPage() {
         case "id":
           return `#${item.id}`;
         case "image":
-          return (
-            <Image
-              alt={item.name}
-              className="w-12 h-12 object-cover rounded border border-default-200"
-              src={
-                item.image_url
-                  ? BACKEND_URL + item.image_url
-                  : "/placeholder.webp"
-              }
-            />
-          );
+          return <ProductImage image_url={item.image_url} alt={item.name} />;
         case "name":
           return (
             <Link

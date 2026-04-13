@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { Input } from "@heroui/input";
 import { SortDescriptor } from "@heroui/table";
-import { ChevronDown, Edit , Plus} from "lucide-react";
+import { ChevronDown, Edit, Plus } from "lucide-react";
 import {
   Dropdown,
   DropdownTrigger,
@@ -11,7 +11,7 @@ import {
   DropdownItem,
 } from "@heroui/dropdown";
 import { Button } from "@heroui/button";
-import { Selection } from "@heroui/react";
+import { Image, Selection } from "@heroui/react";
 import { Switch } from "@heroui/switch";
 import { toast } from "sonner";
 
@@ -22,8 +22,8 @@ import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
-import CustomTable, { Column } from "@/components/ui/CustomTable";
-import api from "@/lib/api";
+import CustomTable, { Column, ProductImage } from "@/components/ui/CustomTable";
+import api, { BACKEND_URL } from "@/lib/api";
 import { UserLoding } from "@/components/user-loding";
 
 interface BranchProductItem {
@@ -41,6 +41,7 @@ interface BranchProductItem {
 }
 
 const columns: Column[] = [
+  { name: "IMAGE", uid: "image", sortable: false },
   { name: "PRODUCT", uid: "product_name", sortable: true },
   { name: "VARIANT", uid: "variant_value", sortable: false },
   { name: "SKU", uid: "sku", sortable: true },
@@ -50,6 +51,7 @@ const columns: Column[] = [
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
+  "image",
   "product_name",
   "variant_value",
   "sku",
@@ -174,6 +176,8 @@ export default function InventoryPage() {
   const renderCell = useCallback(
     (item: BranchProductItem, columnKey: React.Key) => {
       switch (columnKey) {
+        case "image":
+          return <ProductImage alt={item.product_name} image_url={item.image_url} />;
         case "product_name":
           return item.product_name || "N/A";
         case "variant_value":
@@ -201,25 +205,24 @@ export default function InventoryPage() {
           );
         case "actions":
           return (
-            
             <div className="flex items-center justify-end gap-2">
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onPress={() => openViewStock(item)}
-            >
-              <Edit className="w-4 h-4 text-default-400" />
-            </Button>
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-             onPress={() => openAddStock(item)}
-            >
-              <Plus className="w-4 h-4 text-danger" />
-            </Button>
-          </div>
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onPress={() => openViewStock(item)}
+              >
+                <Edit className="w-4 h-4 text-default-400" />
+              </Button>
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onPress={() => openAddStock(item)}
+              >
+                <Plus className="w-4 h-4 text-danger" />
+              </Button>
+            </div>
           );
         default:
           return (item as any)[columnKey as keyof BranchProductItem];

@@ -1,5 +1,12 @@
 "use client";
-import { Link, Pagination, Select, SelectItem, Skeleton } from "@heroui/react";
+import {
+  Image,
+  Link,
+  Pagination,
+  Select,
+  SelectItem,
+  Skeleton,
+} from "@heroui/react";
 import {
   SortDescriptor,
   Selection,
@@ -14,6 +21,8 @@ import { Calendar, User } from "lucide-react";
 import { useMemo } from "react";
 
 import { formatDateTime } from "@/lib/helper/dates";
+import { BACKEND_URL } from "@/lib/api";
+import { ProductPlaceholderIcon } from "./ProductPlaceholderIcon";
 
 export interface Column {
   name: string;
@@ -236,3 +245,22 @@ export const LOGGER_COLUMNS = [
   { uid: "updated_at", name: "UPDATED AT", sortable: true },
   { uid: "updated_by", name: "UPDATED BY", sortable: true },
 ];
+
+export const ProductImage = ({
+  image_url,
+  alt,
+}: {
+  image_url: string | null | undefined;
+  alt: string;
+}) => {
+  if (!image_url) {
+    return <ProductPlaceholderIcon className="w-12 h-12" />;
+  }
+  return (
+    <Image
+      alt={alt}
+      className="w-12 h-12 object-cover rounded border border-default-200"
+      src={image_url ? BACKEND_URL + image_url : "/placeholder.webp"}
+    />
+  );
+};
