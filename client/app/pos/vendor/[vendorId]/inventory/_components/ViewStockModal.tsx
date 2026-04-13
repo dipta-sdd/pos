@@ -20,6 +20,7 @@ import { Edit2, Trash2, Check, X } from "lucide-react";
 import { toast } from "sonner";
 
 import api from "@/lib/api";
+import { formatDate, formatDateTime } from "@/lib/helper/dates";
 
 interface StockBatch {
   id: number;
@@ -208,7 +209,7 @@ export default function ViewStockModal({
                             }
                           />
                         ) : (
-                          stock.expiry_date || "-"
+                          formatDate(stock.expiry_date)
                         )}
                       </TableCell>
                       <TableCell>

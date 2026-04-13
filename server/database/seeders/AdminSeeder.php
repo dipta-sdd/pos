@@ -336,7 +336,7 @@ class AdminSeeder extends Seeder
                 ['name' => 'Thinking, Fast and Slow', 'category_id' => 4, 'price' => 22.00, 'cost' => 12.00, 'unit_id' => 1],
             ];
 
-            foreach ($sampleProducts as $p) {
+            foreach ($sampleProducts as $index => $p) {
                 // Create Product
                 $product = Product::firstOrCreate(
                     ['name' => $p['name'], 'vendor_id' => $vendor->id],
@@ -349,42 +349,75 @@ class AdminSeeder extends Seeder
                     ]
                 );
 
-                // Create Default Variant
-                $variant = Variant::firstOrCreate(
-                    ['product_id' => $product->id, 'name' => 'Default', 'value' => 'Default'],
-                    [
-                        'sku' => strtoupper(substr($p['name'], 0, 3)) . '-' . rand(1000, 9999),
-                        'barcode' => rand(100000000000, 999999999999),
-                        'created_by' => $user->id,
-                        'updated_by' => $user->id,
-                    ]
-                );
+                // Define variants for this product
+                $variantsData = [['name' => 'Default', 'value' => 'Default']];
+                
+                if ($p['category_id'] == 1) { // Electronics
+                    $variantsData = [
+                        ['name' => 'Storage', 'value' => '128GB'],
+                        ['name' => 'Storage', 'value' => '256GB'],
+                    ];
+                } elseif ($p['category_id'] == 2) { // Clothing
+                    $variantsData = [
+                        ['name' => 'Size', 'value' => 'Medium'],
+                        ['name' => 'Size', 'value' => 'Large'],
+                    ];
+                }
 
-                // Get unit info for ProductStock
-                $unit = UnitOfMeasure::find($p['unit_id']);
-
-                // Assign to both branches with stock and pricing
-                foreach ([$branch1->id, $branch2->id] as $branchId) {
-                    $branchProduct = BranchProduct::firstOrCreate(
-                        ['branch_id' => $branchId, 'product_id' => $product->id, 'variant_id' => $variant->id],
+                foreach ($variantsData as $vData) {
+                    $variant = Variant::firstOrCreate(
+                        ['product_id' => $product->id, 'name' => $vData['name'], 'value' => $vData['value']],
                         [
-                            'is_active' => true,
-                            'low_stock_threshold' => 10,
+                            'sku' => strtoupper(substr($p['name'], 0, 3)) . '-' . strtoupper(substr($vData['value'], 0, 2)) . '-' . rand(1000, 9999),
+                            'barcode' => rand(100000000000, 999999999999),
                             'created_by' => $user->id,
                             'updated_by' => $user->id,
                         ]
                     );
 
-                    ProductStock::firstOrCreate(
-                        ['branch_id' => $branchId, 'product_id' => $product->id, 'variant_id' => $variant->id, 'branch_product_id' => $branchProduct->id],
-                        [
+                    // Get unit info for ProductStock
+                    $unit = UnitOfMeasure::find($p['unit_id']);
+
+                    // Assign to both branches with multiple stock batches
+                    foreach ([$branch1->id, $branch2->id] as $branchId) {
+                        $branchProduct = BranchProduct::firstOrCreate(
+                            ['branch_id' => $branchId, 'product_id' => $product->id, 'variant_id' => $variant->id],
+                            [
+                                'is_active' => true,
+                                'low_stock_threshold' => 10,
+                                'created_by' => $user->id,
+                                'updated_by' => $user->id,
+                            ]
+                        );
+
+                        // Create Batch 1
+                        ProductStock::create([
+                            'branch_id' => $branchId,
+                            'product_id' => $product->id,
+                            'variant_id' => $variant->id,
+                            'branch_product_id' => $branchProduct->id,
                             'unit_of_measure_name' => $unit->name,
                             'unit_of_measure_abbreviation' => $unit->abbreviation,
-                            'quantity' => rand(50, 200),
+                            'quantity' => rand(50, 100),
                             'cost_price' => $p['cost'],
                             'selling_price' => $p['price'],
-                        ]
-                    );
+                            'expiry_date' => now()->addMonths(rand(6, 24))->toDateString(),
+                        ]);
+
+                        // Create Batch 2 (Different Price)
+                        ProductStock::create([
+                            'branch_id' => $branchId,
+                            'product_id' => $product->id,
+                            'variant_id' => $variant->id,
+                            'branch_product_id' => $branchProduct->id,
+                            'unit_of_measure_name' => $unit->name,
+                            'unit_of_measure_abbreviation' => $unit->abbreviation,
+                            'quantity' => rand(20, 50),
+                            'cost_price' => $p['cost'] * 1.1, // 10% more expensive batch
+                            'selling_price' => $p['price'] * 1.05,
+                            'expiry_date' => now()->addMonths(rand(25, 48))->toDateString(),
+                        ]);
+                    }
                 }
             }
         });
