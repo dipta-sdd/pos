@@ -27,7 +27,7 @@ class ProductStock extends Model
         'quantity' => 'decimal:2',
         'cost_price' => 'decimal:2',
         'selling_price' => 'decimal:2',
-        'expiry_date' => 'date',
+        'expiry_date' => 'date:Y-m-d',
     ];
 
     public function branch(): BelongsTo

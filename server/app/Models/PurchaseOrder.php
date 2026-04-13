@@ -27,8 +27,8 @@ class PurchaseOrder extends Model
     protected $casts = [
         'total_amount' => 'decimal:2',
         'paid_amount' => 'decimal:2',
-        'order_date' => 'date',
-        'expected_delivery_date' => 'date',
+        'order_date' => 'date:Y-m-d',
+        'expected_delivery_date' => 'date:Y-m-d',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

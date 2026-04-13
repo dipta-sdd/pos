@@ -22,7 +22,7 @@ class PurchaseOrderPayment extends Model
 
     protected $casts = [
         'amount' => 'decimal:2',
-        'payment_date' => 'date',
+        'payment_date' => 'date:Y-m-d',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
