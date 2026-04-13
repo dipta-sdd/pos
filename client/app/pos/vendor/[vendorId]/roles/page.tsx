@@ -176,11 +176,7 @@ export default function RolesPage() {
                   className="min-w-none"
                   color="primary"
                   size="sm"
-                  title={
-                    membership?.role?.can_edit_roles
-                      ? "Edit"
-                      : "View"
-                  }
+                  title={membership?.role?.can_edit_roles ? "Edit" : "View"}
                   variant="light"
                   onPress={() =>
                     router.push(`/pos/vendor/${vendor?.id}/roles/${role.id}`)

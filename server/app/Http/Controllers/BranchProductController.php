@@ -127,17 +127,28 @@ class BranchProductController extends Controller
     public function addStock(Request $request)
     {
         $request->validate([
-            'branch_product_id' => 'required|exists:branch_products,id',
+            'branch_id' => 'required|exists:branches,id',
+            'product_id' => 'required|exists:products,id',
+            'variant_id' => 'required|exists:variants,id',
             'quantity' => 'required|numeric|min:0.01',
             'cost_price' => 'numeric|min:0',
             'selling_price' => 'numeric|min:0',
             'expiry_date' => 'nullable|date',
         ]);
 
-        $bp = BranchProduct::findOrFail($request->branch_product_id);
+        // Ensure BranchProduct assignment exists
+        $bp = BranchProduct::firstOrCreate(
+            ['branch_id' => $request->branch_id, 'variant_id' => $request->variant_id],
+            [
+                'product_id' => $request->product_id,
+                'is_active' => true,
+                'created_by' => $request->user()->id,
+                'updated_by' => $request->user()->id,
+            ]
+        );
         
-        $variant = Variant::find($bp->variant_id);
-        $product = Product::find($bp->product_id);
+        $variant = Variant::find($request->variant_id);
+        $product = Product::find($request->product_id);
         
         // Find correct unit
         $unitId = $variant->unit_of_measure_id ?? $product->unit_of_measure_id;
@@ -152,9 +163,9 @@ class BranchProductController extends Controller
         }
 
         $stock = ProductStock::create([
-            'branch_id' => $bp->branch_id,
-            'product_id' => $bp->product_id,
-            'variant_id' => $bp->variant_id,
+            'branch_id' => $request->branch_id,
+            'product_id' => $request->product_id,
+            'variant_id' => $request->variant_id,
             'branch_product_id' => $bp->id,
             'quantity' => $request->quantity,
             'cost_price' => $request->cost_price ?? 0,
@@ -165,5 +176,43 @@ class BranchProductController extends Controller
         ]);
 
         return response()->json($stock, 201);
+    }
+
+    public function getStocks(Request $request)
+    {
+        $request->validate([
+            'variant_id' => 'required|exists:variants,id',
+            'branch_ids' => 'nullable|array',
+            'branch_ids.*' => 'exists:branches,id',
+        ]);
+
+        $query = ProductStock::with('branch')
+            ->where('variant_id', $request->variant_id);
+
+        if ($request->has('branch_ids')) {
+            $query->whereIn('branch_id', $request->branch_ids);
+        }
+
+        return response()->json($query->get());
+    }
+
+    public function updateStock(Request $request, ProductStock $stock)
+    {
+        $validatedData = $request->validate([
+            'quantity' => 'numeric|min:0',
+            'cost_price' => 'numeric|min:0',
+            'selling_price' => 'numeric|min:0',
+            'expiry_date' => 'nullable|date',
+        ]);
+
+        $stock->update($validatedData);
+
+        return response()->json($stock->load('branch'));
+    }
+
+    public function destroyStock(ProductStock $stock)
+    {
+        $stock->delete();
+        return response()->json(null, 204);
     }
 }

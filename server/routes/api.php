@@ -118,6 +118,9 @@ Route::middleware('log.api')->group(function () {
             Route::get('/', [BranchProductController::class, 'index']);
             Route::post('/toggle-status', [BranchProductController::class, 'toggleStatus'])->middleware('permission:can_edit_products');
             Route::post('/add-stock', [BranchProductController::class, 'addStock'])->middleware('permission:can_perform_stock_adjustments');
+            Route::get('/stocks', [BranchProductController::class, 'getStocks']);
+            Route::put('/stocks/{stock}', [BranchProductController::class, 'updateStock'])->middleware('permission:can_perform_stock_adjustments');
+            Route::delete('/stocks/{stock}', [BranchProductController::class, 'destroyStock'])->middleware('permission:can_perform_stock_adjustments');
         });
 
         // Unit of Measure routes (protected)

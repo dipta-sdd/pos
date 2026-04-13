@@ -13,7 +13,11 @@ import {
 import { Button } from "@heroui/button";
 import { Selection } from "@heroui/react";
 import { Switch } from "@heroui/switch";
-import { Chip } from "@heroui/chip";
+import { Eye, Plus } from "lucide-react";
+import { toast } from "sonner";
+
+import AddStockModal from "./_components/AddStockModal";
+import ViewStockModal from "./_components/ViewStockModal";
 
 import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
@@ -22,8 +26,6 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
 import api from "@/lib/api";
 import { UserLoding } from "@/components/user-loding";
-import { toast } from "sonner";
-import AddStockModal from "./_components/AddStockModal";
 
 interface BranchProductItem {
   id: number;
@@ -48,7 +50,14 @@ const columns: Column[] = [
   { name: "ACTIONS", uid: "actions", sortable: false },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = ["product_name", "variant_value", "sku", "stock_quantity", "status", "actions"];
+const INITIAL_VISIBLE_COLUMNS = [
+  "product_name",
+  "variant_value",
+  "sku",
+  "stock_quantity",
+  "status",
+  "actions",
+];
 
 function capitalize(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
@@ -78,7 +87,10 @@ export default function InventoryPage() {
   );
 
   const [isAddStockModalOpen, setIsAddStockModalOpen] = useState(false);
-  const [selectedBranchProductId, setSelectedBranchProductId] = useState<number | null>(null);
+  const [isViewStockModalOpen, setIsViewStockModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<BranchProductItem | null>(
+    null,
+  );
 
   const isSingleBranchSelected = selectedBranchIds.length === 1;
 
@@ -92,9 +104,14 @@ export default function InventoryPage() {
           per_page: perPage,
           vendor_id: vendor.id,
           search: searchValue,
-          sort_by: sortDescriptor.column === "product_name" ? "product" : sortDescriptor.column,
-          sort_direction: sortDescriptor.direction === "ascending" ? "asc" : "desc",
-          branch_ids: selectedBranchIds.length > 0 ? selectedBranchIds : undefined,
+          sort_by:
+            sortDescriptor.column === "product_name"
+              ? "product"
+              : sortDescriptor.column,
+          sort_direction:
+            sortDescriptor.direction === "ascending" ? "asc" : "desc",
+          branch_ids:
+            selectedBranchIds.length > 0 ? selectedBranchIds : undefined,
         },
       });
 
@@ -125,6 +142,7 @@ export default function InventoryPage() {
   const toggleStatus = async (item: BranchProductItem, newStatus: boolean) => {
     if (!isSingleBranchSelected) {
       toast.error("Please select a single branch to manage product status");
+
       return;
     }
     try {
@@ -135,61 +153,81 @@ export default function InventoryPage() {
         is_active: newStatus,
       });
       fetchItems(currentPage);
-      toast.success(`Product ${newStatus ? 'activated' : 'deactivated'} for this branch`);
+      toast.success(
+        `Product ${newStatus ? "activated" : "deactivated"} for this branch`,
+      );
     } catch (error) {
       console.error("Status toggle failed", error);
       toast.error("Failed to update status");
     }
   };
 
-  const openAddStock = (branchProductId: number) => {
-    setSelectedBranchProductId(branchProductId);
+  const openAddStock = (item: BranchProductItem) => {
+    setSelectedItem(item);
     setIsAddStockModalOpen(true);
   };
 
-  const renderCell = useCallback((item: BranchProductItem, columnKey: React.Key) => {
-    switch (columnKey) {
-      case "product_name":
-        return item.product_name || "N/A";
-      case "variant_value":
-        return item.variant_value || "Default";
-      case "sku":
-        return item.sku || "N/A";
-      case "stock_quantity":
-        return parseFloat(String(item.total_quantity)).toFixed(2);
-      case "status":
-        if (!isSingleBranchSelected) {
-           return <span className="text-default-400 text-sm">Select 1 branch</span>;
-        }
-        return (
-          <Switch
-            isSelected={!!item.is_active}
-            onValueChange={(checked) => toggleStatus(item, checked)}
-            size="sm"
-            color="success"
-          />
-        );
-      case "actions":
-        if (!isSingleBranchSelected) {
-           return <span className="text-default-400 text-sm">-</span>;
-        }
-        if (!item.is_active || !item.branch_product_id) {
-           return <Chip size="sm" variant="flat">Inactive</Chip>;
-        }
-        return (
-          <Button 
-            size="sm" 
-            color="primary" 
-            variant="flat"
-            onPress={() => openAddStock(item.branch_product_id!)}
-          >
-            Add Stock
-          </Button>
-        );
-      default:
-        return (item as any)[columnKey as keyof BranchProductItem];
-    }
-  }, [isSingleBranchSelected, selectedBranchIds, toggleStatus]);
+  const openViewStock = (item: BranchProductItem) => {
+    setSelectedItem(item);
+    setIsViewStockModalOpen(true);
+  };
+
+  const renderCell = useCallback(
+    (item: BranchProductItem, columnKey: React.Key) => {
+      switch (columnKey) {
+        case "product_name":
+          return item.product_name || "N/A";
+        case "variant_value":
+          return item.variant_value || "Default";
+        case "sku":
+          return item.sku || "N/A";
+        case "stock_quantity":
+          return parseFloat(String(item.total_quantity)).toFixed(2);
+        case "status":
+          if (!isSingleBranchSelected) {
+            return (
+              <span className="text-default-400 text-sm italic">
+                Limited to 1 branch
+              </span>
+            );
+          }
+
+          return (
+            <Switch
+              color="success"
+              isSelected={!!item.is_active}
+              size="sm"
+              onValueChange={(checked) => toggleStatus(item, checked)}
+            />
+          );
+        case "actions":
+          return (
+            <div className="flex items-center gap-2">
+              <Button
+                isIconOnly
+                size="sm"
+                variant="flat"
+                onPress={() => openViewStock(item)}
+              >
+                <Eye size={18} />
+              </Button>
+              <Button
+                isIconOnly
+                color="primary"
+                size="sm"
+                variant="flat"
+                onPress={() => openAddStock(item)}
+              >
+                <Plus size={18} />
+              </Button>
+            </div>
+          );
+        default:
+          return (item as any)[columnKey as keyof BranchProductItem];
+      }
+    },
+    [isSingleBranchSelected, selectedBranchIds, toggleStatus],
+  );
 
   if (contextLoading) return <UserLoding />;
 
@@ -231,6 +269,7 @@ export default function InventoryPage() {
                 selectionMode="multiple"
                 onSelectionChange={(keys) => {
                   const ids = Array.from(keys as Set<string>);
+
                   updateBranchFilter(ids);
                 }}
               >
@@ -271,7 +310,8 @@ export default function InventoryPage() {
 
         {!isSingleBranchSelected && (
           <div className="mb-4 bg-default-100 p-3 rounded-lg text-sm text-default-600">
-            <strong>Note:</strong> Select a single branch to activate/deactivate products and add specific branch stock batches.
+            <strong>Note:</strong> Select a single branch to activate/deactivate
+            products and add specific branch stock batches.
           </div>
         )}
 
@@ -290,13 +330,24 @@ export default function InventoryPage() {
           visibleColumns={visibleColumns}
         />
 
-        {selectedBranchProductId && (
-          <AddStockModal
-             isOpen={isAddStockModalOpen}
-             onOpenChange={() => setIsAddStockModalOpen(!isAddStockModalOpen)}
-             branchProductId={selectedBranchProductId}
-             onSuccess={() => fetchItems(currentPage)}
-          />
+        {selectedItem && (
+          <>
+            <AddStockModal
+              isOpen={isAddStockModalOpen}
+              item={selectedItem}
+              onOpenChange={() => setIsAddStockModalOpen(!isAddStockModalOpen)}
+              onSuccess={() => fetchItems(currentPage)}
+            />
+            <ViewStockModal
+              isOpen={isViewStockModalOpen}
+              selectedBranchIds={selectedBranchIds}
+              variantId={selectedItem.id}
+              onOpenChange={() =>
+                setIsViewStockModalOpen(!isViewStockModalOpen)
+              }
+              onSuccess={() => fetchItems(currentPage)}
+            />
+          </>
         )}
       </div>
     </PermissionGuard>

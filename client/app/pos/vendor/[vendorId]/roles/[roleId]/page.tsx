@@ -56,7 +56,12 @@ export default function EditRolePage() {
           </h1>
         </div>
 
-        <RoleForm isEditing initialData={role} readOnly={isReadOnly} canDeleteRoles={canDeleteRoles} />
+        <RoleForm
+          isEditing
+          canDeleteRoles={canDeleteRoles}
+          initialData={role}
+          readOnly={isReadOnly}
+        />
       </div>
     </PermissionGuard>
   );

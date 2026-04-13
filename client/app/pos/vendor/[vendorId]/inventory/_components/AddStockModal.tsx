@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   ModalContent,
@@ -8,37 +8,65 @@ import {
 } from "@heroui/modal";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
+import { Select, SelectItem } from "@heroui/select";
+import { toast } from "sonner";
+
 import api from "@/lib/api";
-import { toast } from "sonner"; 
+import { useVendor } from "@/lib/contexts/VendorContext";
 
 interface AddStockModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
-  branchProductId: number;
+  item: {
+    id: number;
+    product_id: number;
+    product_name: string;
+    variant_value: string;
+  };
   onSuccess: () => void;
 }
 
 export default function AddStockModal({
   isOpen,
   onOpenChange,
-  branchProductId,
+  item,
   onSuccess,
 }: AddStockModalProps) {
+  const { membership, selectedBranchIds } = useVendor();
+  const [selectedBranchId, setSelectedBranchId] = useState<string>("");
   const [quantity, setQuantity] = useState("");
   const [costPrice, setCostPrice] = useState("");
   const [sellingPrice, setSellingPrice] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (isOpen) {
+      if (selectedBranchIds.length === 1) {
+        setSelectedBranchId(selectedBranchIds[0]);
+      } else {
+        setSelectedBranchId("");
+      }
+    }
+  }, [isOpen, selectedBranchIds]);
+
   const handleSubmit = async () => {
+    if (!selectedBranchId) {
+      toast.error("Please select a branch");
+
+      return;
+    }
     if (!quantity) {
       toast.error("Quantity is required");
+
       return;
     }
     setLoading(true);
     try {
       await api.post(`/branch-products/add-stock`, {
-        branch_product_id: branchProductId,
+        branch_id: Number(selectedBranchId),
+        product_id: item.product_id,
+        variant_id: item.id,
         quantity: Number(quantity),
         cost_price: costPrice ? Number(costPrice) : undefined,
         selling_price: sellingPrice ? Number(sellingPrice) : undefined,
@@ -60,51 +88,70 @@ export default function AddStockModal({
     }
   };
 
+  const branches =
+    membership?.user_branch_assignments?.map((a) => a.branch) || [];
+
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
+    <Modal isOpen={isOpen} placement="top-center" onOpenChange={onOpenChange}>
       <ModalContent>
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1">
-              Add Stock
+              Add Stock - {item.product_name} ({item.variant_value})
             </ModalHeader>
             <ModalBody>
+              <Select
+                isRequired
+                label="Select Branch"
+                placeholder="Choose a branch"
+                selectedKeys={selectedBranchId ? [selectedBranchId] : []}
+                onSelectionChange={(keys) =>
+                  setSelectedBranchId(Array.from(keys)[0] as string)
+                }
+              >
+                {branches.map((branch) => (
+                  <SelectItem key={String(branch.id)}>{branch.name}</SelectItem>
+                ))}
+              </Select>
               <Input
+                isRequired
                 label="Quantity"
-                type="number"
                 placeholder="0.00"
+                type="number"
                 value={quantity}
                 onValueChange={setQuantity}
-                isRequired
               />
               <Input
                 label="Cost Price"
-                type="number"
                 placeholder="0.00"
+                type="number"
                 value={costPrice}
                 onValueChange={setCostPrice}
               />
               <Input
                 label="Selling Price"
-                type="number"
                 placeholder="0.00"
+                type="number"
                 value={sellingPrice}
                 onValueChange={setSellingPrice}
               />
               <Input
                 label="Expiry Date"
-                type="date"
                 placeholder="YYYY-MM-DD"
+                type="date"
                 value={expiryDate}
                 onValueChange={setExpiryDate}
-                InputLabelProps={{ shrink: true }}
               />
             </ModalBody>
             <ModalFooter>
               <Button color="danger" variant="flat" onPress={onClose}>
                 Close
               </Button>
-              <Button color="primary" onPress={handleSubmit} isLoading={loading}>
+              <Button
+                color="primary"
+                isLoading={loading}
+                onPress={handleSubmit}
+              >
                 Add Stock
               </Button>
             </ModalFooter>
