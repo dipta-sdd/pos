@@ -177,7 +177,7 @@ export default function RolesPage() {
                   color="primary"
                   size="sm"
                   title={
-                    membership?.role?.can_manage_roles_and_permissions
+                    membership?.role?.can_edit_roles
                       ? "Edit"
                       : "View"
                   }
@@ -186,7 +186,7 @@ export default function RolesPage() {
                     router.push(`/pos/vendor/${vendor?.id}/roles/${role.id}`)
                   }
                 >
-                  {membership?.role?.can_manage_roles_and_permissions ? (
+                  {membership?.role?.can_edit_roles ? (
                     <Edit className="w-4 h-4" />
                   ) : (
                     <Eye className="w-4 h-4" />
@@ -194,7 +194,7 @@ export default function RolesPage() {
                 </Button>
               )}
 
-              {membership?.role?.can_manage_roles_and_permissions && (
+              {membership?.role?.can_delete_roles && (
                 <Button
                   className="min-w-none"
                   color="danger"
@@ -227,7 +227,7 @@ export default function RolesPage() {
           description="Manage your staff roles and permissions"
           title="Roles"
         >
-          {membership?.role?.can_manage_roles_and_permissions && (
+          {membership?.role?.can_edit_roles && (
             <Button
               color="primary"
               radius="sm"

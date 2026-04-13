@@ -73,51 +73,90 @@ class AdminSeeder extends Seeder
 
             // List of permissions from Role.php
             $permissions = [
-                // Confirmed Permissions
+                // User Management
                 'can_view_users',
                 'can_edit_users',
                 'can_delete_users',
-                // Legacy/Existing Permissions
-                'can_manage_shop_settings',
-                'can_manage_billing_and_plan',
-                'can_manage_branches_and_counters',
-                'can_manage_payment_methods',
-                'can_configure_taxes',
-                'can_customize_receipts',
-                'can_manage_roles_and_permissions',
                 'can_view_roles',
+                'can_edit_roles',
+                'can_delete_roles',
                 'can_view_user_activity_log',
+                // Product & Catalog
                 'can_view_products',
-                'can_manage_products',
-                'can_manage_categories',
-                'can_manage_units_of_measure',
+                'can_edit_products',
+                'can_delete_products',
                 'can_import_products',
                 'can_export_products',
+                // Categories
+                'can_view_categories',
+                'can_edit_categories',
+                'can_delete_categories',
+                // Units of Measure
+                'can_view_units_of_measure',
+                'can_edit_units_of_measure',
+                'can_delete_units_of_measure',
+                // Branches
+                'can_view_branches',
+                'can_edit_branches',
+                'can_delete_branches',
+                // Counters
+                'can_view_counters',
+                'can_edit_counters',
+                'can_delete_counters',
+                // Payment Methods
+                'can_view_payment_methods',
+                'can_edit_payment_methods',
+                'can_delete_payment_methods',
+                // Inventory
                 'can_view_inventory_levels',
                 'can_perform_stock_adjustments',
-                'can_manage_stock_transfers',
-                'can_manage_purchase_orders',
-                'can_receive_purchase_orders',
-                'can_manage_suppliers',
+                // Stock Transfers
+                'can_view_stock_transfers',
+                'can_edit_stock_transfers',
+                'can_delete_stock_transfers',
+                // Purchase Orders
+                'can_view_purchase_orders',
+                'can_edit_purchase_orders',
+                'can_delete_purchase_orders',
+                // Suppliers
+                'can_view_suppliers',
+                'can_edit_suppliers',
+                'can_delete_suppliers',
+                // Expenses
+                'can_view_expenses',
+                'can_edit_expenses',
+                'can_delete_expenses',
+                // Cash Transactions
+                'can_request_cash_transactions',
+                'can_approve_cash_transactions',
+                // Shop & Organization
+                'can_manage_shop_settings',
+                'can_manage_billing_and_plan',
+                'can_configure_taxes',
+                'can_customize_receipts',
+                // Sales & POS
                 'can_use_pos',
                 'can_view_sales_history',
                 'can_override_prices',
                 'can_apply_manual_discounts',
                 'can_void_sales',
+                // Returns
                 'can_process_returns',
                 'can_issue_cash_refunds',
                 'can_issue_store_credit',
+                // Customers
                 'can_view_customers',
                 'can_manage_customers',
+                // Promotions
                 'can_view_promotions',
                 'can_manage_promotions',
+                // Financial
                 'can_open_close_cash_register',
-                'can_perform_cash_transactions',
-                'can_manage_expenses',
+                // Reports & Analytics
                 'can_view_dashboard',
                 'can_view_reports',
                 'can_view_profit_loss_data',
-                'can_export_data'
+                'can_export_data',
             ];
 
             foreach ($permissions as $perm) {

@@ -17,7 +17,9 @@ export default function EditRolePage() {
   const [loading, setLoading] = useState(true);
 
   // Check if the user has permission to manage roles
-  const canManageRoles = currentRole?.can_manage_roles_and_permissions || false;
+  const canManageRoles = currentRole?.can_edit_roles || false;
+  const canDeleteRoles = currentRole?.can_view_roles || false;
+
   // If they can't manage, they are in read-only mode (since they passed the PermissionGuard which checks can_view_roles)
   const isReadOnly = !canManageRoles;
 
@@ -54,7 +56,7 @@ export default function EditRolePage() {
           </h1>
         </div>
 
-        <RoleForm isEditing initialData={role} readOnly={isReadOnly} />
+        <RoleForm isEditing initialData={role} readOnly={isReadOnly} canDeleteRoles={canDeleteRoles} />
       </div>
     </PermissionGuard>
   );

@@ -39,7 +39,7 @@ export default function EditProductPage() {
   if (!product) return <div className="p-6">Product not found.</div>;
 
   return (
-    <PermissionGuard permission="can_manage_products">
+    <PermissionGuard permission="can_edit_products">
       <div className="p-6">
         <PageHeader
           description={`Editing ${product.name}`}

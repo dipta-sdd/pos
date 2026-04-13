@@ -175,7 +175,7 @@ export default function PurchaseOrdersPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_manage_purchase_orders">
+    <PermissionGuard permission="can_view_purchase_orders">
       <div className="p-6">
         <PageHeader
           description="Manage stock procurement orders"

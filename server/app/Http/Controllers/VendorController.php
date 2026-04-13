@@ -80,43 +80,86 @@ class VendorController extends Controller
             $ownerRole = Role::create([
                 'vendor_id' => $vendor->id,
                 'name' => 'Owner',
-                'description' => 'Vendor owner with full access',
-                'can_manage_shop_settings' => true,
-                'can_manage_billing_and_plan' => true,
-                'can_manage_branches_and_counters' => true,
-                'can_manage_payment_methods' => true,
-                'can_configure_taxes' => true,
-                'can_customize_receipts' => true,
-                'can_manage_roles_and_permissions' => true,
+                // User Management
+                'can_view_users' => true,
+                'can_edit_users' => true,
+                'can_delete_users' => true,
                 'can_view_roles' => true,
+                'can_edit_roles' => true,
+                'can_delete_roles' => true,
                 'can_view_user_activity_log' => true,
+                // Product & Catalog
                 'can_view_products' => true,
-                'can_manage_products' => true,
-                'can_manage_categories' => true,
-                'can_manage_units_of_measure' => true,
+                'can_edit_products' => true,
+                'can_delete_products' => true,
                 'can_import_products' => true,
                 'can_export_products' => true,
+                // Categories
+                'can_view_categories' => true,
+                'can_edit_categories' => true,
+                'can_delete_categories' => true,
+                // Units of Measure
+                'can_view_units_of_measure' => true,
+                'can_edit_units_of_measure' => true,
+                'can_delete_units_of_measure' => true,
+                // Branches
+                'can_view_branches' => true,
+                'can_edit_branches' => true,
+                'can_delete_branches' => true,
+                // Counters
+                'can_view_counters' => true,
+                'can_edit_counters' => true,
+                'can_delete_counters' => true,
+                // Payment Methods
+                'can_view_payment_methods' => true,
+                'can_edit_payment_methods' => true,
+                'can_delete_payment_methods' => true,
+                // Inventory
                 'can_view_inventory_levels' => true,
                 'can_perform_stock_adjustments' => true,
-                'can_manage_stock_transfers' => true,
-                'can_manage_purchase_orders' => true,
-                'can_receive_purchase_orders' => true,
-                'can_manage_suppliers' => true,
+                // Stock Transfers
+                'can_view_stock_transfers' => true,
+                'can_edit_stock_transfers' => true,
+                'can_delete_stock_transfers' => true,
+                // Purchase Orders
+                'can_view_purchase_orders' => true,
+                'can_edit_purchase_orders' => true,
+                'can_delete_purchase_orders' => true,
+                // Suppliers
+                'can_view_suppliers' => true,
+                'can_edit_suppliers' => true,
+                'can_delete_suppliers' => true,
+                // Expenses
+                'can_view_expenses' => true,
+                'can_edit_expenses' => true,
+                'can_delete_expenses' => true,
+                // Cash Transactions
+                'can_request_cash_transactions' => true,
+                'can_approve_cash_transactions' => true,
+                // Shop & Organization
+                'can_manage_shop_settings' => true,
+                'can_manage_billing_and_plan' => true,
+                'can_configure_taxes' => true,
+                'can_customize_receipts' => true,
+                // Sales & POS
                 'can_use_pos' => true,
                 'can_view_sales_history' => true,
                 'can_override_prices' => true,
                 'can_apply_manual_discounts' => true,
                 'can_void_sales' => true,
+                // Returns
                 'can_process_returns' => true,
                 'can_issue_cash_refunds' => true,
                 'can_issue_store_credit' => true,
+                // Customers
                 'can_view_customers' => true,
                 'can_manage_customers' => true,
+                // Promotions
                 'can_view_promotions' => true,
                 'can_manage_promotions' => true,
+                // Financial
                 'can_open_close_cash_register' => true,
-                'can_perform_cash_transactions' => true,
-                'can_manage_expenses' => true,
+                // Reports & Analytics
                 'can_view_dashboard' => true,
                 'can_view_reports' => true,
                 'can_view_profit_loss_data' => true,

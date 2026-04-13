@@ -165,7 +165,7 @@ export default function BillingCountersPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_manage_branches_and_counters">
+    <PermissionGuard permission="can_view_counters">
       <div className="p-6">
         <PageHeader
           description="Manage billing counters for each branch"

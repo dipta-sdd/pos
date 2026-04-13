@@ -107,6 +107,18 @@ export default function Sidebar() {
           href: `/pos/vendor/${vendor.id}/customers`,
           permission: "can_view_customers",
         },
+        {
+          icon: Wallet,
+          label: "Store Credits",
+          href: `/pos/vendor/${vendor.id}/customers/credits`,
+          permission: "can_issue_store_credit",
+        },
+        {
+          icon: Percent,
+          label: "Promotions",
+          href: `/pos/vendor/${vendor.id}/promotions`,
+          permission: "can_view_promotions",
+        },
       ],
     },
     {
@@ -124,7 +136,13 @@ export default function Sidebar() {
           icon: FolderTree,
           label: "Categories",
           href: `/pos/vendor/${vendor.id}/products/categories`,
-          permission: "can_manage_categories",
+          permission: "can_view_categories",
+        },
+        {
+          icon: Boxes,
+          label: "Units",
+          href: `/pos/vendor/${vendor.id}/products/units`,
+          permission: "can_view_units_of_measure",
         },
       ],
     },
@@ -140,35 +158,53 @@ export default function Sidebar() {
           permission: "can_view_inventory_levels",
         },
         {
+          icon: FileWrench,
+          label: "Stock Adjustments",
+          href: `/pos/vendor/${vendor.id}/inventory/adjustments`,
+          permission: "can_perform_stock_adjustments",
+        },
+        {
           icon: Truck,
+          label: "Stock Transfers",
+          href: `/pos/vendor/${vendor.id}/inventory/transfers`,
+          permission: "can_view_stock_transfers",
+        },
+        {
+          icon: History,
           label: "Purchase Orders",
           href: `/pos/vendor/${vendor.id}/procurement/orders`,
-          permission: "can_manage_purchase_orders",
+          permission: "can_view_purchase_orders",
         },
         {
           icon: Building2,
           label: "Suppliers",
           href: `/pos/vendor/${vendor.id}/procurement/suppliers`,
-          permission: "can_manage_suppliers",
-        },
-        {
-          icon: FileWrench,
-          label: "Stock Adjustments",
-          href: `/pos/vendor/${vendor.id}/inventory/adjustments`,
-          permission: "can_perform_stock_adjustments",
+          permission: "can_view_suppliers",
         },
       ],
     },
     {
       icon: GanttChartSquare,
       label: "Operations",
-      permission: "can_manage_expenses", // Simplification
+      permission: "can_view_users",
       subItems: [
         {
           icon: Wallet,
           label: "Cash Management",
           href: `/pos/vendor/${vendor.id}/cash-management`,
           permission: "can_open_close_cash_register",
+        },
+        {
+          icon: History,
+          label: "Expenses",
+          href: `/pos/vendor/${vendor.id}/expenses`,
+          permission: "can_view_expenses",
+        },
+        {
+          icon: FolderTree,
+          label: "Expense Categories",
+          href: `/pos/vendor/${vendor.id}/expenses/categories`,
+          permission: "can_view_expenses",
         },
         {
           icon: Contact,
@@ -224,7 +260,13 @@ export default function Sidebar() {
           icon: MapPin,
           label: "Branches",
           href: `/pos/vendor/${vendor.id}/branches`,
-          permission: "can_manage_branches_and_counters",
+          permission: "can_view_branches",
+        },
+        {
+          icon: TabletSmartphone,
+          label: "Counters",
+          href: `/pos/vendor/${vendor.id}/branches/counters`,
+          permission: "can_view_counters",
         },
         {
           icon: ShieldCheck,
@@ -236,7 +278,7 @@ export default function Sidebar() {
           icon: CreditCard,
           label: "Payment Methods",
           href: `/pos/vendor/${vendor.id}/settings/payment-methods`,
-          permission: "can_manage_payment_methods",
+          permission: "can_view_payment_methods",
         },
         {
           icon: Percent,

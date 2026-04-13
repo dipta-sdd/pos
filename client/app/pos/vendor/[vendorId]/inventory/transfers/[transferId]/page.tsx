@@ -39,7 +39,7 @@ export default function EditStockTransferPage() {
   if (!transfer) return <div className="p-6">Transfer not found.</div>;
 
   return (
-    <PermissionGuard permission="can_manage_stock_transfers">
+    <PermissionGuard permission="can_view_stock_transfers">
       <div className="p-6">
         <PageHeader
           description={`Viewing Transfer #${transfer.id}`}

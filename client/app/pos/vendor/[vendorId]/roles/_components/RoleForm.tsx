@@ -25,6 +25,7 @@ interface RoleFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
   readOnly?: boolean;
+  canDeleteRoles?: boolean;
 }
 
 const PERMISSION_GROUPS = {
@@ -40,26 +41,43 @@ const PERMISSION_GROUPS = {
     "can_view_sales_history",
     "can_process_returns",
     "can_open_close_cash_register",
-    "can_perform_cash_transactions",
+    "can_request_cash_transactions",
+    "can_approve_cash_transactions",
     "can_override_prices",
     "can_apply_manual_discounts",
     "can_void_sales",
     "can_issue_cash_refunds",
     "can_issue_store_credit",
   ],
-  "Catalog & Inventory": [
+  "Products & Catalog": [
     "can_view_products",
-    "can_manage_products",
-    "can_manage_categories",
-    "can_manage_units_of_measure",
+    "can_edit_products",
+    "can_delete_products",
     "can_import_products",
     "can_export_products",
+  ],
+  Categories: [
+    "can_view_categories",
+    "can_edit_categories",
+    "can_delete_categories",
+  ],
+  "Units of Measure": [
+    "can_view_units_of_measure",
+    "can_edit_units_of_measure",
+    "can_delete_units_of_measure",
+  ],
+  Inventory: [
     "can_view_inventory_levels",
     "can_perform_stock_adjustments",
-    "can_manage_stock_transfers",
-    "can_manage_purchase_orders",
-    "can_receive_purchase_orders",
-    "can_manage_suppliers",
+    "can_view_stock_transfers",
+    "can_edit_stock_transfers",
+    "can_delete_stock_transfers",
+    "can_view_purchase_orders",
+    "can_edit_purchase_orders",
+    "can_delete_purchase_orders",
+    "can_view_suppliers",
+    "can_edit_suppliers",
+    "can_delete_suppliers",
   ],
   "Customers & Promos": [
     "can_view_customers",
@@ -67,19 +85,35 @@ const PERMISSION_GROUPS = {
     "can_view_promotions",
     "can_manage_promotions",
   ],
-  "Settings & Admin": [
-    "can_manage_shop_settings",
-    "can_manage_billing_and_plan",
-    "can_manage_branches_and_counters",
-    "can_manage_payment_methods",
-    "can_configure_taxes",
-    "can_customize_receipts",
+  "Branches & Counters": [
+    "can_view_branches",
+    "can_edit_branches",
+    "can_delete_branches",
+    "can_view_counters",
+    "can_edit_counters",
+    "can_delete_counters",
+  ],
+  "Payment & Expenses": [
+    "can_view_payment_methods",
+    "can_edit_payment_methods",
+    "can_delete_payment_methods",
+    "can_view_expenses",
+    "can_edit_expenses",
+    "can_delete_expenses",
+  ],
+  "Users & Roles": [
     "can_view_users",
     "can_edit_users",
     "can_delete_users",
-    "can_manage_roles_and_permissions",
     "can_view_roles",
-    "can_manage_expenses",
+    "can_edit_roles",
+    "can_delete_roles",
+  ],
+  "Shop Settings": [
+    "can_manage_shop_settings",
+    "can_manage_billing_and_plan",
+    "can_configure_taxes",
+    "can_customize_receipts",
   ],
 };
 
@@ -97,6 +131,7 @@ export default function RoleForm({
   onSuccess,
   onCancel,
   readOnly = false,
+  canDeleteRoles = false,
 }: RoleFormProps) {
   const { vendor } = useVendor();
   const router = useRouter();
@@ -262,26 +297,43 @@ export const roleSchema = z.object({
   can_view_sales_history: z.boolean().default(false),
   can_process_returns: z.boolean().default(false),
   can_open_close_cash_register: z.boolean().default(false),
-  can_perform_cash_transactions: z.boolean().default(false),
+  can_request_cash_transactions: z.boolean().default(false),
+  can_approve_cash_transactions: z.boolean().default(false),
   can_override_prices: z.boolean().default(false),
   can_apply_manual_discounts: z.boolean().default(false),
   can_void_sales: z.boolean().default(false),
   can_issue_cash_refunds: z.boolean().default(false),
   can_issue_store_credit: z.boolean().default(false),
 
-  // Catalog & Inventory
-  can_view_products: z.boolean().default(false),
-  can_manage_products: z.boolean().default(false),
-  can_manage_categories: z.boolean().default(false),
-  can_manage_units_of_measure: z.boolean().default(false),
+  // Products & Catalog
+  can_view_products: z.boolean().default(true),
+  can_edit_products: z.boolean().default(false),
+  can_delete_products: z.boolean().default(false),
   can_import_products: z.boolean().default(false),
   can_export_products: z.boolean().default(false),
+
+  // Categories
+  can_view_categories: z.boolean().default(true),
+  can_edit_categories: z.boolean().default(false),
+  can_delete_categories: z.boolean().default(false),
+
+  // Units of Measure
+  can_view_units_of_measure: z.boolean().default(true),
+  can_edit_units_of_measure: z.boolean().default(false),
+  can_delete_units_of_measure: z.boolean().default(false),
+
+  // Inventory
   can_view_inventory_levels: z.boolean().default(false),
   can_perform_stock_adjustments: z.boolean().default(false),
-  can_manage_stock_transfers: z.boolean().default(false),
-  can_manage_purchase_orders: z.boolean().default(false),
-  can_receive_purchase_orders: z.boolean().default(false),
-  can_manage_suppliers: z.boolean().default(false),
+  can_view_stock_transfers: z.boolean().default(false),
+  can_edit_stock_transfers: z.boolean().default(false),
+  can_delete_stock_transfers: z.boolean().default(false),
+  can_view_purchase_orders: z.boolean().default(false),
+  can_edit_purchase_orders: z.boolean().default(false),
+  can_delete_purchase_orders: z.boolean().default(false),
+  can_view_suppliers: z.boolean().default(false),
+  can_edit_suppliers: z.boolean().default(false),
+  can_delete_suppliers: z.boolean().default(false),
 
   // Customers & Promos
   can_view_customers: z.boolean().default(false),
@@ -289,19 +341,35 @@ export const roleSchema = z.object({
   can_view_promotions: z.boolean().default(false),
   can_manage_promotions: z.boolean().default(false),
 
-  // Settings & Admin
-  can_manage_shop_settings: z.boolean().default(false),
-  can_manage_billing_and_plan: z.boolean().default(false),
-  can_manage_branches_and_counters: z.boolean().default(false),
-  can_manage_payment_methods: z.boolean().default(false),
-  can_configure_taxes: z.boolean().default(false),
-  can_customize_receipts: z.boolean().default(false),
-  can_view_users: z.boolean().default(false),
+  // Branches & Counters
+  can_view_branches: z.boolean().default(true),
+  can_edit_branches: z.boolean().default(false),
+  can_delete_branches: z.boolean().default(false),
+  can_view_counters: z.boolean().default(true),
+  can_edit_counters: z.boolean().default(false),
+  can_delete_counters: z.boolean().default(false),
+
+  // Payment & Expenses
+  can_view_payment_methods: z.boolean().default(true),
+  can_edit_payment_methods: z.boolean().default(false),
+  can_delete_payment_methods: z.boolean().default(false),
+  can_view_expenses: z.boolean().default(false),
+  can_edit_expenses: z.boolean().default(false),
+  can_delete_expenses: z.boolean().default(false),
+
+  // Users & Roles
+  can_view_users: z.boolean().default(true),
   can_edit_users: z.boolean().default(false),
   can_delete_users: z.boolean().default(false),
-  can_manage_roles_and_permissions: z.boolean().default(false),
-  can_view_roles: z.boolean().default(false),
-  can_manage_expenses: z.boolean().default(false),
+  can_view_roles: z.boolean().default(true),
+  can_edit_roles: z.boolean().default(false),
+  can_delete_roles: z.boolean().default(false),
+
+  // Shop Settings
+  can_manage_shop_settings: z.boolean().default(false),
+  can_manage_billing_and_plan: z.boolean().default(false),
+  can_configure_taxes: z.boolean().default(false),
+  can_customize_receipts: z.boolean().default(false),
 });
 
 export type RoleFormData = z.infer<typeof roleSchema>;

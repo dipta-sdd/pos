@@ -140,8 +140,10 @@ export default function CategoryForm({
         {categories
           .filter((category) => category.id !== initialData?.id)
           .map((category) => (
-          <AutocompleteItem key={category.id}>{category.name}</AutocompleteItem>
-        ))}
+            <AutocompleteItem key={category.id}>
+              {category.name}
+            </AutocompleteItem>
+          ))}
       </Autocomplete>
 
       <div className="flex justify-end gap-3 pt-4">

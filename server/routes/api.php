@@ -86,25 +86,25 @@ Route::middleware('log.api')->group(function () {
         });
 
         // Category routes (protected)
-        Route::prefix('categories')->middleware('permission:can_manage_categories')->group(function () {
-            Route::get('/', [CategoryController::class, 'index']);
-            Route::post('/', [CategoryController::class, 'store']);
-            Route::get('/{category}', [CategoryController::class, 'show']);
-            Route::put('/{category}', [CategoryController::class, 'update']);
-            Route::delete('/{category}', [CategoryController::class, 'destroy']);
+        Route::prefix('categories')->group(function () {
+            Route::get('/', [CategoryController::class, 'index'])->middleware('permission:can_view_categories');
+            Route::post('/', [CategoryController::class, 'store'])->middleware('permission:can_edit_categories');
+            Route::get('/{category}', [CategoryController::class, 'show'])->middleware('permission:can_view_categories');
+            Route::put('/{category}', [CategoryController::class, 'update'])->middleware('permission:can_edit_categories');
+            Route::delete('/{category}', [CategoryController::class, 'destroy'])->middleware('permission:can_delete_categories');
         });
 
         // Product routes (protected)
         Route::prefix('products')->group(function () {
             Route::get('/', [ProductController::class, 'index'])->middleware('permission:can_view_products');
-            Route::post('/', [ProductController::class, 'store'])->middleware('permission:can_manage_products');
+            Route::post('/', [ProductController::class, 'store'])->middleware('permission:can_edit_products');
             Route::get('/{product}', [ProductController::class, 'show'])->middleware('permission:can_view_products');
-            Route::put('/{product}', [ProductController::class, 'update'])->middleware('permission:can_manage_products');
-            Route::delete('/{product}', [ProductController::class, 'destroy'])->middleware('permission:can_manage_products');
+            Route::put('/{product}', [ProductController::class, 'update'])->middleware('permission:can_edit_products');
+            Route::delete('/{product}', [ProductController::class, 'destroy'])->middleware('permission:can_delete_products');
         });
 
         // Variant routes (protected)
-        Route::prefix('variants')->middleware('permission:can_manage_products')->group(function () {
+        Route::prefix('variants')->middleware('permission:can_edit_products')->group(function () {
             Route::get('/', [VariantController::class, 'index']);
             Route::post('/', [VariantController::class, 'store']);
             Route::get('/{variant}', [VariantController::class, 'show']);
@@ -113,21 +113,21 @@ Route::middleware('log.api')->group(function () {
         });
 
         // Unit of Measure routes (protected)
-        Route::prefix('units-of-measure')->middleware('permission:can_manage_units_of_measure')->group(function () {
-            Route::get('/', [UnitOfMeasureController::class, 'index']);
-            Route::post('/', [UnitOfMeasureController::class, 'store']);
-            Route::get('/{unitOfMeasure}', [UnitOfMeasureController::class, 'show']);
-            Route::put('/{unitOfMeasure}', [UnitOfMeasureController::class, 'update']);
-            Route::delete('/{unitOfMeasure}', [UnitOfMeasureController::class, 'destroy']);
+        Route::prefix('units-of-measure')->group(function () {
+            Route::get('/', [UnitOfMeasureController::class, 'index'])->middleware('permission:can_view_units_of_measure');
+            Route::post('/', [UnitOfMeasureController::class, 'store'])->middleware('permission:can_edit_units_of_measure');
+            Route::get('/{unitOfMeasure}', [UnitOfMeasureController::class, 'show'])->middleware('permission:can_view_units_of_measure');
+            Route::put('/{unitOfMeasure}', [UnitOfMeasureController::class, 'update'])->middleware('permission:can_edit_units_of_measure');
+            Route::delete('/{unitOfMeasure}', [UnitOfMeasureController::class, 'destroy'])->middleware('permission:can_delete_units_of_measure');
         });
 
         // Supplier routes (protected)
-        Route::prefix('suppliers')->middleware('permission:can_manage_suppliers')->group(function () {
-            Route::get('/', [SupplierController::class, 'index']);
-            Route::post('/', [SupplierController::class, 'store']);
-            Route::get('/{supplier}', [SupplierController::class, 'show']);
-            Route::put('/{supplier}', [SupplierController::class, 'update']);
-            Route::delete('/{supplier}', [SupplierController::class, 'destroy']);
+        Route::prefix('suppliers')->group(function () {
+            Route::get('/', [SupplierController::class, 'index'])->middleware('permission:can_view_suppliers');
+            Route::post('/', [SupplierController::class, 'store'])->middleware('permission:can_edit_suppliers');
+            Route::get('/{supplier}', [SupplierController::class, 'show'])->middleware('permission:can_view_suppliers');
+            Route::put('/{supplier}', [SupplierController::class, 'update'])->middleware('permission:can_edit_suppliers');
+            Route::delete('/{supplier}', [SupplierController::class, 'destroy'])->middleware('permission:can_delete_suppliers');
         });
 
         // Tax routes (protected)
@@ -158,30 +158,30 @@ Route::middleware('log.api')->group(function () {
         });
 
         // Expense Category routes (protected)
-        Route::prefix('expense-categories')->middleware('permission:can_manage_expenses')->group(function () {
-            Route::get('/', [ExpenseCategoryController::class, 'index']);
-            Route::post('/', [ExpenseCategoryController::class, 'store']);
-            Route::get('/{expenseCategory}', [ExpenseCategoryController::class, 'show']);
-            Route::put('/{expenseCategory}', [ExpenseCategoryController::class, 'update']);
-            Route::delete('/{expenseCategory}', [ExpenseCategoryController::class, 'destroy']);
+        Route::prefix('expense-categories')->group(function () {
+            Route::get('/', [ExpenseCategoryController::class, 'index'])->middleware('permission:can_view_expenses');
+            Route::post('/', [ExpenseCategoryController::class, 'store'])->middleware('permission:can_edit_expenses');
+            Route::get('/{expenseCategory}', [ExpenseCategoryController::class, 'show'])->middleware('permission:can_view_expenses');
+            Route::put('/{expenseCategory}', [ExpenseCategoryController::class, 'update'])->middleware('permission:can_edit_expenses');
+            Route::delete('/{expenseCategory}', [ExpenseCategoryController::class, 'destroy'])->middleware('permission:can_delete_expenses');
         });
 
         // Expense routes (protected)
-        Route::prefix('expenses')->middleware('permission:can_manage_expenses')->group(function () {
-            Route::get('/', [ExpenseController::class, 'index']);
-            Route::post('/', [ExpenseController::class, 'store']);
-            Route::get('/{expense}', [ExpenseController::class, 'show']);
-            Route::put('/{expense}', [ExpenseController::class, 'update']);
-            Route::delete('/{expense}', [ExpenseController::class, 'destroy']);
+        Route::prefix('expenses')->group(function () {
+            Route::get('/', [ExpenseController::class, 'index'])->middleware('permission:can_view_expenses');
+            Route::post('/', [ExpenseController::class, 'store'])->middleware('permission:can_edit_expenses');
+            Route::get('/{expense}', [ExpenseController::class, 'show'])->middleware('permission:can_view_expenses');
+            Route::put('/{expense}', [ExpenseController::class, 'update'])->middleware('permission:can_edit_expenses');
+            Route::delete('/{expense}', [ExpenseController::class, 'destroy'])->middleware('permission:can_delete_expenses');
         });
 
         // Purchase Order routes (protected)
-        Route::prefix('purchase-orders')->middleware('permission:can_manage_purchase_orders')->group(function () {
-            Route::get('/', [PurchaseOrderController::class, 'index']);
-            Route::post('/', [PurchaseOrderController::class, 'store']);
-            Route::get('/{purchaseOrder}', [PurchaseOrderController::class, 'show']);
-            Route::put('/{purchaseOrder}', [PurchaseOrderController::class, 'update']);
-            Route::delete('/{purchaseOrder}', [PurchaseOrderController::class, 'destroy']);
+        Route::prefix('purchase-orders')->group(function () {
+            Route::get('/', [PurchaseOrderController::class, 'index'])->middleware('permission:can_view_purchase_orders');
+            Route::post('/', [PurchaseOrderController::class, 'store'])->middleware('permission:can_edit_purchase_orders');
+            Route::get('/{purchaseOrder}', [PurchaseOrderController::class, 'show'])->middleware('permission:can_view_purchase_orders');
+            Route::put('/{purchaseOrder}', [PurchaseOrderController::class, 'update'])->middleware('permission:can_edit_purchase_orders');
+            Route::delete('/{purchaseOrder}', [PurchaseOrderController::class, 'destroy'])->middleware('permission:can_delete_purchase_orders');
         });
 
         // Sale routes (protected)
@@ -194,12 +194,12 @@ Route::middleware('log.api')->group(function () {
         });
 
         // Stock Transfer routes (protected)
-        Route::prefix('stock-transfers')->middleware('permission:can_manage_stock_transfers')->group(function () {
-            Route::get('/', [StockTransferController::class, 'index']);
-            Route::post('/', [StockTransferController::class, 'store']);
-            Route::get('/{stockTransfer}', [StockTransferController::class, 'show']);
-            Route::put('/{stockTransfer}', [StockTransferController::class, 'update']);
-            Route::delete('/{stockTransfer}', [StockTransferController::class, 'destroy']);
+        Route::prefix('stock-transfers')->group(function () {
+            Route::get('/', [StockTransferController::class, 'index'])->middleware('permission:can_view_stock_transfers');
+            Route::post('/', [StockTransferController::class, 'store'])->middleware('permission:can_edit_stock_transfers');
+            Route::get('/{stockTransfer}', [StockTransferController::class, 'show'])->middleware('permission:can_view_stock_transfers');
+            Route::put('/{stockTransfer}', [StockTransferController::class, 'update'])->middleware('permission:can_edit_stock_transfers');
+            Route::delete('/{stockTransfer}', [StockTransferController::class, 'destroy'])->middleware('permission:can_delete_stock_transfers');
         });
 
         // Inventory Adjustment routes (protected)
@@ -214,28 +214,28 @@ Route::middleware('log.api')->group(function () {
         // Role routes (protected)
         Route::prefix('roles')->group(function () {
             Route::get('/', [RoleController::class, 'index'])->middleware('permission:can_view_roles');
-            Route::post('/', [RoleController::class, 'store'])->middleware('permission:can_manage_roles_and_permissions');
+            Route::post('/', [RoleController::class, 'store'])->middleware('permission:can_edit_roles');
             Route::get('/{role}', [RoleController::class, 'show'])->middleware('permission:can_view_roles');
-            Route::put('/{role}', [RoleController::class, 'update'])->middleware('permission:can_manage_roles_and_permissions');
-            Route::delete('/{role}', [RoleController::class, 'destroy'])->middleware('permission:can_manage_roles_and_permissions');
+            Route::put('/{role}', [RoleController::class, 'update'])->middleware('permission:can_edit_roles');
+            Route::delete('/{role}', [RoleController::class, 'destroy'])->middleware('permission:can_delete_roles');
         });
 
         // Billing Counter routes (protected)
-        Route::prefix('billing-counters')->middleware('permission:can_manage_branches_and_counters')->group(function () {
-            Route::get('/', [BillingCounterController::class, 'index']);
-            Route::post('/', [BillingCounterController::class, 'store']);
-            Route::get('/{billingCounter}', [BillingCounterController::class, 'show']);
-            Route::put('/{billingCounter}', [BillingCounterController::class, 'update']);
-            Route::delete('/{billingCounter}', [BillingCounterController::class, 'destroy']);
+        Route::prefix('billing-counters')->group(function () {
+            Route::get('/', [BillingCounterController::class, 'index'])->middleware('permission:can_view_counters');
+            Route::post('/', [BillingCounterController::class, 'store'])->middleware('permission:can_edit_counters');
+            Route::get('/{billingCounter}', [BillingCounterController::class, 'show'])->middleware('permission:can_view_counters');
+            Route::put('/{billingCounter}', [BillingCounterController::class, 'update'])->middleware('permission:can_edit_counters');
+            Route::delete('/{billingCounter}', [BillingCounterController::class, 'destroy'])->middleware('permission:can_delete_counters');
         });
 
         // Branch routes (protected)
-        Route::prefix('branches')->middleware('permission:can_manage_branches_and_counters')->group(function () {
-            Route::get('/', [BranchController::class, 'index']);
-            Route::post('/', [BranchController::class, 'store']);
-            Route::get('/{branch}', [BranchController::class, 'show']);
-            Route::put('/{branch}', [BranchController::class, 'update']);
-            Route::delete('/{branch}', [BranchController::class, 'destroy']);
+        Route::prefix('branches')->group(function () {
+            Route::get('/', [BranchController::class, 'index'])->middleware('permission:can_view_branches');
+            Route::post('/', [BranchController::class, 'store'])->middleware('permission:can_edit_branches');
+            Route::get('/{branch}', [BranchController::class, 'show'])->middleware('permission:can_view_branches');
+            Route::put('/{branch}', [BranchController::class, 'update'])->middleware('permission:can_edit_branches');
+            Route::delete('/{branch}', [BranchController::class, 'destroy'])->middleware('permission:can_delete_branches');
         });
 
         // Cash Register Session routes (protected)
@@ -257,12 +257,12 @@ Route::middleware('log.api')->group(function () {
         });
 
         // Payment Method routes (protected)
-        Route::prefix('payment-methods')->middleware('permission:can_manage_payment_methods')->group(function () {
-            Route::get('/', [PaymentMethodController::class, 'index']);
-            Route::post('/', [PaymentMethodController::class, 'store']);
-            Route::get('/{paymentMethod}', [PaymentMethodController::class, 'show']);
-            Route::put('/{paymentMethod}', [PaymentMethodController::class, 'update']);
-            Route::delete('/{paymentMethod}', [PaymentMethodController::class, 'destroy']);
+        Route::prefix('payment-methods')->group(function () {
+            Route::get('/', [PaymentMethodController::class, 'index'])->middleware('permission:can_view_payment_methods');
+            Route::post('/', [PaymentMethodController::class, 'store'])->middleware('permission:can_edit_payment_methods');
+            Route::get('/{paymentMethod}', [PaymentMethodController::class, 'show'])->middleware('permission:can_view_payment_methods');
+            Route::put('/{paymentMethod}', [PaymentMethodController::class, 'update'])->middleware('permission:can_edit_payment_methods');
+            Route::delete('/{paymentMethod}', [PaymentMethodController::class, 'destroy'])->middleware('permission:can_delete_payment_methods');
         });
 
         // Receipt Settings routes (protected)

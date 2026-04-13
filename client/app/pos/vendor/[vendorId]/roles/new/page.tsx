@@ -12,7 +12,7 @@ export default function NewRolePage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_manage_roles_and_permissions">
+    <PermissionGuard permission="can_view_roles">
       <div className="p-6 mx-auto w-full">
         <div className="flex items-center gap-4 mb-6">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">

@@ -182,7 +182,7 @@ export default function CategoriesPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_manage_categories">
+    <PermissionGuard permission="can_view_categories">
       <div className="p-6">
         <PageHeader description="Manage product categories" title="Categories">
           <Button

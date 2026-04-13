@@ -261,7 +261,7 @@ export default function BranchesPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_manage_branches_and_counters">
+    <PermissionGuard permission="can_view_branches">
       <div className="p-6">
         <PageHeader description="Manage your shop locations" title="Branches">
           <Button color="primary" radius="sm" onPress={handleCreate}>
