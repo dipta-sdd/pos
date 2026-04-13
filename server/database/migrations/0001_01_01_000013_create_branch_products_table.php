@@ -14,14 +14,14 @@ return new class extends Migration
         Schema::create('branch_products', function (Blueprint $table) {
             $table->id();
             $table->foreignId('branch_id')->constrained('branches')->onDelete('cascade');
+            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->foreignId('variant_id')->nullable()->constrained('variants')->onDelete('cascade');
             $table->decimal('low_stock_threshold', 10, 2)->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
-            
-            $table->unique(['branch_id', 'variant_id']);
+            $table->unique(['branch_id', 'product_id', 'variant_id']);
         });
     }
 

@@ -28,6 +28,7 @@ use App\Http\Controllers\ReceiptSettingsController;
 use App\Http\Controllers\SaleReturnController;
 use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\UserBranchAssignmentController;
+use App\Http\Controllers\BranchProductController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -110,6 +111,13 @@ Route::middleware('log.api')->group(function () {
             Route::get('/{variant}', [VariantController::class, 'show']);
             Route::put('/{variant}', [VariantController::class, 'update']);
             Route::delete('/{variant}', [VariantController::class, 'destroy']);
+        });
+
+        // Branch Product routes (protected)
+        Route::prefix('branch-products')->middleware('permission:can_view_inventory_levels')->group(function () {
+            Route::get('/', [BranchProductController::class, 'index']);
+            Route::post('/toggle-status', [BranchProductController::class, 'toggleStatus'])->middleware('permission:can_edit_products');
+            Route::post('/add-stock', [BranchProductController::class, 'addStock'])->middleware('permission:can_perform_stock_adjustments');
         });
 
         // Unit of Measure routes (protected)

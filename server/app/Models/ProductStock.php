@@ -14,11 +14,13 @@ class ProductStock extends Model
         'branch_id',
         'product_id',
         'variant_id',
-        'unit_of_measure_id',
+        'branch_product_id',
         'quantity',
         'cost_price',
         'selling_price',
         'expiry_date',
+        'unit_of_measure_name',
+        'unit_of_measure_abbreviation',
     ];
 
     protected $casts = [
@@ -43,8 +45,8 @@ class ProductStock extends Model
         return $this->belongsTo(Variant::class);
     }
 
-    public function unitOfMeasure(): BelongsTo
+    public function branchProduct(): BelongsTo
     {
-        return $this->belongsTo(UnitOfMeasure::class);
+        return $this->belongsTo(BranchProduct::class);
     }
 }

@@ -365,8 +365,8 @@ class AdminSeeder extends Seeder
 
                 // Assign to both branches with stock and pricing
                 foreach ([$branch1->id, $branch2->id] as $branchId) {
-                    BranchProduct::firstOrCreate(
-                        ['branch_id' => $branchId, 'variant_id' => $variant->id],
+                    $branchProduct = BranchProduct::firstOrCreate(
+                        ['branch_id' => $branchId, 'product_id' => $product->id, 'variant_id' => $variant->id],
                         [
                             'is_active' => true,
                             'low_stock_threshold' => 10,
@@ -376,7 +376,7 @@ class AdminSeeder extends Seeder
                     );
 
                     ProductStock::firstOrCreate(
-                        ['branch_id' => $branchId, 'product_id' => $product->id, 'variant_id' => $variant->id],
+                        ['branch_id' => $branchId, 'product_id' => $product->id, 'variant_id' => $variant->id, 'branch_product_id' => $branchProduct->id],
                         [
                             'unit_of_measure_name' => $unit->name,
                             'unit_of_measure_abbreviation' => $unit->abbreviation,

@@ -56,6 +56,11 @@ class BranchProduct extends Model
         return $this->hasMany(StockTransferItem::class);
     }
 
+    public function productStocks(): HasMany
+    {
+        return $this->hasMany(ProductStock::class);
+    }
+
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

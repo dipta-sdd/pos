@@ -12,6 +12,8 @@ import {
 } from "@heroui/dropdown";
 import { Button } from "@heroui/button";
 import { Selection } from "@heroui/react";
+import { Switch } from "@heroui/switch";
+import { Chip } from "@heroui/chip";
 
 import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
@@ -19,28 +21,34 @@ import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
 import api from "@/lib/api";
-import { Variant as BaseVariant } from "@/lib/types/general";
 import { UserLoding } from "@/components/user-loding";
+import { toast } from "sonner";
+import AddStockModal from "./_components/AddStockModal";
 
-interface Variant extends BaseVariant {
-  quantity?: number;
-  cost_price?: number;
-  selling_price?: number;
-  expiry_date?: string;
-  unit_of_measure_name?: string;
-  unit_of_measure_abbreviation?: string;
-  product_name?: string;
-  variant_value?: string;
+interface BranchProductItem {
+  id: number;
+  variant_name: string;
+  variant_value: string;
+  sku: string | null;
+  barcode: string | null;
+  product_id: number;
+  product_name: string;
+  image_url: string | null;
+  total_quantity: number;
+  branch_product_id?: number | null;
+  is_active?: number | null;
 }
 
 const columns: Column[] = [
-  { name: "PRODUCT", uid: "product", sortable: false },
-  { name: "VARIANT", uid: "name", sortable: true },
+  { name: "PRODUCT", uid: "product_name", sortable: true },
+  { name: "VARIANT", uid: "variant_value", sortable: false },
   { name: "SKU", uid: "sku", sortable: true },
   { name: "STOCK LEVEL", uid: "stock_quantity", sortable: true },
+  { name: "STATUS", uid: "status", sortable: false },
+  { name: "ACTIONS", uid: "actions", sortable: false },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = ["product", "name", "sku", "stock_quantity"];
+const INITIAL_VISIBLE_COLUMNS = ["product_name", "variant_value", "sku", "stock_quantity", "status", "actions"];
 
 function capitalize(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
@@ -54,7 +62,8 @@ export default function InventoryPage() {
     selectedBranchIds,
     updateBranchFilter,
   } = useVendor();
-  const [items, setItems] = useState<Variant[]>([]);
+
+  const [items, setItems] = useState<BranchProductItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [lastPage, setLastPage] = useState<number>(1);
@@ -68,21 +77,24 @@ export default function InventoryPage() {
     new Set(INITIAL_VISIBLE_COLUMNS),
   );
 
+  const [isAddStockModalOpen, setIsAddStockModalOpen] = useState(false);
+  const [selectedBranchProductId, setSelectedBranchProductId] = useState<number | null>(null);
+
+  const isSingleBranchSelected = selectedBranchIds.length === 1;
+
   const fetchItems = async (page: number) => {
     if (!vendor?.id) return;
     setLoading(true);
     try {
-      const response: any = await api.get(`/variants`, {
+      const response: any = await api.get(`/branch-products`, {
         params: {
           page,
           per_page: perPage,
           vendor_id: vendor.id,
           search: searchValue,
-          sort_by: sortDescriptor.column,
-          sort_direction:
-            sortDescriptor.direction === "ascending" ? "asc" : "desc",
-          branch_ids:
-            selectedBranchIds.length > 0 ? selectedBranchIds : undefined,
+          sort_by: sortDescriptor.column === "product_name" ? "product" : sortDescriptor.column,
+          sort_direction: sortDescriptor.direction === "ascending" ? "asc" : "desc",
+          branch_ids: selectedBranchIds.length > 0 ? selectedBranchIds : undefined,
         },
       });
 
@@ -91,6 +103,7 @@ export default function InventoryPage() {
       setLastPage(response?.data?.last_page || 1);
     } catch (error: any) {
       console.error("Failed to fetch inventory:", error);
+      toast.error("Failed to load inventory");
     } finally {
       setLoading(false);
     }
@@ -109,18 +122,74 @@ export default function InventoryPage() {
     selectedBranchIds,
   ]);
 
-  const renderCell = useCallback((item: Variant, columnKey: React.Key) => {
-    if (columnKey === "product") return item.product_name || "N/A";
-    if (columnKey === "stock_quantity") return item.quantity || "N/A";
-    if (columnKey === "cost_price") return item.cost_price || "N/A";
-    if (columnKey === "selling_price") return item.selling_price || "N/A";
-    if (columnKey === "expiry_date") return item.expiry_date || "N/A";
-    if (columnKey === "unit_of_measure_name") return item.unit_of_measure_name || "N/A";
-    if (columnKey === "unit_of_measure_abbreviation") return item.unit_of_measure_abbreviation || "N/A";
-    if (columnKey === "name") return item.variant_value || "N/A";
+  const toggleStatus = async (item: BranchProductItem, newStatus: boolean) => {
+    if (!isSingleBranchSelected) {
+      toast.error("Please select a single branch to manage product status");
+      return;
+    }
+    try {
+      await api.post(`/branch-products/toggle-status`, {
+        branch_id: selectedBranchIds[0],
+        product_id: item.product_id,
+        variant_id: item.id,
+        is_active: newStatus,
+      });
+      fetchItems(currentPage);
+      toast.success(`Product ${newStatus ? 'activated' : 'deactivated'} for this branch`);
+    } catch (error) {
+      console.error("Status toggle failed", error);
+      toast.error("Failed to update status");
+    }
+  };
 
-    return (item as any)[columnKey as keyof Variant];
-  }, []);
+  const openAddStock = (branchProductId: number) => {
+    setSelectedBranchProductId(branchProductId);
+    setIsAddStockModalOpen(true);
+  };
+
+  const renderCell = useCallback((item: BranchProductItem, columnKey: React.Key) => {
+    switch (columnKey) {
+      case "product_name":
+        return item.product_name || "N/A";
+      case "variant_value":
+        return item.variant_value || "Default";
+      case "sku":
+        return item.sku || "N/A";
+      case "stock_quantity":
+        return parseFloat(String(item.total_quantity)).toFixed(2);
+      case "status":
+        if (!isSingleBranchSelected) {
+           return <span className="text-default-400 text-sm">Select 1 branch</span>;
+        }
+        return (
+          <Switch
+            isSelected={!!item.is_active}
+            onValueChange={(checked) => toggleStatus(item, checked)}
+            size="sm"
+            color="success"
+          />
+        );
+      case "actions":
+        if (!isSingleBranchSelected) {
+           return <span className="text-default-400 text-sm">-</span>;
+        }
+        if (!item.is_active || !item.branch_product_id) {
+           return <Chip size="sm" variant="flat">Inactive</Chip>;
+        }
+        return (
+          <Button 
+            size="sm" 
+            color="primary" 
+            variant="flat"
+            onPress={() => openAddStock(item.branch_product_id!)}
+          >
+            Add Stock
+          </Button>
+        );
+      default:
+        return (item as any)[columnKey as keyof BranchProductItem];
+    }
+  }, [isSingleBranchSelected, selectedBranchIds, toggleStatus]);
 
   if (contextLoading) return <UserLoding />;
 
@@ -128,15 +197,15 @@ export default function InventoryPage() {
     <PermissionGuard permission="can_view_inventory_levels">
       <div className="p-6">
         <PageHeader
-          description="View and manage current inventory levels"
-          title="Stock Levels"
+          description="Manage products and stock levels across branches"
+          title="Branch Inventory"
         />
 
         <div className="flex justify-between gap-3 items-end mb-4">
           <Input
             isClearable
             classNames={{ base: "w-full sm:max-w-[44%]" }}
-            placeholder="Search stock..."
+            placeholder="Search products or SKU..."
             startContent={<SearchIcon />}
             value={searchValue}
             onValueChange={setSearchValue}
@@ -162,7 +231,6 @@ export default function InventoryPage() {
                 selectionMode="multiple"
                 onSelectionChange={(keys) => {
                   const ids = Array.from(keys as Set<string>);
-
                   updateBranchFilter(ids);
                 }}
               >
@@ -201,6 +269,12 @@ export default function InventoryPage() {
           </div>
         </div>
 
+        {!isSingleBranchSelected && (
+          <div className="mb-4 bg-default-100 p-3 rounded-lg text-sm text-default-600">
+            <strong>Note:</strong> Select a single branch to activate/deactivate products and add specific branch stock batches.
+          </div>
+        )}
+
         <CustomTable
           columns={columns}
           currentPage={currentPage}
@@ -215,6 +289,15 @@ export default function InventoryPage() {
           sortDescriptor={sortDescriptor}
           visibleColumns={visibleColumns}
         />
+
+        {selectedBranchProductId && (
+          <AddStockModal
+             isOpen={isAddStockModalOpen}
+             onOpenChange={() => setIsAddStockModalOpen(!isAddStockModalOpen)}
+             branchProductId={selectedBranchProductId}
+             onSuccess={() => fetchItems(currentPage)}
+          />
+        )}
       </div>
     </PermissionGuard>
   );
