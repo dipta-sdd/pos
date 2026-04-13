@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Mail, Lock, Phone } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -21,12 +21,22 @@ import { loginSchema, type LoginFormData } from "@/lib/validations/auth";
 import { useAuth } from "@/lib/hooks/useAuth";
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+function LoginContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [inputType, setInputType] = useState<"email" | "mobile">("email");
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
+  const redirectTo = searchParams.get("redirect_to") || "/pos";
 
   const {
     register,
@@ -67,8 +77,9 @@ export default function LoginPage() {
       );
 
       if (success) {
-        // Redirect to POS dashboard
-        router.push("/pos");
+        // Redirect to POS dashboard or previous page
+        console.log("Login success, redirecting to:", redirectTo);
+        router.push(redirectTo);
       } else {
         setError("Invalid credentials. Please check your email and password.");
       }

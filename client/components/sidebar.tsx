@@ -337,7 +337,7 @@ export default function Sidebar() {
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700">
       {/* Mobile Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-black dark:bg-opacity-70 z-40 md:hidden" />
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-40 md:hidden" />
       )}
 
       {/* Sidebar */}

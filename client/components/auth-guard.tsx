@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { AlertCircle, CheckCircle, Loader2, Shield } from "lucide-react";
 
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -23,13 +23,16 @@ export function AuthGuard({
   const [isVerified, setIsVerified] = useState(false);
   const [isVerifying, setIsVerifying] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (!isLoading) {
       if (requireAuth) {
         if (!isAuthenticated) {
           console.log("Not Authenticated redirecting to login");
-          router.push("/login");
+          const currentUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+          router.push(`/login?redirect_to=${encodeURIComponent(currentUrl)}`);
         } else {
           if (requireVerification) {
             if (!user?.email_verified_at && !user?.mobile_verified_at) {
@@ -52,8 +55,9 @@ export function AuthGuard({
       } else {
         console.log("Not requireAuth");
         if (isAuthenticated) {
-          console.log("Already Authenticated redirecting to pos");
-          router.push("/pos");
+          const authRedirect = searchParams.get("redirect_to") || redirectTo || "/pos";
+          console.log(`Already Authenticated redirecting to ${authRedirect}`);
+          router.push(authRedirect);
         }
       }
     }
