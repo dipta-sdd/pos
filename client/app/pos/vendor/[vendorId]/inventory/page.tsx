@@ -19,8 +19,19 @@ import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import CustomTable, { Column } from "@/components/ui/CustomTable";
 import api from "@/lib/api";
-import { Variant } from "@/lib/types/general";
+import { Variant as BaseVariant } from "@/lib/types/general";
 import { UserLoding } from "@/components/user-loding";
+
+interface Variant extends BaseVariant {
+  quantity?: number;
+  cost_price?: number;
+  selling_price?: number;
+  expiry_date?: string;
+  unit_of_measure_name?: string;
+  unit_of_measure_abbreviation?: string;
+  product_name?: string;
+  variant_value?: string;
+}
 
 const columns: Column[] = [
   { name: "PRODUCT", uid: "product", sortable: false },
@@ -99,7 +110,14 @@ export default function InventoryPage() {
   ]);
 
   const renderCell = useCallback((item: Variant, columnKey: React.Key) => {
-    if (columnKey === "product") return item.product?.name || "N/A";
+    if (columnKey === "product") return item.product_name || "N/A";
+    if (columnKey === "stock_quantity") return item.quantity || "N/A";
+    if (columnKey === "cost_price") return item.cost_price || "N/A";
+    if (columnKey === "selling_price") return item.selling_price || "N/A";
+    if (columnKey === "expiry_date") return item.expiry_date || "N/A";
+    if (columnKey === "unit_of_measure_name") return item.unit_of_measure_name || "N/A";
+    if (columnKey === "unit_of_measure_abbreviation") return item.unit_of_measure_abbreviation || "N/A";
+    if (columnKey === "name") return item.variant_value || "N/A";
 
     return (item as any)[columnKey as keyof Variant];
   }, []);

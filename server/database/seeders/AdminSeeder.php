@@ -13,6 +13,10 @@ use App\Models\Role;
 use App\Models\Membership;
 use App\Models\Branch;
 use App\Models\UserBranchAssignment;
+use App\Models\Product;
+use App\Models\Variant;
+use App\Models\BranchProduct;
+use App\Models\ProductStock;
 
 class AdminSeeder extends Seeder
 {
@@ -299,6 +303,89 @@ class AdminSeeder extends Seeder
                     ['name' => $category['name'], 'vendor_id' => $vendor->id],
                     $category
                 );
+            }
+
+            // 9. Create 20 Sample Products
+            $sampleProducts = [
+                // Electronics (Category ID: 1)
+                ['name' => 'iPhone 15 Pro', 'category_id' => 1, 'price' => 999.99, 'cost' => 700.00, 'unit_id' => 1],
+                ['name' => 'Samsung Galaxy S24', 'category_id' => 1, 'price' => 899.99, 'cost' => 600.00, 'unit_id' => 1],
+                ['name' => 'Sony WH-1000XM5', 'category_id' => 1, 'price' => 349.99, 'cost' => 200.00, 'unit_id' => 1],
+                ['name' => 'MacBook Air M3', 'category_id' => 1, 'price' => 1099.00, 'cost' => 800.00, 'unit_id' => 1],
+                ['name' => 'Dell XPS 13', 'category_id' => 1, 'price' => 999.00, 'cost' => 750.00, 'unit_id' => 1],
+
+                // Clothing (Category ID: 2)
+                ['name' => 'Levi\'s 501 Jeans', 'category_id' => 2, 'price' => 69.50, 'cost' => 30.00, 'unit_id' => 1],
+                ['name' => 'Nike Air Max', 'category_id' => 2, 'price' => 120.00, 'cost' => 50.00, 'unit_id' => 1],
+                ['name' => 'Ralph Lauren Polo', 'category_id' => 2, 'price' => 85.00, 'cost' => 35.00, 'unit_id' => 1],
+                ['name' => 'Adidas Hoodie', 'category_id' => 2, 'price' => 55.00, 'cost' => 20.00, 'unit_id' => 1],
+                ['name' => 'Uniqlo T-Shirt', 'category_id' => 2, 'price' => 14.90, 'cost' => 5.00, 'unit_id' => 1],
+
+                // Groceries (Category ID: 3)
+                ['name' => 'Whole Milk', 'category_id' => 3, 'price' => 3.50, 'cost' => 2.00, 'unit_id' => 15],
+                ['name' => 'Organic Eggs (12pk)', 'category_id' => 3, 'price' => 5.99, 'cost' => 3.50, 'unit_id' => 1],
+                ['name' => 'Large Avocado', 'category_id' => 3, 'price' => 1.50, 'cost' => 0.75, 'unit_id' => 1],
+                ['name' => 'Premium Coffee Beans', 'category_id' => 3, 'price' => 15.00, 'cost' => 8.00, 'unit_id' => 9],
+                ['name' => 'Cheddar Cheese', 'category_id' => 3, 'price' => 7.50, 'cost' => 4.00, 'unit_id' => 9],
+
+                // Books (Category ID: 4)
+                ['name' => 'The Great Gatsby', 'category_id' => 4, 'price' => 12.99, 'cost' => 6.00, 'unit_id' => 1],
+                ['name' => 'To Kill a Mockingbird', 'category_id' => 4, 'price' => 14.50, 'cost' => 7.00, 'unit_id' => 1],
+                ['name' => '1984', 'category_id' => 4, 'price' => 11.00, 'cost' => 5.50, 'unit_id' => 1],
+                ['name' => 'Atomic Habits', 'category_id' => 4, 'price' => 18.00, 'cost' => 10.00, 'unit_id' => 1],
+                ['name' => 'Thinking, Fast and Slow', 'category_id' => 4, 'price' => 22.00, 'cost' => 12.00, 'unit_id' => 1],
+            ];
+
+            foreach ($sampleProducts as $p) {
+                // Create Product
+                $product = Product::firstOrCreate(
+                    ['name' => $p['name'], 'vendor_id' => $vendor->id],
+                    [
+                        'description' => 'Description for ' . $p['name'],
+                        'category_id' => $p['category_id'],
+                        'unit_of_measure_id' => $p['unit_id'],
+                        'created_by' => $user->id,
+                        'updated_by' => $user->id,
+                    ]
+                );
+
+                // Create Default Variant
+                $variant = Variant::firstOrCreate(
+                    ['product_id' => $product->id, 'name' => 'Default', 'value' => 'Default'],
+                    [
+                        'sku' => strtoupper(substr($p['name'], 0, 3)) . '-' . rand(1000, 9999),
+                        'barcode' => rand(100000000000, 999999999999),
+                        'created_by' => $user->id,
+                        'updated_by' => $user->id,
+                    ]
+                );
+
+                // Get unit info for ProductStock
+                $unit = UnitOfMeasure::find($p['unit_id']);
+
+                // Assign to both branches with stock and pricing
+                foreach ([$branch1->id, $branch2->id] as $branchId) {
+                    BranchProduct::firstOrCreate(
+                        ['branch_id' => $branchId, 'variant_id' => $variant->id],
+                        [
+                            'is_active' => true,
+                            'low_stock_threshold' => 10,
+                            'created_by' => $user->id,
+                            'updated_by' => $user->id,
+                        ]
+                    );
+
+                    ProductStock::firstOrCreate(
+                        ['branch_id' => $branchId, 'product_id' => $product->id, 'variant_id' => $variant->id],
+                        [
+                            'unit_of_measure_name' => $unit->name,
+                            'unit_of_measure_abbreviation' => $unit->abbreviation,
+                            'quantity' => rand(50, 200),
+                            'cost_price' => $p['cost'],
+                            'selling_price' => $p['price'],
+                        ]
+                    );
+                }
             }
         });
     }
