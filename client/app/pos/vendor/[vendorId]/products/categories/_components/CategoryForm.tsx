@@ -137,7 +137,9 @@ export default function CategoryForm({
           setValue("parent_id", key ? Number(key) : null);
         }}
       >
-        {categories.map((category) => (
+        {categories
+          .filter((category) => category.id !== initialData?.id)
+          .map((category) => (
           <AutocompleteItem key={category.id}>{category.name}</AutocompleteItem>
         ))}
       </Autocomplete>

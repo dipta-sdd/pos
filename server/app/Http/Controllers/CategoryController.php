@@ -68,7 +68,9 @@ class CategoryController extends Controller
         $validatedData = $request->validate([
             'name' => 'string|max:255',
             'description' => 'nullable|string',
-            'parent_id' => 'nullable|exists:categories,id',
+            'parent_id' => 'nullable|exists:categories,id|not_in:' . $category->id,
+        ], [
+            'parent_id.not_in' => 'A category cannot be its own parent.',
         ]);
 
         $validatedData['updated_by'] = $request->user()->id;
