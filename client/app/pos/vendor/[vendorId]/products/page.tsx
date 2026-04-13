@@ -141,7 +141,7 @@ export default function ProductsPage() {
               src={
                 item.image_url
                   ? BACKEND_URL + item.image_url
-                  : "/placeholder.png"
+                  : "/placeholder.webp"
               }
             />
           );
