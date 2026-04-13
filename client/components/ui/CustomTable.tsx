@@ -88,7 +88,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
 
   const bottomContent = useMemo(() => {
     return (
-      <div className="py-1 flex justify-between items-center">
+      <div className="py-1 flex flex-col md:flex-row gap-2 justify-between items-center">
         <Pagination
           showControls
           className="overflow-hidden"
