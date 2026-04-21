@@ -143,6 +143,20 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(CashRegisterSession::class, 'user_id');
     }
 
+    protected $appends = [
+        'name',
+    ];
+
+    /**
+     * Get the user's name (alias for full name).
+     *
+     * @return string
+     */
+    public function getNameAttribute(): string
+    {
+        return trim($this->firstName . ' ' . $this->lastName);
+    }
+
     /**
      * Get the user's full name.
      *

@@ -21,6 +21,30 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## Useful Development Commands
+
+### Database & Seeding
+Reset the database and re-run all seeders (Warning: This deletes all data):
+```bash
+php artisan migrate:fresh --seed
+```
+
+### Barcodes
+Generate EAN-13 barcodes for all product variants that are missing one:
+```bash
+php artisan barcodes:generate-missing
+```
+
+### API Analytics & Logs
+View structured API request logs directly in the terminal:
+```bash
+# View today's logs
+php artisan logs:view-api
+
+# View logs for a specific date with filters
+php artisan logs:view-api 2024-04-21 --status=500 --limit=20
+```
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.

@@ -17,6 +17,8 @@ use App\Models\Product;
 use App\Models\Variant;
 use App\Models\BranchProduct;
 use App\Models\ProductStock;
+use App\Models\BillingCounter;
+use App\Models\PaymentMethod;
 
 class AdminSeeder extends Seeder
 {
@@ -218,7 +220,40 @@ class AdminSeeder extends Seeder
                 ['created_by' => $user->id, 'updated_by' => $user->id]
             );
 
-            // 7. Create Units of Measure
+            // 7. Create Billing Counters for each branch
+            BillingCounter::firstOrCreate(
+                ['branch_id' => $branch1->id, 'name' => 'Counter 1'],
+                ['created_by' => $user->id, 'updated_by' => $user->id]
+            );
+            BillingCounter::firstOrCreate(
+                ['branch_id' => $branch1->id, 'name' => 'Counter 2'],
+                ['created_by' => $user->id, 'updated_by' => $user->id]
+            );
+            BillingCounter::firstOrCreate(
+                ['branch_id' => $branch2->id, 'name' => 'Main Counter'],
+                ['created_by' => $user->id, 'updated_by' => $user->id]
+            );
+
+            // 8. Create Payment Methods
+            $paymentMethods = [
+                ['name' => 'Cash', 'is_active' => true],
+                ['name' => 'Card', 'is_active' => true],
+                ['name' => 'Bank Transfer', 'is_active' => true],
+                ['name' => 'Mobile Money', 'is_active' => true],
+            ];
+
+            foreach ($paymentMethods as $pm) {
+                PaymentMethod::firstOrCreate(
+                    ['vendor_id' => $vendor->id, 'name' => $pm['name']],
+                    [
+                        'is_active' => $pm['is_active'],
+                        'created_by' => $user->id,
+                        'updated_by' => $user->id,
+                    ]
+                );
+            }
+
+            // 9. Create Units of Measure
             $units = [
                 // --- Count Based (No Decimals) ---
                 ['name' => 'Piece', 'abbreviation' => 'Pcs', 'is_decimal_allowed' => 0, 'created_by' => $user->id, 'updated_by' => $user->id],

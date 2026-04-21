@@ -7,17 +7,12 @@ use Illuminate\Http\Request;
 
 class CashRegisterSessionController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('permission:can_open_close_cash_register')->only(['openSession', 'closeSession', 'update', 'destroy']);
-    }
-
     public function index(Request $request)
     {
         $query = CashRegisterSession::with(['billingCounter', 'user', 'billingCounter.branch']);
 
         if ($request->has('vendor_id')) {
-            $query->whereHas('billingCounter', function ($q) use ($request) {
+            $query->whereHas('billingCounter.branch', function ($q) use ($request) {
                 $q->where('vendor_id', $request->vendor_id);
             });
         }

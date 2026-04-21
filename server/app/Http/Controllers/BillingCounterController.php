@@ -9,7 +9,7 @@ class BillingCounterController extends Controller
 {
     public function index(Request $request)
     {
-        $query = BillingCounter::query();
+        $query = BillingCounter::with(['branch', 'createdBy', 'updatedBy']);
 
         if ($request->has('branch_id')) {
             $query->where('branch_id', $request->branch_id);

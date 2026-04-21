@@ -13,7 +13,7 @@ class CashTransactionController extends Controller
         $query = CashTransaction::with(['cashRegisterSession', 'createdBy', 'cashRegisterSession.billingCounter']);
 
         if ($request->has('vendor_id')) {
-            $query->whereHas('cashRegisterSession.billingCounter', function ($q) use ($request) {
+            $query->whereHas('cashRegisterSession.billingCounter.branch', function ($q) use ($request) {
                 $q->where('vendor_id', $request->vendor_id);
             });
         }

@@ -251,14 +251,17 @@ Route::middleware('log.api')->group(function () {
         });
 
         // Cash Register Session routes (protected)
-        Route::prefix('cash-register-sessions')->middleware('permission:can_open_close_cash_register')->group(function () {
-            Route::get('/', [CashRegisterSessionController::class, 'index']);
+        Route::prefix('cash-register-sessions')->group(function () {
             Route::get('/active', [CashRegisterSessionController::class, 'activeSession']);
-            Route::post('/open', [CashRegisterSessionController::class, 'openSession']);
-            Route::post('/{cashRegisterSession}/close', [CashRegisterSessionController::class, 'closeSession']);
-            Route::get('/{cashRegisterSession}', [CashRegisterSessionController::class, 'show']);
-            Route::put('/{cashRegisterSession}', [CashRegisterSessionController::class, 'update']);
-            Route::delete('/{cashRegisterSession}', [CashRegisterSessionController::class, 'destroy']);
+            
+            Route::middleware('permission:can_open_close_cash_register')->group(function () {
+                Route::get('/', [CashRegisterSessionController::class, 'index']);
+                Route::post('/open', [CashRegisterSessionController::class, 'openSession']);
+                Route::post('/{cashRegisterSession}/close', [CashRegisterSessionController::class, 'closeSession']);
+                Route::get('/{cashRegisterSession}', [CashRegisterSessionController::class, 'show']);
+                Route::put('/{cashRegisterSession}', [CashRegisterSessionController::class, 'update']);
+                Route::delete('/{cashRegisterSession}', [CashRegisterSessionController::class, 'destroy']);
+            });
         });
 
         // Cash Transaction routes (protected)

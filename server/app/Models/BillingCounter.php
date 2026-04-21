@@ -14,7 +14,24 @@ class BillingCounter extends Model
     protected $fillable = [
         'branch_id',
         'name',
+        'created_by',
+        'updated_by',
     ];
+
+    protected $appends = [
+        'created_by_name',
+        'updated_by_name',
+    ];
+
+    public function getCreatedByNameAttribute()
+    {
+        return $this->createdBy?->name;
+    }
+
+    public function getUpdatedByNameAttribute()
+    {
+        return $this->updatedBy?->name;
+    }
 
     protected $casts = [
         'created_at' => 'datetime',
