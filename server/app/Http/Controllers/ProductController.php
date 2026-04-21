@@ -24,7 +24,15 @@ class ProductController extends Controller
 
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where('products.name', 'like', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('products.name', 'like', "%{$search}%")
+                  ->orWhereHas('variants', function ($vq) use ($search) {
+                      $vq->where('name', 'like', "%{$search}%")
+                         ->orWhere('value', 'like', "%{$search}%")
+                         ->orWhere('sku', 'like', "%{$search}%")
+                         ->orWhere('barcode', 'like', "%{$search}%");
+                  });
+            });
         }
         $perPage = $request->input('per_page', 10);
         return $query->paginate($perPage);

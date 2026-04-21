@@ -131,8 +131,8 @@ export default function InventoryPage() {
       setItems(response?.data?.data || []);
       setCurrentPage(response?.data?.current_page || 1);
       setLastPage(response?.data?.last_page || 1);
-    } catch (error: any) {
-      toast.error("Failed to load inventory");
+    } catch {
+      console.error("Failed to fetch inventory items");
     } finally {
       setLoading(false);
     }
@@ -174,7 +174,9 @@ export default function InventoryPage() {
           if (response.data.data.length > 0) {
             openAddStock(response.data.data[0]);
           }
-        } catch (error) {}
+        } catch {
+          // Handle error silently
+        }
       };
 
       fetchNewProduct();
@@ -198,8 +200,8 @@ export default function InventoryPage() {
       toast.success(
         `Product ${newStatus ? "activated" : "deactivated"} for this branch`,
       );
-    } catch (error) {
-      toast.error("Failed to update status");
+    } catch {
+      toast.error("Failed to toggle status");
     }
   };
 

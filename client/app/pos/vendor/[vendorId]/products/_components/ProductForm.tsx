@@ -106,11 +106,11 @@ export default function ProductForm({
     if (!variantId) return;
     setGeneratingBarcode(index);
     try {
-      const response = await api.post(`/variants/${variantId}/generate-barcode`);
+      const response: any = await api.post(`/variants/${variantId}/generate-barcode`);
+
       setValue(`variants.${index}.barcode`, response.data.barcode);
       toast.success("Barcode generated successfully");
-    } catch (error) {
-      console.error("Failed to generate barcode", error);
+    } catch {
       toast.error("Failed to generate barcode");
     } finally {
       setGeneratingBarcode(null);
