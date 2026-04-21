@@ -153,6 +153,9 @@ export interface CashRegisterSession {
   user?: {
     name: string;
   };
+  billing_counter?: {
+    name: string;
+  };
 }
 
 export interface Promotion {

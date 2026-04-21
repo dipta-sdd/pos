@@ -52,4 +52,9 @@ class CashRegisterSession extends Model
     {
         return $this->hasMany(Sale::class);
     }
+
+    public function salePayments(): HasMany
+    {
+        return $this->hasMany(SalePayment::class);
+    }
 } 

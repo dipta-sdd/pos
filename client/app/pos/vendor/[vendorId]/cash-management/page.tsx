@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { SortDescriptor } from "@heroui/table";
-import { ChevronDown, Wallet, Trash2 } from "lucide-react";
+import { ChevronDown, Wallet, Trash2, Search } from "lucide-react";
 import {
   Dropdown,
   DropdownTrigger,
@@ -12,18 +12,11 @@ import {
   DropdownItem,
 } from "@heroui/dropdown";
 import { Selection } from "@heroui/react";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  useDisclosure,
-} from "@heroui/modal";
+import { useDisclosure } from "@heroui/modal";
 import { toast } from "sonner";
 
-import CashSessionForm from "./_components/CashSessionForm";
+import RegisterStatusModal from "../pos/_components/RegisterStatusModal";
 
-import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -78,7 +71,8 @@ export default function CashManagementPage() {
     new Set(INITIAL_VISIBLE_COLUMNS),
   );
 
-  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [selectedItem, setSelectedItem] = useState<CashRegisterSession | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
@@ -143,9 +137,31 @@ export default function CashManagementPage() {
           return formatDateTime(item.started_at);
         case "ended_at":
           return item.ended_at ? formatDateTime(item.ended_at) : "N/A";
+        case "status":
+          return (
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${item.status === "open" ? "bg-success" : "bg-default-400"}`} />
+              <span className={item.status === "open" ? "text-success font-bold" : ""}>
+                {capitalize(item.status)}
+              </span>
+            </div>
+          );
         case "actions":
           return (
             <div className="flex items-center justify-end gap-2">
+              {item.status === "open" && (
+                <Button
+                  size="sm"
+                  variant="flat"
+                  color="danger"
+                  onPress={() => {
+                    setSelectedItem(item);
+                    onOpen();
+                  }}
+                >
+                  Close Register
+                </Button>
+              )}
               <Button
                 isIconOnly
                 size="sm"
@@ -155,7 +171,7 @@ export default function CashManagementPage() {
                   setDeleteConfirmOpen(true);
                 }}
               >
-                <Trash2 className="w-4 h-4 text-danger" />
+                <Trash2 className="w-4 h-4 text-default-400" />
               </Button>
             </div>
           );
@@ -163,8 +179,13 @@ export default function CashManagementPage() {
           return (item as any)[columnKey as keyof CashRegisterSession];
       }
     },
-    [],
+    [onOpen],
   );
+
+  const handleOpenRegister = () => {
+    setSelectedItem(null);
+    onOpen();
+  };
 
   if (contextLoading) return <UserLoding />;
 
@@ -179,7 +200,7 @@ export default function CashManagementPage() {
             className="text-white font-bold"
             color="success"
             startContent={<Wallet className="w-4 h-4" />}
-            onPress={onOpen}
+            onPress={handleOpenRegister}
           >
             Open Register
           </Button>
@@ -190,7 +211,7 @@ export default function CashManagementPage() {
             isClearable
             classNames={{ base: "w-full sm:max-w-[44%]" }}
             placeholder="Search sessions..."
-            startContent={<SearchIcon />}
+            startContent={<Search className="w-4 h-4 text-default-400" />}
             value={searchValue}
             onValueChange={setSearchValue}
           />
@@ -215,7 +236,6 @@ export default function CashManagementPage() {
                 selectionMode="multiple"
                 onSelectionChange={(keys) => {
                   const ids = Array.from(keys as Set<string>);
-
                   updateBranchFilter(ids);
                 }}
               >
@@ -269,24 +289,12 @@ export default function CashManagementPage() {
           visibleColumns={visibleColumns}
         />
 
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-          <ModalContent>
-            {(onClose) => (
-              <>
-                <ModalHeader>Open Cash Register</ModalHeader>
-                <ModalBody>
-                  <CashSessionForm
-                    onCancel={onClose}
-                    onSuccess={() => {
-                      onClose();
-                      fetchItems(currentPage);
-                    }}
-                  />
-                </ModalBody>
-              </>
-            )}
-          </ModalContent>
-        </Modal>
+        <RegisterStatusModal 
+          activeSession={selectedItem}
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          onSessionChange={() => fetchItems(currentPage)}
+        />
 
         <Confirm
           isOpen={deleteConfirmOpen}

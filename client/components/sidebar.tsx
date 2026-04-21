@@ -195,6 +195,12 @@ export default function Sidebar() {
           permission: "can_open_close_cash_register",
         },
         {
+          icon: TabletSmartphone,
+          label: "Counters",
+          href: `/pos/vendor/${vendor.id}/branches/counters`,
+          permission: "can_view_counters",
+        },
+        {
           icon: History,
           label: "Expenses",
           href: `/pos/vendor/${vendor.id}/expenses`,
@@ -261,12 +267,6 @@ export default function Sidebar() {
           label: "Branches",
           href: `/pos/vendor/${vendor.id}/branches`,
           permission: "can_view_branches",
-        },
-        {
-          icon: TabletSmartphone,
-          label: "Counters",
-          href: `/pos/vendor/${vendor.id}/branches/counters`,
-          permission: "can_view_counters",
         },
         {
           icon: ShieldCheck,
