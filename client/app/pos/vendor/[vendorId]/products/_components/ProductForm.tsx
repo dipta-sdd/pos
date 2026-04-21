@@ -3,7 +3,7 @@
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import {
   Input,
@@ -35,6 +35,7 @@ export default function ProductForm({
 }: ProductFormProps) {
   const { vendor } = useVendor();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [categories, setCategories] = useState<Category[]>([]);
   const [units, setUnits] = useState<UnitOfMeasure[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -117,9 +118,7 @@ export default function ProductForm({
       );
 
       setCategories(response?.data?.data || []);
-    } catch (error) {
-      console.error("Failed to fetch categories", error);
-    }
+    } catch (error) {}
   };
 
   const fetchUnits = async () => {
@@ -129,9 +128,7 @@ export default function ProductForm({
       );
 
       setUnits(response?.data?.data || []);
-    } catch (error) {
-      console.error("Failed to fetch units", error);
-    }
+    } catch (error) {}
   };
 
   const onSubmit = async (data: ProductFormData) => {
@@ -174,10 +171,19 @@ export default function ProductForm({
         });
         toast.success("Product updated successfully");
       } else {
-        await api.post("/products", formData, {
+        const response: any = await api.post("/products", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
+
         toast.success("Product created successfully");
+
+        const redirectTo = searchParams.get("redirect_to");
+
+        if (redirectTo) {
+          router.push(`${redirectTo}?new_product_id=${response.data.id}`);
+
+          return;
+        }
       }
       router.push(`/pos/vendor/${vendor?.id}/products`);
     } catch (error: any) {

@@ -11,19 +11,21 @@ import {
   DropdownItem,
 } from "@heroui/dropdown";
 import { Button } from "@heroui/button";
-import { Image, Selection } from "@heroui/react";
+import { Selection } from "@heroui/react";
 import { Switch } from "@heroui/switch";
 import { toast } from "sonner";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import AddStockModal from "./_components/AddStockModal";
 import ViewStockModal from "./_components/ViewStockModal";
+import NewInventoryModal from "./_components/NewInventoryModal";
 
 import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import CustomTable, { Column, ProductImage } from "@/components/ui/CustomTable";
-import api, { BACKEND_URL } from "@/lib/api";
+import api from "@/lib/api";
 import { UserLoding } from "@/components/user-loding";
 
 interface BranchProductItem {
@@ -72,6 +74,8 @@ export default function InventoryPage() {
     selectedBranchIds,
     updateBranchFilter,
   } = useVendor();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [items, setItems] = useState<BranchProductItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -89,6 +93,7 @@ export default function InventoryPage() {
 
   const [isAddStockModalOpen, setIsAddStockModalOpen] = useState(false);
   const [isViewStockModalOpen, setIsViewStockModalOpen] = useState(false);
+  const [isNewInventoryModalOpen, setIsNewInventoryModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<BranchProductItem | null>(
     null,
   );
@@ -120,7 +125,6 @@ export default function InventoryPage() {
       setCurrentPage(response?.data?.current_page || 1);
       setLastPage(response?.data?.last_page || 1);
     } catch (error: any) {
-      console.error("Failed to fetch inventory:", error);
       toast.error("Failed to load inventory");
     } finally {
       setLoading(false);
@@ -140,6 +144,36 @@ export default function InventoryPage() {
     selectedBranchIds,
   ]);
 
+  useEffect(() => {
+    const newProductId = searchParams.get("new_product_id");
+
+    if (newProductId && vendor?.id) {
+      // Clear the query param to prevent re-triggering
+      const url = new URL(window.location.href);
+
+      url.searchParams.delete("new_product_id");
+      router.replace(url.pathname + url.search);
+
+      // Fetch the product's variants to open the modal
+      const fetchNewProduct = async () => {
+        try {
+          const response: any = await api.get(`/branch-products`, {
+            params: {
+              vendor_id: vendor.id,
+              product_id: newProductId,
+            },
+          });
+
+          if (response.data.data.length > 0) {
+            openAddStock(response.data.data[0]);
+          }
+        } catch (error) {}
+      };
+
+      fetchNewProduct();
+    }
+  }, [searchParams, vendor?.id]);
+
   const toggleStatus = async (item: BranchProductItem, newStatus: boolean) => {
     if (!isSingleBranchSelected) {
       toast.error("Please select a single branch to manage product status");
@@ -158,7 +192,6 @@ export default function InventoryPage() {
         `Product ${newStatus ? "activated" : "deactivated"} for this branch`,
       );
     } catch (error) {
-      console.error("Status toggle failed", error);
       toast.error("Failed to update status");
     }
   };
@@ -177,7 +210,9 @@ export default function InventoryPage() {
     (item: BranchProductItem, columnKey: React.Key) => {
       switch (columnKey) {
         case "image":
-          return <ProductImage alt={item.product_name} image_url={item.image_url} />;
+          return (
+            <ProductImage alt={item.product_name} image_url={item.image_url} />
+          );
         case "product_name":
           return item.product_name || "N/A";
         case "variant_value":
@@ -239,7 +274,15 @@ export default function InventoryPage() {
         <PageHeader
           description="Manage products and stock levels across branches"
           title="Branch Inventory"
-        />
+        >
+          <Button
+            color="primary"
+            startContent={<Plus size={20} />}
+            onPress={() => setIsNewInventoryModalOpen(true)}
+          >
+            Add Inventory
+          </Button>
+        </PageHeader>
 
         <div className="flex justify-between gap-3 items-end mb-4">
           <Input
@@ -351,6 +394,14 @@ export default function InventoryPage() {
             />
           </>
         )}
+
+        <NewInventoryModal
+          isOpen={isNewInventoryModalOpen}
+          onOpenChange={() =>
+            setIsNewInventoryModalOpen(!isNewInventoryModalOpen)
+          }
+          onSelect={(item) => openAddStock(item)}
+        />
       </div>
     </PermissionGuard>
   );

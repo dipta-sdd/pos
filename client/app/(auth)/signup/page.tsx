@@ -68,7 +68,6 @@ export default function SignupPage() {
         setError("Registration failed. Please try again.");
       }
     } catch (err: any) {
-      // eslint-disable-next-line no-console
       console.error("Signup error:", err);
       setError("An unexpected error occurred. Please try again.");
     } finally {

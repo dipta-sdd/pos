@@ -91,7 +91,7 @@ export default defineConfig([
     rules: {
       "@typescript-eslint/no-unused-vars": "off",
 
-      "no-console": "warn",
+      "no-console": "off",
       "react/prop-types": "off",
       "react/jsx-uses-react": "off",
       "react/jsx-sort-props": "off",

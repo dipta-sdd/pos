@@ -61,7 +61,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setIsLoading(false);
         }
       } catch (error) {
-        // eslint-disable-next-line no-console
         console.error("Error checking auth:", error);
         setIsLoading(false);
       }
@@ -94,7 +93,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       return false;
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error("Login error:", error);
       setIsLoading(false);
 
@@ -112,7 +110,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       return false;
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error("Registration error:", error);
 
       return false;
@@ -141,7 +138,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setIsLoading(false);
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error("Error refreshing user:", error);
       handleLogout();
       setIsLoading(false);

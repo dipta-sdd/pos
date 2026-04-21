@@ -11,7 +11,7 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@heroui/dropdown";
-import { Image, Selection } from "@heroui/react";
+import { Selection } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -26,7 +26,7 @@ import CustomTable, {
   loggerColumns,
   ProductImage,
 } from "@/components/ui/CustomTable";
-import api, { BACKEND_URL } from "@/lib/api";
+import api from "@/lib/api";
 import { Product as BaseProduct } from "@/lib/types/general";
 import Confirm from "@/components/ui/Confirm";
 import { UserLoding } from "@/components/user-loding";
@@ -135,7 +135,7 @@ export default function ProductsPage() {
         case "id":
           return `#${item.id}`;
         case "image":
-          return <ProductImage image_url={item.image_url} alt={item.name} />;
+          return <ProductImage alt={item.name} image_url={item.image_url} />;
         case "name":
           return (
             <Link

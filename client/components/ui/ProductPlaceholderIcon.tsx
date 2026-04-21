@@ -10,20 +10,20 @@ export function ProductPlaceholderIcon({
 }: ProductPlaceholderIconProps) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
+      className={`text-gray-400 dark:text-gray-600 ${className}`}
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.5"
       strokeLinecap="round"
+      strokeWidth="1.5"
+      viewBox="0 0 24 24"
       strokeLinejoin="round"
       // The text-gray-400 and dark:text-gray-600 classes make it responsive to the theme.
       // currentColor ensures the stroke uses the text color.
-      className={`text-gray-400 dark:text-gray-600 ${className}`}
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       {/* Outer Box representing the product container */}
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+      <rect height="18" rx="2" ry="2" width="18" x="3" y="3" />
 
       {/* Barcode area representing POS/Retail aspect */}
       <path d="M8 7v4" />

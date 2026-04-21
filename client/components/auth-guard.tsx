@@ -31,7 +31,8 @@ export function AuthGuard({
       if (requireAuth) {
         if (!isAuthenticated) {
           console.log("Not Authenticated redirecting to login");
-          const currentUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+          const currentUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
+
           router.push(`/login?redirect_to=${encodeURIComponent(currentUrl)}`);
         } else {
           if (requireVerification) {
@@ -55,7 +56,9 @@ export function AuthGuard({
       } else {
         console.log("Not requireAuth");
         if (isAuthenticated) {
-          const authRedirect = searchParams.get("redirect_to") || redirectTo || "/pos";
+          const authRedirect =
+            searchParams.get("redirect_to") || redirectTo || "/pos";
+
           console.log(`Already Authenticated redirecting to ${authRedirect}`);
           router.push(authRedirect);
         }

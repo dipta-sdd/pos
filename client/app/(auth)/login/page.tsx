@@ -84,7 +84,6 @@ function LoginContent() {
         setError("Invalid credentials. Please check your email and password.");
       }
     } catch (err: any) {
-      // eslint-disable-next-line no-console
       console.error("Login error:", err);
       setError("An unexpected error occurred. Please try again.");
     } finally {

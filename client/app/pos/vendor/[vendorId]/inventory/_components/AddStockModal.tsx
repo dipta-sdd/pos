@@ -39,16 +39,20 @@ export default function AddStockModal({
   const [sellingPrice, setSellingPrice] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [loading, setLoading] = useState(false);
+  const branches =
+    membership?.user_branch_assignments?.map((a) => a.branch) || [];
 
   useEffect(() => {
     if (isOpen) {
       if (selectedBranchIds.length === 1) {
         setSelectedBranchId(selectedBranchIds[0]);
+      } else if (branches.length === 1) {
+        setSelectedBranchId(String(branches[0].id));
       } else {
         setSelectedBranchId("");
       }
     }
-  }, [isOpen, selectedBranchIds]);
+  }, [isOpen, selectedBranchIds, branches]);
 
   const handleSubmit = async () => {
     if (!selectedBranchId) {
@@ -81,15 +85,14 @@ export default function AddStockModal({
       setSellingPrice("");
       setExpiryDate("");
     } catch (error: any) {
-      console.error("Failed to add stock", error);
       toast.error(error.response?.data?.message || "Failed to add stock");
     } finally {
       setLoading(false);
     }
   };
 
-  const branches =
-    membership?.user_branch_assignments?.map((a) => a.branch) || [];
+  const showBranchSelection =
+    branches.length > 1 && selectedBranchIds.length !== 1;
 
   return (
     <Modal isOpen={isOpen} placement="top-center" onOpenChange={onOpenChange}>
@@ -100,19 +103,23 @@ export default function AddStockModal({
               Add Stock - {item.product_name} ({item.variant_value})
             </ModalHeader>
             <ModalBody>
-              <Select
-                isRequired
-                label="Select Branch"
-                placeholder="Choose a branch"
-                selectedKeys={selectedBranchId ? [selectedBranchId] : []}
-                onSelectionChange={(keys) =>
-                  setSelectedBranchId(Array.from(keys)[0] as string)
-                }
-              >
-                {branches.map((branch) => (
-                  <SelectItem key={String(branch.id)}>{branch.name}</SelectItem>
-                ))}
-              </Select>
+              {showBranchSelection && (
+                <Select
+                  isRequired
+                  label="Select Branch"
+                  placeholder="Choose a branch"
+                  selectedKeys={selectedBranchId ? [selectedBranchId] : []}
+                  onSelectionChange={(keys) =>
+                    setSelectedBranchId(Array.from(keys)[0] as string)
+                  }
+                >
+                  {branches.map((branch) => (
+                    <SelectItem key={String(branch.id)}>
+                      {branch.name}
+                    </SelectItem>
+                  ))}
+                </Select>
+              )}
               <Input
                 isRequired
                 label="Quantity"

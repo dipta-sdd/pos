@@ -68,6 +68,10 @@ class BranchProductController extends Controller
             });
         }
 
+        if ($request->filled('product_id')) {
+            $query->where('products.id', $request->product_id);
+        }
+
         $query->groupBy(
             'variants.id',
             'variants.name',

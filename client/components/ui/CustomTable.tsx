@@ -20,9 +20,10 @@ import {
 import { Calendar, User } from "lucide-react";
 import { useMemo } from "react";
 
+import { ProductPlaceholderIcon } from "./ProductPlaceholderIcon";
+
 import { formatDateTime } from "@/lib/helper/dates";
 import { BACKEND_URL } from "@/lib/api";
-import { ProductPlaceholderIcon } from "./ProductPlaceholderIcon";
 
 export interface Column {
   name: string;
@@ -256,6 +257,7 @@ export const ProductImage = ({
   if (!image_url) {
     return <ProductPlaceholderIcon className="w-12 h-12" />;
   }
+
   return (
     <Image
       alt={alt}
