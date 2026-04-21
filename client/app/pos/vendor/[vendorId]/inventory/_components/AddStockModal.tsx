@@ -22,6 +22,8 @@ interface AddStockModalProps {
     product_id: number;
     product_name: string;
     variant_value: string;
+    unit_abbreviation?: string | null;
+    is_decimal_allowed?: number | boolean;
   };
   onSuccess: () => void;
 }
@@ -122,8 +124,10 @@ export default function AddStockModal({
               )}
               <Input
                 isRequired
+                description={item.unit_abbreviation ? `Unit: ${item.unit_abbreviation}` : undefined}
                 label="Quantity"
                 placeholder="0.00"
+                step={item.is_decimal_allowed ? "0.01" : "1"}
                 type="number"
                 value={quantity}
                 onValueChange={setQuantity}

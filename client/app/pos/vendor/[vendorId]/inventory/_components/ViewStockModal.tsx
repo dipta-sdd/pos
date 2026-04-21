@@ -38,6 +38,7 @@ interface ViewStockModalProps {
   variantId: number;
   selectedBranchIds: string[];
   onSuccess: () => void;
+  isDecimalAllowed?: boolean | number;
 }
 
 export default function ViewStockModal({
@@ -46,6 +47,7 @@ export default function ViewStockModal({
   variantId,
   selectedBranchIds,
   onSuccess,
+  isDecimalAllowed,
 }: ViewStockModalProps) {
   const [stocks, setStocks] = useState<StockBatch[]>([]);
   const [loading, setLoading] = useState(false);
@@ -148,6 +150,7 @@ export default function ViewStockModal({
                         {editingId === stock.id ? (
                           <Input
                             size="sm"
+                            step={isDecimalAllowed ? "0.01" : "1"}
                             type="number"
                             value={String(editForm.quantity)}
                             onValueChange={(val) =>
@@ -158,7 +161,9 @@ export default function ViewStockModal({
                             }
                           />
                         ) : (
-                          stock.quantity
+                          <div className="flex flex-col">
+                            <span>{isDecimalAllowed ? Number(stock.quantity).toFixed(2) : Math.round(stock.quantity)}</span>
+                          </div>
                         )}
                       </TableCell>
                       <TableCell>

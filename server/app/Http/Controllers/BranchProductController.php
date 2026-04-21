@@ -34,8 +34,12 @@ class BranchProductController extends Controller
             'products.name as product_name',
             'products.image_url',
             DB::raw('COALESCE(SUM(product_stocks.quantity), 0) as total_quantity'),
+            DB::raw('COALESCE(units.name) as unit_name'),
+            DB::raw('COALESCE(units.abbreviation) as unit_abbreviation'),
+            DB::raw('COALESCE(units.is_decimal_allowed) as is_decimal_allowed'),
         ])
         ->join('products', 'variants.product_id', '=', 'products.id')
+        ->leftJoin('units_of_measure as units', 'products.unit_of_measure_id', '=', 'units.id')
         ->where('products.vendor_id', $vendorId)
         ->leftJoin('product_stocks', function ($join) use ($branchIds) {
             $join->on('variants.id', '=', 'product_stocks.variant_id');
@@ -80,7 +84,10 @@ class BranchProductController extends Controller
             'variants.barcode',
             'products.id',
             'products.name',
-            'products.image_url'
+            'products.image_url',
+            'units.name',
+            'units.abbreviation',
+            'units.is_decimal_allowed'
         );
 
         if (!empty($branchIds) && count($branchIds) === 1) {

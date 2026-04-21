@@ -38,6 +38,9 @@ interface BranchProductItem {
   product_name: string;
   image_url: string | null;
   total_quantity: number;
+  unit_name: string | null;
+  unit_abbreviation: string | null;
+  is_decimal_allowed: number | boolean;
   branch_product_id?: number | null;
   is_active?: number | null;
 }
@@ -220,7 +223,16 @@ export default function InventoryPage() {
         case "sku":
           return item.sku || "N/A";
         case "stock_quantity":
-          return parseFloat(String(item.total_quantity)).toFixed(2);
+          const qty = Number(item.total_quantity);
+          const formattedQty = item.is_decimal_allowed ? qty.toFixed(2) : Math.round(qty).toString();
+          return (
+            <div className="flex flex-col">
+              <span className="font-medium">{formattedQty}</span>
+              {item.unit_abbreviation && (
+                <span className="text-tiny text-default-400">{item.unit_abbreviation}</span>
+              )}
+            </div>
+          );
         case "status":
           if (!isSingleBranchSelected) {
             return (
@@ -385,6 +397,7 @@ export default function InventoryPage() {
             />
             <ViewStockModal
               isOpen={isViewStockModalOpen}
+              isDecimalAllowed={selectedItem.is_decimal_allowed}
               selectedBranchIds={selectedBranchIds}
               variantId={selectedItem.id}
               onOpenChange={() =>
