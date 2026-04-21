@@ -20,6 +20,8 @@ import AddStockModal from "./_components/AddStockModal";
 import ViewStockModal from "./_components/ViewStockModal";
 import NewInventoryModal from "./_components/NewInventoryModal";
 
+import BarcodeDisplay from "@/components/ui/BarcodeDisplay";
+
 import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
@@ -50,6 +52,7 @@ const columns: Column[] = [
   { name: "PRODUCT", uid: "product_name", sortable: true },
   { name: "VARIANT", uid: "variant_value", sortable: false },
   { name: "SKU", uid: "sku", sortable: true },
+  { name: "BARCODE", uid: "barcode", sortable: false },
   { name: "STOCK LEVEL", uid: "stock_quantity", sortable: true },
   { name: "STATUS", uid: "status", sortable: false },
   { name: "ACTIONS", uid: "actions", sortable: false },
@@ -60,6 +63,7 @@ const INITIAL_VISIBLE_COLUMNS = [
   "product_name",
   "variant_value",
   "sku",
+  "barcode",
   "stock_quantity",
   "status",
   "actions",
@@ -222,6 +226,20 @@ export default function InventoryPage() {
           return item.variant_value || "Default";
         case "sku":
           return item.sku || "N/A";
+        case "barcode":
+          if (item.barcode) {
+            return (
+              <div className="max-w-[150px]">
+                <BarcodeDisplay
+                  fontSize={10}
+                  height={30}
+                  value={item.barcode}
+                  width={1}
+                />
+              </div>
+            );
+          }
+          return <span className="text-default-400 text-sm">No barcode</span>;
         case "stock_quantity":
           const qty = Number(item.total_quantity);
           const formattedQty = item.is_decimal_allowed ? qty.toFixed(2) : Math.round(qty).toString();

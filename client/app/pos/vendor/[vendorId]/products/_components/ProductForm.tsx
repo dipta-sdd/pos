@@ -23,6 +23,7 @@ import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import { Category, UnitOfMeasure } from "@/lib/types/general";
 import ImageUpload from "@/components/ui/ImageUpload";
+import BarcodeDisplay from "@/components/ui/BarcodeDisplay";
 
 interface ProductFormProps {
   initialData?: any;
@@ -98,6 +99,23 @@ export default function ProductForm({
           : [{ name: "Standard", value: "Default", sku: "", barcode: "" }],
     },
   });
+
+  const [generatingBarcode, setGeneratingBarcode] = useState<number | null>(null);
+
+  const handleGenerateBarcode = async (index: number, variantId?: number) => {
+    if (!variantId) return;
+    setGeneratingBarcode(index);
+    try {
+      const response = await api.post(`/variants/${variantId}/generate-barcode`);
+      setValue(`variants.${index}.barcode`, response.data.barcode);
+      toast.success("Barcode generated successfully");
+    } catch (error) {
+      console.error("Failed to generate barcode", error);
+      toast.error("Failed to generate barcode");
+    } finally {
+      setGeneratingBarcode(null);
+    }
+  };
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -348,13 +366,39 @@ export default function ProductForm({
                     variant="bordered"
                     {...register(`variants.${index}.sku` as const)}
                   />
-                  <Input
-                    label="Barcode"
-                    placeholder="UPC/EAN"
-                    size="sm"
-                    variant="bordered"
-                    {...register(`variants.${index}.barcode` as const)}
-                  />
+                  <div className="flex flex-col gap-1">
+                    <Input
+                      isReadOnly={!!watch(`variants.${index}.barcode`)}
+                      label="Barcode"
+                      placeholder="Auto-generated"
+                      size="sm"
+                      variant="bordered"
+                      {...register(`variants.${index}.barcode` as const)}
+                      endContent={
+                        !watch(`variants.${index}.barcode`) && watch(`variants.${index}.id`) && (
+                          <Button 
+                            isIconOnly
+                            className="h-6 w-12 text-[10px]"
+                            color="primary" 
+                            isLoading={generatingBarcode === index}
+                            size="sm"
+                            variant="flat"
+                            onPress={() => handleGenerateBarcode(index, Number(watch(`variants.${index}.id`)))}
+                          >
+                            Gen
+                          </Button>
+                        )
+                      }
+                    />
+                    {watch(`variants.${index}.barcode`) && (
+                      <BarcodeDisplay
+                        fontSize={10}
+                        height={30}
+                        value={watch(`variants.${index}.barcode`) || ""}
+                        width={1}
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

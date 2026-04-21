@@ -111,6 +111,7 @@ Route::middleware('log.api')->group(function () {
             Route::get('/{variant}', [VariantController::class, 'show']);
             Route::put('/{variant}', [VariantController::class, 'update']);
             Route::delete('/{variant}', [VariantController::class, 'destroy']);
+            Route::post('/{variant}/generate-barcode', [VariantController::class, 'generateBarcode']);
         });
 
         // Branch Product routes (protected)

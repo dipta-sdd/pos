@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Services\BarcodeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -56,10 +57,15 @@ class ProductController extends Controller
 
         $product = DB::transaction(function () use ($validatedData, $request) {
             $product = Product::create($validatedData);
+            $barcodeService = app(BarcodeService::class);
 
             if ($request->has('variants')) {
                 foreach ($request->variants as $variantData) {
-                    $product->variants()->create($variantData);
+                    $variant = $product->variants()->create($variantData);
+                    // Auto-assign barcode if not provided
+                    if (empty($variant->barcode)) {
+                        $barcodeService->assignBarcode($variant);
+                    }
                 }
             }
 
@@ -100,6 +106,7 @@ class ProductController extends Controller
 
         DB::transaction(function () use ($validatedData, $request, $product) {
             $product->update($validatedData);
+            $barcodeService = app(BarcodeService::class);
 
             if ($request->has('variants')) {
                 $variantIds = [];
@@ -112,6 +119,10 @@ class ProductController extends Controller
                         }
                     } else {
                         $variant = $product->variants()->create($variantData);
+                        // Auto-assign barcode if not provided
+                        if (empty($variant->barcode)) {
+                            $barcodeService->assignBarcode($variant);
+                        }
                         $variantIds[] = $variant->id;
                     }
                 }

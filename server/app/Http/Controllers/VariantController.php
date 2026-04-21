@@ -6,6 +6,7 @@ use App\Models\BranchProduct;
 use App\Models\Product;
 use App\Models\ProductStock;
 use App\Models\Variant;
+use App\Services\BarcodeService;
 use Illuminate\Http\Request;
 
 class VariantController extends Controller
@@ -57,7 +58,13 @@ class VariantController extends Controller
 
         $variant = Variant::create($validatedData);
 
-        return response()->json($variant, 201);
+        // Auto-assign barcode if not provided
+        if (empty($variant->barcode)) {
+            $barcodeService = app(BarcodeService::class);
+            $barcodeService->assignBarcode($variant);
+        }
+
+        return response()->json($variant->fresh(), 201);
     }
 
     public function show(Variant $variant)
@@ -84,5 +91,22 @@ class VariantController extends Controller
         $variant->delete();
 
         return response()->json(null, 204);
+    }
+
+    public function generateBarcode(Variant $variant, BarcodeService $barcodeService)
+    {
+        if ($variant->barcode) {
+            return response()->json([
+                'message' => 'Variant already has a barcode.',
+                'barcode' => $variant->barcode,
+            ]);
+        }
+
+        $barcode = $barcodeService->assignBarcode($variant);
+
+        return response()->json([
+            'message' => 'Barcode generated successfully.',
+            'barcode' => $barcode,
+        ]);
     }
 }
