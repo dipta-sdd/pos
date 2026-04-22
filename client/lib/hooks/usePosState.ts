@@ -33,7 +33,14 @@ export function usePosState() {
         const parsed = JSON.parse(stored);
 
         if (parsed.tabs && parsed.tabs.length > 0) {
-          setState(parsed);
+          // Ensure each tab has the required arrays
+          const sanitizedTabs = parsed.tabs.map((tab: any) => ({
+            ...tab,
+            items: tab.items || [],
+            payments: tab.payments || [],
+          }));
+
+          setState({ ...parsed, tabs: sanitizedTabs });
         } else {
           const firstTab = DEFAULT_TAB();
 
@@ -108,30 +115,35 @@ export function usePosState() {
       variant: Variant,
       batch: ProductStock,
       quantity: number = 1,
+      forcedId?: string,
     ) => {
+      let resultId = "";
+
       setState((prev) => {
         const activeTab = prev.tabs.find((t) => t.id === prev.activeTabId);
 
         if (!activeTab) return prev;
 
-        const existingItemIndex = activeTab.items.findIndex(
+        const existingItemIndex = (activeTab.items || []).findIndex(
           (item) =>
             item.variant.id === variant.id && item.batch.id === batch.id,
         );
 
-        let newItems = [...activeTab.items];
+        let newItems = [...(activeTab.items || [])];
 
         if (existingItemIndex > -1) {
           const item = newItems[existingItemIndex];
           const newQty = item.quantity + quantity;
 
+          resultId = item.id;
           newItems[existingItemIndex] = calculateItemTotals({
             ...item,
             quantity: newQty,
           });
         } else {
+          resultId = forcedId || uuidv4();
           const newItem: CartItem = {
-            id: uuidv4(),
+            id: resultId,
             product,
             variant,
             batch,
@@ -154,6 +166,8 @@ export function usePosState() {
           ),
         };
       });
+
+      return resultId;
     },
     [],
   );
@@ -189,7 +203,7 @@ export function usePosState() {
       ...prev,
       tabs: prev.tabs.map((t) =>
         t.id === prev.activeTabId
-          ? { ...t, items: t.items.filter((i) => i.id !== itemId) }
+          ? { ...t, items: (t.items || []).filter((i) => i.id !== itemId) }
           : t,
       ),
     }));
@@ -244,7 +258,7 @@ export function usePosState() {
         t.id === prev.activeTabId
           ? {
               ...t,
-              payments: t.payments.filter((p) => p.id !== paymentId),
+              payments: (t.payments || []).filter((p) => p.id !== paymentId),
             }
           : t,
       ),

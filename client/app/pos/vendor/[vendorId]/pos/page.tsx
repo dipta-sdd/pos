@@ -90,14 +90,14 @@ export default function PointOfSalePage() {
   const handleCheckout = useCallback(async () => {
     if (!activeSession || !vendor?.id) return;
 
-    if (activeTab.payments.length === 0) {
+    if ((activeTab.payments || []).length === 0) {
       toast.error("Please add at least one payment method");
 
       return;
     }
 
-    const total = activeTab.items.reduce((sum, i) => sum + i.total, 0);
-    const totalApplied = activeTab.payments.reduce(
+    const total = (activeTab.items || []).reduce((sum, i) => sum + i.total, 0);
+    const totalApplied = (activeTab.payments || []).reduce(
       (sum, p) => sum + p.appliedAmount,
       0,
     );
@@ -118,18 +118,18 @@ export default function PointOfSalePage() {
         cash_register_session_id: activeSession.id,
         customer_id: activeTab.customer?.id || null,
         tempCustomer: activeTab.tempCustomer,
-        subtotal_amount: activeTab.items.reduce(
+        subtotal_amount: (activeTab.items || []).reduce(
           (sum, i) => sum + i.subtotal,
           0,
         ),
-        total_discount_amount: activeTab.items.reduce(
+        total_discount_amount: (activeTab.items || []).reduce(
           (sum, i) => sum + i.discount,
           0,
         ),
-        tax_amount: activeTab.items.reduce((sum, i) => sum + i.tax_amount, 0),
+        tax_amount: (activeTab.items || []).reduce((sum, i) => sum + i.tax_amount, 0),
         final_amount: total,
         status: "completed",
-        items: activeTab.items.map((item) => ({
+        items: (activeTab.items || []).map((item) => ({
           variant_id: item.variant.id,
           product_stock_id: item.batch.id,
           quantity: item.quantity,
@@ -139,7 +139,7 @@ export default function PointOfSalePage() {
           tax_rate_applied: item.tax_rate,
           line_total: item.total,
         })),
-        payments: activeTab.payments.map((p) => ({
+        payments: (activeTab.payments || []).map((p) => ({
           payment_method_id: p.methodId,
           amount: p.appliedAmount,
         })),
@@ -160,8 +160,8 @@ export default function PointOfSalePage() {
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Enter" && !isProcessing) {
-        const total = activeTab.items.reduce((sum, i) => sum + i.total, 0);
-        const totalApplied = activeTab.payments.reduce(
+        const total = (activeTab.items || []).reduce((sum, i) => sum + i.total, 0);
+        const totalApplied = (activeTab.payments || []).reduce(
           (sum, p) => sum + p.appliedAmount,
           0,
         );

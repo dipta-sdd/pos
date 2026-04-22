@@ -26,8 +26,8 @@ export const KeyboardPayment: React.FC<KeyboardPaymentProps> = ({
   onRemovePayment,
   isFocused,
 }) => {
-  const totalApplied = payments.reduce((sum, p) => sum + p.appliedAmount, 0);
-  const totalChange = payments.reduce((sum, p) => sum + p.changeAmount, 0);
+  const totalApplied = (payments || []).reduce((sum, p) => sum + p.appliedAmount, 0);
+  const totalChange = (payments || []).reduce((sum, p) => sum + p.changeAmount, 0);
   const remaining = Math.max(0, grandTotal - totalApplied);
 
   return (
@@ -123,7 +123,7 @@ export const KeyboardPayment: React.FC<KeyboardPaymentProps> = ({
               )}
             </div>
           ))}
-          {payments.length === 0 && (
+          {(payments || []).length === 0 && (
             <div className="py-6 text-center text-default-400 text-sm italic">
               No payments added. Press [Alt+1] for Cash.
             </div>

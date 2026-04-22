@@ -77,15 +77,15 @@ export default function PosTouchScreen({
   removePayment,
 }: PosTouchScreenProps) {
   // Legacy bridging for Touch screen (uses first payment as primary)
-  const firstPayment = activeTab.payments[0];
+  const firstPayment = (activeTab.payments || [])[0];
   const selectedMethodId = firstPayment?.methodId || null;
   const receivedAmount = firstPayment?.tenderedAmount || 0;
-  const totalAmount = activeTab.items.reduce((sum, i) => sum + i.total, 0);
+  const totalAmount = (activeTab.items || []).reduce((sum, i) => sum + i.total, 0);
 
   const handleLegacyMethodSelect = (id: number, name: string) => {
     const isCash = name.toLowerCase().includes("cash");
 
-    if (activeTab.payments.length > 0) {
+    if ((activeTab.payments || []).length > 0) {
       updatePayment(activeTab.payments[0].id, {
         methodId: id,
         methodName: name,
@@ -106,7 +106,7 @@ export default function PosTouchScreen({
   };
 
   const handleLegacyAmountChange = (amt: number) => {
-    if (activeTab.payments.length > 0) {
+    if ((activeTab.payments || []).length > 0) {
       const p = activeTab.payments[0];
       const applied = p.isCash ? Math.min(amt, totalAmount) : amt;
 
