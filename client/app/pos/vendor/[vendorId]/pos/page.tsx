@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@heroui/react";
 import { useDisclosure } from "@heroui/modal";
 import { toast } from "sonner";
 
@@ -20,6 +19,7 @@ import {
   ProductStock,
 } from "@/lib/types/general";
 import { usePosState } from "@/lib/hooks/usePosState";
+import { Button } from "@heroui/react";
 
 export default function PointOfSalePage() {
   const { vendor, isLoading: contextLoading } = useVendor();
@@ -46,7 +46,9 @@ export default function PointOfSalePage() {
   const [focusItemId, setFocusItemId] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [view, setView] = useState<"cart" | "payment">("cart");
-  const [posMode, setPosMode] = useState<"touch" | "keyboard" | "mobile">("keyboard");
+  const [posMode, setPosMode] = useState<"touch" | "keyboard" | "mobile">(
+    "keyboard",
+  );
 
   const fetchActiveSession = async () => {
     if (!vendor?.id) return;
@@ -191,7 +193,7 @@ export default function PointOfSalePage() {
     <PermissionGuard permission="can_use_pos">
       {posMode === "touch" && <PosTouchScreen {...posProps} />}
       {posMode === "keyboard" && <PosKeyboard {...posProps} />}
-      
+
       <RegisterStatusModal
         activeSession={activeSession}
         isOpen={isOpen}
