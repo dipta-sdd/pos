@@ -40,16 +40,27 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
   const [focusArea, setFocusArea] = useState<
     "search" | "cart" | "payment" | "customer"
   >("search");
+  const [searchFocusTrigger, setSearchFocusTrigger] = useState(0);
 
   // Derived state
-  const subtotal = activeTab ? (activeTab.items || []).reduce((sum, item) => sum + item.subtotal, 0) : 0;
-  const totalTax = activeTab ? (activeTab.items || []).reduce((sum, item) => sum + item.tax_amount, 0) : 0;
-  const grandTotal = activeTab ? (activeTab.items || []).reduce((sum, item) => sum + item.total, 0) : 0;
-  const totalApplied = activeTab ? (activeTab.payments || []).reduce((sum, p) => sum + p.appliedAmount, 0) : 0;
+  const subtotal = activeTab
+    ? (activeTab.items || []).reduce((sum, item) => sum + item.subtotal, 0)
+    : 0;
+  const totalTax = activeTab
+    ? (activeTab.items || []).reduce((sum, item) => sum + item.tax_amount, 0)
+    : 0;
+  const grandTotal = activeTab
+    ? (activeTab.items || []).reduce((sum, item) => sum + item.total, 0)
+    : 0;
+  const totalApplied = activeTab
+    ? (activeTab.payments || []).reduce((sum, p) => sum + p.appliedAmount, 0)
+    : 0;
   const remaining = grandTotal - totalApplied;
-  console.table({focusArea});
- 
+  console.log(focusArea);
   useEffect(() => {
+    // Prevent browser help menu on F1
+    window.onhelp = () => false;
+
     const fetchMethods = async () => {
       try {
         const res: any = await api.get(
@@ -91,35 +102,46 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const { 
-        focusArea: curFocusArea, 
-        activeTab: curActiveTab, 
-        paymentMethods: curPaymentMethods, 
-        remaining: curRemaining, 
+      const {
+        focusArea: curFocusArea,
+        activeTab: curActiveTab,
+        paymentMethods: curPaymentMethods,
+        remaining: curRemaining,
         selectedIndex: curSelectedIndex,
         addTab: doAddTab,
         addPayment: doAddPayment,
-        removeFromCart: doRemoveFromCart
+        removeFromCart: doRemoveFromCart,
       } = stateRef.current;
-
+      console.log(e.key);
       if (e.key === "F1") {
         e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
         setFocusArea("search");
+        setSearchFocusTrigger((prev) => prev + 1);
       }
       if (e.key === "F2") {
         e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
         setFocusArea("customer");
       }
       if (e.key === "F3") {
         e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
         setFocusArea("cart");
       }
       if (e.key === "F4") {
         e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
         doAddTab();
       }
       if (e.key === "F8") {
         e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
         setFocusArea("payment");
       }
 
@@ -155,7 +177,11 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
       }
 
       if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
         setFocusArea("search");
+        setSearchFocusTrigger((prev) => prev + 1);
       }
     };
 
@@ -203,11 +229,14 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
         };
 
         const addedId = addToCart(productObj, variantObj, batches[0], 1);
-        
-        // Barcode detection: if it matches query exactly, keep focus on search
-        const isBarcode = String(item.barcode).toLowerCase() === query.toLowerCase();
 
-        console.log(`[${new Date().toISOString()}] POS: Product Selected. ID: ${addedId}, isBarcode: ${isBarcode}`);
+        // Barcode detection: if it matches query exactly, keep focus on search
+        const isBarcode =
+          String(item.barcode).toLowerCase() === query.toLowerCase();
+
+        console.log(
+          `[${new Date().toISOString()}] POS: Product Selected. ID: ${addedId}, isBarcode: ${isBarcode}`,
+        );
 
         if (isBarcode) {
           setFocusArea("search");
@@ -288,6 +317,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
         <div className="flex-1 flex flex-col min-w-0">
           <KeyboardSearch
             isFocused={focusArea === "search"}
+            focusTrigger={searchFocusTrigger}
             onSearch={handleProductSearch}
             onSelect={handleProductSelect}
           />
@@ -368,7 +398,13 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
                 isDisabled={remaining > 0 || activeTab.items.length === 0}
                 size="lg"
               >
-                {remaining > 0 ? "Pending Payment..." : <span>Complete Sale <ShortcutKey>ENTER</ShortcutKey></span>}
+                {remaining > 0 ? (
+                  "Pending Payment..."
+                ) : (
+                  <span>
+                    Complete Sale <ShortcutKey>ENTER</ShortcutKey>
+                  </span>
+                )}
               </Button>
             </CardBody>
           </Card>
@@ -388,11 +424,14 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
         ].map((s) => (
           <div key={s.key} className="flex items-center gap-2">
             <ShortcutKey>{s.key}</ShortcutKey>
-            <span className="text-[11px] font-black uppercase tracking-wider text-white/90">{s.label}</span>
+            <span className="text-[11px] font-black uppercase tracking-wider text-white/90">
+              {s.label}
+            </span>
           </div>
         ))}
         <div className="ml-auto opacity-50 text-[10px] font-bold uppercase tracking-widest text-white">
-          Arrows: Nav Cart | Del: <ShortcutKey>DELETE</ShortcutKey> | Enter: <ShortcutKey>ENTER</ShortcutKey>
+          Arrows: Nav Cart | Del: <ShortcutKey>DELETE</ShortcutKey> | Enter:{" "}
+          <ShortcutKey>ENTER</ShortcutKey>
         </div>
       </div>
     </div>

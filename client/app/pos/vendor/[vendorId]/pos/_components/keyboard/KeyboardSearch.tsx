@@ -9,12 +9,14 @@ interface KeyboardSearchProps {
   onSearch: (query: string) => Promise<any[] | { data: any[] }>;
   onSelect: (item: any, query: string) => void;
   isFocused: boolean;
+  focusTrigger: number;
 }
 
 export const KeyboardSearch: React.FC<KeyboardSearchProps> = ({
   onSearch,
   onSelect,
   isFocused,
+  focusTrigger,
 }) => {
   const [items, setItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -22,12 +24,34 @@ export const KeyboardSearch: React.FC<KeyboardSearchProps> = ({
   const [hasSearched, setHasSentSearched] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  console.log("isFocused: ", isFocused);
   // Focus management
   useEffect(() => {
+    console.log("KeyboardSearch: Focus Effect", {
+      isFocused,
+      hasRef: !!inputRef.current,
+      focusTrigger,
+    });
     if (isFocused && inputRef.current) {
-      inputRef.current.focus();
+      const timer = setTimeout(() => {
+        const el = inputRef.current;
+        if (el) {
+          console.log("KeyboardSearch: Attempting focus on", el);
+          if (typeof el.focus === "function") {
+            el.focus();
+          }
+          // Also try to find internal input if it's a wrapper
+          const innerInput = el.querySelector?.("input") || (el as any).inputElement;
+          if (innerInput && typeof innerInput.focus === "function") {
+            innerInput.focus();
+            innerInput.select?.();
+          }
+        }
+      }, 100);
+
+      return () => clearTimeout(timer);
     }
-  }, [isFocused]);
+  }, [isFocused, focusTrigger]);
 
   const handleInputChange = async (value: string) => {
     setInputValue(value);
@@ -40,9 +64,11 @@ export const KeyboardSearch: React.FC<KeyboardSearchProps> = ({
 
     setIsLoading(true);
     const results = await onSearch(value);
-    
+
     // Handle Laravel pagination (data: []) or direct array
-    const data = Array.isArray(results) ? results : (results as any)?.data || [];
+    const data = Array.isArray(results)
+      ? results
+      : (results as any)?.data || [];
 
     setItems(data);
     setIsLoading(false);
@@ -55,7 +81,10 @@ export const KeyboardSearch: React.FC<KeyboardSearchProps> = ({
   return (
     <div className="mb-4">
       <Autocomplete
-        ref={inputRef}
+        ref={(el) => {
+          (inputRef as any).current = el;
+          if (el) console.log("KeyboardSearch: Ref set to", el);
+        }}
         aria-label="Search products"
         classNames={{
           base: "max-w-full",
@@ -90,13 +119,17 @@ export const KeyboardSearch: React.FC<KeyboardSearchProps> = ({
             const selected = items.find((i) => String(i.id) === String(key));
 
             if (selected) {
-              console.log(`[${new Date().toISOString()}] Search: Item selected, blurring search input.`);
+              console.log(
+                `[${new Date().toISOString()}] Search: Item selected, blurring search input.`,
+              );
               // Explicitly blur to prevent Autocomplete from stealing focus back
               if (inputRef.current) {
                 const input = inputRef.current.querySelector("input");
                 if (input) {
                   input.blur();
-                  console.log(`[${new Date().toISOString()}] Search: Input blur() called.`);
+                  console.log(
+                    `[${new Date().toISOString()}] Search: Input blur() called.`,
+                  );
                 }
               }
               onSelect(selected, inputValue);
