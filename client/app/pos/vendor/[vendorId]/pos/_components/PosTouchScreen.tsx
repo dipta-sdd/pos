@@ -8,8 +8,13 @@ import ProductSelection from "./ProductSelection";
 import CartSection from "./CartSection";
 import PaymentSection from "./PaymentSection";
 
-import { CashRegisterSession, Product, Variant, ProductStock } from "@/lib/types/general";
-import { PosTab, CartItem, PosState } from "@/lib/types/pos";
+import {
+  CashRegisterSession,
+  Product,
+  Variant,
+  ProductStock,
+} from "@/lib/types/general";
+import { PosTab, CartItem, PosState, PosPayment } from "@/lib/types/pos";
 
 interface PosTouchScreenProps {
   state: PosState;
@@ -26,12 +31,25 @@ interface PosTouchScreenProps {
   closeTab: (id: string) => void;
   setActiveTab: (id: string) => void;
   updateActiveTab: (updates: Partial<PosTab>) => void;
-  addToCart: (product: Product, variant: Variant, batch: ProductStock, quantity: number) => void;
+  addToCart: (
+    product: Product,
+    variant: Variant,
+    batch: ProductStock,
+    quantity: number,
+  ) => void;
   updateCartItem: (itemId: string, updates: Partial<CartItem>) => void;
   removeFromCart: (itemId: string) => void;
   clearCart: () => void;
   handleCheckout: () => Promise<void>;
-  handleProductSelect: (product: Product, variant: Variant, batch: ProductStock) => void;
+  handleProductSelect: (
+    product: Product,
+    variant: Variant,
+    batch: ProductStock,
+  ) => void;
+  // Payment helpers
+  addPayment: (payment: Omit<PosPayment, "id">) => void;
+  updatePayment: (id: string, updates: Partial<PosPayment>) => void;
+  removePayment: (id: string) => void;
 }
 
 export default function PosTouchScreen({
@@ -54,7 +72,52 @@ export default function PosTouchScreen({
   clearCart,
   handleCheckout,
   handleProductSelect,
+  addPayment,
+  updatePayment,
+  removePayment,
 }: PosTouchScreenProps) {
+  // Legacy bridging for Touch screen (uses first payment as primary)
+  const firstPayment = activeTab.payments[0];
+  const selectedMethodId = firstPayment?.methodId || null;
+  const receivedAmount = firstPayment?.tenderedAmount || 0;
+  const totalAmount = activeTab.items.reduce((sum, i) => sum + i.total, 0);
+
+  const handleLegacyMethodSelect = (id: number, name: string) => {
+    const isCash = name.toLowerCase().includes("cash");
+
+    if (activeTab.payments.length > 0) {
+      updatePayment(activeTab.payments[0].id, {
+        methodId: id,
+        methodName: name,
+        isCash,
+        appliedAmount: totalAmount,
+        tenderedAmount: totalAmount,
+      });
+    } else {
+      addPayment({
+        methodId: id,
+        methodName: name,
+        isCash,
+        appliedAmount: totalAmount,
+        tenderedAmount: totalAmount,
+        changeAmount: 0,
+      });
+    }
+  };
+
+  const handleLegacyAmountChange = (amt: number) => {
+    if (activeTab.payments.length > 0) {
+      const p = activeTab.payments[0];
+      const applied = p.isCash ? Math.min(amt, totalAmount) : amt;
+
+      updatePayment(p.id, {
+        tenderedAmount: amt,
+        appliedAmount: applied,
+        changeAmount: p.isCash ? Math.max(0, amt - applied) : 0,
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-64px)] overflow-hidden bg-gray-100 dark:bg-gray-900">
       {/* Header with Tabs */}
@@ -98,9 +161,12 @@ export default function PosTouchScreen({
                   <AlertCircle className="w-10 h-10" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold mb-2">Register is Closed</h2>
+                  <h2 className="text-2xl font-bold mb-2">
+                    Register is Closed
+                  </h2>
                   <p className="text-default-500">
-                    You must open a cash register session before you can process any sales.
+                    You must open a cash register session before you can process
+                    any sales.
                   </p>
                 </div>
                 <Button
@@ -157,11 +223,11 @@ export default function PosTouchScreen({
                     Finalize Payment
                   </h2>
                   <PaymentSection
-                    receivedAmount={activeTab.receivedAmount}
-                    selectedMethodId={activeTab.selectedPaymentMethodId}
-                    total={activeTab.items.reduce((sum, i) => sum + i.total, 0)}
-                    onAmountChange={(amt) => updateActiveTab({ receivedAmount: amt })}
-                    onMethodSelect={(id) => updateActiveTab({ selectedPaymentMethodId: id })}
+                    receivedAmount={receivedAmount}
+                    selectedMethodId={selectedMethodId}
+                    total={totalAmount}
+                    onAmountChange={handleLegacyAmountChange}
+                    onMethodSelect={handleLegacyMethodSelect}
                   />
 
                   <div className="mt-12 pt-8 border-t border-default-100 flex gap-4">

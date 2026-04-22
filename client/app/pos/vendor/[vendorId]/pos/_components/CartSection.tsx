@@ -87,8 +87,12 @@ export default function CartSection({
               <Minus className="w-3 h-3" />
             </Button>
             <Input
-              autoFocus={focusItemId === item.id}
               className="w-12 text-center"
+              ref={(el: HTMLInputElement | null) => {
+                if (focusItemId === item.id && el) {
+                  el.focus();
+                }
+              }}
               size="sm"
               type="number"
               value={item.quantity.toString()}

@@ -28,6 +28,29 @@ class CustomerController extends Controller
         return $query->paginate($perPage);
     }
 
+    /**
+     * Specialized index for POS searching, limited to essential fields for speed.
+     */
+    public function posIndex(Request $request)
+    {
+        $query = Customer::query();
+
+        // Vendor ID is expected from the request interseptor or manually
+        if ($request->has('vendor_id')) {
+            $query->where('vendor_id', $request->vendor_id);
+        }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->limit(10)->get(['id', 'name', 'phone', 'email', 'address']);
+    }
+
     public function store(Request $request)
     {
         $validatedData = $request->validate([

@@ -205,6 +205,11 @@ Route::middleware('log.api')->group(function () {
             Route::delete('/{sale}', [SaleController::class, 'destroy']);
         });
 
+        // POS-specific specialized routes
+        Route::prefix('pos')->middleware('permission:can_use_pos')->group(function () {
+            Route::get('/customers', [CustomerController::class, 'posIndex']);
+        });
+
         // Stock Transfer routes (protected)
         Route::prefix('stock-transfers')->group(function () {
             Route::get('/', [StockTransferController::class, 'index'])->middleware('permission:can_view_stock_transfers');

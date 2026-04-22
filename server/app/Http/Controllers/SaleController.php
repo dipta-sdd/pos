@@ -46,6 +46,9 @@ class SaleController extends Controller
             'sales_person_id' => 'required|exists:users,id',
             'cash_register_session_id' => 'required|exists:cash_register_sessions,id',
             'customer_id' => 'nullable|exists:customers,id',
+            'tempCustomer' => 'nullable|array',
+            'tempCustomer.name' => 'required_with:tempCustomer|string|max:255',
+            'tempCustomer.mobile' => 'nullable|string|max:255',
             'subtotal_amount' => 'required|numeric|min:0',
             'total_discount_amount' => 'numeric|min:0',
             'tax_amount' => 'numeric|min:0',
@@ -73,6 +76,18 @@ class SaleController extends Controller
         $validatedData['updated_by'] = $request->user()->id;
 
         $sale = DB::transaction(function () use ($validatedData, $request) {
+            // Handle guest customer creation
+            if (empty($validatedData['customer_id']) && !empty($request->tempCustomer['name'])) {
+                $customer = \App\Models\Customer::create([
+                    'vendor_id' => $validatedData['vendor_id'],
+                    'name' => $request->tempCustomer['name'],
+                    'phone' => $request->tempCustomer['mobile'] ?? null,
+                    'created_by' => $validatedData['created_by'],
+                    'updated_by' => $validatedData['updated_by'],
+                ]);
+                $validatedData['customer_id'] = $customer->id;
+            }
+
             $sale = Sale::create($validatedData);
             $sale->saleItems()->createMany($request->items);
             $sale->salePayments()->createMany($request->payments);

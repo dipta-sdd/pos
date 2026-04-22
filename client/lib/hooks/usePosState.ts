@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
 
-import { PosState, PosTab, CartItem } from "../types/pos";
+import { PosState, PosTab, CartItem, PosPayment } from "../types/pos";
 import { Product, Variant, ProductStock } from "../types/general";
 
 const STORAGE_KEY = "pos_state";
@@ -11,8 +11,7 @@ const DEFAULT_TAB = (): PosTab => ({
   name: "New Sale",
   customer: null,
   items: [],
-  selectedPaymentMethodId: null,
-  receivedAmount: 0,
+  payments: [],
   notes: "",
   createdAt: new Date().toISOString(),
 });
@@ -33,7 +32,13 @@ export function usePosState() {
       try {
         const parsed = JSON.parse(stored);
 
-        setState(parsed);
+        if (parsed.tabs && parsed.tabs.length > 0) {
+          setState(parsed);
+        } else {
+          const firstTab = DEFAULT_TAB();
+
+          setState({ tabs: [firstTab], activeTabId: firstTab.id });
+        }
       } catch {
         const firstTab = DEFAULT_TAB();
 
@@ -109,7 +114,6 @@ export function usePosState() {
 
         if (!activeTab) return prev;
 
-        // Check if item with same variant AND batch already exists
         const existingItemIndex = activeTab.items.findIndex(
           (item) =>
             item.variant.id === variant.id && item.batch.id === batch.id,
@@ -134,7 +138,7 @@ export function usePosState() {
             quantity,
             price: Number(batch.selling_price || product.base_price || 0),
             discount: 0,
-            tax_rate: 0, // Should be fetched or calculated
+            tax_rate: 0,
             tax_amount: 0,
             subtotal: 0,
             total: 0,
@@ -195,10 +199,57 @@ export function usePosState() {
     updateActiveTab({
       items: [],
       customer: null,
-      receivedAmount: 0,
+      payments: [],
       notes: "",
     });
   }, [updateActiveTab]);
+
+  const addPayment = useCallback((payment: Omit<PosPayment, "id">) => {
+    setState((prev) => ({
+      ...prev,
+      tabs: prev.tabs.map((t) =>
+        t.id === prev.activeTabId
+          ? {
+              ...t,
+              payments: [...t.payments, { ...payment, id: uuidv4() }],
+            }
+          : t,
+      ),
+    }));
+  }, []);
+
+  const updatePayment = useCallback(
+    (paymentId: string, updates: Partial<PosPayment>) => {
+      setState((prev) => ({
+        ...prev,
+        tabs: prev.tabs.map((t) =>
+          t.id === prev.activeTabId
+            ? {
+                ...t,
+                payments: t.payments.map((p) =>
+                  p.id === paymentId ? { ...p, ...updates } : p,
+                ),
+              }
+            : t,
+        ),
+      }));
+    },
+    [],
+  );
+
+  const removePayment = useCallback((paymentId: string) => {
+    setState((prev) => ({
+      ...prev,
+      tabs: prev.tabs.map((t) =>
+        t.id === prev.activeTabId
+          ? {
+              ...t,
+              payments: t.payments.filter((p) => p.id !== paymentId),
+            }
+          : t,
+      ),
+    }));
+  }, []);
 
   return {
     state,
@@ -212,12 +263,15 @@ export function usePosState() {
     updateCartItem,
     removeFromCart,
     clearCart,
+    addPayment,
+    updatePayment,
+    removePayment,
   };
 }
 
 function calculateItemTotals(item: CartItem): CartItem {
   const subtotal = item.price * item.quantity;
-  const discountAmount = item.discount; // Assuming flat for now
+  const discountAmount = item.discount;
   const afterDiscount = subtotal - discountAmount;
   const taxAmount = (afterDiscount * item.tax_rate) / 100;
   const total = afterDiscount + taxAmount;

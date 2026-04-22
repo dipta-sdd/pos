@@ -18,7 +18,7 @@ interface PaymentSectionProps {
   selectedMethodId: number | null;
   receivedAmount: number;
   total: number;
-  onMethodSelect: (id: number) => void;
+  onMethodSelect: (id: number, name: string) => void;
   onAmountChange: (amount: number) => void;
 }
 
@@ -77,7 +77,7 @@ export default function PaymentSection({
                 border-2 transition-all shadow-none
                 ${selectedMethodId === method.id ? "border-primary bg-primary-50 dark:bg-primary-900/20" : "border-default-100 hover:border-default-300"}
               `}
-              onPress={() => onMethodSelect(method.id)}
+              onPress={() => onMethodSelect(method.id, method.name)}
             >
               <CardBody className="p-3 flex flex-row items-center gap-3">
                 <div

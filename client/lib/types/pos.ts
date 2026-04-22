@@ -14,13 +14,26 @@ export interface CartItem {
   total: number;
 }
 
+export interface PosPayment {
+  id: string;
+  methodId: number;
+  methodName: string;
+  isCash: boolean;
+  tenderedAmount: number;
+  appliedAmount: number;
+  changeAmount: number;
+}
+
 export interface PosTab {
   id: string;
   name: string;
   customer: Customer | null;
+  tempCustomer?: {
+    name: string;
+    mobile: string;
+  };
   items: CartItem[];
-  selectedPaymentMethodId: number | null;
-  receivedAmount: number;
+  payments: PosPayment[];
   notes: string;
   createdAt: string;
 }

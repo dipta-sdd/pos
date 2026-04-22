@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDisclosure } from "@heroui/modal";
 import { toast } from "sonner";
+import { useParams } from "next/navigation";
 
 import RegisterStatusModal from "./_components/RegisterStatusModal";
 import PosTouchScreen from "./_components/PosTouchScreen";
-import PosKeyboard from "./_components/PosKeyboard";
+import { KeyboardPOS } from "./_components/keyboard/KeyboardPOS";
 
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { useVendor } from "@/lib/contexts/VendorContext";
@@ -19,16 +20,17 @@ import {
   ProductStock,
 } from "@/lib/types/general";
 import { usePosState } from "@/lib/hooks/usePosState";
-import { Button } from "@heroui/react";
 
 export default function PointOfSalePage() {
   const { vendor, isLoading: contextLoading } = useVendor();
+  const params = useParams();
+  const vendorId = params.vendorId as string;
+
   const [activeSession, setActiveSession] =
     useState<CashRegisterSession | null>(null);
   const [checkingSession, setCheckingSession] = useState(true);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  // Custom hook for POS state
   const {
     state,
     activeTab,
@@ -41,6 +43,9 @@ export default function PointOfSalePage() {
     updateCartItem,
     removeFromCart,
     clearCart,
+    updatePayment,
+    addPayment,
+    removePayment,
   } = usePosState();
 
   const [focusItemId, setFocusItemId] = useState<string | null>(null);
@@ -82,19 +87,24 @@ export default function PointOfSalePage() {
     setFocusItemId(variant.id.toString());
   };
 
-  const handleCheckout = async () => {
+  const handleCheckout = useCallback(async () => {
     if (!activeSession || !vendor?.id) return;
 
-    if (!activeTab.selectedPaymentMethodId) {
-      toast.error("Please select a payment method");
-      setView("payment");
+    if (activeTab.payments.length === 0) {
+      toast.error("Please add at least one payment method");
+
       return;
     }
 
     const total = activeTab.items.reduce((sum, i) => sum + i.total, 0);
+    const totalApplied = activeTab.payments.reduce(
+      (sum, p) => sum + p.appliedAmount,
+      0,
+    );
 
-    if (activeTab.receivedAmount < total) {
-      toast.error("Received amount is less than total");
+    if (totalApplied < total) {
+      toast.error("Applied payment amount is less than total");
+
       return;
     }
 
@@ -107,6 +117,7 @@ export default function PointOfSalePage() {
         sales_person_id: activeSession.user_id,
         cash_register_session_id: activeSession.id,
         customer_id: activeTab.customer?.id || null,
+        tempCustomer: activeTab.tempCustomer,
         subtotal_amount: activeTab.items.reduce(
           (sum, i) => sum + i.subtotal,
           0,
@@ -128,12 +139,10 @@ export default function PointOfSalePage() {
           tax_rate_applied: item.tax_rate,
           line_total: item.total,
         })),
-        payments: [
-          {
-            payment_method_id: activeTab.selectedPaymentMethodId,
-            amount: total,
-          },
-        ],
+        payments: activeTab.payments.map((p) => ({
+          payment_method_id: p.methodId,
+          amount: p.appliedAmount,
+        })),
       };
 
       await api.post("/sales", payload);
@@ -145,24 +154,33 @@ export default function PointOfSalePage() {
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, [activeSession, vendor, activeTab, clearCart]);
 
+  // Global Checkout Shortcut (Enter when everything is ready)
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "F2") {
-        e.preventDefault();
-        if (view === "cart") setView("payment");
-        else handleCheckout();
-      }
-      if (e.key === "F4") {
-        e.preventDefault();
-        setView("cart");
+      if (e.key === "Enter" && !isProcessing) {
+        const total = activeTab.items.reduce((sum, i) => sum + i.total, 0);
+        const totalApplied = activeTab.payments.reduce(
+          (sum, p) => sum + p.appliedAmount,
+          0,
+        );
+
+        // Only trigger if focus is not in an input (unless it's the main checkout flow)
+        if (
+          total > 0 &&
+          totalApplied >= total &&
+          document.activeElement?.tagName !== "INPUT"
+        ) {
+          handleCheckout();
+        }
       }
     };
 
     window.addEventListener("keydown", handleGlobalKeyDown);
+
     return () => window.removeEventListener("keydown", handleGlobalKeyDown);
-  }, [view, activeTab, handleCheckout]);
+  }, [activeTab, isProcessing, handleCheckout]);
 
   if (contextLoading || checkingSession || !isInitialized)
     return <UserLoding />;
@@ -187,12 +205,19 @@ export default function PointOfSalePage() {
     clearCart,
     handleCheckout,
     handleProductSelect,
+    // Multi-payment helpers for touch/mobile
+    updatePayment,
+    addPayment,
+    removePayment,
   };
 
   return (
     <PermissionGuard permission="can_use_pos">
-      {posMode === "touch" && <PosTouchScreen {...posProps} />}
-      {posMode === "keyboard" && <PosKeyboard {...posProps} />}
+      {posMode === "keyboard" ? (
+        <KeyboardPOS vendorId={vendorId} />
+      ) : (
+        <PosTouchScreen {...posProps} />
+      )}
 
       <RegisterStatusModal
         activeSession={activeSession}
