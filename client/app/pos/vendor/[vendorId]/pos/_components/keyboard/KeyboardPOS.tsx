@@ -63,12 +63,11 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId, activeSessio
     window.onhelp = () => false;
 
     const fetchMethods = async () => {
+      if (!activeSession) return;
       try {
-        let url = `/payment-methods?vendor_id=${vendorId}`;
-        if (activeSession?.billing_counter_id) {
-          url += `&billing_counter_id=${activeSession.billing_counter_id}`;
-        }
-        const res: any = await api.get(url);
+        const res: any = await api.get(
+          `/pos/payment-methods?vendor_id=${vendorId}&branch_id=${activeSession.billing_counter?.branch_id}&billing_counter_id=${activeSession.billing_counter_id}`,
+        );
 
         setPaymentMethods(res.data.data || []);
       } catch (err) {
@@ -77,7 +76,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId, activeSessio
     };
 
     fetchMethods();
-  }, [vendorId]);
+  }, [vendorId, activeSession]);
 
   // Stable Listener Pattern: Use a ref to keep track of the latest state
   // This prevents the event listener from being removed and re-added on every state change.

@@ -248,18 +248,19 @@ class AdminSeeder extends Seeder
                 );
             }
 
-            // 8. Create Payment Methods
+            // 8. Create Global Payment Methods
             $paymentMethods = [
-                ['name' => 'Cash', 'is_active' => true],
-                ['name' => 'Card', 'is_active' => true],
-                ['name' => 'Bank Transfer', 'is_active' => true],
-                ['name' => 'Mobile Money', 'is_active' => true],
+                ['name' => 'Cash', 'type' => 'cash', 'is_active' => true],
+                ['name' => 'Card', 'type' => 'card', 'is_active' => true],
+                ['name' => 'Bank Transfer', 'type' => 'online', 'is_active' => true],
+                ['name' => 'Mobile Money', 'type' => 'online', 'is_active' => true],
             ];
-
+ 
             foreach ($paymentMethods as $pm) {
                 PaymentMethod::firstOrCreate(
                     ['vendor_id' => $vendor->id, 'name' => $pm['name']],
                     [
+                        'type' => $pm['type'],
                         'is_active' => $pm['is_active'],
                         'created_by' => $user->id,
                         'updated_by' => $user->id,
