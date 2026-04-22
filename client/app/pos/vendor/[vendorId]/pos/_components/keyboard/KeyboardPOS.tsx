@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Tabs, Tab, Button, Card, CardBody, Divider } from "@heroui/react";
 import { toast } from "sonner";
+import { ShortcutKey } from "@/components/ui/ShortcutKey";
 import { X } from "lucide-react";
 
 import { KeyboardSearch } from "./KeyboardSearch";
@@ -355,7 +356,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
                 isDisabled={remaining > 0 || activeTab.items.length === 0}
                 size="lg"
               >
-                {remaining > 0 ? "Pending Payment..." : "Complete Sale [ENTER]"}
+                {remaining > 0 ? "Pending Payment..." : <span>Complete Sale <ShortcutKey>ENTER</ShortcutKey></span>}
               </Button>
             </CardBody>
           </Card>
@@ -373,16 +374,12 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
           { key: "ESC", label: "Focus Search" },
         ].map((s) => (
           <div key={s.key} className="flex items-center gap-2">
-            <span className="bg-white/20 px-1.5 py-0.5 rounded font-black text-[11px] text-white border border-white/30">
-              {s.key}
-            </span>
-            <span className="text-[11px] font-black uppercase tracking-wider text-white/90">
-              {s.label}
-            </span>
+            <ShortcutKey>{s.key}</ShortcutKey>
+            <span className="text-[11px] font-black uppercase tracking-wider text-white/90">{s.label}</span>
           </div>
         ))}
         <div className="ml-auto opacity-50 text-[10px] font-bold uppercase tracking-widest text-white">
-          Arrows: Nav Cart | Del: Remove | Enter: Checkout
+          Arrows: Nav Cart | Del: <ShortcutKey>DELETE</ShortcutKey> | Enter: <ShortcutKey>ENTER</ShortcutKey>
         </div>
       </div>
     </div>
