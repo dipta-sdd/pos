@@ -81,6 +81,7 @@ export const KeyboardSearch: React.FC<KeyboardSearchProps> = ({
   return (
     <div className="mb-4">
       <Autocomplete
+      
         ref={(el) => {
           (inputRef as any).current = el;
           if (el) console.log("KeyboardSearch: Ref set to", el);

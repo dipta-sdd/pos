@@ -261,21 +261,23 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
           aria-label="POS Tabs"
           classNames={{
             tabList: "gap-6 h-10",
-            cursor: "w-full bg-primary",
-            tab: "max-w-fit px-0 h-10",
+            cursor: "w-full bg-primary rounded-b-none",
+            tab: "px-0 h-10 ",
             tabContent:
               "group-data-[selected=true]:text-primary font-bold uppercase text-[10px] tracking-widest",
           }}
           color="primary"
           selectedKey={activeTab.id}
-          variant="underlined"
+          variant="light"
           onSelectionChange={(key) => setActiveTab(key as string)}
         >
           {state.tabs.map((tab) => (
             <Tab
               key={tab.id}
               title={
-                <div className="flex items-center gap-2">
+                <div
+                  className={`flex items-center gap-2 ${activeTab.id === tab.id ? "text-white px-2" : ""}`}
+                >
                   <span>{tab.name}</span>
                   {state.tabs.length > 1 && (
                     <span
