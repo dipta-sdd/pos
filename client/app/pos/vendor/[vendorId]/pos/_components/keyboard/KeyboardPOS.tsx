@@ -220,7 +220,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-content1 text-foreground overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-64px)] bg-content1 text-foreground overflow-hidden">
       {/* Sale Tabs */}
       <div className="flex items-center px-4 pt-2 bg-default-50 border-b border-default-200">
         <Tabs
