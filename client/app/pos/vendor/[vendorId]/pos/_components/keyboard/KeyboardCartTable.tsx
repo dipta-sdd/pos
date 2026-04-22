@@ -19,48 +19,20 @@ interface KeyboardCartTableProps {
   onUpdateQty: (itemId: string, updates: Partial<CartItem>) => void;
   onRemove: (itemId: string) => void;
   focusArea: string;
-  focusedItemId: string | null;
   onEsc: () => void;
-  onFocusHandled: () => void;
 }
 
 const QuantityCell = ({ 
   item, 
   onUpdateQty, 
   onEsc, 
-  isTargetFocus,
-  onFocusHandled
 }: { 
   item: CartItem; 
   onUpdateQty: any; 
   onEsc: any;
-  isTargetFocus: boolean;
-  onFocusHandled: () => void;
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (isTargetFocus) {
-      let attempts = 0;
-      const maxAttempts = 10;
-      
-      const interval = setInterval(() => {
-        attempts++;
-        const input = inputRef.current;
-        
-        if (input) {
-          input.focus();
-          input.select();
-          onFocusHandled(); // Clear the focusedItemId in parent
-          clearInterval(interval);
-        } else if (attempts >= maxAttempts) {
-          clearInterval(interval);
-        }
-      }, 100);
-
-      return () => clearInterval(interval);
-    }
-  }, [isTargetFocus, item.id, onFocusHandled]);
 
   return (
     <div className="flex items-center justify-center gap-2">
@@ -121,9 +93,7 @@ export const KeyboardCartTable: React.FC<KeyboardCartTableProps> = ({
   selectedIndex,
   onUpdateQty,
   focusArea,
-  focusedItemId,
   onEsc,
-  onFocusHandled,
 }) => {
   return (
     <div className="flex-1 overflow-auto bg-black/5 rounded-xl border border-default-200">
@@ -179,10 +149,8 @@ export const KeyboardCartTable: React.FC<KeyboardCartTableProps> = ({
               </TableCell>
               <TableCell>
                 <QuantityCell 
-                  isTargetFocus={focusArea === "cart" && focusedItemId === item.id}
                   item={item}
                   onEsc={onEsc}
-                  onFocusHandled={onFocusHandled}
                   onUpdateQty={onUpdateQty}
                 />
               </TableCell>

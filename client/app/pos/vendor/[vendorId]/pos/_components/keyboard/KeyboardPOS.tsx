@@ -34,7 +34,6 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
 
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [focusedItemId, setFocusedItemId] = useState<string | null>(null);
   const [focusArea, setFocusArea] = useState<
     "search" | "cart" | "payment" | "customer"
   >("search");
@@ -45,7 +44,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
   const grandTotal = activeTab ? (activeTab.items || []).reduce((sum, item) => sum + item.total, 0) : 0;
   const totalApplied = activeTab ? (activeTab.payments || []).reduce((sum, p) => sum + p.appliedAmount, 0) : 0;
   const remaining = grandTotal - totalApplied;
- console.table({focusArea,focusedItemId});
+  console.table({focusArea});
  
   useEffect(() => {
     const fetchMethods = async () => {
@@ -63,86 +62,103 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
     fetchMethods();
   }, [vendorId]);
 
+  // Stable Listener Pattern: Use a ref to keep track of the latest state
+  // This prevents the event listener from being removed and re-added on every state change.
+  const stateRef = React.useRef({
+    focusArea,
+    activeTab,
+    paymentMethods,
+    remaining,
+    selectedIndex,
+    addTab,
+    addPayment,
+    removeFromCart,
+  });
+
+  stateRef.current = {
+    focusArea,
+    activeTab,
+    paymentMethods,
+    remaining,
+    selectedIndex,
+    addTab,
+    addPayment,
+    removeFromCart,
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const { 
+        focusArea: curFocusArea, 
+        activeTab: curActiveTab, 
+        paymentMethods: curPaymentMethods, 
+        remaining: curRemaining, 
+        selectedIndex: curSelectedIndex,
+        addTab: doAddTab,
+        addPayment: doAddPayment,
+        removeFromCart: doRemoveFromCart
+      } = stateRef.current;
+
       if (e.key === "F1") {
         e.preventDefault();
         setFocusArea("search");
-        setFocusedItemId(null);
       }
       if (e.key === "F2") {
         e.preventDefault();
         setFocusArea("customer");
-        setFocusedItemId(null);
       }
       if (e.key === "F4") {
         e.preventDefault();
-        addTab();
+        doAddTab();
       }
       if (e.key === "F8") {
         e.preventDefault();
         setFocusArea("payment");
-        setFocusedItemId(null);
       }
 
       if (e.altKey && !isNaN(parseInt(e.key))) {
         e.preventDefault();
         const num = parseInt(e.key);
-        const method = paymentMethods[num - 1];
+        const method = curPaymentMethods[num - 1];
 
-        if (method && activeTab) {
+        if (method && curActiveTab) {
           const isCash = method.name.toLowerCase().includes("cash");
 
-          addPayment({
+          doAddPayment({
             methodId: method.id,
             methodName: method.name,
             isCash,
-            tenderedAmount: remaining > 0 ? remaining : 0,
-            appliedAmount: remaining > 0 ? remaining : 0,
+            tenderedAmount: curRemaining > 0 ? curRemaining : 0,
+            appliedAmount: curRemaining > 0 ? curRemaining : 0,
             changeAmount: 0,
           });
           setFocusArea("payment");
         }
       }
 
-      if (focusArea === "cart" && activeTab) {
+      if (curFocusArea === "cart" && curActiveTab) {
         if (e.key === "ArrowDown")
           setSelectedIndex((prev) =>
-            Math.min(prev + 1, activeTab.items.length - 1),
+            Math.min(prev + 1, curActiveTab.items.length - 1),
           );
         if (e.key === "ArrowUp")
           setSelectedIndex((prev) => Math.max(prev - 1, 0));
-        if (e.key === "Delete" && activeTab.items[selectedIndex])
-          removeFromCart(activeTab.items[selectedIndex].id);
+        if (e.key === "Delete" && curActiveTab.items[curSelectedIndex])
+          doRemoveFromCart(curActiveTab.items[curSelectedIndex].id);
       }
 
       if (e.key === "Escape") {
         setFocusArea("search");
-        setFocusedItemId(null);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
 
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [
-    focusArea,
-    activeTab,
-    paymentMethods,
-    remaining,
-    addTab,
-    addPayment,
-    removeFromCart,
-    selectedIndex,
-  ]);
-
-  const handleFocusHandled = React.useCallback(() => {
-    setFocusedItemId(null);
   }, []);
 
   const handleEsc = React.useCallback(() => {
     setFocusArea("search");
-    setFocusedItemId(null);
   }, []);
 
   if (!activeTab) return null;
@@ -190,10 +206,8 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
           setFocusArea("search");
           toast.success(`Added ${item.product_name}`);
         } else {
-          console.log(`[${new Date().toISOString()}] POS: Setting FocusArea to 'cart' and ItemID to: ${addedId}`);
           setFocusArea("cart");
-          setFocusedItemId(addedId);
-          toast.success(`Added ${item.product_name} - Set Quantity`);
+          toast.success(`Added ${item.product_name} - Item in Cart`);
         }
       } else {
         toast.error("No stock available");
@@ -246,11 +260,9 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
           />
           <KeyboardCartTable
             focusArea={focusArea}
-            focusedItemId={focusedItemId}
             items={activeTab.items}
             selectedIndex={selectedIndex}
             onEsc={handleEsc}
-            onFocusHandled={handleFocusHandled}
             onRemove={removeFromCart}
             onUpdateQty={updateCartItem}
           />
