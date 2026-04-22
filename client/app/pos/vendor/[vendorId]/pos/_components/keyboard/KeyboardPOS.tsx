@@ -110,6 +110,10 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
         e.preventDefault();
         setFocusArea("customer");
       }
+      if (e.key === "F3") {
+        e.preventDefault();
+        setFocusArea("cart");
+      }
       if (e.key === "F4") {
         e.preventDefault();
         doAddTab();
@@ -155,9 +159,9 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown, true);
 
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown, true);
   }, []);
 
   const handleEsc = React.useCallback(() => {
@@ -245,15 +249,23 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
                 <div className="flex items-center gap-2">
                   <span>{tab.name}</span>
                   {state.tabs.length > 1 && (
-                    <button
-                      className="hover:text-danger-500 transition-colors p-0.5 rounded-full hover:bg-default-100"
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      className="hover:text-danger-500 transition-colors p-0.5 rounded-full hover:bg-default-100 cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation();
                         closeTab(tab.id);
                       }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.stopPropagation();
+                          closeTab(tab.id);
+                        }
+                      }}
                     >
                       <X size={12} />
-                    </button>
+                    </span>
                   )}
                 </div>
               }
@@ -368,6 +380,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
         {[
           { key: "F1", label: "Search" },
           { key: "F2", label: "Customer" },
+          { key: "F3", label: "Cart" },
           { key: "F4", label: "New Tab" },
           { key: "F8", label: "Payment" },
           { key: "ALT+1", label: "Add Cash" },
