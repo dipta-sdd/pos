@@ -7,9 +7,10 @@ import {
   TableRow,
   TableCell,
   Button,
+  Avatar,
 } from "@heroui/react";
 import { clsx } from "clsx";
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus, Trash2, Box } from "lucide-react";
 
 import { CartItem } from "@/lib/types/pos";
 
@@ -92,11 +93,12 @@ export const KeyboardCartTable: React.FC<KeyboardCartTableProps> = ({
   items,
   selectedIndex,
   onUpdateQty,
+  onRemove,
   focusArea,
   onEsc,
 }) => {
   return (
-    <div className="flex-1 overflow-auto bg-black/5 rounded-xl border border-default-200">
+    <div className="flex-1 overflow-auto bg-black/5 rounded-xl border border-default-200 p-2">
       <Table
         isHeaderSticky
         removeWrapper
@@ -122,6 +124,7 @@ export const KeyboardCartTable: React.FC<KeyboardCartTableProps> = ({
           <TableColumn align="end" width={150}>
             TOTAL
           </TableColumn>
+          <TableColumn width={50}>Action</TableColumn>
         </TableHeader>
         <TableBody
           emptyContent={"No items in cart. Start scanning or press [F1]."}
@@ -140,11 +143,27 @@ export const KeyboardCartTable: React.FC<KeyboardCartTableProps> = ({
                 </span>
               </TableCell>
               <TableCell>
-                <div className="flex flex-col">
-                  <span className="font-bold text-sm">{item.product.name}</span>
-                  <span className="text-[10px] text-default-400 uppercase tracking-tight">
-                    {item.variant.name} • Batch: {item.batch.id}
-                  </span>
+                <div className="flex items-center gap-3">
+                  <Avatar
+                    className="bg-default-100"
+                    fallback={<Box className="w-4 h-4 text-default-500" />}
+                    radius="sm"
+                    size="sm"
+                    src={item.product.image_url}
+                  />
+                  <div className="flex flex-col">
+                    <span className="font-bold text-sm">{item.product.name}</span>
+                    <span className="text-[10px] text-default-400 uppercase tracking-tight">
+                      {item.variant.name === "Standard" && item.variant.value === "Default" ? (
+                        ""
+                      ) : (
+                        <span className="mr-2">
+                          {item.variant.name}: {item.variant.value} •
+                        </span>
+                      )}
+                      Batch: {item.batch.id}
+                    </span>
+                  </div>
                 </div>
               </TableCell>
               <TableCell>
@@ -159,6 +178,17 @@ export const KeyboardCartTable: React.FC<KeyboardCartTableProps> = ({
               </TableCell>
               <TableCell className="text-right font-mono font-bold">
                 {item.total.toLocaleString()}
+              </TableCell>
+              <TableCell>
+                <Button
+                  isIconOnly
+                  color="danger"
+                  size="sm"
+                  variant="light"
+                  onPress={() => onRemove(item.id)}
+                >
+                  <Trash2 size={16} />
+                </Button>
               </TableCell>
             </TableRow>
           ))}

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Tabs, Tab, Button, Card, CardBody, Divider } from "@heroui/react";
 import { toast } from "sonner";
+import { X } from "lucide-react";
 
 import { KeyboardSearch } from "./KeyboardSearch";
 import { KeyboardCartTable } from "./KeyboardCartTable";
@@ -28,6 +29,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
     updatePayment,
     removePayment,
     addTab,
+    closeTab,
     setActiveTab,
     updateActiveTab,
   } = usePosState();
@@ -236,7 +238,25 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
           onSelectionChange={(key) => setActiveTab(key as string)}
         >
           {state.tabs.map((tab) => (
-            <Tab key={tab.id} title={tab.name} />
+            <Tab
+              key={tab.id}
+              title={
+                <div className="flex items-center gap-2">
+                  <span>{tab.name}</span>
+                  {state.tabs.length > 1 && (
+                    <button
+                      className="hover:text-danger-500 transition-colors p-0.5 rounded-full hover:bg-default-100"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        closeTab(tab.id);
+                      }}
+                    >
+                      <X size={12} />
+                    </button>
+                  )}
+                </div>
+              }
+            />
           ))}
         </Tabs>
         <Button
