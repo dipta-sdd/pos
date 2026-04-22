@@ -14,7 +14,7 @@ import {
   Divider,
 } from "@heroui/react";
 import { toast } from "sonner";
-import { Wallet, LogOut, ArrowUpCircle, ArrowDownCircle } from "lucide-react";
+import { LogOut, ArrowUpCircle, ArrowDownCircle } from "lucide-react";
 
 import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
@@ -39,8 +39,12 @@ export default function RegisterStatusModal({
   const [openingBalance, setOpeningBalance] = useState("0");
   const [selectedCounterId, setSelectedCounterId] = useState<string>("");
   const [closingBalance, setClosingBalance] = useState("0");
-  const [mode, setMode] = useState<"summary" | "close" | "transaction">("summary");
-  const [transactionType, setTransactionType] = useState<"cash_in" | "cash_out">("cash_in");
+  const [mode, setMode] = useState<"summary" | "close" | "transaction">(
+    "summary",
+  );
+  const [transactionType, setTransactionType] = useState<
+    "cash_in" | "cash_out"
+  >("cash_in");
   const [transactionAmount, setTransactionAmount] = useState("");
   const [transactionNotes, setTransactionNotes] = useState("");
 
@@ -58,6 +62,7 @@ export default function RegisterStatusModal({
       const response: any = await api.get(
         `/billing-counters?vendor_id=${vendor?.id}&per_page=100`,
       );
+
       setCounters(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch counters", error);
@@ -67,6 +72,7 @@ export default function RegisterStatusModal({
   const handleOpenRegister = async () => {
     if (!selectedCounterId) {
       toast.error("Please select a billing counter");
+
       return;
     }
     setLoading(true);
@@ -104,6 +110,7 @@ export default function RegisterStatusModal({
   const handleTransaction = async () => {
     if (!transactionAmount || Number(transactionAmount) <= 0) {
       toast.error("Please enter a valid amount");
+
       return;
     }
     setLoading(true);
@@ -111,11 +118,18 @@ export default function RegisterStatusModal({
       // Find a default payment method for cash (usually the first one or we fetch them)
       // For now, let's assume we need to fetch them or user selects one.
       // To keep it simple, I'll fetch payment methods.
-      const pmResponse: any = await api.get(`/payment-methods?vendor_id=${vendor?.id}`);
-      const cashMethod = pmResponse.data.data.find((pm: any) => pm.name.toLowerCase().includes("cash"));
-      
+      const pmResponse: any = await api.get(
+        `/payment-methods?vendor_id=${vendor?.id}`,
+      );
+      const cashMethod = pmResponse.data.data.find((pm: any) =>
+        pm.name.toLowerCase().includes("cash"),
+      );
+
       if (!cashMethod) {
-        toast.error("No 'Cash' payment method found. Please configure one in settings.");
+        toast.error(
+          "No 'Cash' payment method found. Please configure one in settings.",
+        );
+
         return;
       }
 
@@ -131,14 +145,16 @@ export default function RegisterStatusModal({
       setTransactionNotes("");
       onSessionChange();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to record transaction");
+      toast.error(
+        error.response?.data?.message || "Failed to record transaction",
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg">
+    <Modal isOpen={isOpen} size="lg" onOpenChange={onOpenChange}>
       <ModalContent>
         {(onClose) => (
           <>
@@ -178,12 +194,20 @@ export default function RegisterStatusModal({
                 <div className="space-y-6 py-2">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 bg-default-100 rounded-lg">
-                      <p className="text-xs text-default-500 uppercase font-bold">Register</p>
-                      <p className="text-lg font-bold">{activeSession.billing_counter?.name || "N/A"}</p>
+                      <p className="text-xs text-default-500 uppercase font-bold">
+                        Register
+                      </p>
+                      <p className="text-lg font-bold">
+                        {activeSession.billing_counter?.name || "N/A"}
+                      </p>
                     </div>
                     <div className="p-4 bg-default-100 rounded-lg">
-                      <p className="text-xs text-default-500 uppercase font-bold">Opened By</p>
-                      <p className="text-lg font-bold">{activeSession.user?.name || "Me"}</p>
+                      <p className="text-xs text-default-500 uppercase font-bold">
+                        Opened By
+                      </p>
+                      <p className="text-lg font-bold">
+                        {activeSession.user?.name || "Me"}
+                      </p>
                     </div>
                   </div>
 
@@ -191,7 +215,9 @@ export default function RegisterStatusModal({
 
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <p className="text-default-500 font-medium">Opening Balance</p>
+                      <p className="text-default-500 font-medium">
+                        Opening Balance
+                      </p>
                       <p className="font-bold font-mono">
                         {Number(activeSession.opening_balance).toFixed(2)}
                       </p>
@@ -228,8 +254,8 @@ export default function RegisterStatusModal({
                   <div className="grid grid-cols-2 gap-3 pt-4">
                     <Button
                       color="primary"
-                      variant="flat"
                       startContent={<ArrowUpCircle className="w-4 h-4" />}
+                      variant="flat"
                       onPress={() => {
                         setMode("transaction");
                         setTransactionType("cash_in");
@@ -239,8 +265,8 @@ export default function RegisterStatusModal({
                     </Button>
                     <Button
                       color="danger"
-                      variant="flat"
                       startContent={<ArrowDownCircle className="w-4 h-4" />}
+                      variant="flat"
                       onPress={() => {
                         setMode("transaction");
                         setTransactionType("cash_out");
@@ -253,15 +279,17 @@ export default function RegisterStatusModal({
               ) : mode === "transaction" ? (
                 <div className="space-y-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <Button 
-                      size="sm" 
-                      variant="light" 
+                    <Button
+                      size="sm"
+                      variant="light"
                       onPress={() => setMode("summary")}
                     >
                       ← Back
                     </Button>
                     <h3 className="font-bold">
-                      {transactionType === "cash_in" ? "Add Cash (In)" : "Remove Cash (Out)"}
+                      {transactionType === "cash_in"
+                        ? "Add Cash (In)"
+                        : "Remove Cash (Out)"}
                     </h3>
                   </div>
                   <Input
@@ -291,10 +319,10 @@ export default function RegisterStatusModal({
                 </div>
               ) : (
                 <div className="space-y-4 py-2">
-                   <div className="flex items-center gap-2 mb-2">
-                    <Button 
-                      size="sm" 
-                      variant="light" 
+                  <div className="flex items-center gap-2 mb-2">
+                    <Button
+                      size="sm"
+                      variant="light"
                       onPress={() => setMode("summary")}
                     >
                       ← Back
@@ -302,7 +330,8 @@ export default function RegisterStatusModal({
                     <h3 className="font-bold text-danger">Close Register</h3>
                   </div>
                   <p className="text-sm text-default-500">
-                    Please count all the cash in your drawer and enter the total amount below.
+                    Please count all the cash in your drawer and enter the total
+                    amount below.
                   </p>
                   <Input
                     isRequired
@@ -318,29 +347,29 @@ export default function RegisterStatusModal({
             </ModalBody>
             <ModalFooter>
               {!activeSession ? (
-                <Button 
-                  className="w-full" 
-                  color="primary" 
-                  isLoading={loading} 
+                <Button
+                  className="w-full"
+                  color="primary"
+                  isLoading={loading}
                   onPress={handleOpenRegister}
                 >
                   Open Register
                 </Button>
               ) : mode === "summary" ? (
-                <Button 
-                  className="w-full" 
-                  color="danger" 
-                  variant="flat"
+                <Button
+                  className="w-full"
+                  color="danger"
                   startContent={<LogOut className="w-4 h-4" />}
+                  variant="flat"
                   onPress={() => setMode("close")}
                 >
                   End Session & Close Register
                 </Button>
               ) : mode === "close" ? (
-                <Button 
-                  className="w-full" 
-                  color="danger" 
-                  isLoading={loading} 
+                <Button
+                  className="w-full"
+                  color="danger"
+                  isLoading={loading}
                   onPress={handleCloseRegister}
                 >
                   Verify & Close Register

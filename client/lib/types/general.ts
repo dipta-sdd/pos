@@ -154,7 +154,9 @@ export interface CashRegisterSession {
     name: string;
   };
   billing_counter?: {
+    id: number;
     name: string;
+    branch_id: number;
   };
 }
 
@@ -266,4 +268,19 @@ export interface InventoryAdjustment {
   };
   branch?: Branch;
   variant?: Variant;
+}
+export interface ProductStock {
+  id: number;
+  branch_id: number;
+  product_id: number;
+  variant_id: number;
+  branch_product_id: number;
+  quantity: number;
+  cost_price: number;
+  selling_price: number;
+  expiry_date: string;
+  unit_of_measure_name?: string;
+  unit_of_measure_abbreviation?: string;
+  created_at: string;
+  updated_at: string;
 }

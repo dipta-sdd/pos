@@ -100,13 +100,17 @@ export default function ProductForm({
     },
   });
 
-  const [generatingBarcode, setGeneratingBarcode] = useState<number | null>(null);
+  const [generatingBarcode, setGeneratingBarcode] = useState<number | null>(
+    null,
+  );
 
   const handleGenerateBarcode = async (index: number, variantId?: number) => {
     if (!variantId) return;
     setGeneratingBarcode(index);
     try {
-      const response: any = await api.post(`/variants/${variantId}/generate-barcode`);
+      const response: any = await api.post(
+        `/variants/${variantId}/generate-barcode`,
+      );
 
       setValue(`variants.${index}.barcode`, response.data.barcode);
       toast.success("Barcode generated successfully");
@@ -375,15 +379,21 @@ export default function ProductForm({
                       variant="bordered"
                       {...register(`variants.${index}.barcode` as const)}
                       endContent={
-                        !watch(`variants.${index}.barcode`) && watch(`variants.${index}.id`) && (
-                          <Button 
+                        !watch(`variants.${index}.barcode`) &&
+                        watch(`variants.${index}.id`) && (
+                          <Button
                             isIconOnly
                             className="h-6 w-12 text-[10px]"
-                            color="primary" 
+                            color="primary"
                             isLoading={generatingBarcode === index}
                             size="sm"
                             variant="flat"
-                            onPress={() => handleGenerateBarcode(index, Number(watch(`variants.${index}.id`)))}
+                            onPress={() =>
+                              handleGenerateBarcode(
+                                index,
+                                Number(watch(`variants.${index}.id`)),
+                              )
+                            }
                           >
                             Gen
                           </Button>

@@ -21,7 +21,6 @@ import ViewStockModal from "./_components/ViewStockModal";
 import NewInventoryModal from "./_components/NewInventoryModal";
 
 import BarcodeDisplay from "@/components/ui/BarcodeDisplay";
-
 import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
@@ -241,15 +240,21 @@ export default function InventoryPage() {
               </div>
             );
           }
+
           return <span className="text-default-400 text-sm">No barcode</span>;
         case "stock_quantity":
           const qty = Number(item.total_quantity);
-          const formattedQty = item.is_decimal_allowed ? qty.toFixed(2) : Math.round(qty).toString();
+          const formattedQty = item.is_decimal_allowed
+            ? qty.toFixed(2)
+            : Math.round(qty).toString();
+
           return (
             <div className="flex flex-col">
               <span className="font-medium">{formattedQty}</span>
               {item.unit_abbreviation && (
-                <span className="text-tiny text-default-400">{item.unit_abbreviation}</span>
+                <span className="text-tiny text-default-400">
+                  {item.unit_abbreviation}
+                </span>
               )}
             </div>
           );
@@ -416,8 +421,8 @@ export default function InventoryPage() {
               onSuccess={() => fetchItems(currentPage)}
             />
             <ViewStockModal
-              isOpen={isViewStockModalOpen}
               isDecimalAllowed={selectedItem.is_decimal_allowed}
+              isOpen={isViewStockModalOpen}
               selectedBranchIds={selectedBranchIds}
               variantId={selectedItem.id}
               onOpenChange={() =>

@@ -124,7 +124,11 @@ export default function AddStockModal({
               )}
               <Input
                 isRequired
-                description={item.unit_abbreviation ? `Unit: ${item.unit_abbreviation}` : undefined}
+                description={
+                  item.unit_abbreviation
+                    ? `Unit: ${item.unit_abbreviation}`
+                    : undefined
+                }
                 label="Quantity"
                 placeholder="0.00"
                 step={item.is_decimal_allowed ? "0.01" : "1"}

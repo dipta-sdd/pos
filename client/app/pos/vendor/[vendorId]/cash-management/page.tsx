@@ -72,7 +72,9 @@ export default function CashManagementPage() {
   );
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [selectedItem, setSelectedItem] = useState<CashRegisterSession | null>(null);
+  const [selectedItem, setSelectedItem] = useState<CashRegisterSession | null>(
+    null,
+  );
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
@@ -140,8 +142,14 @@ export default function CashManagementPage() {
         case "status":
           return (
             <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${item.status === "open" ? "bg-success" : "bg-default-400"}`} />
-              <span className={item.status === "open" ? "text-success font-bold" : ""}>
+              <div
+                className={`w-2 h-2 rounded-full ${item.status === "open" ? "bg-success" : "bg-default-400"}`}
+              />
+              <span
+                className={
+                  item.status === "open" ? "text-success font-bold" : ""
+                }
+              >
                 {capitalize(item.status)}
               </span>
             </div>
@@ -151,9 +159,9 @@ export default function CashManagementPage() {
             <div className="flex items-center justify-end gap-2">
               {item.status === "open" && (
                 <Button
+                  color="danger"
                   size="sm"
                   variant="flat"
-                  color="danger"
                   onPress={() => {
                     setSelectedItem(item);
                     onOpen();
@@ -236,6 +244,7 @@ export default function CashManagementPage() {
                 selectionMode="multiple"
                 onSelectionChange={(keys) => {
                   const ids = Array.from(keys as Set<string>);
+
                   updateBranchFilter(ids);
                 }}
               >
@@ -289,7 +298,7 @@ export default function CashManagementPage() {
           visibleColumns={visibleColumns}
         />
 
-        <RegisterStatusModal 
+        <RegisterStatusModal
           activeSession={selectedItem}
           isOpen={isOpen}
           onOpenChange={onOpenChange}

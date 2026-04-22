@@ -34,7 +34,6 @@ import CustomTable, {
 } from "@/components/ui/CustomTable";
 import api from "@/lib/api";
 import { BillingCounter } from "@/lib/types/general";
-import { formatDateTime } from "@/lib/helper/dates";
 import Confirm from "@/components/ui/Confirm";
 import { UserLoding } from "@/components/user-loding";
 
@@ -137,6 +136,7 @@ export default function BillingCountersPage() {
   const renderCell = useCallback(
     (item: BillingCounter, columnKey: React.Key) => {
       const logCell = loggerColumns(columnKey as string, item);
+
       if (logCell) return logCell;
 
       switch (columnKey) {

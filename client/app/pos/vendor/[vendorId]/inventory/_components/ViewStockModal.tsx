@@ -162,7 +162,11 @@ export default function ViewStockModal({
                           />
                         ) : (
                           <div className="flex flex-col">
-                            <span>{isDecimalAllowed ? Number(stock.quantity).toFixed(2) : Math.round(stock.quantity)}</span>
+                            <span>
+                              {isDecimalAllowed
+                                ? Number(stock.quantity).toFixed(2)
+                                : Math.round(stock.quantity)}
+                            </span>
                           </div>
                         )}
                       </TableCell>

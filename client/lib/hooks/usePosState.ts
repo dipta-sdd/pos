@@ -1,0 +1,231 @@
+import { useState, useEffect, useCallback } from "react";
+import { v4 as uuidv4 } from "uuid";
+
+import { PosState, PosTab, CartItem } from "../types/pos";
+import { Product, Variant, ProductStock } from "../types/general";
+
+const STORAGE_KEY = "pos_state";
+
+const DEFAULT_TAB = (): PosTab => ({
+  id: uuidv4(),
+  name: "New Sale",
+  customer: null,
+  items: [],
+  selectedPaymentMethodId: null,
+  receivedAmount: 0,
+  notes: "",
+  createdAt: new Date().toISOString(),
+});
+
+export function usePosState() {
+  const [state, setState] = useState<PosState>({
+    tabs: [],
+    activeTabId: "",
+  });
+
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Initialize from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+
+        setState(parsed);
+      } catch {
+        const firstTab = DEFAULT_TAB();
+
+        setState({ tabs: [firstTab], activeTabId: firstTab.id });
+      }
+    } else {
+      const firstTab = DEFAULT_TAB();
+
+      setState({ tabs: [firstTab], activeTabId: firstTab.id });
+    }
+    setIsInitialized(true);
+  }, []);
+
+  // Sync to localStorage
+  useEffect(() => {
+    if (isInitialized) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+  }, [state, isInitialized]);
+
+  const activeTab =
+    state.tabs.find((t) => t.id === state.activeTabId) || state.tabs[0];
+
+  const addTab = useCallback(() => {
+    const newTab = DEFAULT_TAB();
+
+    setState((prev) => ({
+      tabs: [...prev.tabs, newTab],
+      activeTabId: newTab.id,
+    }));
+  }, []);
+
+  const closeTab = useCallback((id: string) => {
+    setState((prev) => {
+      const newTabs = prev.tabs.filter((t) => t.id !== id);
+
+      if (newTabs.length === 0) {
+        const firstTab = DEFAULT_TAB();
+
+        return { tabs: [firstTab], activeTabId: firstTab.id };
+      }
+      const newActiveId =
+        prev.activeTabId === id
+          ? newTabs[newTabs.length - 1].id
+          : prev.activeTabId;
+
+      return { tabs: newTabs, activeTabId: newActiveId };
+    });
+  }, []);
+
+  const setActiveTab = useCallback((id: string) => {
+    setState((prev) => ({ ...prev, activeTabId: id }));
+  }, []);
+
+  const updateActiveTab = useCallback((updates: Partial<PosTab>) => {
+    setState((prev) => ({
+      ...prev,
+      tabs: prev.tabs.map((t) =>
+        t.id === prev.activeTabId ? { ...t, ...updates } : t,
+      ),
+    }));
+  }, []);
+
+  const addToCart = useCallback(
+    (
+      product: Product,
+      variant: Variant,
+      batch: ProductStock,
+      quantity: number = 1,
+    ) => {
+      setState((prev) => {
+        const activeTab = prev.tabs.find((t) => t.id === prev.activeTabId);
+
+        if (!activeTab) return prev;
+
+        // Check if item with same variant AND batch already exists
+        const existingItemIndex = activeTab.items.findIndex(
+          (item) =>
+            item.variant.id === variant.id && item.batch.id === batch.id,
+        );
+
+        let newItems = [...activeTab.items];
+
+        if (existingItemIndex > -1) {
+          const item = newItems[existingItemIndex];
+          const newQty = item.quantity + quantity;
+
+          newItems[existingItemIndex] = calculateItemTotals({
+            ...item,
+            quantity: newQty,
+          });
+        } else {
+          const newItem: CartItem = {
+            id: uuidv4(),
+            product,
+            variant,
+            batch,
+            quantity,
+            price: Number(batch.selling_price || product.base_price || 0),
+            discount: 0,
+            tax_rate: 0, // Should be fetched or calculated
+            tax_amount: 0,
+            subtotal: 0,
+            total: 0,
+          };
+
+          newItems.push(calculateItemTotals(newItem));
+        }
+
+        return {
+          ...prev,
+          tabs: prev.tabs.map((t) =>
+            t.id === prev.activeTabId ? { ...t, items: newItems } : t,
+          ),
+        };
+      });
+    },
+    [],
+  );
+
+  const updateCartItem = useCallback(
+    (itemId: string, updates: Partial<CartItem>) => {
+      setState((prev) => {
+        const activeTab = prev.tabs.find((t) => t.id === prev.activeTabId);
+
+        if (!activeTab) return prev;
+
+        const newItems = activeTab.items.map((item) => {
+          if (item.id === itemId) {
+            return calculateItemTotals({ ...item, ...updates });
+          }
+
+          return item;
+        });
+
+        return {
+          ...prev,
+          tabs: prev.tabs.map((t) =>
+            t.id === prev.activeTabId ? { ...t, items: newItems } : t,
+          ),
+        };
+      });
+    },
+    [],
+  );
+
+  const removeFromCart = useCallback((itemId: string) => {
+    setState((prev) => ({
+      ...prev,
+      tabs: prev.tabs.map((t) =>
+        t.id === prev.activeTabId
+          ? { ...t, items: t.items.filter((i) => i.id !== itemId) }
+          : t,
+      ),
+    }));
+  }, []);
+
+  const clearCart = useCallback(() => {
+    updateActiveTab({
+      items: [],
+      customer: null,
+      receivedAmount: 0,
+      notes: "",
+    });
+  }, [updateActiveTab]);
+
+  return {
+    state,
+    activeTab,
+    isInitialized,
+    addTab,
+    closeTab,
+    setActiveTab,
+    updateActiveTab,
+    addToCart,
+    updateCartItem,
+    removeFromCart,
+    clearCart,
+  };
+}
+
+function calculateItemTotals(item: CartItem): CartItem {
+  const subtotal = item.price * item.quantity;
+  const discountAmount = item.discount; // Assuming flat for now
+  const afterDiscount = subtotal - discountAmount;
+  const taxAmount = (afterDiscount * item.tax_rate) / 100;
+  const total = afterDiscount + taxAmount;
+
+  return {
+    ...item,
+    subtotal,
+    tax_amount: taxAmount,
+    total,
+  };
+}
