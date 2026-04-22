@@ -136,6 +136,15 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
     selectedIndex,
   ]);
 
+  const handleFocusHandled = React.useCallback(() => {
+    setFocusedItemId(null);
+  }, []);
+
+  const handleEsc = React.useCallback(() => {
+    setFocusArea("search");
+    setFocusedItemId(null);
+  }, []);
+
   if (!activeTab) return null;
 
   const handleProductSearch = async (query: string): Promise<any[]> => {
@@ -240,8 +249,8 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
             focusedItemId={focusedItemId}
             items={activeTab.items}
             selectedIndex={selectedIndex}
-            onEsc={() => setFocusArea("search")}
-            onFocusHandled={() => setFocusedItemId(null)}
+            onEsc={handleEsc}
+            onFocusHandled={handleFocusHandled}
             onRemove={removeFromCart}
             onUpdateQty={updateCartItem}
           />

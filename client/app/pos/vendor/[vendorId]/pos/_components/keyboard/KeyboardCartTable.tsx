@@ -76,16 +76,30 @@ const QuantityCell = ({
         ref={inputRef}
         type="number"
         className="w-16 h-8 text-center font-mono font-bold bg-default-100 border-2 border-transparent focus:border-primary outline-none rounded-lg transition-all"
-        value={item.quantity}
+        value={item.quantity || ""}
         onChange={(e) => {
-          const q = parseInt(e.target.value);
-          if (!isNaN(q) && q > 0) {
+          const val = e.target.value;
+          
+          if (val === "") {
+            onUpdateQty(item.id, { quantity: 0 });
+            return;
+          }
+
+          const q = parseInt(val);
+
+          if (!isNaN(q)) {
             onUpdateQty(item.id, { quantity: q });
           }
         }}
         onKeyDown={(e) => {
+          // Stop propagation for keys that have global meanings in KeyboardPOS
+          if (["ArrowUp", "ArrowDown", "Delete"].includes(e.key)) {
+            e.stopPropagation();
+          }
+
           if (e.key === "Enter" || e.key === "Escape") {
             e.preventDefault();
+            e.stopPropagation();
             onEsc();
           }
         }}
