@@ -220,19 +220,33 @@ class AdminSeeder extends Seeder
                 ['created_by' => $user->id, 'updated_by' => $user->id]
             );
 
-            // 7. Create Billing Counters for each branch
-            BillingCounter::firstOrCreate(
-                ['branch_id' => $branch1->id, 'name' => 'Counter 1'],
-                ['created_by' => $user->id, 'updated_by' => $user->id]
-            );
-            BillingCounter::firstOrCreate(
-                ['branch_id' => $branch1->id, 'name' => 'Counter 2'],
-                ['created_by' => $user->id, 'updated_by' => $user->id]
-            );
-            BillingCounter::firstOrCreate(
-                ['branch_id' => $branch2->id, 'name' => 'Main Counter'],
-                ['created_by' => $user->id, 'updated_by' => $user->id]
-            );
+            // 7. Create Billing Counters for each branch with associated payment methods
+            $counters = [
+                ['branch' => $branch1, 'name' => 'Counter 1'],
+                ['branch' => $branch1, 'name' => 'Counter 2'],
+                ['branch' => $branch2, 'name' => 'Main Counter'],
+            ];
+
+            foreach ($counters as $cData) {
+                $counter = BillingCounter::firstOrCreate(
+                    ['branch_id' => $cData['branch']->id, 'name' => $cData['name']],
+                    ['created_by' => $user->id, 'updated_by' => $user->id]
+                );
+
+                PaymentMethod::firstOrCreate(
+                    ['billing_counter_id' => $counter->id],
+                    [
+                        'vendor_id' => $vendor->id,
+                        'branch_id' => $cData['branch']->id,
+                        'name' => 'Cash - ' . $counter->name,
+                        'type' => 'billing_counter',
+                        'balance' => 0,
+                        'is_active' => true,
+                        'created_by' => $user->id,
+                        'updated_by' => $user->id,
+                    ]
+                );
+            }
 
             // 8. Create Payment Methods
             $paymentMethods = [

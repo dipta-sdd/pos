@@ -19,6 +19,16 @@ class PaymentMethodController extends Controller
             $query->where('branch_id', $request->branch_id);
         }
 
+        if ($request->has('billing_counter_id')) {
+            $counterId = $request->billing_counter_id;
+            $query->where(function ($q) use ($counterId) {
+                $q->where('billing_counter_id', $counterId)
+                  ->orWhereNull('billing_counter_id');
+            });
+        } else {
+            $query->whereNull('billing_counter_id');
+        }
+
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {

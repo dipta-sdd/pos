@@ -226,7 +226,9 @@ export interface PaymentMethod {
   id: number;
   vendor_id: number;
   branch_id?: number;
+  billing_counter_id?: number;
   name: string;
+  type: 'cash' | 'card' | 'online' | 'other' | 'billing_counter';
   is_active: boolean;
   created_at: string;
   updated_at: string;

@@ -214,7 +214,7 @@ export default function PointOfSalePage() {
   return (
     <PermissionGuard permission="can_use_pos">
       {posMode === "keyboard" ? (
-        <KeyboardPOS vendorId={vendorId} />
+        <KeyboardPOS activeSession={activeSession} vendorId={vendorId} />
       ) : (
         <PosTouchScreen {...posProps} />
       )}

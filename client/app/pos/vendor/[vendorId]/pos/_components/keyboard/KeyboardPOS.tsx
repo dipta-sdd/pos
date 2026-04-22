@@ -13,13 +13,14 @@ import { KeyboardCustomer } from "./KeyboardCustomer";
 
 import { usePosState } from "@/lib/hooks/usePosState";
 import api from "@/lib/api";
-import { PaymentMethod } from "@/lib/types/general";
+import { PaymentMethod, CashRegisterSession } from "@/lib/types/general";
 
 interface KeyboardPOSProps {
   vendorId: string;
+  activeSession: CashRegisterSession | null;
 }
 
-export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
+export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId, activeSession }) => {
   const {
     activeTab,
     state,
@@ -63,9 +64,11 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
 
     const fetchMethods = async () => {
       try {
-        const res: any = await api.get(
-          `/payment-methods?vendor_id=${vendorId}`,
-        );
+        let url = `/payment-methods?vendor_id=${vendorId}`;
+        if (activeSession?.billing_counter_id) {
+          url += `&billing_counter_id=${activeSession.billing_counter_id}`;
+        }
+        const res: any = await api.get(url);
 
         setPaymentMethods(res.data.data || []);
       } catch (err) {
@@ -151,7 +154,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({ vendorId }) => {
         const method = curPaymentMethods[num - 1];
 
         if (method && curActiveTab) {
-          const isCash = method.name.toLowerCase().includes("cash");
+          const isCash = method.type === 'billing_counter' || method.name.toLowerCase().includes("cash");
 
           doAddPayment({
             methodId: method.id,

@@ -12,10 +12,16 @@ class PaymentMethod extends Model
     use HasFactory;
 
     protected $fillable = [
+        'billing_counter_id',
         'vendor_id',
         'branch_id',
         'name',
+        'type',
+        'description',
+        'balance',
         'is_active',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [
@@ -25,6 +31,11 @@ class PaymentMethod extends Model
     ];
 
     // Relationships
+    public function billingCounter(): BelongsTo
+    {
+        return $this->belongsTo(BillingCounter::class);
+    }
+
     public function vendor(): BelongsTo
     {
         return $this->belongsTo(Vendor::class);

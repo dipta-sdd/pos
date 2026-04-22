@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\BillingCounter;
+use App\Models\PaymentMethod;
+use App\Models\Branch;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BillingCounterController extends Controller
 {
@@ -42,9 +45,26 @@ class BillingCounterController extends Controller
         $validatedData['created_by'] = $request->user()->id;
         $validatedData['updated_by'] = $request->user()->id;
 
-        $billingCounter = BillingCounter::create($validatedData);
+        return DB::transaction(function () use ($validatedData, $request) {
+            $billingCounter = BillingCounter::create($validatedData);
 
-        return response()->json($billingCounter, 201);
+            // Create associated payment method
+            $branch = Branch::findOrFail($validatedData['branch_id']);
+            
+            PaymentMethod::create([
+                'billing_counter_id' => $billingCounter->id,
+                'vendor_id' => $branch->vendor_id,
+                'branch_id' => $branch->id,
+                'name' => 'Cash - ' . $billingCounter->name,
+                'type' => 'billing_counter',
+                'balance' => 0,
+                'is_active' => true,
+                'created_by' => $request->user()->id,
+                'updated_by' => $request->user()->id,
+            ]);
+
+            return response()->json($billingCounter, 201);
+        });
     }
 
     public function show(BillingCounter $billingCounter)
