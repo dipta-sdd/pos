@@ -59,11 +59,15 @@ export default function PointOfSalePage() {
   const fetchActiveSession = async () => {
     if (!vendor?.id) return;
     try {
-      const response: any = await api.get("/cash-register-sessions/active");
+      const response: any = await api.get("/pos/active-session");
 
       setActiveSession(response.data);
-    } catch (error) {
-      console.error("Failed to fetch active session", error);
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        setActiveSession(null);
+      } else {
+        console.error("Failed to fetch active session", error);
+      }
     } finally {
       setCheckingSession(false);
     }

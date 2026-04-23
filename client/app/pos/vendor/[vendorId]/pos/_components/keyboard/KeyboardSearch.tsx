@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { Autocomplete, AutocompleteItem, Avatar } from "@heroui/react";
+import { Autocomplete, AutocompleteItem, Avatar, Kbd } from "@heroui/react";
 import { Box } from "lucide-react";
 import { clsx } from "clsx";
 
@@ -90,7 +90,7 @@ export const KeyboardSearch: React.FC<KeyboardSearchProps> = ({
           ),
         }}
         endContent={
-          <span className="text-default-400 text-tiny font-black">[F1]</span>
+          <Kbd>F1</Kbd>
         }
         inputValue={inputValue}
         isLoading={isLoading}

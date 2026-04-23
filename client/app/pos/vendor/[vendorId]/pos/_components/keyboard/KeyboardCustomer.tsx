@@ -6,6 +6,7 @@ import {
   Listbox,
   ListboxItem,
   ScrollShadow,
+  Kbd,
 } from "@heroui/react";
 import { User, Phone, Search } from "lucide-react";
 import debounce from "lodash/debounce";
@@ -112,7 +113,7 @@ export const KeyboardCustomer: React.FC<KeyboardCustomerProps> = ({
       <CardBody className="p-4 gap-4">
         <div className="flex justify-between items-center">
           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-default-400">
-            Customer Info [F2]
+            Customer Info <Kbd>F2</Kbd>
           </span>
           {selectedCustomer && (
             <button

@@ -38,6 +38,20 @@ class CashRegisterSessionController extends Controller
         return response()->json($session);
     }
 
+    public function posActiveSession(Request $request)
+    {
+        $session = CashRegisterSession::with(['billingCounter', 'user'])
+            ->where('user_id', $request->user()->id)
+            ->where('status', 'open')
+            ->first();
+
+        if (!$session) {
+            return response()->json(['message' => 'No active session found.'], 404);
+        }
+
+        return response()->json($session);
+    }
+
     public function openSession(Request $request)
     {
         $validatedData = $request->validate([

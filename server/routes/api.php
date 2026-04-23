@@ -207,6 +207,7 @@ Route::middleware('log.api')->group(function () {
 
         // POS-specific specialized routes
         Route::prefix('pos')->middleware('permission:can_use_pos')->group(function () {
+            Route::get('/active-session', [CashRegisterSessionController::class, 'posActiveSession']);
             Route::get('/customers', [CustomerController::class, 'posIndex']);
             Route::get('/payment-methods', [PaymentMethodController::class, 'posIndex']);
         });
