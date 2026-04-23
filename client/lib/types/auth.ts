@@ -109,6 +109,7 @@ export interface Vendor {
   currency: string;
   timezone: string;
   language: string;
+  settings?: any;
   created_at: string;
   updated_at: string;
   branches: any[]; // You can define a Branch interface if needed

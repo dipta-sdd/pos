@@ -576,4 +576,61 @@ class VendorController extends Controller
             ], 500);
         }
     }
+    /**
+     * Update vendor settings.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateSettings(Request $request, int $id): JsonResponse
+    {
+        try {
+            $vendor = Vendor::findOrFail($id);
+
+            // Check if user has permission to update settings
+            $membership = Membership::where('user_id', Auth::id())
+                ->where('vendor_id', $id)
+                ->first();
+
+            if (!$membership || !$membership->role->can_manage_shop_settings) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized: You do not have permission to manage shop settings.'
+                ], 403);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'settings' => 'required|array',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            // Merge new settings with existing ones
+            $currentSettings = $vendor->settings ?? [];
+            $newSettings = array_merge($currentSettings, $request->settings);
+
+            $vendor->settings = $newSettings;
+            $vendor->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Settings updated successfully',
+                'data' => $vendor->settings
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update settings',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

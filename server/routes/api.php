@@ -83,6 +83,7 @@ Route::middleware('log.api')->group(function () {
             Route::get('/', [VendorController::class, 'index']);
             Route::middleware('vendor.scope')->group(function () {
                 Route::get('/{vendor_id}', [VendorController::class, 'show']);
+                Route::put('/{vendor_id}/settings', [VendorController::class, 'updateSettings'])->middleware('permission:can_manage_shop_settings');
             });
         });
 

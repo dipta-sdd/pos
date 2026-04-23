@@ -95,6 +95,12 @@ export default function PointOfSalePage() {
     : 0;
   const remaining = grandTotal - totalApplied;
 
+  useEffect(() => {
+    if (vendor?.settings?.pos_interface) {
+      setPosMode(vendor.settings.pos_interface);
+    }
+  }, [vendor]);
+
   const fetchActiveSession = async () => {
     if (!vendor?.id) return;
     try {

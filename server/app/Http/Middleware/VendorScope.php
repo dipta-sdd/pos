@@ -24,8 +24,8 @@ class VendorScope
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // Get vendor id from request route (matches /vendors/{id} and similar)
-        $vendorId = $request->route('id');
+        // Get vendor id from request route
+        $vendorId = $request->route('vendor_id') ?? $request->route('id') ?? $request->input('vendor_id');
         
 
         if (!$vendorId) {

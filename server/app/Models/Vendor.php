@@ -22,11 +22,13 @@ class Vendor extends Model
         'currency',
         'timezone',
         'language',
+        'settings',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'settings' => 'array',
     ];
 
     // Relationships

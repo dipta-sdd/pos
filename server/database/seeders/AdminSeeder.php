@@ -61,6 +61,12 @@ class AdminSeeder extends Seeder
                     'currency' => 'USD',
                     'timezone' => 'UTC',
                     'language' => 'en',
+                    'settings' => [
+                        'pos_interface' => 'touch',
+                        'vat_rate' => 5,
+                        'low_stock_threshold' => 10,
+                        'currency_symbol' => '৳',
+                    ],
                 ]
             );
 

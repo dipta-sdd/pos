@@ -257,6 +257,12 @@ export default function Sidebar() {
       permission: "can_manage_shop_settings",
       subItems: [
         {
+          icon: TabletSmartphone,
+          label: "POS Settings",
+          href: `/pos/vendor/${vendor.id}/settings`,
+          permission: "can_manage_shop_settings",
+        },
+        {
           icon: Briefcase,
           label: "Business Profile",
           href: `/pos/vendor/${vendor.id}/settings/profile`,
