@@ -49,8 +49,8 @@ export const KeyboardPayment: React.FC<KeyboardPaymentProps> = ({
             key={p.id}
             className={clsx(
               "flex flex-col gap-1 p-2 transition-all",
-              !p.isCash && "rounded-xl border-2",
-              !p.isCash && (isFocused ? "bg-white border-primary shadow-sm" : "bg-default-50 border-default-200"),
+              !p.isCash && "rounded-xl",
+              !p.isCash && (isFocused ? "bg-white shadow-sm" : "bg-default-50"),
               p.isCash && "bg-transparent border-b border-default-100 pb-2"
             )}
           >
@@ -141,11 +141,11 @@ export const KeyboardPayment: React.FC<KeyboardPaymentProps> = ({
                 />
               </div>
 
-              {/* Applied Row - Only if manual or not cash */}
-              {(p.isManualApplied || !p.isCash) && (
+              {/* Applied Row - Only if manual cash */}
+              {p.isManualApplied && (
                 <div className="flex items-center justify-between gap-4 border-t border-default-100 pt-2">
                   <span className="text-[10px] font-bold text-primary uppercase tracking-tight">
-                    Applied {p.isManualApplied && "(Manual)"}
+                    Applied (Manual)
                   </span>
                   <Input
                     className="w-28 font-mono"
@@ -162,6 +162,27 @@ export const KeyboardPayment: React.FC<KeyboardPaymentProps> = ({
                         changeAmount: p.isCash
                           ? Math.max(0, p.tenderedAmount - aAmount)
                           : 0,
+                      });
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* Reference Row - Only for non-cash */}
+              {!p.isCash && (
+                <div className="flex items-center justify-between gap-4 border-t border-default-100 pt-2">
+                  <span className="text-[10px] font-bold text-default-500 uppercase tracking-tight">
+                    Reference
+                  </span>
+                  <Input
+                    className="w-28"
+                    placeholder="Ref #"
+                    size="sm"
+                    variant="bordered"
+                    value={p.reference || ""}
+                    onValueChange={(val) => {
+                      onUpdatePayment(p.id, {
+                        reference: val,
                       });
                     }}
                   />

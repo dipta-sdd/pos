@@ -599,25 +599,6 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                 </div>
               )}
 
-              <div
-                className={clsx(
-                  "flex justify-between items-center p-2 rounded-lg mt-1",
-                  remaining > 0
-                    ? "bg-danger-50 text-danger"
-                    : "bg-success-50 text-success",
-                )}
-              >
-                <span className="text-xs font-black uppercase">Remaining</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-mono font-black">
-                    ৳{" "}
-                    {remaining.toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                    })}
-                  </span>
-                  {remaining > 0 && <span className="animate-pulse">⚠️</span>}
-                </div>
-              </div>
             </CardBody>
           </Card>
 
@@ -755,32 +736,39 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
             </CardBody>
           </Card>
 
-          <Button
-            className="w-full h-12 font-black text-lg uppercase tracking-widest shadow-xl rounded-2xl transition-all hover:scale-[1.02] active:scale-95"
-            color={
-              remaining <= 0 && activeTab.items.length > 0
-                ? "success"
-                : "default"
-            }
-            isDisabled={
-              remaining > 0 || activeTab.items.length === 0 || isProcessing
-            }
-            size="lg"
-            onPress={handleCheckout}
-          >
-            {isProcessing ? (
-              "Processing..."
-            ) : remaining > 0 ? (
-              "Pending Payment..."
-            ) : (
-              <div className="flex flex-col items-center">
-                <span>Complete Sale</span>
-                <span className="text-[10px] font-bold opacity-60">
-                  Press [ENTER]
+          {remaining > 0 ? (
+            <div className="flex justify-between items-center w-full h-12 px-6 rounded-2xl bg-danger-500 text-white shadow-lg shadow-danger-500/30">
+              <span className="text-sm font-black uppercase tracking-widest">Remaining to Pay</span>
+              <div className="flex items-center gap-2">
+                <span className="text-xl font-mono font-black">
+                  ৳{" "}
+                  {remaining.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                  })}
                 </span>
+                <span className="animate-pulse text-lg">⚠️</span>
               </div>
-            )}
-          </Button>
+            </div>
+          ) : (
+            <Button
+              className="w-full h-12 font-black text-lg uppercase tracking-widest shadow-xl rounded-2xl transition-all hover:scale-[1.02] active:scale-95"
+              color={activeTab.items.length > 0 ? "success" : "default"}
+              isDisabled={activeTab.items.length === 0 || isProcessing}
+              size="lg"
+              onPress={handleCheckout}
+            >
+              {isProcessing ? (
+                "Processing..."
+              ) : (
+                <div className="flex flex-col items-center">
+                  <span>Complete Sale</span>
+                  <span className="text-[10px] font-bold opacity-60">
+                    Press [ENTER]
+                  </span>
+                </div>
+              )}
+            </Button>
+          )}
         </div>
       </div>
 
