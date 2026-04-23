@@ -175,7 +175,9 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
           const availableMethods = curPaymentMethods.filter(
             (pm: PaymentMethod) =>
               pm.type === targetType &&
-              !(curActiveTab.payments || []).some((p: any) => p.methodId === pm.id),
+              !(curActiveTab.payments || []).some(
+                (p: any) => p.methodId === pm.id,
+              ),
           );
 
           if (availableMethods.length === 1) {
@@ -578,7 +580,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                       : "grid-cols-2",
                   )}
                 >
-                  {!activeTab.payments.some((p : PosPayment) => p.isCash) && (
+                  {!activeTab.payments.some((p: PosPayment) => p.isCash) && (
                     <Button
                       className="font-bold text-[10px] uppercase h-8"
                       variant="flat"
@@ -587,7 +589,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                           (m) =>
                             m.type === "billing_counter" &&
                             !activeTab.payments.some(
-                              (p:) => p.methodId === m.id,
+                              (p: PosPayment) => p.methodId === m.id,
                             ),
                         );
                         if (method) {
@@ -612,7 +614,9 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                       const availableMethods = paymentMethods.filter(
                         (m) =>
                           m.type === "card" &&
-                          !activeTab.payments.some((p:) => p.methodId === m.id),
+                          !activeTab.payments.some(
+                            (p: PosPayment) => p.methodId === m.id,
+                          ),
                       );
                       if (availableMethods.length === 1) {
                         const method = availableMethods[0];
@@ -642,7 +646,9 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                       const availableMethods = paymentMethods.filter(
                         (m) =>
                           m.type === "online" &&
-                          !activeTab.payments.some((p:) => p.methodId === m.id),
+                          !activeTab.payments.some(
+                            (p: PosPayment) => p.methodId === m.id,
+                          ),
                       );
                       if (availableMethods.length === 1) {
                         const method = availableMethods[0];
@@ -672,7 +678,9 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                       const availableMethods = paymentMethods.filter(
                         (m) =>
                           m.type === "other" &&
-                          !activeTab.payments.some((p:) => p.methodId === m.id),
+                          !activeTab.payments.some(
+                            (p: PosPayment) => p.methodId === m.id,
+                          ),
                       );
                       if (availableMethods.length === 1) {
                         const method = availableMethods[0];
