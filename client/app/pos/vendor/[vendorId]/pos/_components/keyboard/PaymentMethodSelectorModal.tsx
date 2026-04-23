@@ -19,12 +19,28 @@ export const PaymentMethodSelectorModal: React.FC<Props> = ({
   onSelect,
   title,
 }) => {
+  const listboxRef = React.useRef<any>(null);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      // Short delay to ensure the modal content is fully rendered before focusing
+      const timer = setTimeout(() => {
+        if (listboxRef.current) {
+          listboxRef.current.focus();
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm" hideCloseButton>
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1 text-primary">{title}</ModalHeader>
         <ModalBody className="pb-6">
           <Listbox
+            ref={listboxRef}
+            autoFocus
             aria-label="Select Payment Method"
             variant="flat"
             onAction={(key) => {
@@ -45,9 +61,9 @@ export const PaymentMethodSelectorModal: React.FC<Props> = ({
               </ListboxItem>
             ))}
           </Listbox>
-          <div className="text-[10px] text-default-400 text-center font-bold uppercase tracking-widest pt-2">
+          {/* <div className="text-[10px] text-default-400 text-center font-bold uppercase tracking-widest pt-2">
             Use Arrows & Enter to Select
-          </div>
+          </div> */}
         </ModalBody>
       </ModalContent>
     </Modal>
