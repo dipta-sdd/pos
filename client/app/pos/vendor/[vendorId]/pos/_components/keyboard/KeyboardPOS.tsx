@@ -9,6 +9,7 @@ import {
   CardBody,
   Divider,
   Input,
+  useDisclosure,
 } from "@heroui/react";
 import { toast } from "sonner";
 import { ShortcutKey } from "@/components/ui/ShortcutKey";
@@ -19,6 +20,7 @@ import { KeyboardSearch } from "./KeyboardSearch";
 import { KeyboardCartTable } from "./KeyboardCartTable";
 import { KeyboardPayment } from "./KeyboardPayment";
 import { KeyboardCustomer } from "./KeyboardCustomer";
+import { PaymentMethodSelectorModal } from "./PaymentMethodSelectorModal";
 
 import { usePosState } from "@/lib/hooks/usePosState";
 import api from "@/lib/api";
@@ -58,6 +60,15 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
     "search" | "cart" | "payment" | "customer"
   >("search");
   const [searchFocusTrigger, setSearchFocusTrigger] = useState(0);
+
+  // Method Selector State
+  const { 
+    isOpen: isSelectorOpen, 
+    onOpen: onSelectorOpen, 
+    onOpenChange: onSelectorOpenChange 
+  } = useDisclosure();
+  const [selectorMethods, setSelectorMethods] = useState<PaymentMethod[]>([]);
+  const [selectorTitle, setSelectorTitle] = useState("");
 
   // Derived state
   const subtotal = activeTab
@@ -220,12 +231,13 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
         const targetType = typeMap[num];
 
         if (targetType && curActiveTab) {
-          // Find the first method of this type that isn't already added
-          const method = curPaymentMethods.find(
+          // Find methods of this type that aren't already added
+          const availableMethods = curPaymentMethods.filter(
             (pm) => pm.type === targetType && !(curActiveTab.payments || []).some(p => p.methodId === pm.id)
           );
 
-          if (method) {
+          if (availableMethods.length === 1) {
+            const method = availableMethods[0];
             doAddPayment({
               methodId: method.id,
               methodName: method.name,
@@ -235,6 +247,10 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
               changeAmount: 0,
             });
             setFocusArea("payment");
+          } else if (availableMethods.length > 1) {
+            setSelectorMethods(availableMethods);
+            setSelectorTitle(`Select ${targetType.replace('_', ' ')} Method`);
+            onSelectorOpen();
           } else {
             const hasAny = curPaymentMethods.some(pm => pm.type === targetType);
             if (!hasAny) {
@@ -638,10 +654,11 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                     className="font-bold text-[10px] uppercase h-8"
                     variant="flat"
                     onPress={() => {
-                      const method = paymentMethods.find(
+                      const availableMethods = paymentMethods.filter(
                         (m) => m.type === "card" && !activeTab.payments.some(p => p.methodId === m.id),
                       );
-                      if (method) {
+                      if (availableMethods.length === 1) {
+                        const method = availableMethods[0];
                         addPayment({
                           methodId: method.id,
                           methodName: method.name,
@@ -650,6 +667,10 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                           appliedAmount: remaining > 0 ? remaining : 0,
                           changeAmount: 0,
                         });
+                      } else if (availableMethods.length > 1) {
+                        setSelectorMethods(availableMethods);
+                        setSelectorTitle("Select Card Method");
+                        onSelectorOpen();
                       } else {
                         toast.error("No more card methods available");
                       }
@@ -661,10 +682,11 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                     className="font-bold text-[10px] uppercase h-8"
                     variant="flat"
                     onPress={() => {
-                      const method = paymentMethods.find(
+                      const availableMethods = paymentMethods.filter(
                         (m) => m.type === "online" && !activeTab.payments.some(p => p.methodId === m.id),
                       );
-                      if (method) {
+                      if (availableMethods.length === 1) {
+                        const method = availableMethods[0];
                         addPayment({
                           methodId: method.id,
                           methodName: method.name,
@@ -673,6 +695,10 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                           appliedAmount: remaining > 0 ? remaining : 0,
                           changeAmount: 0,
                         });
+                      } else if (availableMethods.length > 1) {
+                        setSelectorMethods(availableMethods);
+                        setSelectorTitle("Select Online Method");
+                        onSelectorOpen();
                       } else {
                         toast.error("No more online methods available");
                       }
@@ -684,10 +710,11 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                     className="font-bold text-[10px] uppercase h-8"
                     variant="flat"
                     onPress={() => {
-                      const method = paymentMethods.find(
+                      const availableMethods = paymentMethods.filter(
                         (m) => m.type === "other" && !activeTab.payments.some(p => p.methodId === m.id),
                       );
-                      if (method) {
+                      if (availableMethods.length === 1) {
+                        const method = availableMethods[0];
                         addPayment({
                           methodId: method.id,
                           methodName: method.name,
@@ -696,6 +723,10 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                           appliedAmount: remaining > 0 ? remaining : 0,
                           changeAmount: 0,
                         });
+                      } else if (availableMethods.length > 1) {
+                        setSelectorMethods(availableMethods);
+                        setSelectorTitle("Select Other Method");
+                        onSelectorOpen();
                       } else {
                         toast.error("No more other methods available");
                       }
@@ -769,6 +800,23 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
           <ShortcutKey>ENTER</ShortcutKey>
         </div>
       </div>
+      <PaymentMethodSelectorModal
+        isOpen={isSelectorOpen}
+        onOpenChange={onSelectorOpenChange}
+        methods={selectorMethods}
+        title={selectorTitle}
+        onSelect={(method) => {
+          addPayment({
+            methodId: method.id,
+            methodName: method.name,
+            isCash: method.type === "billing_counter",
+            tenderedAmount: remaining > 0 ? remaining : 0,
+            appliedAmount: remaining > 0 ? remaining : 0,
+            changeAmount: 0,
+          });
+          setFocusArea("payment");
+        }}
+      />
     </div>
   );
 };
