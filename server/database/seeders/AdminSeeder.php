@@ -251,9 +251,12 @@ class AdminSeeder extends Seeder
             // 8. Create Global Payment Methods
             $paymentMethods = [
                 ['name' => 'Cash', 'type' => 'cash', 'is_active' => true],
-                ['name' => 'Card', 'type' => 'card', 'is_active' => true],
+                ['name' => 'Publai Bank', 'type' => 'card', 'is_active' => true],
+                ['name' => 'Commercial Bank', 'type' => 'card', 'is_active' => true],
+                ['name' => 'Awash Bank', 'type' => 'card', 'is_active' => true],
+                ['name' => 'Dashen Bank', 'type' => 'card', 'is_active' => true],
                 ['name' => 'Bank Transfer', 'type' => 'online', 'is_active' => true],
-                ['name' => 'Mobile Money', 'type' => 'online', 'is_active' => true],
+                ['name' => 'CBE Birr', 'type' => 'online', 'is_active' => true],
             ];
  
             foreach ($paymentMethods as $pm) {

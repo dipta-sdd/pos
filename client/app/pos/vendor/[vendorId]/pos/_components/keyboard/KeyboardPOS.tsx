@@ -423,315 +423,298 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
             }
           />
           {/* 🧾 ORDER SUMMARY */}
-          <Card className="bg-default-50/50 border-default-200" shadow="none">
-            <CardBody className="p-4 gap-3">
-              <div className="flex justify-between items-center pb-2 border-b border-default-100">
-                <span className="text-[10px] font-black uppercase tracking-widest text-default-400">
-                  🧾 Order Summary
-                </span>
-                <div className="bg-primary-100 text-primary px-2 py-0.5 rounded-full text-[10px] font-bold">
-                  {activeTab.items.length} Items
+          {/* COMBINED BILLING CARD */}
+          <Card className="bg-default-50/50 border-default-200 flex flex-col gap-0" shadow="none">
+            <CardBody className="p-0 gap-0">
+              {/* 🧾 ORDER SUMMARY */}
+              <div className="p-4 gap-3 flex flex-col border-b border-default-200">
+                <div className="flex justify-between items-center pb-2 border-b border-default-100">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-default-400">
+                    🧾 Order Summary
+                  </span>
+                  <div className="bg-primary-100 text-primary px-2 py-0.5 rounded-full text-[10px] font-bold">
+                    {activeTab.items.length} Items
+                  </div>
                 </div>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-default-500">Subtotal</span>
-                <span className="font-mono font-bold tracking-tight">
-                  ৳{" "}
-                  {subtotal.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-default-500">VAT (5%)</span>
-                <span className="font-mono font-bold tracking-tight">
-                  ৳{" "}
-                  {totalTax.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-            </CardBody>
-          </Card>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-default-500">Subtotal</span>
+                  <span className="font-mono font-bold tracking-tight">
+                    ৳{" "}
+                    {subtotal.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-default-500">VAT (5%)</span>
+                  <span className="font-mono font-bold tracking-tight">
+                    ৳{" "}
+                    {totalTax.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
 
-          {/* 🎯 ADJUSTMENTS */}
-          <Card className="bg-default-50/50 border-default-200" shadow="none">
-            <CardBody className="p-4 gap-3">
-              <span className="text-[10px] font-black uppercase tracking-widest text-default-400 pb-1">
-                🎯 Adjustments
-              </span>
+                {/* Discount Row */}
+                <div className="flex items-center justify-between gap-4 pt-1">
+                  <span className="text-xs font-bold text-default-600">
+                    Discount
+                  </span>
+                  <div className="flex gap-2 items-center">
+                    <Input
+                      className="w-24 font-mono"
+                      placeholder="0.00"
+                      size="sm"
+                      type="number"
+                      variant="bordered"
+                      value={activeTab.discount_value.toString()}
+                      onValueChange={(val) =>
+                        updateActiveTab({ discount_value: parseFloat(val) || 0 })
+                      }
+                    />
+                    <div className="flex bg-default-100 p-0.5 rounded-lg h-7">
+                      <button
+                        className={clsx(
+                          "px-2 text-[10px] font-bold rounded-md transition-all",
+                          activeTab.discount_type === "percentage"
+                            ? "bg-white shadow-sm text-primary"
+                            : "text-default-400",
+                        )}
+                        onClick={() =>
+                          updateActiveTab({ discount_type: "percentage" })
+                        }
+                      >
+                        %
+                      </button>
+                      <button
+                        className={clsx(
+                          "px-2 text-[10px] font-bold rounded-md transition-all",
+                          activeTab.discount_type === "fixed"
+                            ? "bg-white shadow-sm text-primary"
+                            : "text-default-400",
+                        )}
+                        onClick={() =>
+                          updateActiveTab({ discount_type: "fixed" })
+                        }
+                      >
+                        ৳
+                      </button>
+                    </div>
+                  </div>
+                </div>
 
-              {/* Discount Row */}
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-xs font-bold text-default-600">
-                  Discount
-                </span>
-                <div className="flex gap-2 items-center">
+                {/* Coupon Row */}
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-xs font-bold text-default-600">
+                    Coupon
+                  </span>
+                  <div className="flex gap-2 items-center">
+                    <Input
+                      className="w-32"
+                      placeholder="CODE"
+                      size="sm"
+                      variant="bordered"
+                      value={activeTab.coupon_code}
+                      onValueChange={(val) =>
+                        updateActiveTab({ coupon_code: val })
+                      }
+                    />
+                    <Button
+                      className="h-7 min-w-0 px-3 font-bold text-[10px]"
+                      color="primary"
+                      size="sm"
+                      variant="flat"
+                    >
+                      APPLY
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Extra Charge Row */}
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-xs font-bold text-default-600">
+                    Extra
+                  </span>
                   <Input
                     className="w-24 font-mono"
                     placeholder="0.00"
                     size="sm"
                     type="number"
                     variant="bordered"
-                    value={activeTab.discount_value.toString()}
+                    value={activeTab.extra_charge.toString()}
                     onValueChange={(val) =>
-                      updateActiveTab({ discount_value: parseFloat(val) || 0 })
+                      updateActiveTab({ extra_charge: parseFloat(val) || 0 })
                     }
                   />
-                  <div className="flex bg-default-100 p-0.5 rounded-lg h-7">
-                    <button
-                      className={clsx(
-                        "px-2 text-[10px] font-bold rounded-md transition-all",
-                        activeTab.discount_type === "percentage"
-                          ? "bg-white shadow-sm text-primary"
-                          : "text-default-400",
-                      )}
-                      onClick={() =>
-                        updateActiveTab({ discount_type: "percentage" })
-                      }
-                    >
-                      %
-                    </button>
-                    <button
-                      className={clsx(
-                        "px-2 text-[10px] font-bold rounded-md transition-all",
-                        activeTab.discount_type === "fixed"
-                          ? "bg-white shadow-sm text-primary"
-                          : "text-default-400",
-                      )}
-                      onClick={() =>
-                        updateActiveTab({ discount_type: "fixed" })
-                      }
-                    >
-                      ৳
-                    </button>
-                  </div>
                 </div>
               </div>
 
-              {/* Coupon Row */}
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-xs font-bold text-default-600">
-                  Coupon
+              {/* 💳 PAYMENTS */}
+              <div className="p-3 gap-2 flex flex-col">
+                <span className="text-[10px] font-black uppercase tracking-widest text-default-400">
+                  💳 Payments
                 </span>
-                <div className="flex gap-2 items-center">
-                  <Input
-                    className="w-32"
-                    placeholder="CODE"
-                    size="sm"
-                    variant="bordered"
-                    value={activeTab.coupon_code}
-                    onValueChange={(val) =>
-                      updateActiveTab({ coupon_code: val })
-                    }
-                  />
-                  <Button
-                    className="h-7 min-w-0 px-3 font-bold text-[10px]"
-                    color="primary"
-                    size="sm"
-                    variant="flat"
-                  >
-                    APPLY
-                  </Button>
-                </div>
-              </div>
 
-              {/* Extra Charge Row */}
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-xs font-bold text-default-600">
-                  Extra
-                </span>
-                <Input
-                  className="w-24 font-mono"
-                  placeholder="0.00"
-                  size="sm"
-                  type="number"
-                  variant="bordered"
-                  value={activeTab.extra_charge.toString()}
-                  onValueChange={(val) =>
-                    updateActiveTab({ extra_charge: parseFloat(val) || 0 })
-                  }
-                />
-              </div>
-            </CardBody>
-          </Card>
-
-          {/* 💰 PAYMENT STATUS */}
-          <Card className="bg-default-50/50 border-default-200" shadow="none">
-            <CardBody className="p-3 gap-2">
-              <span className="text-[10px] font-black uppercase tracking-widest text-default-400">
-                💰 Payment Status
-              </span>
-
-              <div className="flex justify-between items-center py-1">
-                <span className="text-xs font-black uppercase text-primary">
-                  Grand Total
-                </span>
-                <span className="text-2xl font-mono font-black tracking-tighter">
-                  ৳{" "}
-                  {grandTotal.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center text-sm ">
-                <span className="text-default-500">Paid Amount</span>
-                <span className="font-mono font-bold text-success">
-                  ৳{" "}
-                  {totalApplied.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-
-              {totalChange > 0 && (
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-default-500 font-bold uppercase text-[10px]">
-                    Change
+                <div className="flex justify-between items-center py-1">
+                  <span className="text-xs font-black uppercase text-primary">
+                    Grand Total
                   </span>
-                  <span className="font-mono font-bold text-success">
+                  <span className="text-2xl font-mono font-black tracking-tighter">
                     ৳{" "}
-                    {totalChange.toLocaleString(undefined, {
+                    {grandTotal.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
                     })}
                   </span>
                 </div>
-              )}
 
-            </CardBody>
-          </Card>
+                <div className="flex justify-between items-center text-sm ">
+                  <span className="text-default-500">Paid Amount</span>
+                  <span className="font-mono font-bold text-success">
+                    ৳{" "}
+                    {totalApplied.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
 
-          {/* 💳 PAYMENTS */}
-          <Card className="bg-default-50/50 border-default-200" shadow="none">
-            <CardBody className="p-2 gap-2">
-              <span className="text-[10px] font-black uppercase tracking-widest text-default-400">
-                💳 Payments
-              </span>
-
-              <KeyboardPayment
-                grandTotal={grandTotal}
-                isFocused={focusArea === "payment"}
-                payments={activeTab.payments}
-                onRemovePayment={removePayment}
-                onUpdatePayment={updatePayment}
-              />
-
-              <div
-                className={clsx(
-                  "grid gap-2",
-                  activeTab.payments.some((p) => p.isCash)
-                    ? "grid-cols-3"
-                    : "grid-cols-2",
+                {totalChange > 0 && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-default-500 font-bold uppercase text-[10px]">
+                      Change
+                    </span>
+                    <span className="font-mono font-bold text-success">
+                      ৳{" "}
+                      {totalChange.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
                 )}
-              >
-                {!activeTab.payments.some((p) => p.isCash) && (
+
+                <KeyboardPayment
+                  grandTotal={grandTotal}
+                  isFocused={focusArea === "payment"}
+                  payments={activeTab.payments}
+                  onRemovePayment={removePayment}
+                  onUpdatePayment={updatePayment}
+                />
+
+                <div
+                  className={clsx(
+                    "grid gap-2",
+                    activeTab.payments.some((p) => p.isCash)
+                      ? "grid-cols-3"
+                      : "grid-cols-2",
+                  )}
+                >
+                  {!activeTab.payments.some((p) => p.isCash) && (
+                    <Button
+                      className="font-bold text-[10px] uppercase h-8"
+                      variant="flat"
+                      onPress={() => {
+                        const method = paymentMethods.find(
+                          (m) => m.type === "billing_counter",
+                        );
+                        if (method) {
+                          addPayment({
+                            methodId: method.id,
+                            methodName: method.name,
+                            isCash: true,
+                            tenderedAmount: 0,
+                            appliedAmount: 0,
+                            changeAmount: 0,
+                          });
+                        }
+                      }}
+                    >
+                      Cash <ShortcutKey>Alt+0</ShortcutKey>
+                    </Button>
+                  )}
                   <Button
                     className="font-bold text-[10px] uppercase h-8"
                     variant="flat"
                     onPress={() => {
                       const method = paymentMethods.find(
-                        (m) => m.type === "billing_counter",
+                        (m) => m.type === "card",
                       );
                       if (method) {
-                        addPayment({
-                          methodId: method.id,
-                          methodName: method.name,
-                          isCash: true,
-                          tenderedAmount: 0,
-                          appliedAmount: 0,
-                          changeAmount: 0,
-                        });
+                        const isExisting = activeTab.payments.some(
+                          (p) => p.methodId === method.id,
+                        );
+                        if (!isExisting) {
+                          addPayment({
+                            methodId: method.id,
+                            methodName: method.name,
+                            isCash: false,
+                            tenderedAmount: remaining > 0 ? remaining : 0,
+                            appliedAmount: remaining > 0 ? remaining : 0,
+                            changeAmount: 0,
+                          });
+                        } else {
+                          toast.error("Card is already added");
+                        }
                       }
                     }}
                   >
-                    Cash <ShortcutKey>Alt+0</ShortcutKey>
+                    Card <ShortcutKey>Alt+1</ShortcutKey>
                   </Button>
-                )}
-                <Button
-                  className="font-bold text-[10px] uppercase h-8"
-                  variant="flat"
-                  onPress={() => {
-                    const method = paymentMethods.find(
-                      (m) => m.type === "card",
-                    );
-                    if (method) {
-                      const isExisting = activeTab.payments.some(
-                        (p) => p.methodId === method.id,
+                  <Button
+                    className="font-bold text-[10px] uppercase h-8"
+                    variant="flat"
+                    onPress={() => {
+                      const method = paymentMethods.find(
+                        (m) => m.type === "online",
                       );
-                      if (!isExisting) {
-                        addPayment({
-                          methodId: method.id,
-                          methodName: method.name,
-                          isCash: false,
-                          tenderedAmount: remaining > 0 ? remaining : 0,
-                          appliedAmount: remaining > 0 ? remaining : 0,
-                          changeAmount: 0,
-                        });
-                      } else {
-                        toast.error("Card is already added");
+                      if (method) {
+                        const isExisting = activeTab.payments.some(
+                          (p) => p.methodId === method.id,
+                        );
+                        if (!isExisting) {
+                          addPayment({
+                            methodId: method.id,
+                            methodName: method.name,
+                            isCash: false,
+                            tenderedAmount: remaining > 0 ? remaining : 0,
+                            appliedAmount: remaining > 0 ? remaining : 0,
+                            changeAmount: 0,
+                          });
+                        } else {
+                          toast.error("Online is already added");
+                        }
                       }
-                    }
-                  }}
-                >
-                  Card <ShortcutKey>Alt+1</ShortcutKey>
-                </Button>
-                <Button
-                  className="font-bold text-[10px] uppercase h-8"
-                  variant="flat"
-                  onPress={() => {
-                    const method = paymentMethods.find(
-                      (m) => m.type === "online",
-                    );
-                    if (method) {
-                      const isExisting = activeTab.payments.some(
-                        (p) => p.methodId === method.id,
+                    }}
+                  >
+                    Online <ShortcutKey>Alt+2</ShortcutKey>
+                  </Button>
+                  <Button
+                    className="font-bold text-[10px] uppercase h-8"
+                    variant="flat"
+                    onPress={() => {
+                      const method = paymentMethods.find(
+                        (m) => m.type === "other",
                       );
-                      if (!isExisting) {
-                        addPayment({
-                          methodId: method.id,
-                          methodName: method.name,
-                          isCash: false,
-                          tenderedAmount: remaining > 0 ? remaining : 0,
-                          appliedAmount: remaining > 0 ? remaining : 0,
-                          changeAmount: 0,
-                        });
-                      } else {
-                        toast.error("Online is already added");
+                      if (method) {
+                        const isExisting = activeTab.payments.some(
+                          (p) => p.methodId === method.id,
+                        );
+                        if (!isExisting) {
+                          addPayment({
+                            methodId: method.id,
+                            methodName: method.name,
+                            isCash: false,
+                            tenderedAmount: remaining > 0 ? remaining : 0,
+                            appliedAmount: remaining > 0 ? remaining : 0,
+                            changeAmount: 0,
+                          });
+                        } else {
+                          toast.error("Other method is already added");
+                        }
                       }
-                    }
-                  }}
-                >
-                  Online <ShortcutKey>Alt+2</ShortcutKey>
-                </Button>
-                <Button
-                  className="font-bold text-[10px] uppercase h-8"
-                  variant="flat"
-                  onPress={() => {
-                    const method = paymentMethods.find(
-                      (m) => m.type === "other",
-                    );
-                    if (method) {
-                      const isExisting = activeTab.payments.some(
-                        (p) => p.methodId === method.id,
-                      );
-                      if (!isExisting) {
-                        addPayment({
-                          methodId: method.id,
-                          methodName: method.name,
-                          isCash: false,
-                          tenderedAmount: remaining > 0 ? remaining : 0,
-                          appliedAmount: remaining > 0 ? remaining : 0,
-                          changeAmount: 0,
-                        });
-                      } else {
-                        toast.error("Other method is already added");
-                      }
-                    }
-                  }}
-                >
-                  Others <ShortcutKey>Alt+3</ShortcutKey>
-                </Button>
+                    }}
+                  >
+                    Others <ShortcutKey>Alt+3</ShortcutKey>
+                  </Button>
+                </div>
               </div>
             </CardBody>
           </Card>
