@@ -199,7 +199,6 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
   };
 
   if (!activeTab) return null;
-  console.log(activeTab);
 
   return (
     <div className="flex h-[calc(100vh-64px)] bg-background text-foreground overflow-hidden font-sans">
@@ -370,7 +369,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                     key={item.id}
                     className="flex items-start gap-3 group animate-in fade-in slide-in-from-right-2 duration-200"
                   >
-                    <div className="w-12 h-12 bg-default-100 dark:bg-white/5 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border border-default-200 dark:border-white/5">
+                    <div className="w-14 h-14 bg-default-100 dark:bg-white/5 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border border-default-200 dark:border-white/5">
                       {item.product.image_url ? (
                         <img
                           src={BACKEND_URL + item.product.image_url}
@@ -378,7 +377,10 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <Package size={20} className="text-default-400 dark:text-white/20" />
+                        <Package
+                          // size={20}
+                          className="text-default-400 dark:text-white/20 size-[80%]"
+                        />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -395,7 +397,6 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                             vName.includes("standard") ||
                             vValue.includes("default") ||
                             vValue.includes("standard");
-
                           if (isDefault) return `B: ${item.batch?.id || "N/A"}`;
                           return `${item.variant?.name}: ${item.variant?.value} • B: ${item.batch?.id || "N/A"}`;
                         })()}

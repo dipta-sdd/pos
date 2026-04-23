@@ -127,10 +127,13 @@ export default function ProductSelection({
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-default-100 dark:bg-white/5">
-                      <Package size={40} className="text-default-400 dark:text-white/20" />
+                      <Package
+                        // size={40}
+                        className="text-default-400 dark:text-white/20 size-[80%]"
+                      />
                     </div>
                   )}
-                  
+
                   {/* Stock Badge Overlay */}
                   <div
                     className={clsx(
@@ -150,12 +153,15 @@ export default function ProductSelection({
                     <p className="text-xs font-black uppercase tracking-tight text-foreground/90 truncate leading-tight mb-1">
                       {item.product_name}
                     </p>
-                    <p className="text-[10px] text-default-500 font-bold truncate">
-                      {item.variant_name === "Standard" && item.variant_value === "Default" ? "Standard" : `${item.variant_name}: ${item.variant_value}`}
-                    </p>
+                    {item.variant_name === "Standard" &&
+                    item.variant_value === "Default" ? null : (
+                      <p className="text-[10px] text-default-500 font-bold truncate">
+                        ${item.variant_name}: ${item.variant_value}`
+                      </p>
+                    )}
                   </div>
 
-                  <div className="flex justify-between items-center mt-auto pt-2 border-t border-default-100">
+                  <div className="flex justify-between items-center mt-auto pt-1">
                     <p className="text-primary font-black text-sm tracking-tighter">
                       ৳{Number(item.base_price || 0).toLocaleString()}
                     </p>

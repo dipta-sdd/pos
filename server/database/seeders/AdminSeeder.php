@@ -258,7 +258,7 @@ class AdminSeeder extends Seeder
                 ['name' => 'Bank Transfer', 'type' => 'online', 'is_active' => true],
                 ['name' => 'CBE Birr', 'type' => 'online', 'is_active' => true],
             ];
- 
+
             foreach ($paymentMethods as $pm) {
                 PaymentMethod::firstOrCreate(
                     ['vendor_id' => $vendor->id, 'name' => $pm['name']],
@@ -403,8 +403,8 @@ class AdminSeeder extends Seeder
                 );
 
                 // Define variants for this product
-                $variantsData = [['name' => 'Default', 'value' => 'Default']];
-                
+                $variantsData = [['name' => 'Standard', 'value' => 'Default']];
+
                 if ($p['category_id'] == 1) { // Electronics
                     $variantsData = [
                         ['name' => 'Storage', 'value' => '128GB'],
