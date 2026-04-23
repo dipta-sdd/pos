@@ -19,6 +19,7 @@ import {
   Product,
   Variant,
   ProductStock,
+  PaymentMethod,
 } from "@/lib/types/general";
 import { usePosState } from "@/lib/hooks/usePosState";
 
@@ -56,6 +57,33 @@ export default function PointOfSalePage() {
     "keyboard",
   );
 
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+
+  // Calculations
+  const subtotal = activeTab
+    ? (activeTab.items || []).reduce((sum, item) => sum + item.subtotal, 0)
+    : 0;
+  const totalTax = activeTab
+    ? (activeTab.items || []).reduce((sum, item) => sum + item.tax_amount, 0)
+    : 0;
+  const itemsTotal = activeTab
+    ? (activeTab.items || []).reduce((sum, item) => sum + item.total, 0)
+    : 0;
+  const globalDiscount = activeTab
+    ? activeTab.discount_type === "percentage"
+      ? (subtotal * activeTab.discount_value) / 100
+      : activeTab.discount_value
+    : 0;
+  const grandTotal =
+    itemsTotal - globalDiscount + (activeTab?.extra_charge || 0);
+  const totalApplied = activeTab
+    ? (activeTab.payments || []).reduce((sum, p) => sum + p.appliedAmount, 0)
+    : 0;
+  const totalChange = activeTab
+    ? (activeTab.payments || []).reduce((sum, p) => sum + p.changeAmount, 0)
+    : 0;
+  const remaining = grandTotal - totalApplied;
+
   const fetchActiveSession = async () => {
     if (!vendor?.id) return;
     try {
@@ -77,6 +105,48 @@ export default function PointOfSalePage() {
   useEffect(() => {
     fetchActiveSession();
   }, [vendor?.id]);
+
+  useEffect(() => {
+    const fetchMethods = async () => {
+      if (!activeSession) return;
+      try {
+        const res: any = await api.get(
+          `/pos/payment-methods?vendor_id=${vendorId}&branch_id=${activeSession.billing_counter?.branch_id}&billing_counter_id=${activeSession.billing_counter_id}`,
+        );
+        setPaymentMethods(res.data.data || []);
+      } catch (err) {
+        toast.error("Failed to load payment methods");
+      }
+    };
+
+    fetchMethods();
+  }, [vendorId, activeSession]);
+
+  // Auto-select Cash
+  useEffect(() => {
+    if (!activeTab || paymentMethods.length === 0 || !isInitialized) return;
+
+    const cashMethod = paymentMethods.find(
+      (pm) => pm.type === "billing_counter",
+    );
+    if (!cashMethod) return;
+
+    const existingPayments = activeTab.payments || [];
+    const hasCash = existingPayments.some(
+      (p) => p.methodId === cashMethod.id,
+    );
+
+    if (!hasCash && existingPayments.length === 0) {
+      addPayment({
+        methodId: cashMethod.id,
+        methodName: cashMethod.name,
+        isCash: true,
+        tenderedAmount: 0,
+        appliedAmount: 0,
+        changeAmount: 0,
+      });
+    }
+  }, [activeTab?.id, paymentMethods, isInitialized]);
 
   useEffect(() => {
     if (!checkingSession && !activeSession) {
@@ -232,6 +302,15 @@ export default function PointOfSalePage() {
     updatePayment,
     addPayment,
     removePayment,
+    paymentMethods,
+    subtotal,
+    totalTax,
+    itemsTotal,
+    globalDiscount,
+    grandTotal,
+    totalApplied,
+    totalChange,
+    remaining,
   };
 
   console.log("activeSession", activeSession);
@@ -259,9 +338,7 @@ export default function PointOfSalePage() {
         </div>
       ) : posMode === "keyboard" ? (
         <KeyboardPOS
-          activeSession={activeSession}
-          handleCheckout={handleCheckout}
-          isProcessing={isProcessing}
+          {...posProps}
           vendorId={vendorId}
         />
       ) : (

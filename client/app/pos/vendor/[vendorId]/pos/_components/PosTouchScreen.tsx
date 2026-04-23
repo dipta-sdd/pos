@@ -13,6 +13,7 @@ import {
   Product,
   Variant,
   ProductStock,
+  PaymentMethod,
 } from "@/lib/types/general";
 import { PosTab, CartItem, PosState, PosPayment } from "@/lib/types/pos";
 
@@ -50,6 +51,16 @@ interface PosTouchScreenProps {
   addPayment: (payment: Omit<PosPayment, "id">) => void;
   updatePayment: (id: string, updates: Partial<PosPayment>) => void;
   removePayment: (id: string) => void;
+  // New Shared Props
+  paymentMethods: PaymentMethod[];
+  subtotal: number;
+  totalTax: number;
+  itemsTotal: number;
+  globalDiscount: number;
+  grandTotal: number;
+  totalApplied: number;
+  totalChange: number;
+  remaining: number;
 }
 
 export default function PosTouchScreen({
@@ -75,12 +86,24 @@ export default function PosTouchScreen({
   addPayment,
   updatePayment,
   removePayment,
+  paymentMethods,
+  subtotal,
+  totalTax,
+  itemsTotal,
+  globalDiscount,
+  grandTotal,
+  totalApplied,
+  totalChange,
+  remaining,
 }: PosTouchScreenProps) {
   // Legacy bridging for Touch screen (uses first payment as primary)
   const firstPayment = (activeTab.payments || [])[0];
   const selectedMethodId = firstPayment?.methodId || null;
   const receivedAmount = firstPayment?.tenderedAmount || 0;
-  const totalAmount = (activeTab.items || []).reduce((sum, i) => sum + i.total, 0);
+  const totalAmount = (activeTab.items || []).reduce(
+    (sum, i) => sum + i.total,
+    0,
+  );
 
   const handleLegacyMethodSelect = (id: number, name: string) => {
     const isCash = name.toLowerCase().includes("cash");
