@@ -472,7 +472,9 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
 
               {/* Discount Row */}
               <div className="flex items-center justify-between gap-4">
-                <span className="text-xs font-bold text-default-600">Discount</span>
+                <span className="text-xs font-bold text-default-600">
+                  Discount
+                </span>
                 <div className="flex gap-2 items-center">
                   <Input
                     className="w-24 font-mono"
@@ -506,7 +508,9 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                           ? "bg-white shadow-sm text-primary"
                           : "text-default-400",
                       )}
-                      onClick={() => updateActiveTab({ discount_type: "fixed" })}
+                      onClick={() =>
+                        updateActiveTab({ discount_type: "fixed" })
+                      }
                     >
                       ৳
                     </button>
@@ -516,7 +520,9 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
 
               {/* Coupon Row */}
               <div className="flex items-center justify-between gap-4">
-                <span className="text-xs font-bold text-default-600">Coupon</span>
+                <span className="text-xs font-bold text-default-600">
+                  Coupon
+                </span>
                 <div className="flex gap-2 items-center">
                   <Input
                     className="w-32"
@@ -524,7 +530,9 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                     size="sm"
                     variant="bordered"
                     value={activeTab.coupon_code}
-                    onValueChange={(val) => updateActiveTab({ coupon_code: val })}
+                    onValueChange={(val) =>
+                      updateActiveTab({ coupon_code: val })
+                    }
                   />
                   <Button
                     className="h-7 min-w-0 px-3 font-bold text-[10px]"
@@ -539,7 +547,9 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
 
               {/* Extra Charge Row */}
               <div className="flex items-center justify-between gap-4">
-                <span className="text-xs font-bold text-default-600">Extra</span>
+                <span className="text-xs font-bold text-default-600">
+                  Extra
+                </span>
                 <Input
                   className="w-24 font-mono"
                   placeholder="0.00"
@@ -584,17 +594,19 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                 </span>
               </div>
 
-                {totalChange > 0 && (
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-default-500 font-bold uppercase text-[10px]">Change</span>
-                    <span className="font-mono font-bold text-success">
-                      ৳{" "}
-                      {totalChange.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                      })}
-                    </span>
-                  </div>
-                )}
+              {totalChange > 0 && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-default-500 font-bold uppercase text-[10px]">
+                    Change
+                  </span>
+                  <span className="font-mono font-bold text-success">
+                    ৳{" "}
+                    {totalChange.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+              )}
 
               <div
                 className={clsx(
@@ -620,7 +632,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
 
           {/* 💳 PAYMENTS */}
           <Card className="bg-default-50/50 border-default-200" shadow="none">
-            <CardBody className="p-4 gap-4">
+            <CardBody className="p-2 gap-2">
               <span className="text-[10px] font-black uppercase tracking-widest text-default-400">
                 💳 Payments
               </span>
@@ -633,16 +645,22 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                 onUpdatePayment={updatePayment}
               />
 
-              <div className={clsx(
-                "grid gap-2",
-                activeTab.payments.some(p => p.isCash) ? "grid-cols-3" : "grid-cols-2"
-              )}>
-                {!activeTab.payments.some(p => p.isCash) && (
+              <div
+                className={clsx(
+                  "grid gap-2",
+                  activeTab.payments.some((p) => p.isCash)
+                    ? "grid-cols-3"
+                    : "grid-cols-2",
+                )}
+              >
+                {!activeTab.payments.some((p) => p.isCash) && (
                   <Button
                     className="font-bold text-[10px] uppercase h-10"
                     variant="flat"
                     onPress={() => {
-                      const method = paymentMethods.find(m => m.type === 'billing_counter');
+                      const method = paymentMethods.find(
+                        (m) => m.type === "billing_counter",
+                      );
                       if (method) {
                         addPayment({
                           methodId: method.id,

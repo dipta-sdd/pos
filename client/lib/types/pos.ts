@@ -22,6 +22,7 @@ export interface PosPayment {
   tenderedAmount: number;
   appliedAmount: number;
   changeAmount: number;
+  isManualApplied?: boolean;
 }
 
 export interface PosTab {
