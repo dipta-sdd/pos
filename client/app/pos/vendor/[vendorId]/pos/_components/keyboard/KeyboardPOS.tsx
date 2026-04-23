@@ -125,24 +125,15 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
     );
 
     if (existingPayments.length === 0) {
-      // Auto-add cash payment if none exist
+      // Auto-add cash payment if none exist (start at 0 for manual entry)
       addPayment({
         methodId: cashMethod.id,
         methodName: cashMethod.name,
         isCash: true,
-        tenderedAmount: grandTotal,
-        appliedAmount: grandTotal,
+        tenderedAmount: 0,
+        appliedAmount: 0,
         changeAmount: 0,
       });
-    } else if (cashPayment && existingPayments.length === 1) {
-      // Auto-update cash amount if it's the only payment and total changed
-      if (cashPayment.appliedAmount !== grandTotal) {
-        updatePayment(cashPayment.id, {
-          tenderedAmount: grandTotal,
-          appliedAmount: grandTotal,
-          changeAmount: 0,
-        });
-      }
     }
   }, [grandTotal, activeTab?.id, paymentMethods]);
 
@@ -666,8 +657,8 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                           methodId: method.id,
                           methodName: method.name,
                           isCash: true,
-                          tenderedAmount: remaining > 0 ? remaining : 0,
-                          appliedAmount: remaining > 0 ? remaining : 0,
+                          tenderedAmount: 0,
+                          appliedAmount: 0,
                           changeAmount: 0,
                         });
                       }

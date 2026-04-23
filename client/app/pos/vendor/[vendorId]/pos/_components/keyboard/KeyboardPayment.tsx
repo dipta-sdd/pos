@@ -170,7 +170,7 @@ export const KeyboardPayment: React.FC<KeyboardPaymentProps> = ({
             </div>
 
             {p.isCash && (
-              <div className="flex justify-between items-center mt-0 pt-1 border-t border-dashed border-default-200">
+              <div className="flex justify-between items-center mt-0 ">
                 <span className="text-[10px] text-success font-black uppercase tracking-widest">
                   Change
                 </span>
