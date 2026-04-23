@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Autocomplete, AutocompleteItem, Avatar, Kbd } from "@heroui/react";
-import { Box } from "lucide-react";
+import { Package } from "lucide-react";
 import { clsx } from "clsx";
 
 import { SearchIcon } from "@/components/icons";
@@ -140,11 +140,11 @@ export const KeyboardSearch: React.FC<KeyboardSearchProps> = ({
             <div className="flex justify-between items-center w-full">
               <div className="flex gap-3 items-center">
                 <Avatar
-                  className="bg-default-100"
-                  fallback={<Box className="w-4 h-4 text-default-500" />}
+                  className="bg-default-100 dark:bg-white/5"
+                  fallback={<Package className="w-4 h-4 text-default-500 dark:text-white/20" />}
                   size="sm"
                   radius="sm"
-                  src={item.image_url ? BACKEND_URL + item.image_url : "/placeholder.webp"}
+                  src={item.image_url ? BACKEND_URL + item.image_url : undefined}
                 />
                 <div className="flex flex-col">
                   <span className="text-sm font-bold">{item.product_name}</span>

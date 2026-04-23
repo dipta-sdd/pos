@@ -63,12 +63,12 @@ export default function ProductSelection({
           Array.from({ length: 12 }).map((_, i) => (
             <Card
               key={i}
-              className="h-56 bg-white/5 border border-white/5 rounded-2xl shadow-none"
+              className="h-56 bg-content1 border border-default-100 rounded-2xl shadow-none"
             >
-              <Skeleton className="rounded-t-2xl h-3/5 bg-white/10" />
+              <Skeleton className="rounded-t-2xl h-3/5 bg-default-200" />
               <div className="space-y-3 p-3">
-                <Skeleton className="w-3/5 rounded-lg h-3 bg-white/10" />
-                <Skeleton className="w-4/5 rounded-lg h-3 bg-white/10" />
+                <Skeleton className="w-3/5 rounded-lg h-3 bg-default-200" />
+                <Skeleton className="w-4/5 rounded-lg h-3 bg-default-200" />
               </div>
             </Card>
           ))
@@ -77,7 +77,7 @@ export default function ProductSelection({
             <Card
               key={item.id}
               isPressable
-              className="group bg-[#1b1f26] border border-white/5 hover:border-primary/30 shadow-none hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 rounded-2xl overflow-hidden h-auto"
+              className="group bg-content1 border border-default-100 hover:border-primary/30 shadow-none hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 rounded-2xl overflow-hidden h-auto"
               onPress={async () => {
                 const stocksResponse: any = await api.get(
                   `/pos/products/stocks`,
@@ -119,16 +119,22 @@ export default function ProductSelection({
               <CardBody className="p-0 flex flex-col h-full relative text-left">
                 {/* Image Area */}
                 <div className="aspect-square w-full bg-black/20 flex items-center justify-center relative overflow-hidden shrink-0">
-                  <img
-                    src={item.image_url ? BACKEND_URL + item.image_url : "/placeholder.webp"}
-                    alt={item.product_name}
-                    className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
-                  />
+                  {item.image_url ? (
+                    <img
+                      src={BACKEND_URL + item.image_url}
+                      alt={item.product_name}
+                      className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-default-100 dark:bg-white/5">
+                      <Package size={40} className="text-default-400 dark:text-white/20" />
+                    </div>
+                  )}
                   
                   {/* Stock Badge Overlay */}
                   <div
                     className={clsx(
-                      "absolute top-2 right-2 px-2 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest backdrop-blur-xl shadow-lg border border-white/10",
+                      "absolute top-2 right-2 px-2 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest backdrop-blur-xl shadow-lg border border-default-200",
                       Number(item.total_quantity) > 0
                         ? "bg-success/20 text-success"
                         : "bg-danger/20 text-danger",
@@ -139,17 +145,17 @@ export default function ProductSelection({
                 </div>
 
                 {/* Content Area */}
-                <div className="p-3 flex-1 flex flex-col justify-between bg-gradient-to-b from-transparent to-black/20">
+                <div className="p-3 flex-1 flex flex-col justify-between bg-gradient-to-b from-transparent to-default-100/50">
                   <div>
-                    <p className="text-xs font-black uppercase tracking-tight text-white/90 truncate leading-tight mb-1">
+                    <p className="text-xs font-black uppercase tracking-tight text-foreground/90 truncate leading-tight mb-1">
                       {item.product_name}
                     </p>
-                    <p className="text-[10px] text-gray-500 font-bold truncate">
+                    <p className="text-[10px] text-default-500 font-bold truncate">
                       {item.variant_name === "Standard" && item.variant_value === "Default" ? "Standard" : `${item.variant_name}: ${item.variant_value}`}
                     </p>
                   </div>
 
-                  <div className="flex justify-between items-center mt-auto pt-2 border-t border-white/5">
+                  <div className="flex justify-between items-center mt-auto pt-2 border-t border-default-100">
                     <p className="text-primary font-black text-sm tracking-tighter">
                       ৳{Number(item.base_price || 0).toLocaleString()}
                     </p>

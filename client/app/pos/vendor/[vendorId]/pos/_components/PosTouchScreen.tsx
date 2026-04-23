@@ -202,9 +202,9 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
   console.log(activeTab);
 
   return (
-    <div className="flex h-[calc(100vh-64px)] bg-[#0f1115] text-white overflow-hidden font-sans">
+    <div className="flex h-[calc(100vh-64px)] bg-background text-foreground overflow-hidden font-sans">
       {/* MAIN CONTENT AREA (Left + Center) */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden border-r border-white/5">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden border-r border-default-100">
         {/* TOP ROW: Search & Tabs */}
         <div className="p-4 pb-0 flex flex-col gap-3">
           <div className="flex items-center justify-between gap-4">
@@ -218,11 +218,11 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                 placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-12 bg-[#16191f] border border-white/5 rounded-xl pl-11 pr-4 text-sm font-medium focus:outline-none focus:border-primary/50 transition-all placeholder:text-gray-600 shadow-inner"
+                className="w-full h-12 bg-content1 border border-default-100 rounded-xl pl-11 pr-4 text-sm font-medium focus:outline-none focus:border-primary/50 transition-all placeholder:text-default-400 shadow-inner"
               />
             </div>
 
-            <div className="flex items-center gap-1.5 bg-[#16191f] p-1 rounded-xl border border-white/5 shadow-inner">
+            <div className="flex items-center gap-1.5 bg-content1 p-1 rounded-xl border border-default-100 shadow-inner">
               {state.tabs.map((tab) => (
                 <div key={tab.id} className="relative flex items-center">
                   <button
@@ -274,7 +274,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                 "px-5 h-10 rounded-xl flex items-center gap-2 transition-all duration-300 border font-bold text-[10px] uppercase tracking-wider whitespace-nowrap",
                 activeCategory === "all"
                   ? "bg-primary border-primary text-white shadow-lg shadow-primary/20"
-                  : "bg-[#16191f] border-white/5 text-gray-500 hover:border-white/20 hover:text-gray-300",
+                  : "bg-content1 border-default-100 text-default-500 hover:border-default-200 hover:text-foreground",
               )}
             >
               <LayoutGrid size={14} />
@@ -289,7 +289,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                   "px-5 h-10 rounded-xl flex items-center gap-2 transition-all duration-300 border font-bold text-[10px] uppercase tracking-wider whitespace-nowrap",
                   activeCategory === cat.id
                     ? "bg-primary border-primary text-white shadow-lg shadow-primary/20"
-                    : "bg-[#16191f] border-white/5 text-gray-500 hover:border-white/20 hover:text-gray-300",
+                    : "bg-content1 border-default-100 text-default-500 hover:border-default-200 hover:text-foreground",
                 )}
               >
                 <Package size={14} />
@@ -301,7 +301,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
 
         {/* Product Grid Container */}
         <div className="flex-1 overflow-hidden px-4 pb-4">
-          <div className="h-full relative rounded-2xl bg-[#16191f]/40 border border-white/5 backdrop-blur-sm p-3 shadow-2xl">
+          <div className="h-full relative rounded-2xl bg-content1/40 border border-default-100 backdrop-blur-sm p-3 shadow-2xl">
             <ProductSelection
               onSelect={(p, v, b) => props.addToCart(p, v, b, 1)}
               category={activeCategory}
@@ -312,13 +312,13 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
       </div>
 
       {/* RIGHT SIDEBAR: CART & CHECKOUT */}
-      <div className="w-[380px] bg-[#16191f] flex flex-col overflow-hidden relative">
+      <div className="w-[380px] bg-content1 flex flex-col overflow-hidden relative">
         {sidebarMode === "cart" ? (
           <>
             {/* Customer Info */}
-            <div className="p-5 border-b border-white/5">
+            <div className="p-5 border-b border-default-100">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-black uppercase tracking-tight flex items-center gap-2 text-gray-200">
+                <h3 className="text-sm font-black uppercase tracking-tight flex items-center gap-2 text-foreground">
                   <ShoppingCart size={18} className="text-primary" />
                   Cart Summary
                 </h3>
@@ -334,18 +334,18 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
 
               <button
                 onClick={onCustomerOpen}
-                className="w-full h-12 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 flex items-center px-4 gap-3 transition-all group shadow-inner"
+                className="w-full h-12 bg-content1 hover:bg-content2 rounded-xl border border-default-100 flex items-center px-4 gap-3 transition-all group shadow-inner"
               >
                 <div className="w-8 h-8 bg-primary/20 text-primary rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
                   <User size={16} />
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="text-[11px] font-black text-gray-200 truncate">
+                  <p className="text-[11px] font-black text-foreground truncate">
                     {activeTab.customer?.name ||
                       activeTab.tempCustomer?.name ||
                       "Walk-in Customer"}
                   </p>
-                  <p className="text-[9px] text-gray-500 font-bold tracking-tight truncate">
+                  <p className="text-[9px] text-default-500 font-bold tracking-tight truncate">
                     {activeTab.customer?.phone ||
                       activeTab.tempCustomer?.mobile ||
                       "Select customer"}
@@ -370,18 +370,22 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                     key={item.id}
                     className="flex items-start gap-3 group animate-in fade-in slide-in-from-right-2 duration-200"
                   >
-                    <div className="w-12 h-12 bg-white/5 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border border-white/5">
-                      <img
-                        src={item.product.image_url ? BACKEND_URL + item.product.image_url : "/placeholder.webp"}
-                        alt=""
-                        className="w-full h-full object-cover"
-                      />
+                    <div className="w-12 h-12 bg-default-100 dark:bg-white/5 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border border-default-200 dark:border-white/5">
+                      {item.product.image_url ? (
+                        <img
+                          src={BACKEND_URL + item.product.image_url}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Package size={20} className="text-default-400 dark:text-white/20" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-black uppercase tracking-tight text-gray-200 truncate leading-tight mb-0.5">
+                      <p className="text-[11px] font-black uppercase tracking-tight text-foreground truncate leading-tight mb-0.5">
                         {item.product?.name || "Unknown Product"}
                       </p>
-                      <p className="text-[9px] text-gray-500 font-bold truncate mb-2 uppercase tracking-tighter">
+                      <p className="text-[9px] text-default-500 font-bold truncate mb-2 uppercase tracking-tighter">
                         {(() => {
                           const vName = item.variant?.name?.toLowerCase() || "";
                           const vValue =
@@ -404,7 +408,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                               quantity: Math.max(1, item.quantity - 1),
                             })
                           }
-                          className="w-6 h-6 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 transition-colors border border-white/5"
+                          className="w-6 h-6 rounded-lg bg-default-100 hover:bg-default-200 flex items-center justify-center text-default-400 transition-colors border border-default-100"
                         >
                           <Minus size={12} />
                         </button>
@@ -417,17 +421,17 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                               quantity: item.quantity + 1,
                             })
                           }
-                          className="w-6 h-6 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 transition-colors border border-white/5"
+                          className="w-6 h-6 rounded-lg bg-default-100 hover:bg-default-200 flex items-center justify-center text-default-400 transition-colors border border-default-100"
                         >
                           <Plus size={12} />
                         </button>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-[11px] font-black text-white">
+                      <p className="text-[11px] font-black text-foreground">
                         ৳{item.total.toLocaleString()}
                       </p>
-                      <p className="text-[9px] text-gray-500 font-bold mt-0.5 tracking-tighter">
+                      <p className="text-[9px] text-default-500 font-bold mt-0.5 tracking-tighter">
                         ৳{item.price.toLocaleString()} × {item.quantity}
                       </p>
                       <button
@@ -443,33 +447,33 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
             </ScrollShadow>
 
             {/* Summary, Discount, Coupon & Proceed */}
-            <div className="p-5 bg-[#1b1f26] border-t border-white/5 rounded-t-[2rem] shadow-2xl">
+            <div className="p-5 bg-content2 border-t border-default-100 rounded-t-[2rem] shadow-2xl">
               <div className="space-y-2 mb-4">
                 <div className="flex justify-between text-[10px]">
-                  <span className="text-gray-500 font-black uppercase tracking-widest">
+                  <span className="text-default-500 font-black uppercase tracking-widest">
                     Subtotal
                   </span>
-                  <span className="font-black text-gray-400">
+                  <span className="font-black text-default-400">
                     ৳{subtotal.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between text-[10px]">
-                  <span className="text-gray-500 font-black uppercase tracking-widest">
+                  <span className="text-default-500 font-black uppercase tracking-widest">
                     VAT (5%)
                   </span>
-                  <span className="font-black text-gray-400">
+                  <span className="font-black text-default-400">
                     ৳{totalTax.toLocaleString()}
                   </span>
                 </div>
 
                 {/* Discount Row */}
                 <div className="flex items-center justify-between gap-3 pt-1">
-                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest whitespace-nowrap">
+                  <span className="text-[10px] font-black text-default-500 uppercase tracking-widest whitespace-nowrap">
                     Discount
                   </span>
                   <div className="flex gap-2 items-center">
                     <input
-                      className="w-20 h-8 bg-white/5 border border-white/5 rounded-lg px-3 text-xs font-mono text-white focus:outline-none focus:border-primary/50"
+                      className="w-20 h-8 bg-default-100 border border-default-100 rounded-lg px-3 text-xs font-mono text-white focus:outline-none focus:border-primary/50"
                       placeholder="0"
                       type="number"
                       value={activeTab.discount_value || ""}
@@ -479,13 +483,13 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                         })
                       }
                     />
-                    <div className="flex bg-white/5 p-0.5 rounded-lg h-8 border border-white/5">
+                    <div className="flex bg-default-100 p-0.5 rounded-lg h-8 border border-default-200">
                       <button
                         className={clsx(
                           "px-2.5 text-[10px] font-black rounded-md transition-all",
                           activeTab.discount_type === "percentage"
                             ? "bg-primary text-white"
-                            : "text-gray-500",
+                            : "text-default-500",
                         )}
                         onClick={() =>
                           updateActiveTab({ discount_type: "percentage" })
@@ -498,7 +502,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                           "px-2.5 text-[10px] font-black rounded-md transition-all",
                           activeTab.discount_type === "fixed"
                             ? "bg-primary text-white"
-                            : "text-gray-500",
+                            : "text-default-500",
                         )}
                         onClick={() =>
                           updateActiveTab({ discount_type: "fixed" })
@@ -512,12 +516,12 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
 
                 {/* Coupon Row */}
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest whitespace-nowrap">
+                  <span className="text-[10px] font-black text-default-500 uppercase tracking-widest whitespace-nowrap">
                     Coupon
                   </span>
                   <div className="flex gap-2 items-center">
                     <input
-                      className="w-24 h-8 bg-white/5 border border-white/5 rounded-lg px-3 text-xs text-white focus:outline-none focus:border-primary/50 uppercase"
+                      className="w-24 h-8 bg-default-100 border border-default-200 rounded-lg px-3 text-xs text-foreground focus:outline-none focus:border-primary/50 uppercase"
                       placeholder="CODE"
                       value={activeTab.coupon_code || ""}
                       onChange={(e) =>
@@ -532,11 +536,11 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
 
                 {/* Extra Charge Row */}
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest whitespace-nowrap">
+                  <span className="text-[10px] font-black text-default-500 uppercase tracking-widest whitespace-nowrap">
                     Extra
                   </span>
                   <input
-                    className="w-20 h-8 bg-white/5 border border-white/5 rounded-lg px-3 text-xs font-mono text-white focus:outline-none focus:border-primary/50"
+                    className="w-20 h-8 bg-default-100 border border-default-100 rounded-lg px-3 text-xs font-mono text-white focus:outline-none focus:border-primary/50"
                     placeholder="0"
                     type="number"
                     value={activeTab.extra_charge || ""}
@@ -559,9 +563,9 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                   </div>
                 )}
 
-                <Divider className="bg-white/5 my-1" />
+                <Divider className="bg-default-100 my-1" />
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400 font-black uppercase tracking-[0.1em] text-[10px]">
+                  <span className="text-default-400 font-black uppercase tracking-[0.1em] text-[10px]">
                     Grand Total
                   </span>
                   <span className="text-2xl font-black text-primary tracking-tighter">
@@ -584,19 +588,19 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
           /* PAYMENT VIEW */
           <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-2 duration-300">
             {/* Payment Header */}
-            <div className="p-5 border-b border-white/5 flex items-center justify-between">
+            <div className="p-5 border-b border-default-100 flex items-center justify-between">
               <button
                 onClick={() => setSidebarMode("cart")}
-                className="flex items-center gap-2 text-gray-500 hover:text-white transition-all group"
+                className="flex items-center gap-2 text-default-500 hover:text-foreground transition-all group"
               >
-                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10">
+                <div className="w-8 h-8 rounded-lg bg-default-100 flex items-center justify-center group-hover:bg-default-200">
                   <ChevronLeft size={16} />
                 </div>
                 <span className="font-black uppercase tracking-widest text-[9px]">
                   Cart
                 </span>
               </button>
-              <h3 className="text-sm font-black uppercase tracking-tight flex items-center gap-2 text-gray-200">
+              <h3 className="text-sm font-black uppercase tracking-tight flex items-center gap-2 text-foreground">
                 <Zap size={18} className="text-primary" />
                 Payment
               </h3>
@@ -604,19 +608,19 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
 
             <ScrollShadow className="flex-1 p-5 no-scrollbar">
               {/* Financial Summary Card */}
-              <div className="bg-black/20 rounded-2xl p-5 border border-white/5 shadow-inner mb-6">
+              <div className="bg-default-100 rounded-2xl p-5 border border-default-100 shadow-inner mb-6">
                 <div className="space-y-4">
                   <div className="flex justify-between items-end">
                     <div className="flex flex-col gap-0.5">
-                      <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">
+                      <span className="text-[9px] font-black text-default-500 uppercase tracking-widest">
                         Total
                       </span>
-                      <span className="text-2xl font-black text-white tracking-tighter">
+                      <span className="text-2xl font-black text-foreground tracking-tighter">
                         ৳{grandTotal.toLocaleString()}
                       </span>
                     </div>
                     <div className="text-right flex flex-col gap-0.5">
-                      <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">
+                      <span className="text-[9px] font-black text-default-500 uppercase tracking-widest">
                         Paid
                       </span>
                       <span className="text-xl font-black text-primary tracking-tighter">
@@ -629,7 +633,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
 
                   <div className="flex justify-between items-center">
                     <div className="flex flex-col gap-0.5">
-                      <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">
+                      <span className="text-[9px] font-black text-default-500 uppercase tracking-widest">
                         Balance
                       </span>
                       <span
@@ -657,12 +661,12 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
 
               {/* Applied Payments List */}
               <div className="mb-6">
-                <h4 className="text-[9px] font-black text-gray-600 uppercase tracking-[0.2em] mb-3 ml-1">
+                <h4 className="text-[9px] font-black text-default-400 uppercase tracking-[0.2em] mb-3 ml-1">
                   Payment Methods
                 </h4>
                 <div className="space-y-3">
                   {activeTab.payments?.length === 0 ? (
-                    <div className="py-8 border border-dashed border-white/5 rounded-xl flex flex-col items-center justify-center opacity-10">
+                    <div className="py-8 border border-dashed border-default-200 rounded-xl flex flex-col items-center justify-center opacity-10">
                       <Banknote size={30} className="mb-2" />
                       <p className="text-[8px] font-black uppercase tracking-widest">
                         No payments added
@@ -683,7 +687,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                       return (
                         <div
                           key={p.id}
-                          className="p-4 bg-white/5 rounded-xl border border-white/5 space-y-3"
+                          className="p-4 bg-default-100/50 rounded-xl border border-default-100 space-y-3"
                         >
                           {/* Header */}
                           <div className="flex justify-between items-center">
@@ -705,7 +709,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                             </div>
                             <button
                               onClick={() => removePayment(p.id)}
-                              className="w-7 h-7 rounded-lg bg-white/5 text-gray-600 hover:text-danger hover:bg-danger/10 flex items-center justify-center transition-all"
+                              className="w-7 h-7 rounded-lg bg-default-100 text-default-400 hover:text-danger hover:bg-danger/10 flex items-center justify-center transition-all"
                             >
                               <Trash2 size={12} />
                             </button>
@@ -713,11 +717,11 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
 
                           {/* Received */}
                           <div className="flex items-center justify-between gap-3">
-                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-tight">
+                            <span className="text-[9px] font-bold text-default-500 uppercase tracking-tight">
                               Received
                             </span>
                             <input
-                              className="w-28 h-8 bg-black/20 border border-white/5 rounded-lg px-3 text-xs font-mono text-white text-right focus:outline-none focus:border-primary/50"
+                              className="w-28 h-8 bg-default-200 border border-default-100 rounded-lg px-3 text-xs font-mono text-foreground text-right focus:outline-none focus:border-primary/50"
                               type="number"
                               placeholder="0.00"
                               value={p.tenderedAmount || ""}
@@ -741,11 +745,11 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                           {/* Reference (non-cash only) */}
                           {!p.isCash && (
                             <div className="flex items-center justify-between gap-3">
-                              <span className="text-[9px] font-bold text-gray-500 uppercase tracking-tight">
+                              <span className="text-[9px] font-bold text-default-500 uppercase tracking-tight">
                                 Reference
                               </span>
                               <input
-                                className="w-28 h-8 bg-black/20 border border-white/5 rounded-lg px-3 text-xs text-white text-right focus:outline-none focus:border-primary/50"
+                                className="w-28 h-8 bg-default-200 border border-default-100 rounded-lg px-3 text-xs text-foreground text-right focus:outline-none focus:border-primary/50"
                                 placeholder="Ref #"
                                 value={p.reference || ""}
                                 onChange={(e) =>
@@ -759,7 +763,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
 
                           {/* Change (cash only) */}
                           {p.isCash && (
-                            <div className="flex justify-between items-center pt-1 border-t border-white/5">
+                            <div className="flex justify-between items-center pt-1 border-t border-default-100">
                               <span className="text-[9px] text-success font-black uppercase tracking-widest">
                                 Change
                               </span>
@@ -779,7 +783,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
               <div className="grid grid-cols-2 gap-2">
                 {!activeTab.payments.some((p: PosPayment) => p.isCash) && (
                   <Button
-                    className="h-12 rounded-xl bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-widest hover:bg-success/20 transition-all flex items-center justify-center gap-2"
+                    className="h-12 rounded-xl bg-default-100 border border-default-100 text-[9px] font-black uppercase tracking-widest hover:bg-success/20 transition-all flex items-center justify-center gap-2"
                     onPress={() => handleAddPaymentByType("billing_counter")}
                   >
                     <Banknote size={16} className="text-success" />
@@ -787,31 +791,31 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                   </Button>
                 )}
                 <Button
-                  className="h-12 rounded-xl bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-widest hover:bg-primary/20 transition-all flex items-center justify-center gap-2"
+                  className="h-12 rounded-xl bg-default-100 border border-default-100 text-[9px] font-black uppercase tracking-widest hover:bg-primary/20 transition-all flex items-center justify-center gap-2"
                   onPress={() => handleAddPaymentByType("card")}
                 >
                   <CreditCard size={16} className="text-primary" />
                   Card
                 </Button>
                 <Button
-                  className="h-12 rounded-xl bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-widest hover:bg-warning/20 transition-all flex items-center justify-center gap-2"
+                  className="h-12 rounded-xl bg-default-100 border border-default-100 text-[9px] font-black uppercase tracking-widest hover:bg-warning/20 transition-all flex items-center justify-center gap-2"
                   onPress={() => handleAddPaymentByType("online")}
                 >
                   <Globe size={16} className="text-warning" />
                   Online
                 </Button>
                 <Button
-                  className="h-12 rounded-xl bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-widest hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+                  className="h-12 rounded-xl bg-default-100 border border-default-100 text-[9px] font-black uppercase tracking-widest hover:bg-white/10 transition-all flex items-center justify-center gap-2"
                   onPress={() => handleAddPaymentByType("other")}
                 >
-                  <Zap size={16} className="text-gray-400" />
+                  <Zap size={16} className="text-default-400" />
                   Others
                 </Button>
               </div>
             </ScrollShadow>
 
             {/* Process Sale Button */}
-            <div className="p-6 bg-[#1b1f26] border-t border-white/5 rounded-t-[2rem] shadow-2xl">
+            <div className="p-6 bg-content2 border-t border-default-100 rounded-t-[2rem] shadow-2xl">
               <Button
                 className="w-full h-16 rounded-xl bg-success text-white font-black text-lg tracking-[0.1em] shadow-lg shadow-success/20 hover:scale-[1.01] active:scale-95 transition-all"
                 onPress={handleCheckout}
@@ -831,7 +835,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
       <Modal
         isOpen={isCustomerOpen}
         onOpenChange={onCustomerOpenChange}
-        className="bg-[#16191f] text-white border border-white/10 rounded-[2rem]"
+        className="bg-content1 text-foreground border border-default-100 rounded-[2rem]"
         size="2xl"
         backdrop="blur"
       >
@@ -843,7 +847,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                   <span className="font-black uppercase tracking-tight text-xl">
                     Customer Details
                   </span>
-                  <span className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">
+                  <span className="text-[9px] text-default-500 font-bold uppercase tracking-widest mt-0.5">
                     Select or enter walk-in info
                   </span>
                 </div>
@@ -869,9 +873,9 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                     startContent={<User size={16} className="text-primary" />}
                     classNames={{
                       inputWrapper:
-                        "h-12 rounded-xl border-white/5 bg-white/5 focus-within:border-primary",
+                        "h-12 rounded-xl border-default-100 bg-default-100 focus-within:border-primary",
                       label:
-                        "font-black uppercase tracking-widest text-[9px] text-gray-500",
+                        "font-black uppercase tracking-widest text-[9px] text-default-500",
                     }}
                   />
                   <Input
@@ -884,9 +888,9 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                     startContent={<Phone size={16} className="text-primary" />}
                     classNames={{
                       inputWrapper:
-                        "h-12 rounded-xl border-white/5 bg-white/5 focus-within:border-primary",
+                        "h-12 rounded-xl border-default-100 bg-default-100 focus-within:border-primary",
                       label:
-                        "font-black uppercase tracking-widest text-[9px] text-gray-500",
+                        "font-black uppercase tracking-widest text-[9px] text-default-500",
                     }}
                   />
                 </div>
@@ -923,17 +927,17 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                             });
                             onClose();
                           }}
-                          className="w-full p-4 bg-white/5 hover:bg-primary/20 rounded-2xl text-left border border-white/5 transition-all flex items-center justify-between group shadow-md"
+                          className="w-full p-4 bg-default-100 hover:bg-primary/20 rounded-2xl text-left border border-default-100 transition-all flex items-center justify-between group shadow-md"
                         >
                           <div>
-                            <p className="font-black text-base text-gray-200 group-hover:text-primary transition-colors">
+                            <p className="font-black text-base text-foreground group-hover:text-primary transition-colors">
                               {c.name}
                             </p>
-                            <p className="text-[10px] text-gray-500 font-bold tracking-widest mt-0.5">
+                            <p className="text-[10px] text-default-500 font-bold tracking-widest mt-0.5">
                               {c.phone || "No Mobile"}
                             </p>
                           </div>
-                          <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
+                          <div className="w-8 h-8 rounded-lg bg-default-100/50 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
                             <ChevronRight size={16} />
                           </div>
                         </button>
@@ -974,8 +978,8 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
 
       {/* Register Closed Overlay */}
       {!activeSession && (
-        <div className="absolute inset-0 z-[100] bg-black/90 backdrop-blur-xl flex items-center justify-center p-6">
-          <Card className="max-w-sm w-full bg-[#16191f] border border-white/10 shadow-2xl rounded-[2.5rem] p-4">
+        <div className="absolute inset-0 z-[100] bg-background/90 backdrop-blur-xl flex items-center justify-center p-6">
+          <Card className="max-w-sm w-full bg-content1 border border-default-100 shadow-2xl rounded-[2.5rem] p-4">
             <CardBody className="p-8 text-center space-y-6">
               <div className="w-20 h-20 bg-danger/10 text-danger rounded-2xl flex items-center justify-center mx-auto shadow-inner border border-danger/20">
                 <AlertCircle size={40} />
@@ -984,7 +988,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                 <h2 className="text-2xl font-black mb-3 tracking-tight uppercase">
                   Register Locked
                 </h2>
-                <p className="text-gray-500 text-sm leading-relaxed font-medium">
+                <p className="text-default-500 text-sm leading-relaxed font-medium">
                   A cash register session is required. Please open a session to
                   start.
                 </p>

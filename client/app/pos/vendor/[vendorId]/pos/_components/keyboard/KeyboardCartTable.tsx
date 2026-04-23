@@ -10,7 +10,7 @@ import {
   Avatar,
 } from "@heroui/react";
 import { clsx } from "clsx";
-import { Plus, Minus, Trash2, Box } from "lucide-react";
+import { Plus, Minus, Trash2, Package } from "lucide-react";
 
 import { CartItem } from "@/lib/types/pos";
 import { BACKEND_URL } from "@/lib/api";
@@ -146,11 +146,11 @@ export const KeyboardCartTable: React.FC<KeyboardCartTableProps> = ({
               <TableCell>
                 <div className="flex items-center gap-3">
                   <Avatar
-                    className="bg-default-100"
-                    fallback={<Box className="w-4 h-4 text-default-500" />}
+                    className="bg-default-100 dark:bg-white/5"
+                    fallback={<Package className="w-4 h-4 text-default-500 dark:text-white/20" />}
                     radius="sm"
                     size="sm"
-                    src={item.product.image_url ? BACKEND_URL + item.product.image_url : "/placeholder.webp"}
+                    src={item.product.image_url ? BACKEND_URL + item.product.image_url : undefined}
                   />
                   <div className="flex flex-col">
                     <span className="font-bold text-sm">{item.product.name}</span>
