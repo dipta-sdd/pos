@@ -11,7 +11,6 @@ import {
   Input,
   useDisclosure,
 } from "@heroui/react";
-import { toast } from "sonner";
 import { ShortcutKey } from "@/components/ui/ShortcutKey";
 import { X } from "lucide-react";
 import clsx from "clsx";
@@ -22,10 +21,9 @@ import { KeyboardPayment } from "./KeyboardPayment";
 import { KeyboardCustomer } from "./KeyboardCustomer";
 import { PaymentMethodSelectorModal } from "./PaymentMethodSelectorModal";
 
-import { usePosState } from "@/lib/hooks/usePosState";
-import api from "@/lib/api";
-import { PaymentMethod, CashRegisterSession } from "@/lib/types/general";
 import { PosPayment } from "@/lib/types/pos";
+import { PosTab } from "@/lib/types/pos";
+import { PaymentMethod, CashRegisterSession } from "@/lib/types/general";
 
 interface KeyboardPOSProps {
   vendorId: string;
@@ -49,6 +47,29 @@ interface KeyboardPOSProps {
   addTab: any;
   closeTab: any;
   setActiveTab: any;
+  state: any;
+  addToCart: any;
+  updateCartItem: any;
+  removeFromCart: any;
+  // Shared UI State
+  selectedIndex: number;
+  setSelectedIndex: React.Dispatch<React.SetStateAction<number>>;
+  focusArea: "search" | "cart" | "payment" | "customer";
+  setFocusArea: React.Dispatch<
+    React.SetStateAction<"search" | "cart" | "payment" | "customer">
+  >;
+  searchFocusTrigger: number;
+  setSearchFocusTrigger: React.Dispatch<React.SetStateAction<number>>;
+  // Shared Handlers
+  handleProductSearch: (query: string) => Promise<any[]>;
+  handleProductSelect: (item: any, query: string) => Promise<void>;
+  handleAddPaymentByType: (type: string) => void;
+  // Selector State
+  isSelectorOpen: boolean;
+  onSelectorOpen: () => void;
+  onSelectorOpenChange: (isOpen: boolean) => void;
+  selectorMethods: PaymentMethod[];
+  selectorTitle: string;
 }
 
 export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
@@ -73,24 +94,26 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
   addTab,
   closeTab,
   setActiveTab,
+  state,
+  updateCartItem,
+  removeFromCart,
+  // Shared UI State
+  selectedIndex,
+  setSelectedIndex,
+  focusArea,
+  setFocusArea,
+  searchFocusTrigger,
+  setSearchFocusTrigger,
+  // Shared Handlers
+  handleProductSearch,
+  handleProductSelect,
+  handleAddPaymentByType,
+  // Selector State
+  isSelectorOpen,
+  onSelectorOpenChange,
+  selectorMethods,
+  selectorTitle,
 }) => {
-  const { state, addToCart, updateCartItem, removeFromCart } = usePosState();
-
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [focusArea, setFocusArea] = useState<
-    "search" | "cart" | "payment" | "customer"
-  >("search");
-  const [searchFocusTrigger, setSearchFocusTrigger] = useState(0);
-
-  // Method Selector State
-  const {
-    isOpen: isSelectorOpen,
-    onOpen: onSelectorOpen,
-    onOpenChange: onSelectorOpenChange,
-  } = useDisclosure();
-  const [selectorMethods, setSelectorMethods] = useState<PaymentMethod[]>([]);
-  const [selectorTitle, setSelectorTitle] = useState("");
-
   const stateRef = React.useRef<any>({});
 
   useEffect(() => {
@@ -170,43 +193,8 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
         };
         const targetType = typeMap[num];
 
-        if (targetType && curActiveTab) {
-          // Find methods of this type that aren't already added
-          const availableMethods = curPaymentMethods.filter(
-            (pm: PaymentMethod) =>
-              pm.type === targetType &&
-              !(curActiveTab.payments || []).some(
-                (p: any) => p.methodId === pm.id,
-              ),
-          );
-
-          if (availableMethods.length === 1) {
-            const method = availableMethods[0];
-            doAddPayment({
-              methodId: method.id,
-              methodName: method.name,
-              isCash: targetType === "billing_counter",
-              tenderedAmount: curRemaining > 0 ? curRemaining : 0,
-              appliedAmount: curRemaining > 0 ? curRemaining : 0,
-              changeAmount: 0,
-            });
-            setFocusArea("payment");
-          } else if (availableMethods.length > 1) {
-            setSelectorMethods(availableMethods);
-            setSelectorTitle(`Select ${targetType.replace("_", " ")} Method`);
-            onSelectorOpen();
-          } else {
-            const hasAny = curPaymentMethods.some(
-              (pm: PaymentMethod) => pm.type === targetType,
-            );
-            if (!hasAny) {
-              toast.error(`No ${targetType} payment method configured`);
-            } else {
-              toast.error(
-                `All available ${targetType} methods are already added`,
-              );
-            }
-          }
+        if (targetType) {
+          handleAddPaymentByType(targetType);
         }
       }
 
@@ -235,68 +223,11 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
     return () => window.removeEventListener("keydown", handleKeyDown, true);
   }, []);
 
-  const handleEsc = React.useCallback(() => {
-    setFocusArea("search");
-  }, []);
-
   if (!activeTab) return null;
 
-  const handleProductSearch = async (query: string): Promise<any[]> => {
-    if (!query) return [];
-    try {
-      const res: any = await api.get(`/branch-products?search=${query}`);
-
-      return res.data.data || (Array.isArray(res.data) ? res.data : []);
-    } catch (err) {
-      return [];
-    }
-  };
-
-  const handleProductSelect = async (item: any, query: string) => {
-    try {
-      const batchRes: any = await api.get(
-        `/branch-products/stocks?variant_id=${item.id}`,
-      );
-      const batches = batchRes.data || [];
-
-      if (batches.length > 0) {
-        const productObj: any = {
-          id: item.product_id,
-          name: item.product_name,
-          image_url: item.image_url,
-        };
-        const variantObj: any = {
-          id: item.id,
-          name: item.variant_name,
-          value: item.variant_value,
-          sku: item.sku,
-          barcode: item.barcode,
-        };
-
-        const addedId = addToCart(productObj, variantObj, batches[0], 1);
-
-        // Barcode detection: if it matches query exactly, keep focus on search
-        const isBarcode =
-          String(item.barcode).toLowerCase() === query.toLowerCase();
-
-        console.log(
-          `[${new Date().toISOString()}] POS: Product Selected. ID: ${addedId}, isBarcode: ${isBarcode}`,
-        );
-
-        if (isBarcode) {
-          setFocusArea("search");
-          toast.success(`Added ${item.product_name}`);
-        } else {
-          setFocusArea("cart");
-          toast.success(`Added ${item.product_name} - Item in Cart`);
-        }
-      } else {
-        toast.error("No stock available");
-      }
-    } catch (err) {
-      toast.error("Failed to add product");
-    }
-  };
+  const handleEsc = React.useCallback(() => {
+    setFocusArea("search");
+  }, [setFocusArea]);
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-64px)] bg-content1 text-foreground">
@@ -316,7 +247,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
           variant="light"
           onSelectionChange={(key) => setActiveTab(key as string)}
         >
-          {state.tabs.map((tab) => (
+          {state.tabs.map((tab: PosTab) => (
             <Tab
               key={tab.id}
               title={
@@ -584,25 +515,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                     <Button
                       className="font-bold text-[10px] uppercase h-8"
                       variant="flat"
-                      onPress={() => {
-                        const method = paymentMethods.find(
-                          (m) =>
-                            m.type === "billing_counter" &&
-                            !activeTab.payments.some(
-                              (p: PosPayment) => p.methodId === m.id,
-                            ),
-                        );
-                        if (method) {
-                          addPayment({
-                            methodId: method.id,
-                            methodName: method.name,
-                            isCash: true,
-                            tenderedAmount: 0,
-                            appliedAmount: 0,
-                            changeAmount: 0,
-                          });
-                        }
-                      }}
+                      onPress={() => handleAddPaymentByType("billing_counter")}
                     >
                       Cash <ShortcutKey>Alt+0</ShortcutKey>
                     </Button>
@@ -610,96 +523,21 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                   <Button
                     className="font-bold text-[10px] uppercase h-8"
                     variant="flat"
-                    onPress={() => {
-                      const availableMethods = paymentMethods.filter(
-                        (m) =>
-                          m.type === "card" &&
-                          !activeTab.payments.some(
-                            (p: PosPayment) => p.methodId === m.id,
-                          ),
-                      );
-                      if (availableMethods.length === 1) {
-                        const method = availableMethods[0];
-                        addPayment({
-                          methodId: method.id,
-                          methodName: method.name,
-                          isCash: false,
-                          tenderedAmount: remaining > 0 ? remaining : 0,
-                          appliedAmount: remaining > 0 ? remaining : 0,
-                          changeAmount: 0,
-                        });
-                      } else if (availableMethods.length > 1) {
-                        setSelectorMethods(availableMethods);
-                        setSelectorTitle("Select Card Method");
-                        onSelectorOpen();
-                      } else {
-                        toast.error("No more card methods available");
-                      }
-                    }}
+                    onPress={() => handleAddPaymentByType("card")}
                   >
                     Card <ShortcutKey>Alt+1</ShortcutKey>
                   </Button>
                   <Button
                     className="font-bold text-[10px] uppercase h-8"
                     variant="flat"
-                    onPress={() => {
-                      const availableMethods = paymentMethods.filter(
-                        (m) =>
-                          m.type === "online" &&
-                          !activeTab.payments.some(
-                            (p: PosPayment) => p.methodId === m.id,
-                          ),
-                      );
-                      if (availableMethods.length === 1) {
-                        const method = availableMethods[0];
-                        addPayment({
-                          methodId: method.id,
-                          methodName: method.name,
-                          isCash: false,
-                          tenderedAmount: remaining > 0 ? remaining : 0,
-                          appliedAmount: remaining > 0 ? remaining : 0,
-                          changeAmount: 0,
-                        });
-                      } else if (availableMethods.length > 1) {
-                        setSelectorMethods(availableMethods);
-                        setSelectorTitle("Select Online Method");
-                        onSelectorOpen();
-                      } else {
-                        toast.error("No more online methods available");
-                      }
-                    }}
+                    onPress={() => handleAddPaymentByType("online")}
                   >
                     Online <ShortcutKey>Alt+2</ShortcutKey>
                   </Button>
                   <Button
                     className="font-bold text-[10px] uppercase h-8"
                     variant="flat"
-                    onPress={() => {
-                      const availableMethods = paymentMethods.filter(
-                        (m) =>
-                          m.type === "other" &&
-                          !activeTab.payments.some(
-                            (p: PosPayment) => p.methodId === m.id,
-                          ),
-                      );
-                      if (availableMethods.length === 1) {
-                        const method = availableMethods[0];
-                        addPayment({
-                          methodId: method.id,
-                          methodName: method.name,
-                          isCash: false,
-                          tenderedAmount: remaining > 0 ? remaining : 0,
-                          appliedAmount: remaining > 0 ? remaining : 0,
-                          changeAmount: 0,
-                        });
-                      } else if (availableMethods.length > 1) {
-                        setSelectorMethods(availableMethods);
-                        setSelectorTitle("Select Other Method");
-                        onSelectorOpen();
-                      } else {
-                        toast.error("No more other methods available");
-                      }
-                    }}
+                    onPress={() => handleAddPaymentByType("other")}
                   >
                     Others <ShortcutKey>Alt+3</ShortcutKey>
                   </Button>
@@ -776,7 +614,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
         onOpenChange={onSelectorOpenChange}
         methods={selectorMethods}
         title={selectorTitle}
-        onSelect={(method) => {
+        onSelect={(method: PaymentMethod) => {
           addPayment({
             methodId: method.id,
             methodName: method.name,
