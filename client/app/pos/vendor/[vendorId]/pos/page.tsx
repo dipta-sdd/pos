@@ -48,7 +48,7 @@ export default function PointOfSalePage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [view, setView] = useState<"cart" | "payment">("cart");
   const [posMode, setPosMode] = useState<"touch" | "keyboard" | "mobile">(
-    "touch",
+    "keyboard",
   );
 
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
@@ -119,7 +119,9 @@ export default function PointOfSalePage() {
       const response: any = await api.get(`/categories`, {
         params: { vendor_id: vId, per_page: -1 },
       });
-      const cats = Array.isArray(response.data) ? response.data : (response.data.data || []);
+      const cats = Array.isArray(response.data)
+        ? response.data
+        : response.data.data || [];
       setCategories(cats);
     } catch (err) {
       console.error("Failed to fetch categories", err);

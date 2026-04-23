@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Tabs,
   Tab,
@@ -116,6 +116,44 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
 }) => {
   const stateRef = React.useRef<any>({});
 
+  // Resizing State
+  const [sidebarWidth, setSidebarWidth] = useState(480);
+  const [isResizing, setIsResizing] = useState(false);
+
+  const startResizing = useCallback(() => {
+    setIsResizing(true);
+  }, []);
+
+  const stopResizing = useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  const resize = useCallback(
+    (e: MouseEvent) => {
+      if (isResizing) {
+        const newWidth = window.innerWidth - e.clientX;
+        if (newWidth >= 400 && newWidth <= 900) {
+          setSidebarWidth(newWidth);
+        }
+      }
+    },
+    [isResizing],
+  );
+
+  useEffect(() => {
+    if (isResizing) {
+      window.addEventListener("mousemove", resize);
+      window.addEventListener("mouseup", stopResizing);
+    } else {
+      window.removeEventListener("mousemove", resize);
+      window.removeEventListener("mouseup", stopResizing);
+    }
+    return () => {
+      window.removeEventListener("mousemove", resize);
+      window.removeEventListener("mouseup", stopResizing);
+    };
+  }, [isResizing, resize, stopResizing]);
+
   useEffect(() => {
     // Prevent browser help menu on F1
     // window.onhelp = () => false;
@@ -230,7 +268,10 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
   }, [setFocusArea]);
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-64px)] bg-content1 text-foreground">
+    <div className={clsx(
+      "flex flex-col min-h-[calc(100vh-64px)] bg-content1 text-foreground",
+      isResizing && "select-none cursor-col-resize"
+    )}>
       {/* Sale Tabs */}
       <div className="flex items-center px-4 pt-2 bg-default-50 border-b border-default-200">
         <Tabs
@@ -309,8 +350,22 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
           />
         </div>
 
+        {/* Resize Handle */}
+        <div
+          className={clsx(
+            "w-1.5 relative z-50 group cursor-col-resize transition-colors duration-200",
+            isResizing ? "bg-primary" : "bg-transparent hover:bg-primary/30"
+          )}
+          onMouseDown={startResizing}
+        >
+          <div className="absolute inset-y-0 -left-2 -right-2 bg-transparent" />
+        </div>
+
         {/* Right Side: Sidebar */}
-        <div className="w-[480px] flex flex-col gap-4 overflow-y-auto no-scrollbar pb-6">
+        <div 
+          style={{ width: `${sidebarWidth}px`, minWidth: '400px' }}
+          className="flex flex-col gap-4 overflow-y-auto no-scrollbar pb-6"
+        >
           <KeyboardCustomer
             isFocused={focusArea === "customer"}
             selectedCustomer={activeTab.customer}

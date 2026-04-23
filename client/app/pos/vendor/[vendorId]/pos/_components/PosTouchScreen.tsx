@@ -142,6 +142,44 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
   const [custMobile, setCustMobile] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Resizing State
+  const [sidebarWidth, setSidebarWidth] = useState(380);
+  const [isResizing, setIsResizing] = useState(false);
+
+  const startResizing = useCallback(() => {
+    setIsResizing(true);
+  }, []);
+
+  const stopResizing = useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  const resize = useCallback(
+    (e: MouseEvent) => {
+      if (isResizing) {
+        const newWidth = window.innerWidth - e.clientX;
+        if (newWidth >= 300 && newWidth <= 800) {
+          setSidebarWidth(newWidth);
+        }
+      }
+    },
+    [isResizing],
+  );
+
+  useEffect(() => {
+    if (isResizing) {
+      window.addEventListener("mousemove", resize);
+      window.addEventListener("mouseup", stopResizing);
+    } else {
+      window.removeEventListener("mousemove", resize);
+      window.removeEventListener("mouseup", stopResizing);
+    }
+    return () => {
+      window.removeEventListener("mousemove", resize);
+      window.removeEventListener("mouseup", stopResizing);
+    };
+  }, [isResizing, resize, stopResizing]);
+
   // Sync modal state with current active tab customer
   useEffect(() => {
     if (activeTab?.customer) {
@@ -201,7 +239,10 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
   if (!activeTab) return null;
 
   return (
-    <div className="flex h-[calc(100vh-64px)] bg-background text-foreground overflow-hidden font-sans">
+    <div className={clsx(
+      "flex h-[calc(100vh-64px)] bg-background text-foreground overflow-hidden font-sans",
+      isResizing && "select-none cursor-col-resize"
+    )}>
       {/* MAIN CONTENT AREA (Left + Center) */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden border-r border-default-100">
         {/* TOP ROW: Search & Tabs */}
@@ -310,8 +351,22 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
         </div>
       </div>
 
+      {/* Resize Handle */}
+      <div
+        className={clsx(
+          "w-1.5 relative z-50 group cursor-col-resize transition-colors duration-200",
+          isResizing ? "bg-primary" : "bg-transparent hover:bg-primary/30"
+        )}
+        onMouseDown={startResizing}
+      >
+        <div className="absolute inset-y-0 -left-2 -right-2 bg-transparent" /> {/* Hit area */}
+      </div>
+
       {/* RIGHT SIDEBAR: CART & CHECKOUT */}
-      <div className="w-[380px] bg-content1 flex flex-col overflow-hidden relative">
+      <div 
+        style={{ width: `${sidebarWidth}px`, minWidth: '300px' }}
+        className="bg-content1 flex flex-col overflow-hidden relative"
+      >
         {sidebarMode === "cart" ? (
           <>
             {/* Customer Info */}
