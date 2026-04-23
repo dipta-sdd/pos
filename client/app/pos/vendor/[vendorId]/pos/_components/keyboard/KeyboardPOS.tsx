@@ -209,35 +209,39 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
       if (e.altKey && !isNaN(parseInt(e.key))) {
         e.preventDefault();
         const num = parseInt(e.key);
-        const types: ("card" | "online" | "other")[] = [
-          "card",
-          "online",
-          "other",
-        ];
-        const targetType = types[num - 1];
+        
+        // Mapping: Alt+0 -> Cash, Alt+1 -> Card, Alt+2 -> Online, Alt+3 -> Other
+        const typeMap: Record<number, string> = {
+          0: "billing_counter",
+          1: "card",
+          2: "online",
+          3: "other",
+        };
+        const targetType = typeMap[num];
 
         if (targetType && curActiveTab) {
-          const method = curPaymentMethods.find((pm) => pm.type === targetType);
-          if (method) {
-            const isExisting = (curActiveTab.payments || []).some(
-              (p) => p.methodId === method.id,
-            );
-            if (isExisting) {
-              toast.error(`${method.name} is already added`);
-              return;
-            }
+          // Find the first method of this type that isn't already added
+          const method = curPaymentMethods.find(
+            (pm) => pm.type === targetType && !(curActiveTab.payments || []).some(p => p.methodId === pm.id)
+          );
 
+          if (method) {
             doAddPayment({
               methodId: method.id,
               methodName: method.name,
-              isCash: false,
+              isCash: targetType === "billing_counter",
               tenderedAmount: curRemaining > 0 ? curRemaining : 0,
               appliedAmount: curRemaining > 0 ? curRemaining : 0,
               changeAmount: 0,
             });
             setFocusArea("payment");
           } else {
-            toast.error(`No ${targetType} payment method available`);
+            const hasAny = curPaymentMethods.some(pm => pm.type === targetType);
+            if (!hasAny) {
+              toast.error(`No ${targetType} payment method configured`);
+            } else {
+              toast.error(`All available ${targetType} methods are already added`);
+            }
           }
         }
       }
@@ -613,7 +617,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                       variant="flat"
                       onPress={() => {
                         const method = paymentMethods.find(
-                          (m) => m.type === "billing_counter",
+                          (m) => m.type === "billing_counter" && !activeTab.payments.some(p => p.methodId === m.id),
                         );
                         if (method) {
                           addPayment({
@@ -635,24 +639,19 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                     variant="flat"
                     onPress={() => {
                       const method = paymentMethods.find(
-                        (m) => m.type === "card",
+                        (m) => m.type === "card" && !activeTab.payments.some(p => p.methodId === m.id),
                       );
                       if (method) {
-                        const isExisting = activeTab.payments.some(
-                          (p) => p.methodId === method.id,
-                        );
-                        if (!isExisting) {
-                          addPayment({
-                            methodId: method.id,
-                            methodName: method.name,
-                            isCash: false,
-                            tenderedAmount: remaining > 0 ? remaining : 0,
-                            appliedAmount: remaining > 0 ? remaining : 0,
-                            changeAmount: 0,
-                          });
-                        } else {
-                          toast.error("Card is already added");
-                        }
+                        addPayment({
+                          methodId: method.id,
+                          methodName: method.name,
+                          isCash: false,
+                          tenderedAmount: remaining > 0 ? remaining : 0,
+                          appliedAmount: remaining > 0 ? remaining : 0,
+                          changeAmount: 0,
+                        });
+                      } else {
+                        toast.error("No more card methods available");
                       }
                     }}
                   >
@@ -663,24 +662,19 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                     variant="flat"
                     onPress={() => {
                       const method = paymentMethods.find(
-                        (m) => m.type === "online",
+                        (m) => m.type === "online" && !activeTab.payments.some(p => p.methodId === m.id),
                       );
                       if (method) {
-                        const isExisting = activeTab.payments.some(
-                          (p) => p.methodId === method.id,
-                        );
-                        if (!isExisting) {
-                          addPayment({
-                            methodId: method.id,
-                            methodName: method.name,
-                            isCash: false,
-                            tenderedAmount: remaining > 0 ? remaining : 0,
-                            appliedAmount: remaining > 0 ? remaining : 0,
-                            changeAmount: 0,
-                          });
-                        } else {
-                          toast.error("Online is already added");
-                        }
+                        addPayment({
+                          methodId: method.id,
+                          methodName: method.name,
+                          isCash: false,
+                          tenderedAmount: remaining > 0 ? remaining : 0,
+                          appliedAmount: remaining > 0 ? remaining : 0,
+                          changeAmount: 0,
+                        });
+                      } else {
+                        toast.error("No more online methods available");
                       }
                     }}
                   >
@@ -691,24 +685,19 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                     variant="flat"
                     onPress={() => {
                       const method = paymentMethods.find(
-                        (m) => m.type === "other",
+                        (m) => m.type === "other" && !activeTab.payments.some(p => p.methodId === m.id),
                       );
                       if (method) {
-                        const isExisting = activeTab.payments.some(
-                          (p) => p.methodId === method.id,
-                        );
-                        if (!isExisting) {
-                          addPayment({
-                            methodId: method.id,
-                            methodName: method.name,
-                            isCash: false,
-                            tenderedAmount: remaining > 0 ? remaining : 0,
-                            appliedAmount: remaining > 0 ? remaining : 0,
-                            changeAmount: 0,
-                          });
-                        } else {
-                          toast.error("Other method is already added");
-                        }
+                        addPayment({
+                          methodId: method.id,
+                          methodName: method.name,
+                          isCash: false,
+                          tenderedAmount: remaining > 0 ? remaining : 0,
+                          appliedAmount: remaining > 0 ? remaining : 0,
+                          changeAmount: 0,
+                        });
+                      } else {
+                        toast.error("No more other methods available");
                       }
                     }}
                   >
