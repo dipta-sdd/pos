@@ -38,15 +38,15 @@ class BranchProductController extends Controller
             DB::raw('COALESCE(units.abbreviation) as unit_abbreviation'),
             DB::raw('COALESCE(units.is_decimal_allowed) as is_decimal_allowed'),
         ])
-        ->join('products', 'variants.product_id', '=', 'products.id')
-        ->leftJoin('units_of_measure as units', 'products.unit_of_measure_id', '=', 'units.id')
-        ->where('products.vendor_id', $vendorId)
-        ->leftJoin('product_stocks', function ($join) use ($branchIds) {
-            $join->on('variants.id', '=', 'product_stocks.variant_id');
-            if (!empty($branchIds)) {
-                $join->whereIn('product_stocks.branch_id', $branchIds);
-            }
-        });
+            ->join('products', 'variants.product_id', '=', 'products.id')
+            ->leftJoin('units_of_measure as units', 'products.unit_of_measure_id', '=', 'units.id')
+            ->where('products.vendor_id', $vendorId)
+            ->leftJoin('product_stocks', function ($join) use ($branchIds) {
+                $join->on('variants.id', '=', 'product_stocks.variant_id');
+                if (!empty($branchIds)) {
+                    $join->whereIn('product_stocks.branch_id', $branchIds);
+                }
+            });
 
         if (!empty($branchIds) && count($branchIds) === 1) {
             $branchId = $branchIds[0];
@@ -54,10 +54,10 @@ class BranchProductController extends Controller
                 'branch_products.id as branch_product_id',
                 'branch_products.is_active',
             ])
-            ->leftJoin('branch_products', function ($join) use ($branchId) {
-                $join->on('variants.id', '=', 'branch_products.variant_id')
-                     ->where('branch_products.branch_id', '=', $branchId);
-            });
+                ->leftJoin('branch_products', function ($join) use ($branchId) {
+                    $join->on('variants.id', '=', 'branch_products.variant_id')
+                        ->where('branch_products.branch_id', '=', $branchId);
+                });
         } else {
             $query->addSelect([DB::raw('NULL as branch_product_id'), DB::raw('NULL as is_active')]);
         }
@@ -66,14 +66,18 @@ class BranchProductController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('products.name', 'like', "%{$search}%")
-                  ->orWhere('variants.value', 'like', "%{$search}%")
-                  ->orWhere('variants.sku', 'like', "%{$search}%")
-                  ->orWhere('variants.barcode', 'like', "%{$search}%");
+                    ->orWhere('variants.value', 'like', "%{$search}%")
+                    ->orWhere('variants.sku', 'like', "%{$search}%")
+                    ->orWhere('variants.barcode', 'like', "%{$search}%");
             });
         }
 
         if ($request->filled('product_id')) {
             $query->where('products.id', $request->product_id);
+        }
+
+        if ($request->filled('category_id')) {
+            $query->where('products.category_id', $request->category_id);
         }
 
         $query->groupBy(
@@ -157,10 +161,10 @@ class BranchProductController extends Controller
                 'updated_by' => $request->user()->id,
             ]
         );
-        
+
         $variant = Variant::find($request->variant_id);
         $product = Product::find($request->product_id);
-        
+
         // Find correct unit
         $unitId = $variant->unit_of_measure_id ?? $product->unit_of_measure_id;
         $unitName = null;

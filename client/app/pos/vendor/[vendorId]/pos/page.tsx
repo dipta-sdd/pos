@@ -14,13 +14,7 @@ import PermissionGuard from "@/components/auth/PermissionGuard";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import { UserLoding } from "@/components/user-loding";
 import api from "@/lib/api";
-import {
-  CashRegisterSession,
-  Product,
-  Variant,
-  ProductStock,
-  PaymentMethod,
-} from "@/lib/types/general";
+import { CashRegisterSession, PaymentMethod } from "@/lib/types/general";
 import { usePosState } from "@/lib/hooks/usePosState";
 
 export default function PointOfSalePage() {
@@ -54,10 +48,11 @@ export default function PointOfSalePage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [view, setView] = useState<"cart" | "payment">("cart");
   const [posMode, setPosMode] = useState<"touch" | "keyboard" | "mobile">(
-    "keyboard",
+    "touch",
   );
 
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
 
   // UI State shared across layouts
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -117,10 +112,27 @@ export default function PointOfSalePage() {
     }
   };
 
+  const fetchCategories = useCallback(async () => {
+    const vId = vendor?.id || vendorId;
+    if (!vId) return;
+    try {
+      const response: any = await api.get(`/categories`, {
+        params: { vendor_id: vId, per_page: -1 },
+      });
+      const cats = Array.isArray(response.data) ? response.data : (response.data.data || []);
+      setCategories(cats);
+    } catch (err) {
+      console.error("Failed to fetch categories", err);
+    }
+  }, [vendor?.id, vendorId]);
 
   useEffect(() => {
-    fetchActiveSession();
-  }, [vendor?.id]);
+    const vId = vendor?.id || vendorId;
+    if (vId) {
+      fetchActiveSession();
+      fetchCategories();
+    }
+  }, [vendor?.id, vendorId, fetchCategories]);
 
   useEffect(() => {
     const fetchMethods = async () => {
@@ -148,9 +160,7 @@ export default function PointOfSalePage() {
     if (!cashMethod) return;
 
     const existingPayments = activeTab.payments || [];
-    const hasCash = existingPayments.some(
-      (p) => p.methodId === cashMethod.id,
-    );
+    const hasCash = existingPayments.some((p) => p.methodId === cashMethod.id);
 
     if (!hasCash && existingPayments.length === 0) {
       addPayment({
@@ -426,13 +436,14 @@ export default function PointOfSalePage() {
     onSelectorOpenChange,
     selectorMethods,
     selectorTitle,
+    categories,
   };
 
   console.log("activeSession", activeSession);
 
   return (
     <PermissionGuard permission="can_use_pos">
-      {!activeSession  ? (
+      {!activeSession ? (
         <div className="flex flex-col items-center justify-center h-[calc(100vh-64px)] bg-content1">
           <div className="text-center space-y-4">
             <h2 className="text-3xl font-black text-default-800 tracking-tight">
@@ -452,10 +463,7 @@ export default function PointOfSalePage() {
           </div>
         </div>
       ) : posMode === "keyboard" ? (
-        <KeyboardPOS
-          {...posProps}
-          vendorId={vendorId}
-        />
+        <KeyboardPOS {...posProps} vendorId={vendorId} />
       ) : (
         <PosTouchScreen {...posProps} />
       )}
