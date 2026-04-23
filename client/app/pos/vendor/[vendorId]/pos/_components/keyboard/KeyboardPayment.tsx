@@ -37,7 +37,7 @@ export const KeyboardPayment: React.FC<KeyboardPaymentProps> = ({
       .reduce((sum, p) => sum + p.appliedAmount, 0);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2">
       {(payments || []).map((p) => {
         const remainingForThis = Math.max(
           0,
@@ -48,10 +48,10 @@ export const KeyboardPayment: React.FC<KeyboardPaymentProps> = ({
           <div
             key={p.id}
             className={clsx(
-              "flex flex-col gap-2 p-3 transition-all",
+              "flex flex-col gap-1 p-2 transition-all",
               !p.isCash && "rounded-xl border-2",
               !p.isCash && (isFocused ? "bg-white border-primary shadow-sm" : "bg-default-50 border-default-200"),
-              p.isCash && "bg-transparent border-b border-default-100 pb-4"
+              p.isCash && "bg-transparent border-b border-default-100 pb-2"
             )}
           >
             <div className="flex justify-between items-center">
@@ -109,7 +109,7 @@ export const KeyboardPayment: React.FC<KeyboardPaymentProps> = ({
               </div>
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
               {/* Received Row */}
               <div className="flex items-center justify-between gap-4">
                 <span className="text-[10px] font-bold text-default-500 uppercase tracking-tight">
@@ -170,7 +170,7 @@ export const KeyboardPayment: React.FC<KeyboardPaymentProps> = ({
             </div>
 
             {p.isCash && (
-              <div className="flex justify-between items-center mt-1 pt-2 border-t border-dashed border-default-200">
+              <div className="flex justify-between items-center mt-0 pt-1 border-t border-dashed border-default-200">
                 <span className="text-[10px] text-success font-black uppercase tracking-widest">
                   Change
                 </span>
@@ -183,7 +183,7 @@ export const KeyboardPayment: React.FC<KeyboardPaymentProps> = ({
         );
       })}
       {(payments || []).length === 0 && (
-        <div className="py-8 text-center text-default-400 text-xs font-medium italic border-2 border-dashed border-default-200 rounded-xl">
+        <div className="py-4 text-center text-default-400 text-[10px] font-medium italic border-2 border-dashed border-default-200 rounded-lg">
           No payments added.
         </div>
       )}

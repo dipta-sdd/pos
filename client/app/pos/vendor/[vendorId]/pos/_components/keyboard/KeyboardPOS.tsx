@@ -567,16 +567,16 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
 
           {/* 💰 PAYMENT STATUS */}
           <Card className="bg-default-50/50 border-default-200" shadow="none">
-            <CardBody className="p-4 gap-3">
-              <span className="text-[10px] font-black uppercase tracking-widest text-default-400 pb-1">
+            <CardBody className="p-3 gap-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-default-400">
                 💰 Payment Status
               </span>
 
-              <div className="flex justify-between items-center py-2">
+              <div className="flex justify-between items-center py-1">
                 <span className="text-xs font-black uppercase text-primary">
                   Grand Total
                 </span>
-                <span className="text-3xl font-mono font-black tracking-tighter">
+                <span className="text-2xl font-mono font-black tracking-tighter">
                   ৳{" "}
                   {grandTotal.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
@@ -584,7 +584,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                 </span>
               </div>
 
-              <div className="flex justify-between items-center text-sm border-t border-dashed border-default-200 pt-2">
+              <div className="flex justify-between items-center text-sm ">
                 <span className="text-default-500">Paid Amount</span>
                 <span className="font-mono font-bold text-success">
                   ৳{" "}
@@ -610,7 +610,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
 
               <div
                 className={clsx(
-                  "flex justify-between items-center p-3 rounded-xl mt-1",
+                  "flex justify-between items-center p-2 rounded-lg mt-1",
                   remaining > 0
                     ? "bg-danger-50 text-danger"
                     : "bg-success-50 text-success",
@@ -618,7 +618,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
               >
                 <span className="text-xs font-black uppercase">Remaining</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-xl font-mono font-black">
+                  <span className="text-lg font-mono font-black">
                     ৳{" "}
                     {remaining.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
@@ -655,7 +655,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
               >
                 {!activeTab.payments.some((p) => p.isCash) && (
                   <Button
-                    className="font-bold text-[10px] uppercase h-10"
+                    className="font-bold text-[10px] uppercase h-8"
                     variant="flat"
                     onPress={() => {
                       const method = paymentMethods.find(
@@ -677,7 +677,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                   </Button>
                 )}
                 <Button
-                  className="font-bold text-[10px] uppercase h-10"
+                  className="font-bold text-[10px] uppercase h-8"
                   variant="flat"
                   onPress={() => {
                     const method = paymentMethods.find(
@@ -705,7 +705,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                   Card <ShortcutKey>Alt+1</ShortcutKey>
                 </Button>
                 <Button
-                  className="font-bold text-[10px] uppercase h-10"
+                  className="font-bold text-[10px] uppercase h-8"
                   variant="flat"
                   onPress={() => {
                     const method = paymentMethods.find(
@@ -733,7 +733,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                   Online <ShortcutKey>Alt+2</ShortcutKey>
                 </Button>
                 <Button
-                  className="font-bold text-[10px] uppercase h-10"
+                  className="font-bold text-[10px] uppercase h-8"
                   variant="flat"
                   onPress={() => {
                     const method = paymentMethods.find(
@@ -765,7 +765,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
           </Card>
 
           <Button
-            className="w-full h-16 font-black text-xl uppercase tracking-widest shadow-xl rounded-2xl transition-all hover:scale-[1.02] active:scale-95"
+            className="w-full h-12 font-black text-lg uppercase tracking-widest shadow-xl rounded-2xl transition-all hover:scale-[1.02] active:scale-95"
             color={
               remaining <= 0 && activeTab.items.length > 0
                 ? "success"
