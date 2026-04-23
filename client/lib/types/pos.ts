@@ -34,6 +34,10 @@ export interface PosTab {
   };
   items: CartItem[];
   payments: PosPayment[];
+  discount_type: "percentage" | "fixed";
+  discount_value: number;
+  coupon_code: string;
+  extra_charge: number;
   notes: string;
   createdAt: string;
 }

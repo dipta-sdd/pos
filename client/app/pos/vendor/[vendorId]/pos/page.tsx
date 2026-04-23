@@ -96,7 +96,15 @@ export default function PointOfSalePage() {
       return;
     }
 
-    const total = (activeTab.items || []).reduce((sum, i) => sum + i.total, 0);
+    const itemsTotal = (activeTab.items || []).reduce((sum, i) => sum + i.total, 0);
+    const subtotal = (activeTab.items || []).reduce((sum, i) => sum + i.subtotal, 0);
+    
+    const globalDiscount = activeTab.discount_type === "percentage"
+      ? (subtotal * activeTab.discount_value) / 100
+      : activeTab.discount_value;
+
+    const total = itemsTotal - globalDiscount + (activeTab.extra_charge || 0);
+
     const totalApplied = (activeTab.payments || []).reduce(
       (sum, p) => sum + p.appliedAmount,
       0,
@@ -118,14 +126,11 @@ export default function PointOfSalePage() {
         cash_register_session_id: activeSession.id,
         customer_id: activeTab.customer?.id || null,
         tempCustomer: activeTab.tempCustomer,
-        subtotal_amount: (activeTab.items || []).reduce(
-          (sum, i) => sum + i.subtotal,
-          0,
-        ),
+        subtotal_amount: subtotal,
         total_discount_amount: (activeTab.items || []).reduce(
           (sum, i) => sum + i.discount,
           0,
-        ),
+        ) + globalDiscount,
         tax_amount: (activeTab.items || []).reduce((sum, i) => sum + i.tax_amount, 0),
         final_amount: total,
         status: "completed",
@@ -214,7 +219,12 @@ export default function PointOfSalePage() {
   return (
     <PermissionGuard permission="can_use_pos">
       {posMode === "keyboard" ? (
-        <KeyboardPOS activeSession={activeSession} vendorId={vendorId} />
+        <KeyboardPOS
+          activeSession={activeSession}
+          handleCheckout={handleCheckout}
+          isProcessing={isProcessing}
+          vendorId={vendorId}
+        />
       ) : (
         <PosTouchScreen {...posProps} />
       )}

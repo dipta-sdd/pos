@@ -12,6 +12,10 @@ const DEFAULT_TAB = (): PosTab => ({
   customer: null,
   items: [],
   payments: [],
+  discount_type: "percentage",
+  discount_value: 0,
+  coupon_code: "",
+  extra_charge: 0,
   notes: "",
   createdAt: new Date().toISOString(),
 });
@@ -38,6 +42,10 @@ export function usePosState() {
             ...tab,
             items: tab.items || [],
             payments: tab.payments || [],
+            discount_type: tab.discount_type || "percentage",
+            discount_value: tab.discount_value || 0,
+            coupon_code: tab.coupon_code || "",
+            extra_charge: tab.extra_charge || 0,
           }));
 
           setState({ ...parsed, tabs: sanitizedTabs });
