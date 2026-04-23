@@ -16,6 +16,7 @@ import {
   Package,
   Phone,
   UserPlus,
+  X,
 } from "lucide-react";
 import clsx from "clsx";
 import debounce from "lodash/debounce";
@@ -174,18 +175,35 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
 
             <div className="flex items-center gap-2 bg-[#16191f] p-1.5 rounded-2xl border border-white/5 shadow-inner">
               {state.tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={clsx(
-                    "px-6 h-11 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
-                    activeTab.id === tab.id 
-                      ? "bg-primary text-white shadow-lg shadow-primary/20" 
-                      : "text-gray-500 hover:text-gray-300"
+                <div key={tab.id} className="relative flex items-center">
+                  <button
+                    onClick={() => setActiveTab(tab.id)}
+                    className={clsx(
+                      "px-6 h-11 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2 pr-10",
+                      activeTab.id === tab.id 
+                        ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                        : "text-gray-500 hover:text-gray-300"
+                    )}
+                  >
+                    {tab.name}
+                  </button>
+                  {state.tabs.length > 1 && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        props.closeTab(tab.id);
+                      }}
+                      className={clsx(
+                        "absolute right-2 w-6 h-6 rounded-lg flex items-center justify-center transition-colors",
+                        activeTab.id === tab.id 
+                          ? "bg-white/20 text-white hover:bg-white/30" 
+                          : "text-gray-600 hover:text-danger hover:bg-danger/10"
+                      )}
+                    >
+                      <X size={12} />
+                    </button>
                   )}
-                >
-                  {tab.name}
-                </button>
+                </div>
               ))}
               <button 
                 onClick={addTab}
@@ -296,7 +314,14 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                     {item.product?.name || "Unknown Product"}
                   </p>
                   <p className="text-[10px] text-gray-500 font-bold truncate mb-3 uppercase tracking-tighter">
-                    {item.variant?.name || item.variant?.value || "Standard"} • Batch: {item.batch?.batch_no || item.batch?.id || "N/A"}
+                    {(() => {
+                      const vName = item.variant?.name?.toLowerCase() || "";
+                      const vValue = item.variant?.value?.toLowerCase() || "";
+                      const isDefault = vName.includes("default") || vName.includes("standard") || vValue.includes("default") || vValue.includes("standard");
+                      
+                      if (isDefault) return `Batch: ${item.batch?.batch_no || item.batch?.id || "N/A"}`;
+                      return `${item.variant?.name}: ${item.variant?.value} • Batch: ${item.batch?.batch_no || item.batch?.id || "N/A"}`;
+                    })()}
                   </p>
                   
                   <div className="flex items-center gap-3">
@@ -317,6 +342,9 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-black text-white">৳{item.total.toLocaleString()}</p>
+                  <p className="text-[10px] text-gray-500 font-bold mt-1 tracking-tighter">
+                    ৳{item.price.toLocaleString()} × {item.quantity}
+                  </p>
                   <button 
                     onClick={() => removeFromCart(item.id)}
                     className="mt-4 text-gray-600 hover:text-danger transition-colors p-1"
