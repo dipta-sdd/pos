@@ -102,7 +102,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
   console.log(focusArea);
   useEffect(() => {
     // Prevent browser help menu on F1
-    window.onhelp = () => false;
+    // window.onhelp = () => false;
 
     const fetchMethods = async () => {
       console.log("KeyboardPOS: fetchMethods", { activeSession });
@@ -497,7 +497,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                         className={clsx(
                           "px-2 text-[10px] font-bold rounded-md transition-all",
                           activeTab.discount_type === "percentage"
-                            ? "bg-white shadow-sm text-primary"
+                            ? "bg-content1 shadow-sm text-primary"
                             : "text-default-400",
                         )}
                         onClick={() =>
@@ -510,7 +510,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                         className={clsx(
                           "px-2 text-[10px] font-bold rounded-md transition-all",
                           activeTab.discount_type === "fixed"
-                            ? "bg-white shadow-sm text-primary"
+                            ? "bg-content1 shadow-sm text-primary"
                             : "text-default-400",
                         )}
                         onClick={() =>

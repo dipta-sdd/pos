@@ -50,8 +50,7 @@ export const KeyboardPayment: React.FC<KeyboardPaymentProps> = ({
             className={clsx(
               "flex flex-col gap-1 p-2 transition-all",
               !p.isCash && "rounded-xl",
-              !p.isCash && (isFocused ? "bg-white shadow-sm" : "bg-default-50"),
-              p.isCash && "bg-transparent border-b border-default-100 pb-2"
+              p.isCash && "bg-transparent border-b border-default-100 pb-2",
             )}
           >
             <div className="flex justify-between items-center">
@@ -89,7 +88,11 @@ export const KeyboardPayment: React.FC<KeyboardPaymentProps> = ({
                           ? "Switch to Auto Applied"
                           : "Manual Applied Amount"}
                       </DropdownItem>
-                      <DropdownItem key="remove" className="text-danger" color="danger">
+                      <DropdownItem
+                        key="remove"
+                        className="text-danger"
+                        color="danger"
+                      >
                         Remove Payment
                       </DropdownItem>
                     </DropdownMenu>
