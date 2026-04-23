@@ -24,24 +24,19 @@ export const KeyboardSearch: React.FC<KeyboardSearchProps> = ({
   const [hasSearched, setHasSentSearched] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  console.log("isFocused: ", isFocused);
   // Focus management
   useEffect(() => {
-    console.log("KeyboardSearch: Focus Effect", {
-      isFocused,
-      hasRef: !!inputRef.current,
-      focusTrigger,
-    });
+  
     if (isFocused && inputRef.current) {
       const timer = setTimeout(() => {
         const el = inputRef.current;
         if (el) {
-          console.log("KeyboardSearch: Attempting focus on", el);
           if (typeof el.focus === "function") {
             el.focus();
           }
           // Also try to find internal input if it's a wrapper
-          const innerInput = el.querySelector?.("input") || (el as any).inputElement;
+          const innerInput =
+            el.querySelector?.("input") || (el as any).inputElement;
           if (innerInput && typeof innerInput.focus === "function") {
             innerInput.focus();
             innerInput.select?.();
@@ -81,15 +76,14 @@ export const KeyboardSearch: React.FC<KeyboardSearchProps> = ({
   return (
     <div className="mb-4">
       <Autocomplete
-      
-        ref={(el) => {
+        ref={(el: any) => {
           (inputRef as any).current = el;
-          if (el) console.log("KeyboardSearch: Ref set to", el);
         }}
         aria-label="Search products"
         classNames={{
           base: "max-w-full",
           listboxWrapper: "max-h-[400px]",
+          // @ts-ignore
           inputWrapper: clsx(
             "h-[60px] border-2 transition-colors",
             isNotFound ? "bg-danger-50 border-danger-200" : "bg-default-50",
@@ -120,17 +114,12 @@ export const KeyboardSearch: React.FC<KeyboardSearchProps> = ({
             const selected = items.find((i) => String(i.id) === String(key));
 
             if (selected) {
-              console.log(
-                `[${new Date().toISOString()}] Search: Item selected, blurring search input.`,
-              );
+
               // Explicitly blur to prevent Autocomplete from stealing focus back
               if (inputRef.current) {
                 const input = inputRef.current.querySelector("input");
                 if (input) {
-                  input.blur();
-                  console.log(
-                    `[${new Date().toISOString()}] Search: Input blur() called.`,
-                  );
+                  input.blur(); 
                 }
               }
               onSelect(selected, inputValue);

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useDisclosure } from "@heroui/modal";
+import { Button } from "@heroui/react";
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
 
@@ -68,6 +69,7 @@ export default function PointOfSalePage() {
     }
   };
 
+
   useEffect(() => {
     fetchActiveSession();
   }, [vendor?.id]);
@@ -96,12 +98,19 @@ export default function PointOfSalePage() {
       return;
     }
 
-    const itemsTotal = (activeTab.items || []).reduce((sum, i) => sum + i.total, 0);
-    const subtotal = (activeTab.items || []).reduce((sum, i) => sum + i.subtotal, 0);
-    
-    const globalDiscount = activeTab.discount_type === "percentage"
-      ? (subtotal * activeTab.discount_value) / 100
-      : activeTab.discount_value;
+    const itemsTotal = (activeTab.items || []).reduce(
+      (sum, i) => sum + i.total,
+      0,
+    );
+    const subtotal = (activeTab.items || []).reduce(
+      (sum, i) => sum + i.subtotal,
+      0,
+    );
+
+    const globalDiscount =
+      activeTab.discount_type === "percentage"
+        ? (subtotal * activeTab.discount_value) / 100
+        : activeTab.discount_value;
 
     const total = itemsTotal - globalDiscount + (activeTab.extra_charge || 0);
 
@@ -127,11 +136,13 @@ export default function PointOfSalePage() {
         customer_id: activeTab.customer?.id || null,
         tempCustomer: activeTab.tempCustomer,
         subtotal_amount: subtotal,
-        total_discount_amount: (activeTab.items || []).reduce(
-          (sum, i) => sum + i.discount,
+        total_discount_amount:
+          (activeTab.items || []).reduce((sum, i) => sum + i.discount, 0) +
+          globalDiscount,
+        tax_amount: (activeTab.items || []).reduce(
+          (sum, i) => sum + i.tax_amount,
           0,
-        ) + globalDiscount,
-        tax_amount: (activeTab.items || []).reduce((sum, i) => sum + i.tax_amount, 0),
+        ),
         final_amount: total,
         status: "completed",
         items: (activeTab.items || []).map((item) => ({
@@ -165,7 +176,10 @@ export default function PointOfSalePage() {
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Enter" && !isProcessing) {
-        const total = (activeTab.items || []).reduce((sum, i) => sum + i.total, 0);
+        const total = (activeTab.items || []).reduce(
+          (sum, i) => sum + i.total,
+          0,
+        );
         const totalApplied = (activeTab.payments || []).reduce(
           (sum, p) => sum + p.appliedAmount,
           0,
@@ -216,9 +230,30 @@ export default function PointOfSalePage() {
     removePayment,
   };
 
+  console.log("activeSession", activeSession);
+
   return (
     <PermissionGuard permission="can_use_pos">
-      {posMode === "keyboard" ? (
+      {!activeSession  ? (
+        <div className="flex flex-col items-center justify-center h-[calc(100vh-64px)] bg-content1">
+          <div className="text-center space-y-4">
+            <h2 className="text-3xl font-black text-default-800 tracking-tight">
+              Register is Closed
+            </h2>
+            <p className="text-default-500">
+              You must open a billing counter session to use the POS.
+            </p>
+            <Button
+              color="primary"
+              size="lg"
+              className="font-bold"
+              onPress={onOpen}
+            >
+              Open Register
+            </Button>
+          </div>
+        </div>
+      ) : posMode === "keyboard" ? (
         <KeyboardPOS
           activeSession={activeSession}
           handleCheckout={handleCheckout}
