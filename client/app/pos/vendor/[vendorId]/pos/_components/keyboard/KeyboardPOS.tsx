@@ -112,7 +112,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
 
   // Auto-select Cash & Update Payment Amount
   useEffect(() => {
-    if (!activeTab || paymentMethods.length === 0 || grandTotal === 0) return;
+    if (!activeTab || paymentMethods.length === 0) return;
 
     const cashMethod = paymentMethods.find(
       (pm) => pm.type === "billing_counter",
