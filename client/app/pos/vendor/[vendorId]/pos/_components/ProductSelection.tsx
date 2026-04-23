@@ -15,7 +15,11 @@ interface ProductSelectionProps {
   search?: string;
 }
 
-export default function ProductSelection({ onSelect, category = "all", search = "" }: ProductSelectionProps) {
+export default function ProductSelection({
+  onSelect,
+  category = "all",
+  search = "",
+}: ProductSelectionProps) {
   const { vendor } = useVendor();
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -57,7 +61,10 @@ export default function ProductSelection({ onSelect, category = "all", search = 
       <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pb-10">
         {loading ? (
           Array.from({ length: 12 }).map((_, i) => (
-            <Card key={i} className="h-56 bg-white/5 border border-white/5 rounded-2xl shadow-none">
+            <Card
+              key={i}
+              className="h-56 bg-white/5 border border-white/5 rounded-2xl shadow-none"
+            >
               <Skeleton className="rounded-t-2xl h-3/5 bg-white/10" />
               <div className="space-y-3 p-3">
                 <Skeleton className="w-3/5 rounded-lg h-3 bg-white/10" />
@@ -72,9 +79,12 @@ export default function ProductSelection({ onSelect, category = "all", search = 
               isPressable
               className="group bg-[#1b1f26] border border-white/5 hover:border-primary/30 shadow-none hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 rounded-2xl overflow-hidden h-56"
               onPress={async () => {
-                const stocksResponse: any = await api.get(`/branch-products/stocks`, {
-                  params: { variant_id: item.id },
-                });
+                const stocksResponse: any = await api.get(
+                  `/branch-products/stocks`,
+                  {
+                    params: { variant_id: item.id },
+                  },
+                );
                 const stocks = stocksResponse.data;
 
                 if (stocks.length > 0) {
@@ -82,13 +92,26 @@ export default function ProductSelection({ onSelect, category = "all", search = 
                   const sortedStocks = [...stocks].sort((a, b) => {
                     if (!a.expiry_date) return 1;
                     if (!b.expiry_date) return -1;
-                    return new Date(a.expiry_date).getTime() - new Date(b.expiry_date).getTime();
+                    return (
+                      new Date(a.expiry_date).getTime() -
+                      new Date(b.expiry_date).getTime()
+                    );
                   });
 
                   onSelect(
-                    { id: item.product_id, name: item.product_name, image_url: item.image_url } as any,
-                    { id: item.id, name: item.variant_name, sku: item.sku, barcode: item.barcode } as any,
-                    sortedStocks[0]
+                    {
+                      id: item.product_id,
+                      name: item.product_name,
+                      image_url: item.image_url,
+                    } as Product,
+                    {
+                      id: item.id,
+                      name: item.variant_name,
+                      value: item.variant_value,
+                      sku: item.sku,
+                      barcode: item.barcode,
+                    } as Variant,
+                    sortedStocks[0],
                   );
                 }
               }}
@@ -107,12 +130,16 @@ export default function ProductSelection({ onSelect, category = "all", search = 
                       <Package size={32} className="text-white/5" />
                     </div>
                   )}
-                  
+
                   {/* Stock Badge Overlay */}
-                  <div className={clsx(
-                    "absolute top-2 right-2 px-2 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest backdrop-blur-xl shadow-lg border border-white/10",
-                    Number(item.total_quantity) > 0 ? "bg-success/20 text-success" : "bg-danger/20 text-danger"
-                  )}>
+                  <div
+                    className={clsx(
+                      "absolute top-2 right-2 px-2 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest backdrop-blur-xl shadow-lg border border-white/10",
+                      Number(item.total_quantity) > 0
+                        ? "bg-success/20 text-success"
+                        : "bg-danger/20 text-danger",
+                    )}
+                  >
                     {item.total_quantity} In Stock
                   </div>
                 </div>
@@ -127,7 +154,7 @@ export default function ProductSelection({ onSelect, category = "all", search = 
                       {item.variant_name}
                     </p>
                   </div>
-                  
+
                   <div className="flex justify-between items-center mt-auto pt-2 border-t border-white/5">
                     <p className="text-primary font-black text-sm tracking-tighter">
                       ৳{Number(item.base_price || 0).toLocaleString()}
@@ -143,7 +170,9 @@ export default function ProductSelection({ onSelect, category = "all", search = 
         ) : (
           <div className="col-span-full py-20 text-center text-gray-700 flex flex-col items-center">
             <Package size={64} className="mb-4 opacity-5" />
-            <p className="font-bold uppercase tracking-widest text-xs text-gray-600">No products found matching filters</p>
+            <p className="font-bold uppercase tracking-widest text-xs text-gray-600">
+              No products found matching filters
+            </p>
           </div>
         )}
       </div>

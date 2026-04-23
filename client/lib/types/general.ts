@@ -58,7 +58,7 @@ export interface Variant {
   id: number;
   product_id: number;
   name: string;
-  value?: string;
+  value: string;
   sku: string;
   barcode?: string;
   unit_of_measure_id?: number;
