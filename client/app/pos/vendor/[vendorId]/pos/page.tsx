@@ -183,7 +183,7 @@ export default function PointOfSalePage() {
   const handleProductSelect = async (item: any, query: string) => {
     try {
       const batchRes: any = await api.get(
-        `/branch-products/stocks?variant_id=${item.id}`,
+        `/pos/products/stocks?variant_id=${item.id}`,
       );
       const batches = batchRes.data || [];
 
@@ -225,7 +225,7 @@ export default function PointOfSalePage() {
   const handleProductSearch = async (query: string): Promise<any[]> => {
     if (!query) return [];
     try {
-      const res: any = await api.get(`/branch-products?search=${query}`);
+      const res: any = await api.get(`/pos/products?search=${query}`);
 
       return res.data.data || (Array.isArray(res.data) ? res.data : []);
     } catch (err) {

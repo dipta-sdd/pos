@@ -13,6 +13,7 @@ import { clsx } from "clsx";
 import { Plus, Minus, Trash2, Box } from "lucide-react";
 
 import { CartItem } from "@/lib/types/pos";
+import { BACKEND_URL } from "@/lib/api";
 
 interface KeyboardCartTableProps {
   items: CartItem[];
@@ -149,7 +150,7 @@ export const KeyboardCartTable: React.FC<KeyboardCartTableProps> = ({
                     fallback={<Box className="w-4 h-4 text-default-500" />}
                     radius="sm"
                     size="sm"
-                    src={item.product.image_url}
+                    src={item.product.image_url ? BACKEND_URL + item.product.image_url : "/placeholder.webp"}
                   />
                   <div className="flex flex-col">
                     <span className="font-bold text-sm">{item.product.name}</span>

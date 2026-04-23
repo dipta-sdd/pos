@@ -49,7 +49,7 @@ import {
 import { PosTab, CartItem, PosState, PosPayment } from "@/lib/types/pos";
 import ProductSelection from "./ProductSelection";
 import { PaymentMethodSelectorModal } from "./keyboard/PaymentMethodSelectorModal";
-import api from "@/lib/api";
+import api, { BACKEND_URL } from "@/lib/api";
 
 interface PosTouchScreenProps {
   state: PosState;
@@ -371,15 +371,11 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                     className="flex items-start gap-3 group animate-in fade-in slide-in-from-right-2 duration-200"
                   >
                     <div className="w-12 h-12 bg-white/5 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border border-white/5">
-                      {item.product.image_url ? (
-                        <img
-                          src={item.product.image_url}
-                          alt=""
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <Package size={18} className="text-gray-700" />
-                      )}
+                      <img
+                        src={item.product.image_url ? BACKEND_URL + item.product.image_url : "/placeholder.webp"}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[11px] font-black uppercase tracking-tight text-gray-200 truncate leading-tight mb-0.5">

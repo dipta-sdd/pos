@@ -34,6 +34,7 @@ class BranchProductController extends Controller
             'products.name as product_name',
             'products.image_url',
             DB::raw('COALESCE(SUM(product_stocks.quantity), 0) as total_quantity'),
+            DB::raw('COALESCE(MAX(product_stocks.selling_price), 0) as base_price'),
             DB::raw('COALESCE(units.name) as unit_name'),
             DB::raw('COALESCE(units.abbreviation) as unit_abbreviation'),
             DB::raw('COALESCE(units.is_decimal_allowed) as is_decimal_allowed'),

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Card, CardBody, Skeleton, ScrollShadow } from "@heroui/react";
 import { Grid3X3, Package, ShoppingCart } from "lucide-react";
 
-import api from "@/lib/api";
+import api, { BACKEND_URL } from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import { Product, Variant, ProductStock } from "@/lib/types/general";
 import clsx from "clsx";
@@ -38,7 +38,7 @@ export default function ProductSelection({
         params.category_id = category;
       }
 
-      const response: any = await api.get(`/branch-products`, { params });
+      const response: any = await api.get(`/pos/products`, { params });
       setItems(response.data.data || []);
     } catch (error) {
       console.error("Failed to fetch products", error);
@@ -77,10 +77,10 @@ export default function ProductSelection({
             <Card
               key={item.id}
               isPressable
-              className="group bg-[#1b1f26] border border-white/5 hover:border-primary/30 shadow-none hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 rounded-2xl overflow-hidden h-56"
+              className="group bg-[#1b1f26] border border-white/5 hover:border-primary/30 shadow-none hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 rounded-2xl overflow-hidden h-auto"
               onPress={async () => {
                 const stocksResponse: any = await api.get(
-                  `/branch-products/stocks`,
+                  `/pos/products/stocks`,
                   {
                     params: { variant_id: item.id },
                   },
@@ -118,19 +118,13 @@ export default function ProductSelection({
             >
               <CardBody className="p-0 flex flex-col h-full relative text-left">
                 {/* Image Area */}
-                <div className="h-32 bg-black/20 flex items-center justify-center relative overflow-hidden">
-                  {item.image_url ? (
-                    <img
-                      src={item.image_url}
-                      alt={item.product_name}
-                      className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-[#16191f]">
-                      <Package size={32} className="text-white/5" />
-                    </div>
-                  )}
-
+                <div className="aspect-square w-full bg-black/20 flex items-center justify-center relative overflow-hidden shrink-0">
+                  <img
+                    src={item.image_url ? BACKEND_URL + item.image_url : "/placeholder.webp"}
+                    alt={item.product_name}
+                    className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
+                  />
+                  
                   {/* Stock Badge Overlay */}
                   <div
                     className={clsx(
@@ -151,7 +145,7 @@ export default function ProductSelection({
                       {item.product_name}
                     </p>
                     <p className="text-[10px] text-gray-500 font-bold truncate">
-                      {item.variant_name}
+                      {item.variant_name === "Standard" && item.variant_value === "Default" ? "Standard" : `${item.variant_name}: ${item.variant_value}`}
                     </p>
                   </div>
 

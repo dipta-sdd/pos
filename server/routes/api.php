@@ -210,6 +210,8 @@ Route::middleware('log.api')->group(function () {
             Route::get('/active-session', [CashRegisterSessionController::class, 'posActiveSession']);
             Route::get('/customers', [CustomerController::class, 'posIndex']);
             Route::get('/payment-methods', [PaymentMethodController::class, 'posIndex']);
+            Route::get('/products', [BranchProductController::class, 'index']);
+            Route::get('/products/stocks', [BranchProductController::class, 'getStocks']);
         });
 
         // Stock Transfer routes (protected)

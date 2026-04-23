@@ -4,6 +4,7 @@ import { Box } from "lucide-react";
 import { clsx } from "clsx";
 
 import { SearchIcon } from "@/components/icons";
+import { BACKEND_URL } from "@/lib/api";
 
 interface KeyboardSearchProps {
   onSearch: (query: string) => Promise<any[] | { data: any[] }>;
@@ -142,7 +143,8 @@ export const KeyboardSearch: React.FC<KeyboardSearchProps> = ({
                   className="bg-default-100"
                   fallback={<Box className="w-4 h-4 text-default-500" />}
                   size="sm"
-                  src={item.image_url}
+                  radius="sm"
+                  src={item.image_url ? BACKEND_URL + item.image_url : "/placeholder.webp"}
                 />
                 <div className="flex flex-col">
                   <span className="text-sm font-bold">{item.product_name}</span>
