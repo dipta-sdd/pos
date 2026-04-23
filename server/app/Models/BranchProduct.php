@@ -15,14 +15,12 @@ class BranchProduct extends Model
         'branch_id',
         'product_id',
         'variant_id',
-        'low_stock_threshold',
         'is_active',
         'created_by',
         'updated_by',
     ];
 
     protected $casts = [
-        'low_stock_threshold' => 'decimal:2',
         'is_active' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

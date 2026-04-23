@@ -64,7 +64,6 @@ class AdminSeeder extends Seeder
                     'settings' => [
                         'pos_interface' => 'touch',
                         'vat_rate' => 5,
-                        'low_stock_threshold' => 10,
                         'currency_symbol' => '৳',
                     ],
                 ]
@@ -443,7 +442,6 @@ class AdminSeeder extends Seeder
                             ['branch_id' => $branchId, 'product_id' => $product->id, 'variant_id' => $variant->id],
                             [
                                 'is_active' => true,
-                                'low_stock_threshold' => 10,
                                 'created_by' => $user->id,
                                 'updated_by' => $user->id,
                             ]

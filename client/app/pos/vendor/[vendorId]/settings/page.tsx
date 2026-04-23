@@ -30,9 +30,7 @@ import { toast } from "sonner";
 interface PosSettings {
   pos_interface: "touch" | "keyboard";
   vat_rate: number;
-  low_stock_threshold: number;
   currency_symbol: string;
-  show_out_of_stock: boolean;
 }
 
 export default function PosSettingsPage() {
@@ -44,9 +42,7 @@ export default function PosSettingsPage() {
   const [settings, setSettings] = useState<PosSettings>({
     pos_interface: "touch",
     vat_rate: 5,
-    low_stock_threshold: 10,
     currency_symbol: "৳",
-    show_out_of_stock: true,
   });
 
   useEffect(() => {
@@ -201,43 +197,6 @@ export default function PosSettingsPage() {
                   variant="bordered"
                   value={settings.currency_symbol}
                   onValueChange={(val) => setSettings({ ...settings, currency_symbol: val })}
-                />
-              </div>
-            </CardBody>
-          </Card>
-
-          <Card className="border-none shadow-sm bg-content1">
-            <CardHeader className="flex gap-3 px-6 pt-6">
-              <div className="p-2 bg-warning/10 rounded-lg text-warning">
-                <Warehouse size={24} />
-              </div>
-              <div className="flex flex-col">
-                <p className="text-md font-bold uppercase tracking-wider">Inventory Rules</p>
-                <p className="text-xs text-default-400">Manage how stock affects your POS.</p>
-              </div>
-            </CardHeader>
-            <CardBody className="px-6 py-6 space-y-8">
-              <Input
-                label="Low Stock Threshold"
-                labelPlacement="outside"
-                placeholder="10"
-                type="number"
-                variant="bordered"
-                value={settings.low_stock_threshold.toString()}
-                onValueChange={(val) => setSettings({ ...settings, low_stock_threshold: parseInt(val) || 0 })}
-                description="Products below this quantity will be flagged in the system."
-              />
-              
-              <Divider />
-
-              <div className="flex items-center justify-between">
-                <div className="flex flex-col gap-1">
-                  <p className="text-sm font-bold">Show Out of Stock Products</p>
-                  <p className="text-xs text-default-400">Allow products with zero stock to be visible in POS selection.</p>
-                </div>
-                <Switch 
-                  isSelected={settings.show_out_of_stock}
-                  onValueChange={(val) => setSettings({ ...settings, show_out_of_stock: val })}
                 />
               </div>
             </CardBody>

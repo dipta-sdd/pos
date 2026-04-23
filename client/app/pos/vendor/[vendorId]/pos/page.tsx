@@ -208,7 +208,7 @@ export default function PointOfSalePage() {
           sku: item.sku,
           barcode: item.barcode,
         };
-
+        
         addToCart(productObj, variantObj, batches[0], 1);
 
         // Barcode detection: if it matches query exactly, keep focus on search
