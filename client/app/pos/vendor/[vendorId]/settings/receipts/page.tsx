@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useEffect, useState } from "react";
@@ -15,6 +15,7 @@ import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import api from "@/lib/api";
 import { UserLoding } from "@/components/user-loding";
+import { RichTextEditor } from "@/components/ui/RichTextEditor";
 
 export default function ReceiptSettingsPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
@@ -26,7 +27,6 @@ export default function ReceiptSettingsPage() {
     show_logo: z.boolean(),
     show_address: z.boolean(),
     show_contact_info: z.boolean(),
-    paper_size: z.enum(["58mm", "80mm", "a4"]),
     font_size: z.enum(["small", "medium", "large"]),
     show_tax_breakdown: z.boolean(),
     show_payment_details: z.boolean(),
@@ -34,6 +34,12 @@ export default function ReceiptSettingsPage() {
     show_salesperson: z.boolean(),
     show_sale_id: z.boolean(),
     show_date_time: z.boolean(),
+    show_item_qty: z.boolean(),
+    show_item_price: z.boolean(),
+    show_item_unit: z.boolean(),
+    show_item_discount: z.boolean(),
+    show_item_tax: z.boolean(),
+    show_item_total: z.boolean(),
     vendor_id: z.number(),
   });
 
@@ -41,6 +47,7 @@ export default function ReceiptSettingsPage() {
 
   const {
     register,
+    control,
     handleSubmit,
     setValue,
     watch,
@@ -52,7 +59,6 @@ export default function ReceiptSettingsPage() {
       show_logo: false,
       show_address: true,
       show_contact_info: true,
-      paper_size: "80mm",
       font_size: "medium",
       show_tax_breakdown: true,
       show_payment_details: true,
@@ -60,6 +66,12 @@ export default function ReceiptSettingsPage() {
       show_salesperson: true,
       show_sale_id: true,
       show_date_time: true,
+      show_item_qty: true,
+      show_item_price: true,
+      show_item_unit: false,
+      show_item_discount: false,
+      show_item_tax: false,
+      show_item_total: true,
       vendor_id: vendor?.id,
     },
   });
@@ -88,7 +100,12 @@ export default function ReceiptSettingsPage() {
           show_salesperson: Boolean(response.data.show_salesperson),
           show_sale_id: Boolean(response.data.show_sale_id),
           show_date_time: Boolean(response.data.show_date_time),
-          paper_size: response.data.paper_size || "80mm",
+          show_item_qty: Boolean(response.data.show_item_qty),
+          show_item_price: Boolean(response.data.show_item_price),
+          show_item_unit: Boolean(response.data.show_item_unit),
+          show_item_discount: Boolean(response.data.show_item_discount),
+          show_item_tax: Boolean(response.data.show_item_tax),
+          show_item_total: Boolean(response.data.show_item_total),
           font_size: response.data.font_size || "medium",
           vendor_id: vendor?.id,
         });
@@ -101,7 +118,6 @@ export default function ReceiptSettingsPage() {
           show_logo: false,
           show_address: true,
           show_contact_info: true,
-          paper_size: "80mm",
           font_size: "medium",
           show_tax_breakdown: true,
           show_payment_details: true,
@@ -109,6 +125,12 @@ export default function ReceiptSettingsPage() {
           show_salesperson: true,
           show_sale_id: true,
           show_date_time: true,
+          show_item_qty: true,
+          show_item_price: true,
+          show_item_unit: false,
+          show_item_discount: false,
+          show_item_tax: false,
+          show_item_total: true,
           vendor_id: vendor?.id,
         });
       } else {
@@ -142,13 +164,7 @@ export default function ReceiptSettingsPage() {
   };
   const previewFontSize = fontSizeMap[watch("font_size")] || "text-[10px]";
 
-  const paperWidthMap: Record<string, string> = {
-    "58mm": "max-w-[200px]",
-    "80mm": "max-w-[280px]",
-    a4: "max-w-full",
-  };
-  const previewPaperWidth =
-    paperWidthMap[watch("paper_size")] || "max-w-[280px]";
+  const previewPaperWidth = "max-w-[280px]";
 
   return (
     <PermissionGuard permission="can_customize_receipts">
@@ -180,11 +196,16 @@ export default function ReceiptSettingsPage() {
                       >
                         Header Text
                       </label>
-                      <textarea
-                        className="w-full p-3 border-2 rounded-lg min-h-[100px] focus:border-primary outline-none transition-colors"
-                        id="header_text"
-                        placeholder="e.g. Thank you for shopping with us!"
-                        {...register("header_text")}
+                      <Controller
+                        control={control}
+                        name="header_text"
+                        render={({ field }) => (
+                          <RichTextEditor
+                            placeholder="e.g. Thank you for shopping with us!"
+                            value={field.value || ""}
+                            onChange={field.onChange}
+                          />
+                        )}
                       />
                     </div>
                     <div className="space-y-2">
@@ -194,11 +215,16 @@ export default function ReceiptSettingsPage() {
                       >
                         Footer Text
                       </label>
-                      <textarea
-                        className="w-full p-3 border-2 rounded-lg min-h-[100px] focus:border-primary outline-none transition-colors"
-                        id="footer_text"
-                        placeholder="e.g. Please keep your receipt for returns."
-                        {...register("footer_text")}
+                      <Controller
+                        control={control}
+                        name="footer_text"
+                        render={({ field }) => (
+                          <RichTextEditor
+                            placeholder="e.g. Please keep your receipt for returns."
+                            value={field.value || ""}
+                            onChange={field.onChange}
+                          />
+                        )}
                       />
                     </div>
                   </div>
@@ -313,32 +339,71 @@ export default function ReceiptSettingsPage() {
                   </div>
                 </CardBody>
               </Card>
+              {/* Item Table Columns */}
+              <Card>
+                <CardBody className="p-6 space-y-6">
+                  <h3 className="text-lg font-semibold">Item Table Columns</h3>
+                  <div className="space-y-4">
+                    {[
+                      {
+                        key: "show_item_qty" as const,
+                        label: "Show Quantity",
+                        desc: "Display the quantity purchased for each item",
+                      },
+                      {
+                        key: "show_item_price" as const,
+                        label: "Show Unit Price",
+                        desc: "Display the individual price of each item",
+                      },
+                      {
+                        key: "show_item_unit" as const,
+                        label: "Show Unit of Measure",
+                        desc: "Display unit indicators (e.g. kg, lit, pieces)",
+                      },
+                      {
+                        key: "show_item_discount" as const,
+                        label: "Show Item Discount",
+                        desc: "Display discounts applied to individual items",
+                      },
+                      {
+                        key: "show_item_tax" as const,
+                        label: "Show Item Tax",
+                        desc: "Display the tax applied to individual items",
+                      },
+                      {
+                        key: "show_item_total" as const,
+                        label: "Show Line Total",
+                        desc: "Display the total line amount for the item",
+                      },
+                    ].map((opt) => (
+                      <div
+                        key={opt.key}
+                        className="flex items-center justify-between"
+                      >
+                        <div className="flex flex-col">
+                          <span className="font-medium text-sm">
+                            {opt.label}
+                          </span>
+                          <span className="text-xs text-default-400">
+                            {opt.desc}
+                          </span>
+                        </div>
+                        <Switch
+                          isSelected={watch(opt.key)}
+                          onValueChange={(val) => setValue(opt.key, val)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </CardBody>
+              </Card>
 
               {/* Format Options */}
               <Card>
                 <CardBody className="p-6 space-y-6">
                   <h3 className="text-lg font-semibold">Format Options</h3>
                   <div className="space-y-4">
-                    <div>
-                      <Select
-                        label="Paper Size"
-                        labelPlacement="outside"
-                        selectedKeys={new Set([watch("paper_size")])}
-                        size="sm"
-                        variant="bordered"
-                        onSelectionChange={(keys) => {
-                          const val = Array.from(keys as Set<string>)[0];
 
-                          if (val) setValue("paper_size", val as any);
-                        }}
-                      >
-                        <SelectItem key="58mm">58mm (Small thermal)</SelectItem>
-                        <SelectItem key="80mm">
-                          80mm (Standard thermal)
-                        </SelectItem>
-                        <SelectItem key="a4">A4 (Full page)</SelectItem>
-                      </Select>
-                    </div>
                     <div>
                       <Select
                         label="Font Size"
@@ -393,9 +458,10 @@ export default function ReceiptSettingsPage() {
                     </div>
 
                     {watch("header_text") && (
-                      <div className="text-center italic text-gray-500">
-                        {watch("header_text")}
-                      </div>
+                      <div 
+                        className="text-center italic text-gray-500"
+                        dangerouslySetInnerHTML={{ __html: watch("header_text")! }}
+                      />
                     )}
 
                     <div className="flex justify-between text-gray-500">
@@ -409,18 +475,60 @@ export default function ReceiptSettingsPage() {
                     )}
 
                     <div className="py-2 space-y-1">
-                      <div className="border-b border-dashed pb-1 mb-1 font-bold flex justify-between">
-                        <span>Item</span>
-                        <span>Total</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Product A x 2</span>
-                        <span>$20.00</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Product B x 1</span>
-                        <span>$15.00</span>
-                      </div>
+                      <table className="w-full">
+                        <thead>
+                          <tr className="text-gray-500 border-b border-gray-200">
+                            <td className="pb-1 font-bold">Item</td>
+                            {watch("show_item_qty") && (
+                              <td className="pb-1 font-bold text-center">Qty</td>
+                            )}
+                            {watch("show_item_price") && (
+                              <td className="pb-1 font-bold text-center">Price</td>
+                            )}
+                            {watch("show_item_total") && (
+                              <td className="pb-1 font-bold text-right">Total</td>
+                            )}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr className="border-b border-gray-100">
+                            <td className="py-1">
+                              <div className="font-bold">Product A</div>
+                              <div className="text-[8px] text-gray-400">
+                                {watch("show_item_unit") && "Box"}
+                                {watch("show_item_discount") && " (-$2.00)"}
+                                {watch("show_item_tax") && " (+tax)"}
+                              </div>
+                            </td>
+                            {watch("show_item_qty") && (
+                              <td className="py-1 text-center">2</td>
+                            )}
+                            {watch("show_item_price") && (
+                              <td className="py-1 text-center">$10.00</td>
+                            )}
+                            {watch("show_item_total") && (
+                              <td className="py-1 text-right font-bold">$20.00</td>
+                            )}
+                          </tr>
+                          <tr className="border-b border-gray-100">
+                            <td className="py-1">
+                              <div className="font-bold">Product B</div>
+                              <div className="text-[8px] text-gray-400">
+                                {watch("show_item_unit") && "Kg"}
+                              </div>
+                            </td>
+                            {watch("show_item_qty") && (
+                              <td className="py-1 text-center">1.5</td>
+                            )}
+                            {watch("show_item_price") && (
+                              <td className="py-1 text-center">$10.00</td>
+                            )}
+                            {watch("show_item_total") && (
+                              <td className="py-1 text-right font-bold">$15.00</td>
+                            )}
+                          </tr>
+                        </tbody>
+                      </table>
 
                       <div className="pt-2 border-t border-dashed mt-2">
                         <div className="flex justify-between">
@@ -466,9 +574,10 @@ export default function ReceiptSettingsPage() {
                       )}
 
                       {watch("footer_text") && (
-                        <div className="text-center pt-2 italic text-gray-500">
-                          {watch("footer_text")}
-                        </div>
+                        <div 
+                          className="text-center pt-2 italic text-gray-500"
+                          dangerouslySetInnerHTML={{ __html: watch("footer_text")! }}
+                        />
                       )}
                     </div>
                   </div>

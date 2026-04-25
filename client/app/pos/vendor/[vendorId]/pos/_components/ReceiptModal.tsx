@@ -47,12 +47,10 @@ export default function ReceiptModal({
 
     if (!printContent) return;
 
-    const paperMm = receiptSettings?.paper_size || "80mm";
-    const printWidth = paperMm === "a4" ? "210mm" : paperMm;
     const printWindow = window.open(
       "",
       "_blank",
-      `width=${paperMm === "58mm" ? 260 : paperMm === "a4" ? 800 : 320},height=600`,
+      "width=400,height=600",
     );
 
     if (!printWindow) return;
@@ -67,10 +65,11 @@ export default function ReceiptModal({
             body {
               font-family: 'Courier New', monospace;
               font-size: ${receiptSettings?.font_size === "small" ? "10px" : receiptSettings?.font_size === "large" ? "14px" : "12px"};
-              width: ${printWidth};
+              width: 100%;
               padding: 4mm;
               color: #000;
             }
+            p { margin: 0; }
             .text-center { text-align: center; }
             .text-right { text-align: right; }
             .font-bold { font-weight: bold; }
@@ -115,9 +114,6 @@ export default function ReceiptModal({
             .mt-4 { margin-top: 16px; }
             table { width: 100%; border-collapse: collapse; }
             td { padding: 2px 0; vertical-align: top; }
-            @media print {
-              body { width: 80mm; }
-            }
           </style>
         </head>
         <body>
@@ -148,21 +144,19 @@ export default function ReceiptModal({
   const fontSize =
     fontSizeMap[receiptSettings?.font_size || "medium"] || "text-[11px]";
 
-  // Paper width mapping
-  const paperWidthMap: Record<string, string> = {
-    "58mm": "max-w-[220px]",
-    "80mm": "max-w-[302px]",
-    a4: "max-w-full",
-  };
-  const paperWidth =
-    paperWidthMap[receiptSettings?.paper_size || "80mm"] || "max-w-[302px]";
-
   // Setting defaults (true unless explicitly false)
   const showTaxBreakdown = receiptSettings?.show_tax_breakdown !== false;
   const showPaymentDetails = receiptSettings?.show_payment_details !== false;
   const showSalesperson = receiptSettings?.show_salesperson !== false;
   const showSaleId = receiptSettings?.show_sale_id !== false;
   const showDateTime = receiptSettings?.show_date_time !== false;
+  
+  const showItemQty = receiptSettings?.show_item_qty !== false;
+  const showItemPrice = receiptSettings?.show_item_price !== false;
+  const showItemUnit = receiptSettings?.show_item_unit === true;
+  const showItemDiscount = receiptSettings?.show_item_discount === true;
+  const showItemTax = receiptSettings?.show_item_tax === true;
+  const showItemTotal = receiptSettings?.show_item_total !== false;
 
   const formatAmount = (val: number | string) => {
     return `${currencySymbol}${Number(val || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
@@ -199,7 +193,7 @@ export default function ReceiptModal({
               {/* Printable Receipt Content */}
               <div
                 ref={receiptRef}
-                className={`bg-white text-black rounded-xl p-6 shadow-inner border border-default-200 font-mono ${fontSize} leading-relaxed mx-auto ${paperWidth}`}
+                className={`bg-white text-black rounded-xl p-6 shadow-inner border border-default-200 font-mono ${fontSize} leading-relaxed mx-auto w-full`}
               >
                 {/* Header */}
                 <div className="text-center mb-3">
@@ -225,9 +219,10 @@ export default function ReceiptModal({
 
                 {/* Custom header text */}
                 {receiptSettings?.header_text && (
-                  <div className="text-center text-[10px] italic text-gray-500 mb-2">
-                    {receiptSettings.header_text}
-                  </div>
+                  <div 
+                    className="text-center text-[10px] italic text-gray-500 mb-2"
+                    dangerouslySetInnerHTML={{ __html: receiptSettings.header_text }}
+                  />
                 )}
 
                 <div className="divider border-t border-dashed border-gray-400 my-2" />
@@ -259,13 +254,16 @@ export default function ReceiptModal({
                   <thead>
                     <tr className="text-[10px] text-gray-500 border-b border-gray-200">
                       <td className="pb-1 font-bold">Item</td>
-                      <td className="pb-1 font-bold text-center">Qty</td>
-                      <td
-                        className="pb-1 font-bold"
-                        style={{ textAlign: "right" }}
-                      >
-                        Total
-                      </td>
+                      {showItemQty && <td className="pb-1 font-bold text-center">Qty</td>}
+                      {showItemPrice && <td className="pb-1 font-bold text-center">Price</td>}
+                      {showItemTotal && (
+                        <td
+                          className="pb-1 font-bold"
+                          style={{ textAlign: "right" }}
+                        >
+                          Total
+                        </td>
+                      )}
                     </tr>
                   </thead>
                   <tbody>
@@ -289,19 +287,35 @@ export default function ReceiptModal({
                               </div>
                             )}
                             <div className="text-[9px] text-gray-400">
-                              {formatAmount(item.sell_price_at_sale)} ×{" "}
-                              {Number(item.quantity)}
+                              {showItemUnit && item.unit_of_measure?.name && (
+                                <span>{item.unit_of_measure.name}</span>
+                              )}
+                              {showItemDiscount && Number(item.discount_amount) > 0 && (
+                                <span> (-{formatAmount(item.discount_amount)})</span>
+                              )}
+                              {showItemTax && Number(item.tax_amount) > 0 && (
+                                <span> (+tax: {formatAmount(item.tax_amount)})</span>
+                              )}
                             </div>
                           </td>
-                          <td className="py-1 text-center">
-                            {Number(item.quantity)}
-                          </td>
-                          <td
-                            className="py-1 font-bold"
-                            style={{ textAlign: "right" }}
-                          >
-                            {formatAmount(item.line_total)}
-                          </td>
+                          {showItemQty && (
+                            <td className="py-1 text-center">
+                              {Number(item.quantity)}
+                            </td>
+                          )}
+                          {showItemPrice && (
+                            <td className="py-1 text-center">
+                              {formatAmount(item.sell_price_at_sale)}
+                            </td>
+                          )}
+                          {showItemTotal && (
+                            <td
+                              className="py-1 font-bold"
+                              style={{ textAlign: "right" }}
+                            >
+                              {formatAmount(item.line_total)}
+                            </td>
+                          )}
                         </tr>
                       );
                     })}
@@ -373,9 +387,10 @@ export default function ReceiptModal({
 
                 {/* Custom footer text */}
                 {receiptSettings?.footer_text && (
-                  <div className="text-center text-[10px] italic text-gray-500 mb-2">
-                    {receiptSettings.footer_text}
-                  </div>
+                  <div 
+                    className="text-center text-[10px] italic text-gray-500 mb-2"
+                    dangerouslySetInnerHTML={{ __html: receiptSettings.footer_text }}
+                  />
                 )}
 
                 {/* Footer */}

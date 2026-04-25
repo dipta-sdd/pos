@@ -18,7 +18,6 @@ return new class extends Migration {
             $table->boolean('show_address')->default(true);
             $table->boolean('show_contact_info')->default(true);
             $table->string('template_style')->default('default');
-            $table->enum('paper_size', ['58mm', '80mm', 'a4'])->default('80mm');
             $table->enum('font_size', ['small', 'medium', 'large'])->default('medium');
             $table->boolean('show_tax_breakdown')->default(true);
             $table->boolean('show_payment_details')->default(true);
@@ -26,6 +25,12 @@ return new class extends Migration {
             $table->boolean('show_salesperson')->default(true);
             $table->boolean('show_sale_id')->default(true);
             $table->boolean('show_date_time')->default(true);
+            $table->boolean('show_item_qty')->default(true);
+            $table->boolean('show_item_price')->default(true);
+            $table->boolean('show_item_unit')->default(false);
+            $table->boolean('show_item_discount')->default(false);
+            $table->boolean('show_item_tax')->default(false);
+            $table->boolean('show_item_total')->default(true);
             $table->timestamps();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
