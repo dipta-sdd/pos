@@ -144,7 +144,9 @@ export default function CashManagementPage() {
   };
 
   const fmt = (val: string | number | undefined | null) =>
-    val != null ? Number(val).toLocaleString(undefined, { minimumFractionDigits: 2 }) : "—";
+    val != null
+      ? Number(val).toLocaleString(undefined, { minimumFractionDigits: 2 })
+      : "—";
 
   const renderCell = useCallback(
     (item: CashRegisterSession, columnKey: React.Key) => {
@@ -162,18 +164,39 @@ export default function CashManagementPage() {
         case "opening_balance":
           return fmt(item.opening_balance);
         case "closing_balance":
-          return item.status === "closed" ? fmt(item.closing_balance) : <span className="text-default-300">—</span>;
+          return item.status === "closed" ? (
+            fmt(item.closing_balance)
+          ) : (
+            <span className="text-default-300">—</span>
+          );
         case "calculated_cash":
-          return item.status === "closed" ? fmt(item.calculated_cash) : <span className="text-default-300">—</span>;
+          return item.status === "closed" ? (
+            fmt(item.calculated_cash)
+          ) : (
+            <span className="text-default-300">—</span>
+          );
         case "discrepancy": {
-          if (item.status !== "closed") return <span className="text-default-300">—</span>;
+          if (item.status !== "closed")
+            return <span className="text-default-300">—</span>;
           const disc = Number(item.discrepancy || 0);
-          const color = disc === 0 ? "text-success" : disc < 0 ? "text-danger" : "text-warning";
-          return <span className={`font-bold ${color}`}>{disc >= 0 ? "+" : ""}{fmt(item.discrepancy)}</span>;
+          const color =
+            disc === 0
+              ? "text-success"
+              : disc < 0
+                ? "text-danger"
+                : "text-warning";
+
+          return (
+            <span className={`font-bold ${color}`}>
+              {disc >= 0 ? "+" : ""}
+              {fmt(item.discrepancy)}
+            </span>
+          );
         }
         case "total_sales": {
           const count = item.sales_count || 0;
           const amount = item.sale_payments_sum_amount;
+
           return (
             <div className="text-xs">
               <span className="font-bold">{count}</span>
@@ -187,10 +210,10 @@ export default function CashManagementPage() {
         case "status":
           return (
             <Chip
+              className="font-bold uppercase"
+              color={item.status === "open" ? "success" : "default"}
               size="sm"
               variant="flat"
-              color={item.status === "open" ? "success" : "default"}
-              className="font-bold uppercase"
             >
               {capitalize(item.status)}
             </Chip>

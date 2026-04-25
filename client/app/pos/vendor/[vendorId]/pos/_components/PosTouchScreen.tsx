@@ -38,6 +38,9 @@ import {
 import clsx from "clsx";
 import debounce from "lodash/debounce";
 
+import ProductSelection from "./ProductSelection";
+import { PaymentMethodSelectorModal } from "./keyboard/PaymentMethodSelectorModal";
+
 import {
   CashRegisterSession,
   Product,
@@ -47,8 +50,6 @@ import {
   Customer,
 } from "@/lib/types/general";
 import { PosTab, CartItem, PosState, PosPayment } from "@/lib/types/pos";
-import ProductSelection from "./ProductSelection";
-import { PaymentMethodSelectorModal } from "./keyboard/PaymentMethodSelectorModal";
 import api, { BACKEND_URL } from "@/lib/api";
 
 interface PosTouchScreenProps {
@@ -166,6 +167,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
     (e: MouseEvent) => {
       if (isResizing) {
         const newWidth = window.innerWidth - e.clientX;
+
         if (newWidth >= 300 && newWidth <= 800) {
           setSidebarWidth(newWidth);
         }
@@ -182,6 +184,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
       window.removeEventListener("mousemove", resize);
       window.removeEventListener("mouseup", stopResizing);
     }
+
     return () => {
       window.removeEventListener("mousemove", resize);
       window.removeEventListener("mouseup", stopResizing);
@@ -210,11 +213,13 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
   const fetchCustomers = async (q: string) => {
     if (!q || q.length < 2) {
       setCustomers([]);
+
       return;
     }
     setIsLoading(true);
     try {
       const res: any = await api.get(`/pos/customers?search=${q}`);
+
       setCustomers(res.data.data || []);
     } catch (err) {
       console.error(err);
@@ -247,10 +252,12 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
   if (!activeTab) return null;
 
   return (
-    <div className={clsx(
-      "flex h-[calc(100vh-64px)] bg-background text-foreground overflow-hidden font-sans",
-      isResizing && "select-none cursor-col-resize"
-    )}>
+    <div
+      className={clsx(
+        "flex h-[calc(100vh-64px)] bg-background text-foreground overflow-hidden font-sans",
+        isResizing && "select-none cursor-col-resize",
+      )}
+    >
       {/* MAIN CONTENT AREA (Left + Center) */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden border-r border-default-100">
         {/* TOP ROW: Search & Tabs */}
@@ -262,11 +269,11 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                 size={18}
               />
               <input
-                type="text"
+                className="w-full h-12 bg-content1 border border-default-100 rounded-xl pl-11 pr-4 text-sm font-medium focus:outline-none focus:border-primary/50 transition-all placeholder:text-default-400 shadow-inner"
                 placeholder="Search products..."
+                type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-12 bg-content1 border border-default-100 rounded-xl pl-11 pr-4 text-sm font-medium focus:outline-none focus:border-primary/50 transition-all placeholder:text-default-400 shadow-inner"
               />
             </div>
 
@@ -274,28 +281,28 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
               {state.tabs.map((tab) => (
                 <div key={tab.id} className="relative flex items-center">
                   <button
-                    onClick={() => setActiveTab(tab.id)}
                     className={clsx(
                       "px-4 h-9 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 pr-8",
                       activeTab.id === tab.id
                         ? "bg-primary text-white shadow-lg shadow-primary/20"
                         : "text-gray-500 hover:text-gray-300",
                     )}
+                    onClick={() => setActiveTab(tab.id)}
                   >
                     {tab.name}
                   </button>
                   {state.tabs.length > 1 && (
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        props.closeTab(tab.id);
-                      }}
                       className={clsx(
                         "absolute right-1 w-5 h-5 rounded-md flex items-center justify-center transition-colors",
                         activeTab.id === tab.id
                           ? "bg-white/20 text-white hover:bg-white/30"
                           : "text-gray-600 hover:text-danger hover:bg-danger/10",
                       )}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        props.closeTab(tab.id);
+                      }}
                     >
                       <X size={10} />
                     </button>
@@ -303,8 +310,8 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                 </div>
               ))}
               <button
-                onClick={addTab}
                 className="w-9 h-9 rounded-lg bg-white/5 text-gray-400 hover:bg-white/10 flex items-center justify-center transition-all"
+                onClick={addTab}
               >
                 <Plus size={18} />
               </button>
@@ -313,17 +320,17 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
 
           {/* CATEGORY ROW */}
           <ScrollShadow
-            orientation="horizontal"
             className="flex items-center gap-2 pb-3 no-scrollbar"
+            orientation="horizontal"
           >
             <button
-              onClick={() => setActiveCategory("all")}
               className={clsx(
                 "px-5 h-10 rounded-xl flex items-center gap-2 transition-all duration-300 border font-bold text-[10px] uppercase tracking-wider whitespace-nowrap",
                 activeCategory === "all"
                   ? "bg-primary border-primary text-white shadow-lg shadow-primary/20"
                   : "bg-content1 border-default-100 text-default-500 hover:border-default-200 hover:text-foreground",
               )}
+              onClick={() => setActiveCategory("all")}
             >
               <LayoutGrid size={14} />
               All
@@ -332,13 +339,13 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
             {categories.map((cat) => (
               <button
                 key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
                 className={clsx(
                   "px-5 h-10 rounded-xl flex items-center gap-2 transition-all duration-300 border font-bold text-[10px] uppercase tracking-wider whitespace-nowrap",
                   activeCategory === cat.id
                     ? "bg-primary border-primary text-white shadow-lg shadow-primary/20"
                     : "bg-content1 border-default-100 text-default-500 hover:border-default-200 hover:text-foreground",
                 )}
+                onClick={() => setActiveCategory(cat.id)}
               >
                 <Package size={14} />
                 {cat.name}
@@ -351,9 +358,9 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
         <div className="flex-1 overflow-hidden px-4 pb-4">
           <div className="h-full relative rounded-2xl bg-content1/40 border border-default-100 backdrop-blur-sm p-3 shadow-2xl">
             <ProductSelection
-              onSelect={(p, v, b) => props.addToCart(p, v, b, 1)}
               category={activeCategory}
               search={searchQuery}
+              onSelect={(p, v, b) => props.addToCart(p, v, b, 1)}
             />
           </div>
         </div>
@@ -361,19 +368,23 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
 
       {/* Resize Handle */}
       <div
+        aria-label="Resize Sidebar"
         className={clsx(
           "w-1.5 relative z-50 group cursor-col-resize transition-colors duration-200",
-          isResizing ? "bg-primary" : "bg-transparent hover:bg-primary/30"
+          isResizing ? "bg-primary" : "bg-transparent hover:bg-primary/30",
         )}
+        role="button"
+        tabIndex={-1}
         onMouseDown={startResizing}
       >
-        <div className="absolute inset-y-0 -left-2 -right-2 bg-transparent" /> {/* Hit area */}
+        <div className="absolute inset-y-0 -left-2 -right-2 bg-transparent" />{" "}
+        {/* Hit area */}
       </div>
 
       {/* RIGHT SIDEBAR: CART & CHECKOUT */}
-      <div 
-        style={{ width: `${sidebarWidth}px`, minWidth: '300px' }}
+      <div
         className="bg-content1 flex flex-col overflow-hidden relative"
+        style={{ width: `${sidebarWidth}px`, minWidth: "300px" }}
       >
         {sidebarMode === "cart" ? (
           <>
@@ -381,22 +392,22 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
             <div className="p-5 border-b border-default-100">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-black uppercase tracking-tight flex items-center gap-2 text-foreground">
-                  <ShoppingCart size={18} className="text-primary" />
+                  <ShoppingCart className="text-primary" size={18} />
                   Cart Summary
                 </h3>
                 <Chip
+                  className="font-black px-2 h-6 rounded-lg text-[10px]"
+                  color="primary"
                   size="sm"
                   variant="flat"
-                  color="primary"
-                  className="font-black px-2 h-6 rounded-lg text-[10px]"
                 >
                   {activeTab.items.length} ITEMS
                 </Chip>
               </div>
 
               <button
-                onClick={onCustomerOpen}
                 className="w-full h-12 bg-content1 hover:bg-content2 rounded-xl border border-default-100 flex items-center px-4 gap-3 transition-all group shadow-inner"
+                onClick={onCustomerOpen}
               >
                 <div className="w-8 h-8 bg-primary/20 text-primary rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
                   <User size={16} />
@@ -413,7 +424,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                       "Select customer"}
                   </p>
                 </div>
-                <ChevronRight size={16} className="text-gray-700" />
+                <ChevronRight className="text-gray-700" size={16} />
               </button>
             </div>
 
@@ -421,7 +432,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
             <ScrollShadow className="flex-1 p-5 pt-3 flex flex-col gap-4 no-scrollbar">
               {activeTab.items.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center opacity-10 py-10">
-                  <ShoppingCart size={60} className="mb-4" />
+                  <ShoppingCart className="mb-4" size={60} />
                   <p className="font-black uppercase tracking-widest text-xs">
                     Empty Cart
                   </p>
@@ -435,9 +446,9 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                     <div className="w-14 h-14 bg-default-100 dark:bg-white/5 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border border-default-200 dark:border-white/5">
                       {item.product.image_url ? (
                         <img
-                          src={BACKEND_URL + item.product.image_url}
                           alt=""
                           className="w-full h-full object-cover"
+                          src={BACKEND_URL + item.product.image_url}
                         />
                       ) : (
                         <Package
@@ -460,19 +471,21 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                             vName.includes("standard") ||
                             vValue.includes("default") ||
                             vValue.includes("standard");
+
                           if (isDefault) return `B: ${item.batch?.id || "N/A"}`;
+
                           return `${item.variant?.name}: ${item.variant?.value} • B: ${item.batch?.id || "N/A"}`;
                         })()}
                       </p>
 
                       <div className="flex items-center gap-2">
                         <button
+                          className="w-6 h-6 rounded-lg bg-default-100 hover:bg-default-200 flex items-center justify-center text-default-400 transition-colors border border-default-100"
                           onClick={() =>
                             updateCartItem(item.id, {
                               quantity: Math.max(1, item.quantity - 1),
                             })
                           }
-                          className="w-6 h-6 rounded-lg bg-default-100 hover:bg-default-200 flex items-center justify-center text-default-400 transition-colors border border-default-100"
                         >
                           <Minus size={12} />
                         </button>
@@ -480,12 +493,12 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                           {item.quantity}
                         </span>
                         <button
+                          className="w-6 h-6 rounded-lg bg-default-100 hover:bg-default-200 flex items-center justify-center text-default-400 transition-colors border border-default-100"
                           onClick={() =>
                             updateCartItem(item.id, {
                               quantity: item.quantity + 1,
                             })
                           }
-                          className="w-6 h-6 rounded-lg bg-default-100 hover:bg-default-200 flex items-center justify-center text-default-400 transition-colors border border-default-100"
                         >
                           <Plus size={12} />
                         </button>
@@ -493,14 +506,16 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                     </div>
                     <div className="text-right">
                       <p className="text-[11px] font-black text-foreground">
-                        {currencySymbol}{item.total.toLocaleString()}
+                        {currencySymbol}
+                        {item.total.toLocaleString()}
                       </p>
                       <p className="text-[9px] text-default-500 font-bold mt-0.5 tracking-tighter">
-                        {currencySymbol}{item.price.toLocaleString()} × {item.quantity}
+                        {currencySymbol}
+                        {item.price.toLocaleString()} × {item.quantity}
                       </p>
                       <button
-                        onClick={() => removeFromCart(item.id)}
                         className="mt-2 text-gray-700 hover:text-danger transition-colors p-1"
+                        onClick={() => removeFromCart(item.id)}
                       >
                         <Trash2 size={14} />
                       </button>
@@ -518,7 +533,8 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                     Subtotal
                   </span>
                   <span className="font-black text-default-400">
-                    {currencySymbol}{subtotal.toLocaleString()}
+                    {currencySymbol}
+                    {subtotal.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between text-[10px]">
@@ -526,7 +542,8 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                     VAT ({props.vatRate || 0}%)
                   </span>
                   <span className="font-black text-default-400">
-                    {currencySymbol}{totalTax.toLocaleString()}
+                    {currencySymbol}
+                    {totalTax.toLocaleString()}
                   </span>
                 </div>
 
@@ -622,7 +639,8 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                       Discount Applied
                     </span>
                     <span className="font-black text-warning">
-                      -{currencySymbol}{globalDiscount.toLocaleString()}
+                      -{currencySymbol}
+                      {globalDiscount.toLocaleString()}
                     </span>
                   </div>
                 )}
@@ -633,18 +651,19 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                     Grand Total
                   </span>
                   <span className="text-2xl font-black text-primary tracking-tighter">
-                    {currencySymbol}{grandTotal.toLocaleString()}
+                    {currencySymbol}
+                    {grandTotal.toLocaleString()}
                   </span>
                 </div>
               </div>
 
               <Button
                 className="w-full h-14 rounded-xl bg-primary text-white font-black text-sm tracking-[0.1em] shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all"
-                onPress={() => setSidebarMode("payment")}
                 isDisabled={activeTab.items.length === 0}
+                onPress={() => setSidebarMode("payment")}
               >
                 PROCEED TO PAYMENT
-                <ChevronRight size={18} className="ml-1" />
+                <ChevronRight className="ml-1" size={18} />
               </Button>
             </div>
           </>
@@ -654,8 +673,8 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
             {/* Payment Header */}
             <div className="p-5 border-b border-default-100 flex items-center justify-between">
               <button
-                onClick={() => setSidebarMode("cart")}
                 className="flex items-center gap-2 text-default-500 hover:text-foreground transition-all group"
+                onClick={() => setSidebarMode("cart")}
               >
                 <div className="w-8 h-8 rounded-lg bg-default-100 flex items-center justify-center group-hover:bg-default-200">
                   <ChevronLeft size={16} />
@@ -665,7 +684,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                 </span>
               </button>
               <h3 className="text-sm font-black uppercase tracking-tight flex items-center gap-2 text-foreground">
-                <Zap size={18} className="text-primary" />
+                <Zap className="text-primary" size={18} />
                 Payment
               </h3>
             </div>
@@ -680,7 +699,8 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                         Total
                       </span>
                       <span className="text-2xl font-black text-foreground tracking-tighter">
-                        {currencySymbol}{grandTotal.toLocaleString()}
+                        {currencySymbol}
+                        {grandTotal.toLocaleString()}
                       </span>
                     </div>
                     <div className="text-right flex flex-col gap-0.5">
@@ -688,7 +708,8 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                         Paid
                       </span>
                       <span className="text-xl font-black text-primary tracking-tighter">
-                        {currencySymbol}{totalApplied.toLocaleString()}
+                        {currencySymbol}
+                        {totalApplied.toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -706,7 +727,8 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                           remaining > 0 ? "text-warning" : "text-success",
                         )}
                       >
-                        {currencySymbol}{remaining.toLocaleString()}
+                        {currencySymbol}
+                        {remaining.toLocaleString()}
                       </span>
                     </div>
                     {totalChange > 0 && (
@@ -715,7 +737,8 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                           Change
                         </span>
                         <span className="text-xl font-black text-success tracking-tighter">
-                          {currencySymbol}{totalChange.toLocaleString()}
+                          {currencySymbol}
+                          {totalChange.toLocaleString()}
                         </span>
                       </div>
                     )}
@@ -731,7 +754,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                 <div className="space-y-3">
                   {activeTab.payments?.length === 0 ? (
                     <div className="py-8 border border-dashed border-default-200 rounded-xl flex flex-col items-center justify-center opacity-10">
-                      <Banknote size={30} className="mb-2" />
+                      <Banknote className="mb-2" size={30} />
                       <p className="text-[8px] font-black uppercase tracking-widest">
                         No payments added
                       </p>
@@ -772,8 +795,8 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                               </span>
                             </div>
                             <button
-                              onClick={() => removePayment(p.id)}
                               className="w-7 h-7 rounded-lg bg-default-100 text-default-400 hover:text-danger hover:bg-danger/10 flex items-center justify-center transition-all"
+                              onClick={() => removePayment(p.id)}
                             >
                               <Trash2 size={12} />
                             </button>
@@ -786,12 +809,13 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                             </span>
                             <input
                               className="w-28 h-8 bg-default-200 border border-default-100 rounded-lg px-3 text-xs font-mono text-foreground text-right focus:outline-none focus:border-primary/50"
-                              type="number"
                               placeholder="0.00"
+                              type="number"
                               value={p.tenderedAmount || ""}
                               onChange={(e) => {
                                 const tAmount = parseFloat(e.target.value) || 0;
                                 let applied = p.appliedAmount;
+
                                 if (!p.isManualApplied) {
                                   applied = Math.min(tAmount, remainingForThis);
                                 }
@@ -832,7 +856,8 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                                 Change
                               </span>
                               <span className="text-sm font-mono font-black text-success">
-                                {currencySymbol}{p.changeAmount.toFixed(2)}
+                                {currencySymbol}
+                                {p.changeAmount.toFixed(2)}
                               </span>
                             </div>
                           )}
@@ -850,7 +875,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                     className="h-12 rounded-xl bg-default-100 border border-default-100 text-[9px] font-black uppercase tracking-widest hover:bg-success/20 transition-all flex items-center justify-center gap-2"
                     onPress={() => handleAddPaymentByType("billing_counter")}
                   >
-                    <Banknote size={16} className="text-success" />
+                    <Banknote className="text-success" size={16} />
                     Cash
                   </Button>
                 )}
@@ -858,21 +883,21 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                   className="h-12 rounded-xl bg-default-100 border border-default-100 text-[9px] font-black uppercase tracking-widest hover:bg-primary/20 transition-all flex items-center justify-center gap-2"
                   onPress={() => handleAddPaymentByType("card")}
                 >
-                  <CreditCard size={16} className="text-primary" />
+                  <CreditCard className="text-primary" size={16} />
                   Card
                 </Button>
                 <Button
                   className="h-12 rounded-xl bg-default-100 border border-default-100 text-[9px] font-black uppercase tracking-widest hover:bg-warning/20 transition-all flex items-center justify-center gap-2"
                   onPress={() => handleAddPaymentByType("online")}
                 >
-                  <Globe size={16} className="text-warning" />
+                  <Globe className="text-warning" size={16} />
                   Online
                 </Button>
                 <Button
                   className="h-12 rounded-xl bg-default-100 border border-default-100 text-[9px] font-black uppercase tracking-widest hover:bg-white/10 transition-all flex items-center justify-center gap-2"
                   onPress={() => handleAddPaymentByType("other")}
                 >
-                  <Zap size={16} className="text-default-400" />
+                  <Zap className="text-default-400" size={16} />
                   Others
                 </Button>
               </div>
@@ -882,9 +907,9 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
             <div className="p-6 bg-content2 border-t border-default-100 rounded-t-[2rem] shadow-2xl">
               <Button
                 className="w-full h-16 rounded-xl bg-success text-white font-black text-lg tracking-[0.1em] shadow-lg shadow-success/20 hover:scale-[1.01] active:scale-95 transition-all"
-                onPress={handleCheckout}
                 isDisabled={isProcessing || remaining > 0}
                 isLoading={isProcessing}
+                onPress={handleCheckout}
               >
                 {remaining > 0
                   ? `DUE: ${currencySymbol}${remaining.toLocaleString()}`
@@ -897,11 +922,11 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
 
       {/* Customer Selection Modal */}
       <Modal
-        isOpen={isCustomerOpen}
-        onOpenChange={onCustomerOpenChange}
-        className="bg-content1 text-foreground border border-default-100 rounded-[2rem]"
-        size="2xl"
         backdrop="blur"
+        className="bg-content1 text-foreground border border-default-100 rounded-[2rem]"
+        isOpen={isCustomerOpen}
+        size="2xl"
+        onOpenChange={onCustomerOpenChange}
       >
         <ModalContent>
           {(onClose) => (
@@ -916,10 +941,10 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                   </span>
                 </div>
                 <Button
+                  className="font-bold text-[9px] h-7 min-w-unit-12"
+                  color="danger"
                   size="sm"
                   variant="flat"
-                  color="danger"
-                  className="font-bold text-[9px] h-7 min-w-unit-12"
                   onPress={clearCustomer}
                 >
                   CLEAR
@@ -928,34 +953,34 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
               <ModalBody className="p-6 pt-2">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                   <Input
+                    classNames={{
+                      inputWrapper:
+                        "h-12 rounded-xl border-default-100 bg-default-100 focus-within:border-primary",
+                      label:
+                        "font-black uppercase tracking-widest text-[9px] text-default-500",
+                    }}
                     label="Customer Name"
                     placeholder="Walk-in Customer"
-                    variant="bordered"
                     size="sm"
+                    startContent={<User className="text-primary" size={16} />}
                     value={custName}
+                    variant="bordered"
                     onValueChange={handleCustNameChange}
-                    startContent={<User size={16} className="text-primary" />}
-                    classNames={{
-                      inputWrapper:
-                        "h-12 rounded-xl border-default-100 bg-default-100 focus-within:border-primary",
-                      label:
-                        "font-black uppercase tracking-widest text-[9px] text-default-500",
-                    }}
                   />
                   <Input
-                    label="Mobile Number"
-                    placeholder="01XXXXXXXXX"
-                    variant="bordered"
-                    size="sm"
-                    value={custMobile}
-                    onValueChange={handleCustMobileChange}
-                    startContent={<Phone size={16} className="text-primary" />}
                     classNames={{
                       inputWrapper:
                         "h-12 rounded-xl border-default-100 bg-default-100 focus-within:border-primary",
                       label:
                         "font-black uppercase tracking-widest text-[9px] text-default-500",
                     }}
+                    label="Mobile Number"
+                    placeholder="01XXXXXXXXX"
+                    size="sm"
+                    startContent={<Phone className="text-primary" size={16} />}
+                    value={custMobile}
+                    variant="bordered"
+                    onValueChange={handleCustMobileChange}
                   />
                 </div>
 
@@ -975,7 +1000,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                       </div>
                     ) : customers.length === 0 ? (
                       <div className="py-10 text-center flex flex-col items-center opacity-20">
-                        <UserPlus size={32} className="mb-2" />
+                        <UserPlus className="mb-2" size={32} />
                         <p className="font-bold text-[10px] uppercase tracking-widest">
                           No matching customers
                         </p>
@@ -984,6 +1009,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                       customers.map((c) => (
                         <button
                           key={c.id}
+                          className="w-full p-4 bg-default-100 hover:bg-primary/20 rounded-2xl text-left border border-default-100 transition-all flex items-center justify-between group shadow-md"
                           onClick={() => {
                             updateActiveTab({
                               customer: c,
@@ -991,7 +1017,6 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                             });
                             onClose();
                           }}
-                          className="w-full p-4 bg-default-100 hover:bg-primary/20 rounded-2xl text-left border border-default-100 transition-all flex items-center justify-between group shadow-md"
                         >
                           <div>
                             <p className="font-black text-base text-foreground group-hover:text-primary transition-colors">
@@ -1025,9 +1050,9 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
       {/* Payment Method Selector Modal */}
       <PaymentMethodSelectorModal
         isOpen={isSelectorOpen}
-        onOpenChange={onSelectorOpenChange}
         methods={selectorMethods}
         title={selectorTitle}
+        onOpenChange={onSelectorOpenChange}
         onSelect={(method) => {
           props.addPayment({
             methodId: method.id,

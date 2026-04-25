@@ -11,12 +11,14 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
+  DropdownSection,
 } from "@heroui/dropdown";
 import { Selection, Chip } from "@heroui/react";
 import { toast } from "sonner";
 
-import SaleDetailModal from "./_components/SaleDetailModal";
 import ReceiptModal from "../pos/_components/ReceiptModal";
+
+import SaleDetailModal from "./_components/SaleDetailModal";
 
 import { SearchIcon } from "@/components/icons";
 import { useVendor } from "@/lib/contexts/VendorContext";
@@ -96,7 +98,7 @@ export default function SalesPage() {
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
-  const [salesPersonFilter, setSalesPersonFilter] = useState<string>("");
+  const [salesPersonFilter] = useState<string>("");
   const [paymentMethodFilter, setPaymentMethodFilter] = useState<string>("");
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
 
@@ -122,11 +124,13 @@ export default function SalesPage() {
         const res: any = await api.get(`/receipt-settings`, {
           params: { vendor_id: vendor.id },
         });
+
         setReceiptSettings(res.data);
       } catch (e) {
         console.error("Failed to fetch receipt settings", e);
       }
     };
+
     fetchSettings();
   }, [vendor?.id]);
 
@@ -138,11 +142,13 @@ export default function SalesPage() {
         const res: any = await api.get(`/payment-methods`, {
           params: { vendor_id: vendor.id, per_page: 100 },
         });
+
         setPaymentMethods(res.data?.data || []);
       } catch (e) {
         console.error("Failed to fetch payment methods", e);
       }
     };
+
     fetchPM();
   }, [vendor?.id]);
 
@@ -220,13 +226,19 @@ export default function SalesPage() {
     setVoidConfirmOpen(false);
   };
 
-  const statusColor: Record<string, "success" | "danger" | "warning" | "default"> = {
+  const statusColor: Record<
+    string,
+    "success" | "danger" | "warning" | "default"
+  > = {
     completed: "success",
     voided: "danger",
     refunded: "warning",
   };
 
-  const pmTypeColor: Record<string, "primary" | "success" | "secondary" | "warning" | "default"> = {
+  const pmTypeColor: Record<
+    string,
+    "primary" | "success" | "secondary" | "warning" | "default"
+  > = {
     cash: "success",
     billing_counter: "success",
     card: "primary",
@@ -240,7 +252,9 @@ export default function SalesPage() {
   const renderCell = useCallback((item: Sale, columnKey: React.Key) => {
     switch (columnKey) {
       case "customer":
-        if (!item.customer) return <span className="text-default-400">Walk-in</span>;
+        if (!item.customer)
+          return <span className="text-default-400">Walk-in</span>;
+
         return (
           item.customer.name ||
           `${item.customer.first_name || ""} ${item.customer.last_name || ""}`.trim()
@@ -251,7 +265,7 @@ export default function SalesPage() {
         return item.sales_person?.name || "—";
       case "items_count":
         return (
-          <Chip size="sm" variant="flat" color="default">
+          <Chip color="default" size="sm" variant="flat">
             {item.sale_items?.length || 0}
           </Chip>
         );
@@ -259,26 +273,36 @@ export default function SalesPage() {
         return fmt(item.subtotal_amount);
       case "total_discount_amount":
         return Number(item.total_discount_amount) > 0 ? (
-          <span className="text-danger">-{fmt(item.total_discount_amount)}</span>
+          <span className="text-danger">
+            -{fmt(item.total_discount_amount)}
+          </span>
         ) : (
           <span className="text-default-300">—</span>
         );
       case "tax_amount":
-        return Number(item.tax_amount) > 0 ? fmt(item.tax_amount) : <span className="text-default-300">—</span>;
+        return Number(item.tax_amount) > 0 ? (
+          fmt(item.tax_amount)
+        ) : (
+          <span className="text-default-300">—</span>
+        );
       case "final_amount":
         return <span className="font-bold">{fmt(item.final_amount)}</span>;
       case "payment_methods": {
         const payments = item.sale_payments || [];
+
         if (payments.length === 0) return "—";
+
         return (
           <div className="flex gap-1 flex-wrap">
             {payments.map((p, i) => (
               <Chip
                 key={i}
+                className="text-[10px]"
+                color={
+                  pmTypeColor[p.payment_method?.type || "other"] || "default"
+                }
                 size="sm"
                 variant="flat"
-                color={pmTypeColor[p.payment_method?.type || "other"] || "default"}
-                className="text-[10px]"
               >
                 {p.payment_method?.name || "Payment"}
               </Chip>
@@ -288,7 +312,12 @@ export default function SalesPage() {
       }
       case "status":
         return (
-          <Chip color={statusColor[item.status] || "default"} size="sm" variant="flat" className="font-bold uppercase">
+          <Chip
+            className="font-bold uppercase"
+            color={statusColor[item.status] || "default"}
+            size="sm"
+            variant="flat"
+          >
             {item.status}
           </Chip>
         );
@@ -328,12 +357,6 @@ export default function SalesPage() {
 
   if (contextLoading) return <UserLoding />;
 
-  // Get unique salespersons from memberships for filter dropdown
-  const staffMembers = membership?.user_branch_assignments?.map((a) => ({
-    id: String(a.membership_id),
-    name: a.branch?.name || "Staff",
-  })) || [];
-
   return (
     <PermissionGuard permission="can_view_sales_history">
       <div className="p-6">
@@ -366,8 +389,8 @@ export default function SalesPage() {
           <Dropdown radius="sm">
             <DropdownTrigger className="flex">
               <Button
-                size="sm"
                 endContent={<ChevronDown className="text-small" />}
+                size="sm"
                 variant="flat"
               >
                 Branch:{" "}
@@ -384,6 +407,7 @@ export default function SalesPage() {
               selectionMode="multiple"
               onSelectionChange={(keys) => {
                 const ids = Array.from(keys as Set<string>);
+
                 updateBranchFilter(ids);
               }}
             >
@@ -399,8 +423,8 @@ export default function SalesPage() {
           <Dropdown radius="sm">
             <DropdownTrigger>
               <Button
-                size="sm"
                 endContent={<ChevronDown className="text-small" />}
+                size="sm"
                 variant="flat"
               >
                 Status: {statusFilter ? capitalize(statusFilter) : "All"}
@@ -408,10 +432,11 @@ export default function SalesPage() {
             </DropdownTrigger>
             <DropdownMenu
               aria-label="Filter by Status"
-              selectionMode="single"
               selectedKeys={new Set([statusFilter])}
+              selectionMode="single"
               onSelectionChange={(keys) => {
                 const val = Array.from(keys as Set<string>)[0] || "";
+
                 setStatusFilter(val);
               }}
             >
@@ -425,47 +450,57 @@ export default function SalesPage() {
           <Dropdown radius="sm">
             <DropdownTrigger>
               <Button
-                size="sm"
                 endContent={<ChevronDown className="text-small" />}
+                size="sm"
                 variant="flat"
               >
-                Payment: {paymentMethodFilter
-                  ? paymentMethods.find((pm) => String(pm.id) === paymentMethodFilter)?.name || "Selected"
+                Payment:{" "}
+                {paymentMethodFilter
+                  ? paymentMethods.find(
+                      (pm) => String(pm.id) === paymentMethodFilter,
+                    )?.name || "Selected"
                   : "All"}
               </Button>
             </DropdownTrigger>
             <DropdownMenu
               aria-label="Filter by Payment Method"
-              selectionMode="single"
+              items={[
+                { id: "", name: "All Methods" },
+                ...paymentMethods.map((pm) => ({
+                  id: String(pm.id),
+                  name: pm.name,
+                })),
+              ]}
               selectedKeys={new Set([paymentMethodFilter])}
+              selectionMode="single"
               onSelectionChange={(keys) => {
                 const val = Array.from(keys as Set<string>)[0] || "";
+
                 setPaymentMethodFilter(val);
               }}
             >
-              <DropdownItem key="">All Methods</DropdownItem>
-              {paymentMethods.map((pm) => (
-                <DropdownItem key={String(pm.id)}>{pm.name}</DropdownItem>
-              ))}
+              {(item: any) => (
+                <DropdownItem key={item.id}>{item.name}</DropdownItem>
+              )}
             </DropdownMenu>
           </Dropdown>
 
           {/* Date Range */}
           <Input
-            type="date"
-            size="sm"
+            classNames={{ base: "w-auto", label: "text-xs" }}
             label="From"
             labelPlacement="outside-left"
-            classNames={{ base: "w-auto", label: "text-xs" }}
+            size="sm"
+            type="date"
             value={dateFrom}
             onValueChange={setDateFrom}
           />
           <Input
-            type="date"
-            size="sm"
+            classNames={{ base: "w-auto", label: "text-xs" }}
             label="To"
             labelPlacement="outside-left"
-            classNames={{ base: "w-auto", label: "text-xs" }}
+            size="sm"
+            type="date"
             value={dateTo}
             onValueChange={setDateTo}
           />
@@ -475,8 +510,8 @@ export default function SalesPage() {
             <Dropdown radius="sm">
               <DropdownTrigger className="flex">
                 <Button
-                  size="sm"
                   endContent={<ChevronDown className="text-small" />}
+                  size="sm"
                   variant="flat"
                 >
                   Columns
@@ -516,13 +551,13 @@ export default function SalesPage() {
         />
 
         <SaleDetailModal
+          currencySymbol={vendor?.settings?.currency_symbol || "৳"}
           isOpen={isDetailOpen}
+          sale={selectedSale}
           onClose={() => {
             setIsDetailOpen(false);
             setSelectedSale(null);
           }}
-          sale={selectedSale}
-          currencySymbol={vendor?.settings?.currency_symbol || "৳"}
           onPrintReceipt={(sale) => {
             setSelectedSale(sale);
             setIsReceiptOpen(true);

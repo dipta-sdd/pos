@@ -1,0 +1,178 @@
+
+> next-app-template@0.0.1 lint
+> eslint --fix
+
+(node:29364) ESLintCircularFixesWarning: Circular fixes detected while fixing /home/sdd/Documents/pos/client/components/ui/ProductPlaceholderIcon.tsx. It is likely that you have conflicting rules in your configuration.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+/home/sdd/Documents/pos/client/app/pos/page.tsx
+  118:25  warning  Visible, non-interactive elements with click handlers must have at least one keyboard listener  jsx-a11y/click-events-have-key-events
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/branches/_components/BranchForm.tsx
+  59:31  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/branches/counters/page.tsx
+  77:41  warning  'onClose' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/branches/page.tsx
+  141:14  warning  '_error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/customers/credits/page.tsx
+  84:41  warning  'onClose' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/customers/page.tsx
+  61:5   warning  'membership' is assigned a value but never used          @typescript-eslint/no-unused-vars
+  62:5   warning  'selectedBranchIds' is assigned a value but never used   @typescript-eslint/no-unused-vars
+  63:5   warning  'updateBranchFilter' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  79:41  warning  'onClose' is assigned a value but never used             @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/expenses/categories/page.tsx
+  65:41  warning  'onClose' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/expenses/page.tsx
+  80:41  warning  'onClose' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/inventory/_components/NewInventoryModal.tsx
+  62:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/inventory/_components/ViewStockModal.tsx
+  101:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  113:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/inventory/adjustments/page.tsx
+  86:41  warning  'onClose' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/inventory/transfers/[transferId]/page.tsx
+  14:11  warning  'vendor' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/inventory/transfers/_components/StockTransferForm.tsx
+  72:18  warning  'errors' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/inventory/transfers/new/page.tsx
+  11:11  warning  'vendor' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/pos/_components/PosTouchScreen.tsx
+  110:5   warning  'closeTab' is assigned a value but never used                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+  113:5   warning  'addToCart' is assigned a value but never used                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+  116:5   warning  'clearCart' is assigned a value but never used                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+  125:5   warning  'addPayment' is assigned a value but never used                                                                                                                                                                                                                                          @typescript-eslint/no-unused-vars
+  133:5   warning  'paymentMethods' is assigned a value but never used                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+  135:5   warning  'vatRate' is assigned a value but never used                                                                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+  370:7   error    Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element                                                                                        jsx-a11y/no-static-element-interactions
+  445:25  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/pos/_components/ProductSelection.tsx
+  125:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/pos/_components/RegisterStatusModal.tsx
+   36:19  warning  'membership' is assigned a value but never used                                @typescript-eslint/no-unused-vars
+  159:11  warning  'onClose' is defined but never used. Allowed unused args must match /^_.*?$/u  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/pos/_components/keyboard/KeyboardCartItem.tsx
+  18:3  warning  'onUpdateQty' is defined but never used. Allowed unused args must match /^_.*?$/u  @typescript-eslint/no-unused-vars
+  19:3  warning  'onRemove' is defined but never used. Allowed unused args must match /^_.*?$/u     @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/pos/_components/keyboard/KeyboardCartTable.tsx
+  101:3  warning  'focusArea' is defined but never used. Allowed unused args must match /^_.*?$/u  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/pos/_components/keyboard/KeyboardCustomer.tsx
+  33:10  warning  'isLoading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  74:14  warning  'err' is defined but never used                 @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/pos/_components/keyboard/KeyboardPOS.tsx
+   69:3   warning  'vendorId' is defined but never used. Allowed unused args must match /^_.*?$/u        @typescript-eslint/no-unused-vars
+   70:3   warning  'activeSession' is defined but never used. Allowed unused args must match /^_.*?$/u   @typescript-eslint/no-unused-vars
+   76:3   warning  'itemsTotal' is defined but never used. Allowed unused args must match /^_.*?$/u      @typescript-eslint/no-unused-vars
+   77:3   warning  'globalDiscount' is defined but never used. Allowed unused args must match /^_.*?$/u  @typescript-eslint/no-unused-vars
+  178:25  warning  'curPaymentMethods' is assigned a value but never used                                @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/pos/page.tsx
+  116:16  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  178:16  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  261:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  272:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/procurement/orders/[orderId]/page.tsx
+  14:11  warning  'vendor' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/procurement/orders/new/page.tsx
+  11:11  warning  'vendor' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/procurement/suppliers/page.tsx
+  75:41  warning  'onClose' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/products/[productId]/page.tsx
+  14:11  warning  'vendor' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/products/_components/ProductForm.tsx
+  143:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  153:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/products/new/page.tsx
+  11:11  warning  'vendor' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/products/units/page.tsx
+  73:41  warning  'onClose' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/promotions/page.tsx
+  78:41  warning  'onClose' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/reports/bills/page.tsx
+  13:11  warning  'vendor' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/reports/exports/page.tsx
+  20:11  warning  'vendor' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/reports/inventory/page.tsx
+  13:11  warning  'vendor' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/returns/_components/ReturnForm.tsx
+  65:18  warning  'errors' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/returns/page.tsx
+  81:41  warning  'onClose' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/roles/[roleId]/page.tsx
+  35:16  warning  '_error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/roles/_components/RoleForm.tsx
+  134:3   warning  'canDeleteRoles' is assigned a value but never used. Allowed unused args must match /^_.*?$/u  @typescript-eslint/no-unused-vars
+  186:14  warning  'error' is defined but never used                                                              @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/roles/page.tsx
+  127:14  warning  '_error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/settings/integrations/page.tsx
+  36:11  warning  'vendor' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/settings/payment-methods/page.tsx
+  77:41  warning  'onClose' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/settings/taxes/page.tsx
+  73:41  warning  'onClose' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/[vendorId]/users/page.tsx
+  166:14  warning  '_error' is defined but never used  @typescript-eslint/no-unused-vars
+  194:14  warning  '_error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/app/pos/vendor/add/page.tsx
+  55:14  warning  '_error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/components/auth-guard.tsx
+  24:10  warning  'isVerifying' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/components/ui/ImageUpload.tsx
+  137:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/sdd/Documents/pos/client/components/ui/Pagination.tsx
+  19:3  warning  'total' is defined but never used. Allowed unused args must match /^_.*?$/u  @typescript-eslint/no-unused-vars
+
+/home/sdd/Documents/pos/client/components/ui/ProductPlaceholderIcon.tsx
+  19:7  warning  Props should be sorted alphabetically  react/jsx-sort-props
+
+/home/sdd/Documents/pos/client/lib/contexts/VendorContext.tsx
+  60:11  warning  'branchIds' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 72 problems (1 error, 71 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+

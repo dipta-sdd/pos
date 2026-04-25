@@ -147,7 +147,8 @@ export default function ReceiptSettingsPage() {
     "80mm": "max-w-[280px]",
     a4: "max-w-full",
   };
-  const previewPaperWidth = paperWidthMap[watch("paper_size")] || "max-w-[280px]";
+  const previewPaperWidth =
+    paperWidthMap[watch("paper_size")] || "max-w-[280px]";
 
   return (
     <PermissionGuard permission="can_customize_receipts">
@@ -260,17 +261,48 @@ export default function ReceiptSettingsPage() {
                   <h3 className="text-lg font-semibold">Content Options</h3>
                   <div className="space-y-4">
                     {[
-                      { key: "show_tax_breakdown" as const, label: "Show Tax Breakdown", desc: "Display individual tax amounts on the receipt" },
-                      { key: "show_payment_details" as const, label: "Show Payment Details", desc: "Show received amount and change for each payment" },
-                      { key: "show_salesperson" as const, label: "Show Salesperson", desc: "Display the cashier/salesperson name" },
-                      { key: "show_sale_id" as const, label: "Show Sale ID", desc: "Display the sale reference number" },
-                      { key: "show_date_time" as const, label: "Show Date & Time", desc: "Display the transaction date and time" },
-                      { key: "show_barcode" as const, label: "Show Barcode", desc: "Display a barcode for the sale ID" },
+                      {
+                        key: "show_tax_breakdown" as const,
+                        label: "Show Tax Breakdown",
+                        desc: "Display individual tax amounts on the receipt",
+                      },
+                      {
+                        key: "show_payment_details" as const,
+                        label: "Show Payment Details",
+                        desc: "Show received amount and change for each payment",
+                      },
+                      {
+                        key: "show_salesperson" as const,
+                        label: "Show Salesperson",
+                        desc: "Display the cashier/salesperson name",
+                      },
+                      {
+                        key: "show_sale_id" as const,
+                        label: "Show Sale ID",
+                        desc: "Display the sale reference number",
+                      },
+                      {
+                        key: "show_date_time" as const,
+                        label: "Show Date & Time",
+                        desc: "Display the transaction date and time",
+                      },
+                      {
+                        key: "show_barcode" as const,
+                        label: "Show Barcode",
+                        desc: "Display a barcode for the sale ID",
+                      },
                     ].map((opt) => (
-                      <div key={opt.key} className="flex items-center justify-between">
+                      <div
+                        key={opt.key}
+                        className="flex items-center justify-between"
+                      >
                         <div className="flex flex-col">
-                          <span className="font-medium text-sm">{opt.label}</span>
-                          <span className="text-xs text-default-400">{opt.desc}</span>
+                          <span className="font-medium text-sm">
+                            {opt.label}
+                          </span>
+                          <span className="text-xs text-default-400">
+                            {opt.desc}
+                          </span>
                         </div>
                         <Switch
                           isSelected={watch(opt.key)}
@@ -288,31 +320,37 @@ export default function ReceiptSettingsPage() {
                   <h3 className="text-lg font-semibold">Format Options</h3>
                   <div className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium mb-2 block">Paper Size</label>
                       <Select
+                        label="Paper Size"
+                        labelPlacement="outside"
                         selectedKeys={new Set([watch("paper_size")])}
+                        size="sm"
+                        variant="bordered"
                         onSelectionChange={(keys) => {
                           const val = Array.from(keys as Set<string>)[0];
+
                           if (val) setValue("paper_size", val as any);
                         }}
-                        variant="bordered"
-                        size="sm"
                       >
                         <SelectItem key="58mm">58mm (Small thermal)</SelectItem>
-                        <SelectItem key="80mm">80mm (Standard thermal)</SelectItem>
+                        <SelectItem key="80mm">
+                          80mm (Standard thermal)
+                        </SelectItem>
                         <SelectItem key="a4">A4 (Full page)</SelectItem>
                       </Select>
                     </div>
                     <div>
-                      <label className="text-sm font-medium mb-2 block">Font Size</label>
                       <Select
+                        label="Font Size"
+                        labelPlacement="outside"
                         selectedKeys={new Set([watch("font_size")])}
+                        size="sm"
+                        variant="bordered"
                         onSelectionChange={(keys) => {
                           const val = Array.from(keys as Set<string>)[0];
+
                           if (val) setValue("font_size", val as any);
                         }}
-                        variant="bordered"
-                        size="sm"
                       >
                         <SelectItem key="small">Small</SelectItem>
                         <SelectItem key="medium">Medium</SelectItem>
@@ -330,7 +368,9 @@ export default function ReceiptSettingsPage() {
                   <h3 className="text-sm font-bold mb-4 uppercase text-default-400">
                     Preview
                   </h3>
-                  <div className={`p-4 bg-white border rounded shadow-inner font-mono ${previewFontSize} space-y-2 mx-auto ${previewPaperWidth} text-black`}>
+                  <div
+                    className={`p-4 bg-white border rounded shadow-inner font-mono ${previewFontSize} space-y-2 mx-auto ${previewPaperWidth} text-black`}
+                  >
                     <div className="text-center border-b pb-2">
                       {watch("show_logo") && (
                         <div className="w-8 h-8 bg-gray-200 mx-auto mb-1 rounded-full flex items-center justify-center text-[6px] font-bold">
@@ -341,9 +381,15 @@ export default function ReceiptSettingsPage() {
                         {vendor?.name || "VENDOR NAME"}
                       </div>
                       {watch("show_address") && (
-                        <div className="text-gray-500">{vendor?.address || "Business Address"}</div>
+                        <div className="text-gray-500">
+                          {vendor?.address || "Business Address"}
+                        </div>
                       )}
-                      {watch("show_contact_info") && <div className="text-gray-500">Tel: {vendor?.phone || "Contact Info"}</div>}
+                      {watch("show_contact_info") && (
+                        <div className="text-gray-500">
+                          Tel: {vendor?.phone || "Contact Info"}
+                        </div>
+                      )}
                     </div>
 
                     {watch("header_text") && (
@@ -354,7 +400,9 @@ export default function ReceiptSettingsPage() {
 
                     <div className="flex justify-between text-gray-500">
                       {watch("show_sale_id") && <span>Sale #12345</span>}
-                      {watch("show_date_time") && <span>{new Date().toLocaleString()}</span>}
+                      {watch("show_date_time") && (
+                        <span>{new Date().toLocaleString()}</span>
+                      )}
                     </div>
                     {watch("show_salesperson") && (
                       <div className="text-gray-500">Cashier: Jane Doe</div>
@@ -373,7 +421,7 @@ export default function ReceiptSettingsPage() {
                         <span>Product B x 1</span>
                         <span>$15.00</span>
                       </div>
-                      
+
                       <div className="pt-2 border-t border-dashed mt-2">
                         <div className="flex justify-between">
                           <span>Subtotal</span>
@@ -393,7 +441,9 @@ export default function ReceiptSettingsPage() {
 
                       {watch("show_payment_details") && (
                         <div className="pt-2">
-                          <div className="font-bold uppercase text-gray-500">Payment(s)</div>
+                          <div className="font-bold uppercase text-gray-500">
+                            Payment(s)
+                          </div>
                           <div className="flex justify-between">
                             <span>Cash</span>
                             <span>$40.00</span>
@@ -408,7 +458,9 @@ export default function ReceiptSettingsPage() {
                       {watch("show_barcode") && (
                         <div className="pt-4 pb-2 text-center">
                           <div className="w-3/4 h-8 bg-gray-300 mx-auto rounded-sm flex items-center justify-center">
-                            <span className="text-[6px] tracking-[4px] font-bold text-gray-600">|| |||| | ||| ||</span>
+                            <span className="text-[6px] tracking-[4px] font-bold text-gray-600">
+                              || |||| | ||| ||
+                            </span>
                           </div>
                         </div>
                       )}

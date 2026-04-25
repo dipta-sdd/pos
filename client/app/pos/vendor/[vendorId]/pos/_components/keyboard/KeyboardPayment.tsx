@@ -1,11 +1,7 @@
 import React from "react";
 import { MoreVertical } from "lucide-react";
 import {
-  Card,
-  CardHeader,
-  CardBody,
   Input,
-  Divider,
   Button,
   Dropdown,
   DropdownTrigger,
@@ -30,7 +26,7 @@ export const KeyboardPayment: React.FC<KeyboardPaymentProps> = ({
   grandTotal,
   onUpdatePayment,
   onRemovePayment,
-  isFocused,
+  isFocused: _isFocused,
   currencySymbol,
 }) => {
   const totalAppliedWithoutCurrent = (currentId: string) =>
@@ -125,8 +121,8 @@ export const KeyboardPayment: React.FC<KeyboardPaymentProps> = ({
                   placeholder="0.00"
                   size="sm"
                   type="number"
-                  variant="bordered"
                   value={p.tenderedAmount.toString()}
+                  variant="bordered"
                   onValueChange={(val) => {
                     const tAmount = parseFloat(val) || 0;
                     let applied = p.appliedAmount;
@@ -157,8 +153,8 @@ export const KeyboardPayment: React.FC<KeyboardPaymentProps> = ({
                     placeholder="0.00"
                     size="sm"
                     type="number"
-                    variant="bordered"
                     value={p.appliedAmount.toString()}
+                    variant="bordered"
                     onValueChange={(val) => {
                       const aAmount = parseFloat(val) || 0;
 
@@ -183,8 +179,8 @@ export const KeyboardPayment: React.FC<KeyboardPaymentProps> = ({
                     className="w-28"
                     placeholder="Ref #"
                     size="sm"
-                    variant="bordered"
                     value={p.reference || ""}
+                    variant="bordered"
                     onValueChange={(val) => {
                       onUpdatePayment(p.id, {
                         reference: val,

@@ -111,12 +111,14 @@ export default function PointOfSalePage() {
       if (!vendor?.id) return;
       try {
         const res: any = await api.get(`/receipt-settings/${vendor.id}`);
+
         setReceiptSettings(res.data);
-      } catch (err) {
+      } catch (error) {
         // Receipt settings may not exist yet — that's OK
         console.log("No receipt settings found, using defaults");
       }
     };
+
     fetchReceiptSettings();
   }, [vendor?.id]);
 
@@ -139,6 +141,7 @@ export default function PointOfSalePage() {
 
   const fetchCategories = useCallback(async () => {
     const vId = vendor?.id || vendorId;
+
     if (!vId) return;
     try {
       const response: any = await api.get(`/categories`, {
@@ -147,6 +150,7 @@ export default function PointOfSalePage() {
       const cats = Array.isArray(response.data)
         ? response.data
         : response.data.data || [];
+
       setCategories(cats);
     } catch (err) {
       console.error("Failed to fetch categories", err);
@@ -155,6 +159,7 @@ export default function PointOfSalePage() {
 
   useEffect(() => {
     const vId = vendor?.id || vendorId;
+
     if (vId) {
       fetchActiveSession();
       fetchCategories();
@@ -168,8 +173,9 @@ export default function PointOfSalePage() {
         const res: any = await api.get(
           `/pos/payment-methods?vendor_id=${vendorId}&branch_id=${activeSession.billing_counter?.branch_id}&billing_counter_id=${activeSession.billing_counter_id}`,
         );
+
         setPaymentMethods(res.data.data || []);
-      } catch (err) {
+      } catch (error) {
         toast.error("Failed to load payment methods");
       }
     };
@@ -184,6 +190,7 @@ export default function PointOfSalePage() {
     const cashMethod = paymentMethods.find(
       (pm) => pm.type === "billing_counter",
     );
+
     if (!cashMethod) return;
 
     const existingPayments = activeTab.payments || [];
@@ -220,15 +227,22 @@ export default function PointOfSalePage() {
           name: item.product_name,
           image_url: item.image_url,
         };
-      const variantObj: any = {
+        const variantObj: any = {
           id: item.id,
           name: item.variant_name,
           value: item.variant_value,
           sku: item.sku,
           barcode: item.barcode,
         };
-        
-        addToCart(productObj, variantObj, batches[0], 1, undefined, vendor?.settings?.vat_rate || 0);
+
+        addToCart(
+          productObj,
+          variantObj,
+          batches[0],
+          1,
+          undefined,
+          vendor?.settings?.vat_rate || 0,
+        );
 
         // Barcode detection: if it matches query exactly, keep focus on search
         const isBarcode =
@@ -244,7 +258,7 @@ export default function PointOfSalePage() {
       } else {
         toast.error("No stock available");
       }
-    } catch (err) {
+    } catch (error) {
       toast.error("Failed to add product");
     }
   };
@@ -255,7 +269,7 @@ export default function PointOfSalePage() {
       const res: any = await api.get(`/pos/products?search=${query}`);
 
       return res.data.data || (Array.isArray(res.data) ? res.data : []);
-    } catch (err) {
+    } catch (error) {
       return [];
     }
   };
@@ -273,6 +287,7 @@ export default function PointOfSalePage() {
 
       if (availableMethods.length === 1) {
         const method = availableMethods[0];
+
         addPayment({
           methodId: method.id,
           methodName: method.name,
@@ -290,6 +305,7 @@ export default function PointOfSalePage() {
         const hasAny = paymentMethods.some(
           (pm: PaymentMethod) => pm.type === targetType,
         );
+
         if (!hasAny) {
           toast.error(`No ${targetType} payment method configured`);
         } else {
@@ -375,6 +391,7 @@ export default function PointOfSalePage() {
       };
 
       const response: any = await api.post("/sales", payload);
+
       toast.success("Sale completed successfully!");
       setCompletedSale(response.data);
       setIsReceiptOpen(true);
@@ -469,9 +486,8 @@ export default function PointOfSalePage() {
     selectorTitle,
     categories,
     currencySymbol: vendor?.settings?.currency_symbol || "৳",
+    vatRate: vendor?.settings?.vat_rate || 0,
   };
-
-
 
   return (
     <PermissionGuard permission="can_use_pos">
@@ -485,9 +501,9 @@ export default function PointOfSalePage() {
               You must open a billing counter session to use the POS.
             </p>
             <Button
+              className="font-bold"
               color="primary"
               size="lg"
-              className="font-bold"
               onPress={onOpen}
             >
               Open Register
@@ -508,16 +524,16 @@ export default function PointOfSalePage() {
       />
 
       <ReceiptModal
+        autoPrint={vendor?.settings?.auto_print_receipt || false}
+        currencySymbol={vendor?.settings?.currency_symbol || "৳"}
         isOpen={isReceiptOpen}
+        receiptSettings={receiptSettings}
+        saleData={completedSale}
+        vendor={vendor}
         onClose={() => {
           setIsReceiptOpen(false);
           setCompletedSale(null);
         }}
-        saleData={completedSale}
-        receiptSettings={receiptSettings}
-        vendor={vendor}
-        currencySymbol={vendor?.settings?.currency_symbol || "৳"}
-        autoPrint={vendor?.settings?.auto_print_receipt || false}
       />
     </PermissionGuard>
   );

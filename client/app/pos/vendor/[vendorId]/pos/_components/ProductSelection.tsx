@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardBody, Skeleton, ScrollShadow } from "@heroui/react";
-import { Grid3X3, Package, ShoppingCart } from "lucide-react";
+import { Package, ShoppingCart } from "lucide-react";
+import clsx from "clsx";
 
 import api, { BACKEND_URL } from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import { Product, Variant, ProductStock } from "@/lib/types/general";
-import clsx from "clsx";
 
 interface ProductSelectionProps {
   onSelect: (product: Product, variant: Variant, batch: ProductStock) => void;
@@ -39,6 +39,7 @@ export default function ProductSelection({
       }
 
       const response: any = await api.get(`/pos/products`, { params });
+
       setItems(response.data.data || []);
     } catch (error) {
       console.error("Failed to fetch products", error);
@@ -92,6 +93,7 @@ export default function ProductSelection({
                   const sortedStocks = [...stocks].sort((a, b) => {
                     if (!a.expiry_date) return 1;
                     if (!b.expiry_date) return -1;
+
                     return (
                       new Date(a.expiry_date).getTime() -
                       new Date(b.expiry_date).getTime()
@@ -121,9 +123,9 @@ export default function ProductSelection({
                 <div className="aspect-square w-full bg-black/20 flex items-center justify-center relative overflow-hidden shrink-0">
                   {item.image_url ? (
                     <img
-                      src={BACKEND_URL + item.image_url}
                       alt={item.product_name}
                       className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
+                      src={BACKEND_URL + item.image_url}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-default-100 dark:bg-white/5">
@@ -163,7 +165,8 @@ export default function ProductSelection({
 
                   <div className="flex justify-between items-center mt-auto pt-1">
                     <p className="text-primary font-black text-sm tracking-tighter">
-                      {vendor?.settings?.currency_symbol || "৳"}{Number(item.base_price || 0).toLocaleString()}
+                      {vendor?.settings?.currency_symbol || "৳"}
+                      {Number(item.base_price || 0).toLocaleString()}
                     </p>
                     <div className="w-8 h-8 bg-primary/10 text-primary rounded-xl flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all shadow-lg group-hover:shadow-primary/30">
                       <ShoppingCart size={14} />
@@ -175,7 +178,7 @@ export default function ProductSelection({
           ))
         ) : (
           <div className="col-span-full py-20 text-center text-gray-700 flex flex-col items-center">
-            <Package size={64} className="mb-4 opacity-5" />
+            <Package className="mb-4 opacity-5" size={64} />
             <p className="font-bold uppercase tracking-widest text-xs text-gray-600">
               No products found matching filters
             </p>

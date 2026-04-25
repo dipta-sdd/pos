@@ -44,7 +44,15 @@ const columns: Column[] = [
   { name: "ACTIONS", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "type", "total_collected", "balance", "is_active", "created_at", "actions"];
+const INITIAL_VISIBLE_COLUMNS = [
+  "name",
+  "type",
+  "total_collected",
+  "balance",
+  "is_active",
+  "created_at",
+  "actions",
+];
 
 function capitalize(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
@@ -129,7 +137,10 @@ export default function PaymentMethodsPage() {
     setDeleteConfirmOpen(false);
   };
 
-  const typeColor: Record<string, "success" | "primary" | "secondary" | "warning" | "default"> = {
+  const typeColor: Record<
+    string,
+    "success" | "primary" | "secondary" | "warning" | "default"
+  > = {
     cash: "success",
     billing_counter: "success",
     card: "primary",
@@ -142,25 +153,41 @@ export default function PaymentMethodsPage() {
       switch (columnKey) {
         case "type":
           return (
-            <Chip size="sm" variant="flat" color={typeColor[item.type] || "default"} className="text-[10px] font-bold uppercase">
+            <Chip
+              className="text-[10px] font-bold uppercase"
+              color={typeColor[item.type] || "default"}
+              size="sm"
+              variant="flat"
+            >
               {item.type === "billing_counter" ? "Counter Cash" : item.type}
             </Chip>
           );
         case "total_collected":
           return (
             <span className="font-semibold">
-              {Number(item.total_collected || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              {Number(item.total_collected || 0).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+              })}
             </span>
           );
         case "balance":
           return (
             <span>
-              {item.balance != null ? Number(item.balance).toLocaleString(undefined, { minimumFractionDigits: 2 }) : "—"}
+              {item.balance != null
+                ? Number(item.balance).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                  })
+                : "—"}
             </span>
           );
         case "is_active":
           return (
-            <Chip size="sm" variant="flat" color={item.is_active ? "success" : "default"} className="font-bold">
+            <Chip
+              className="font-bold"
+              color={item.is_active ? "success" : "default"}
+              size="sm"
+              variant="flat"
+            >
               {item.is_active ? "Active" : "Inactive"}
             </Chip>
           );

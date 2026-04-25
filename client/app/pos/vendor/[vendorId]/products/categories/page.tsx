@@ -76,7 +76,7 @@ export default function CategoriesPage() {
     new Set(INITIAL_VISIBLE_COLUMNS),
   );
 
-  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectedItem, setSelectedItem] = useState<Category | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);

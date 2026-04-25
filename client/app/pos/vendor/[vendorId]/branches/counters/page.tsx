@@ -146,12 +146,13 @@ export default function BillingCountersPage() {
           return item.branch?.name || "N/A";
         case "status":
           const hasSession = !!(item as any).active_session;
+
           return (
-            <Chip 
-              color={hasSession ? "success" : "default"} 
-              size="sm" 
-              variant="flat"
+            <Chip
               className="font-bold uppercase text-[10px]"
+              color={hasSession ? "success" : "default"}
+              size="sm"
+              variant="flat"
             >
               {hasSession ? "Session Open" : "No Session"}
             </Chip>

@@ -27,10 +27,10 @@ export const KeyboardSearch: React.FC<KeyboardSearchProps> = ({
 
   // Focus management
   useEffect(() => {
-  
     if (isFocused && inputRef.current) {
       const timer = setTimeout(() => {
         const el = inputRef.current;
+
         if (el) {
           if (typeof el.focus === "function") {
             el.focus();
@@ -38,6 +38,7 @@ export const KeyboardSearch: React.FC<KeyboardSearchProps> = ({
           // Also try to find internal input if it's a wrapper
           const innerInput =
             el.querySelector?.("input") || (el as any).inputElement;
+
           if (innerInput && typeof innerInput.focus === "function") {
             innerInput.focus();
             innerInput.select?.();
@@ -90,9 +91,7 @@ export const KeyboardSearch: React.FC<KeyboardSearchProps> = ({
             isNotFound ? "bg-danger-50 border-danger-200" : "bg-default-50",
           ),
         }}
-        endContent={
-          <Kbd>F1</Kbd>
-        }
+        endContent={<Kbd>F1</Kbd>}
         inputValue={inputValue}
         isLoading={isLoading}
         items={items}
@@ -115,12 +114,12 @@ export const KeyboardSearch: React.FC<KeyboardSearchProps> = ({
             const selected = items.find((i) => String(i.id) === String(key));
 
             if (selected) {
-
               // Explicitly blur to prevent Autocomplete from stealing focus back
               if (inputRef.current) {
                 const input = inputRef.current.querySelector("input");
+
                 if (input) {
-                  input.blur(); 
+                  input.blur();
                 }
               }
               onSelect(selected, inputValue);
@@ -141,10 +140,14 @@ export const KeyboardSearch: React.FC<KeyboardSearchProps> = ({
               <div className="flex gap-3 items-center">
                 <Avatar
                   className="bg-default-100 dark:bg-white/5"
-                  fallback={<Package className="w-4 h-4 text-default-500 dark:text-white/20" />}
-                  size="sm"
+                  fallback={
+                    <Package className="w-4 h-4 text-default-500 dark:text-white/20" />
+                  }
                   radius="sm"
-                  src={item.image_url ? BACKEND_URL + item.image_url : undefined}
+                  size="sm"
+                  src={
+                    item.image_url ? BACKEND_URL + item.image_url : undefined
+                  }
                 />
                 <div className="flex flex-col">
                   <span className="text-sm font-bold">{item.product_name}</span>

@@ -10,7 +10,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { UserLoding } from "@/components/user-loding";
 
 export default function SalesReportPage() {
-  const { vendor, isLoading: contextLoading } = useVendor();
+  const { isLoading: contextLoading } = useVendor();
 
   if (contextLoading) return <UserLoding />;
 

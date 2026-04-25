@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import {
   Table,
   TableHeader,
@@ -25,17 +25,16 @@ interface KeyboardCartTableProps {
   currencySymbol: string;
 }
 
-const QuantityCell = ({ 
-  item, 
-  onUpdateQty, 
-  onEsc, 
-}: { 
-  item: CartItem; 
-  onUpdateQty: any; 
+const QuantityCell = ({
+  item,
+  onUpdateQty,
+  onEsc,
+}: {
+  item: CartItem;
+  onUpdateQty: any;
   onEsc: any;
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-
 
   return (
     <div className="flex items-center justify-center gap-2">
@@ -43,20 +42,23 @@ const QuantityCell = ({
         isIconOnly
         size="sm"
         variant="flat"
-        onPress={() => onUpdateQty(item.id, { quantity: Math.max(1, item.quantity - 1) })}
+        onPress={() =>
+          onUpdateQty(item.id, { quantity: Math.max(1, item.quantity - 1) })
+        }
       >
         <Minus size={14} />
       </Button>
       <input
         ref={inputRef}
-        type="number"
         className="w-16 h-8 text-center font-mono font-bold bg-default-100 border-2 border-transparent focus:border-primary outline-none rounded-lg transition-all"
+        type="number"
         value={item.quantity || ""}
         onChange={(e) => {
           const val = e.target.value;
-          
+
           if (val === "") {
             onUpdateQty(item.id, { quantity: 0 });
+
             return;
           }
 
@@ -149,15 +151,24 @@ export const KeyboardCartTable: React.FC<KeyboardCartTableProps> = ({
                 <div className="flex items-center gap-3">
                   <Avatar
                     className="bg-default-100 dark:bg-white/5"
-                    fallback={<Package className="w-4 h-4 text-default-500 dark:text-white/20" />}
+                    fallback={
+                      <Package className="w-4 h-4 text-default-500 dark:text-white/20" />
+                    }
                     radius="sm"
                     size="sm"
-                    src={item.product.image_url ? BACKEND_URL + item.product.image_url : undefined}
+                    src={
+                      item.product.image_url
+                        ? BACKEND_URL + item.product.image_url
+                        : undefined
+                    }
                   />
                   <div className="flex flex-col">
-                    <span className="font-bold text-sm">{item.product.name}</span>
+                    <span className="font-bold text-sm">
+                      {item.product.name}
+                    </span>
                     <span className="text-[10px] text-default-400 uppercase tracking-tight">
-                      {item.variant.name === "Standard" && item.variant.value === "Default" ? (
+                      {item.variant.name === "Standard" &&
+                      item.variant.value === "Default" ? (
                         ""
                       ) : (
                         <span className="mr-2">
@@ -170,17 +181,19 @@ export const KeyboardCartTable: React.FC<KeyboardCartTableProps> = ({
                 </div>
               </TableCell>
               <TableCell>
-                <QuantityCell 
+                <QuantityCell
                   item={item}
                   onEsc={onEsc}
                   onUpdateQty={onUpdateQty}
                 />
               </TableCell>
               <TableCell className="text-right font-mono">
-                {currencySymbol}{item.price.toLocaleString()}
+                {currencySymbol}
+                {item.price.toLocaleString()}
               </TableCell>
               <TableCell className="text-right font-mono font-bold">
-                {currencySymbol}{item.total.toLocaleString()}
+                {currencySymbol}
+                {item.total.toLocaleString()}
               </TableCell>
               <TableCell>
                 <Button

@@ -1,7 +1,15 @@
 "use client";
 
 import React from "react";
-import { Modal, ModalContent, ModalHeader, ModalBody, Listbox, ListboxItem } from "@heroui/react";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  Listbox,
+  ListboxItem,
+} from "@heroui/react";
+
 import { PaymentMethod } from "@/lib/types/general";
 
 interface Props {
@@ -29,22 +37,32 @@ export const PaymentMethodSelectorModal: React.FC<Props> = ({
           listboxRef.current.focus();
         }
       }, 100);
+
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm" hideCloseButton>
+    <Modal
+      hideCloseButton
+      isOpen={isOpen}
+      size="sm"
+      onOpenChange={onOpenChange}
+    >
       <ModalContent>
-        <ModalHeader className="flex flex-col gap-1 text-primary">{title}</ModalHeader>
+        <ModalHeader className="flex flex-col gap-1 text-primary">
+          {title}
+        </ModalHeader>
         <ModalBody className="pb-6">
           <Listbox
             ref={listboxRef}
-            autoFocus
             aria-label="Select Payment Method"
             variant="flat"
             onAction={(key) => {
-              const method = methods.find((m) => m.id.toString() === key.toString());
+              const method = methods.find(
+                (m) => m.id.toString() === key.toString(),
+              );
+
               if (method) {
                 onSelect(method);
                 onOpenChange(false);
@@ -52,10 +70,10 @@ export const PaymentMethodSelectorModal: React.FC<Props> = ({
             }}
           >
             {methods.map((method) => (
-              <ListboxItem 
-                key={method.id} 
-                description={method.type}
+              <ListboxItem
+                key={method.id}
                 className="py-3"
+                description={method.type}
               >
                 {method.name}
               </ListboxItem>

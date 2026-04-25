@@ -9,8 +9,6 @@ import {
   Button,
   Input,
   Switch,
-  Select,
-  SelectItem,
   Divider,
   Tab,
   Tabs,
@@ -24,8 +22,9 @@ import {
   MousePointer2,
   Printer,
 } from "lucide-react";
-import api from "@/lib/api";
 import { toast } from "sonner";
+
+import api from "@/lib/api";
 
 interface PosSettings {
   pos_interface: "touch" | "keyboard";
@@ -56,7 +55,8 @@ export default function PosSettingsPage() {
   const fetchSettings = async () => {
     try {
       setIsLoading(true);
-      const response = await api.get(`/vendors/${vendorId}`);
+      const response: any = await api.get(`/vendors/${vendorId}`);
+
       if (response.data.settings) {
         setSettings({
           ...settings,
@@ -105,15 +105,19 @@ export default function PosSettingsPage() {
     <div className="p-8 max-w-5xl mx-auto pb-24">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-black uppercase tracking-tight">POS Settings</h1>
-          <p className="text-default-500 text-sm">Configure your point-of-sale experience and business rules.</p>
+          <h1 className="text-3xl font-black uppercase tracking-tight">
+            POS Settings
+          </h1>
+          <p className="text-default-500 text-sm">
+            Configure your point-of-sale experience and business rules.
+          </p>
         </div>
         <Button
-          color="primary"
-          size="lg"
           className="font-bold"
-          startContent={<Save size={20} />}
+          color="primary"
           isLoading={isSaving}
+          size="lg"
+          startContent={<Save size={20} />}
           onPress={handleSave}
         >
           SAVE CHANGES
@@ -129,44 +133,58 @@ export default function PosSettingsPage() {
                 <TabletSmartphone size={24} />
               </div>
               <div className="flex flex-col">
-                <p className="text-md font-bold uppercase tracking-wider">POS Interface</p>
-                <p className="text-xs text-default-400">Choose the default layout for your registers.</p>
+                <p className="text-md font-bold uppercase tracking-wider">
+                  POS Interface
+                </p>
+                <p className="text-xs text-default-400">
+                  Choose the default layout for your registers.
+                </p>
               </div>
             </CardHeader>
             <CardBody className="px-6 py-4">
-              <Tabs 
-                selectedKey={settings.pos_interface}
-                onSelectionChange={(key) => setSettings({ ...settings, pos_interface: key as any })}
-                variant="bordered"
-                color="primary"
+              <Tabs
                 classNames={{
                   tabList: "w-full",
                   tab: "h-24",
                 }}
+                color="primary"
+                selectedKey={settings.pos_interface}
+                variant="bordered"
+                onSelectionChange={(key) =>
+                  setSettings({ ...settings, pos_interface: key as any })
+                }
               >
-                <Tab 
-                  key="touch" 
+                <Tab
+                  key="touch"
                   title={
                     <div className="flex flex-col items-center gap-2 py-2">
                       <MousePointer2 size={24} />
                       <div className="flex flex-col items-center">
-                        <span className="font-bold text-sm">Touch Optimized</span>
-                        <span className="text-[10px] opacity-60">Large buttons, visual products</span>
+                        <span className="font-bold text-sm">
+                          Touch Optimized
+                        </span>
+                        <span className="text-[10px] opacity-60">
+                          Large buttons, visual products
+                        </span>
                       </div>
                     </div>
-                  } 
+                  }
                 />
-                <Tab 
-                  key="keyboard" 
+                <Tab
+                  key="keyboard"
                   title={
                     <div className="flex flex-col items-center gap-2 py-2">
                       <Keyboard size={24} />
                       <div className="flex flex-col items-center">
-                        <span className="font-bold text-sm">Keyboard Native</span>
-                        <span className="text-[10px] opacity-60">Fast entry, dense data, shortcuts</span>
+                        <span className="font-bold text-sm">
+                          Keyboard Native
+                        </span>
+                        <span className="text-[10px] opacity-60">
+                          Fast entry, dense data, shortcuts
+                        </span>
                       </div>
                     </div>
-                  } 
+                  }
                 />
               </Tabs>
             </CardBody>
@@ -178,8 +196,12 @@ export default function PosSettingsPage() {
                 <Coins size={24} />
               </div>
               <div className="flex flex-col">
-                <p className="text-md font-bold uppercase tracking-wider">Financials</p>
-                <p className="text-xs text-default-400">Currency and tax configurations.</p>
+                <p className="text-md font-bold uppercase tracking-wider">
+                  Financials
+                </p>
+                <p className="text-xs text-default-400">
+                  Currency and tax configurations.
+                </p>
               </div>
             </CardHeader>
             <CardBody className="px-6 py-6 space-y-6">
@@ -188,19 +210,25 @@ export default function PosSettingsPage() {
                   label="Default VAT Rate (%)"
                   labelPlacement="outside"
                   placeholder="5"
+                  startContent={
+                    <Percent className="text-default-400" size={16} />
+                  }
                   type="number"
-                  variant="bordered"
                   value={settings.vat_rate.toString()}
-                  onValueChange={(val) => setSettings({ ...settings, vat_rate: parseFloat(val) || 0 })}
-                  startContent={<Percent size={16} className="text-default-400" />}
+                  variant="bordered"
+                  onValueChange={(val) =>
+                    setSettings({ ...settings, vat_rate: parseFloat(val) || 0 })
+                  }
                 />
                 <Input
                   label="Currency Symbol"
                   labelPlacement="outside"
                   placeholder="৳"
-                  variant="bordered"
                   value={settings.currency_symbol}
-                  onValueChange={(val) => setSettings({ ...settings, currency_symbol: val })}
+                  variant="bordered"
+                  onValueChange={(val) =>
+                    setSettings({ ...settings, currency_symbol: val })
+                  }
                 />
               </div>
             </CardBody>
@@ -212,29 +240,37 @@ export default function PosSettingsPage() {
                 <Printer size={24} />
               </div>
               <div className="flex flex-col">
-                <p className="text-md font-bold uppercase tracking-wider">Receipt & Printing</p>
-                <p className="text-xs text-default-400">Configure how receipts are printed after checkout.</p>
+                <p className="text-md font-bold uppercase tracking-wider">
+                  Receipt & Printing
+                </p>
+                <p className="text-xs text-default-400">
+                  Configure how receipts are printed after checkout.
+                </p>
               </div>
             </CardHeader>
             <CardBody className="px-6 py-6 space-y-6">
               <div>
                 <p className="text-sm font-bold mb-3">Print Method</p>
                 <Tabs
-                  selectedKey={settings.receipt_print_mode}
-                  onSelectionChange={(key) => setSettings({ ...settings, receipt_print_mode: key as any })}
-                  variant="bordered"
-                  color="primary"
                   classNames={{
                     tabList: "w-full",
                     tab: "h-16",
                   }}
+                  color="primary"
+                  selectedKey={settings.receipt_print_mode}
+                  variant="bordered"
+                  onSelectionChange={(key) =>
+                    setSettings({ ...settings, receipt_print_mode: key as any })
+                  }
                 >
                   <Tab
                     key="browser"
                     title={
                       <div className="flex flex-col items-center gap-1">
                         <span className="font-bold text-sm">Browser Print</span>
-                        <span className="text-[10px] opacity-60">Uses system print dialog</span>
+                        <span className="text-[10px] opacity-60">
+                          Uses system print dialog
+                        </span>
                       </div>
                     }
                   />
@@ -242,8 +278,12 @@ export default function PosSettingsPage() {
                     key="thermal"
                     title={
                       <div className="flex flex-col items-center gap-1">
-                        <span className="font-bold text-sm">Thermal / ESC/POS</span>
-                        <span className="text-[10px] opacity-60">Direct to thermal printer</span>
+                        <span className="font-bold text-sm">
+                          Thermal / ESC/POS
+                        </span>
+                        <span className="text-[10px] opacity-60">
+                          Direct to thermal printer
+                        </span>
                       </div>
                     }
                   />
@@ -255,11 +295,15 @@ export default function PosSettingsPage() {
               <div className="flex items-center justify-between">
                 <div className="flex flex-col gap-1">
                   <p className="text-sm font-bold">Auto-Print Receipt</p>
-                  <p className="text-xs text-default-400">Automatically trigger print after each completed sale.</p>
+                  <p className="text-xs text-default-400">
+                    Automatically trigger print after each completed sale.
+                  </p>
                 </div>
                 <Switch
                   isSelected={settings.auto_print_receipt}
-                  onValueChange={(val) => setSettings({ ...settings, auto_print_receipt: val })}
+                  onValueChange={(val) =>
+                    setSettings({ ...settings, auto_print_receipt: val })
+                  }
                 />
               </div>
             </CardBody>
@@ -272,15 +316,18 @@ export default function PosSettingsPage() {
             <CardBody className="p-6">
               <h3 className="font-bold text-lg mb-2">Need Help?</h3>
               <p className="text-sm opacity-90 leading-relaxed">
-                These settings apply to all branches and registers for your business. 
-                Changes are saved instantly to the cloud but may require a page refresh on active POS terminals to take effect.
+                These settings apply to all branches and registers for your
+                business. Changes are saved instantly to the cloud but may
+                require a page refresh on active POS terminals to take effect.
               </p>
             </CardBody>
           </Card>
-          
+
           <Card className="bg-default-100 border-none">
             <CardBody className="p-6 space-y-4">
-              <h4 className="font-bold text-sm uppercase tracking-widest text-default-500">Upcoming Features</h4>
+              <h4 className="font-bold text-sm uppercase tracking-widest text-default-500">
+                Upcoming Features
+              </h4>
               <ul className="text-xs space-y-3">
                 <li className="flex items-center gap-2 opacity-50">
                   <div className="w-1.5 h-1.5 rounded-full bg-default-400" />

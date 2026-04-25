@@ -11,7 +11,8 @@ import {
   Chip,
   Divider,
 } from "@heroui/react";
-import { Printer, X, User, MapPin, CreditCard, ShoppingCart } from "lucide-react";
+import { Printer, CreditCard, ShoppingCart } from "lucide-react";
+
 import { Sale } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
 
@@ -37,7 +38,10 @@ export default function SaleDetailModal({
   const fmt = (val: string | number) =>
     `${currencySymbol}${Number(val || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
 
-  const statusColor: Record<string, "success" | "danger" | "warning" | "default"> = {
+  const statusColor: Record<
+    string,
+    "success" | "danger" | "warning" | "default"
+  > = {
     completed: "success",
     voided: "danger",
     refunded: "warning",
@@ -49,20 +53,31 @@ export default function SaleDetailModal({
   return (
     <Modal
       isOpen={isOpen}
-      onOpenChange={(open) => { if (!open) onClose(); }}
-      size="2xl"
       scrollBehavior="inside"
+      size="2xl"
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
     >
       <ModalContent>
         {() => (
           <>
             <ModalHeader className="flex items-center gap-3 border-b border-default-100">
-              <ShoppingCart size={20} className="text-primary" />
+              <ShoppingCart className="text-primary" size={20} />
               <div className="flex-1">
-                <span className="font-black uppercase tracking-wide">Sale #{sale.id}</span>
-                <span className="ml-2 text-default-400 text-sm">{formatDateTime(sale.created_at)}</span>
+                <span className="font-black uppercase tracking-wide">
+                  Sale #{sale.id}
+                </span>
+                <span className="ml-2 text-default-400 text-sm">
+                  {formatDateTime(sale.created_at)}
+                </span>
               </div>
-              <Chip color={statusColor[sale.status] || "default"} size="sm" variant="flat" className="font-bold uppercase">
+              <Chip
+                className="font-bold uppercase"
+                color={statusColor[sale.status] || "default"}
+                size="sm"
+                variant="flat"
+              >
                 {sale.status}
               </Chip>
             </ModalHeader>
@@ -70,24 +85,37 @@ export default function SaleDetailModal({
               {/* Meta info row */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-default-400 font-bold mb-1">Branch</p>
+                  <p className="text-[10px] uppercase tracking-widest text-default-400 font-bold mb-1">
+                    Branch
+                  </p>
                   <p className="font-semibold">{sale.branch?.name || "—"}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-default-400 font-bold mb-1">Salesperson</p>
-                  <p className="font-semibold">{sale.sales_person?.name || "—"}</p>
+                  <p className="text-[10px] uppercase tracking-widest text-default-400 font-bold mb-1">
+                    Salesperson
+                  </p>
+                  <p className="font-semibold">
+                    {sale.sales_person?.name || "—"}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-default-400 font-bold mb-1">Customer</p>
+                  <p className="text-[10px] uppercase tracking-widest text-default-400 font-bold mb-1">
+                    Customer
+                  </p>
                   <p className="font-semibold">
                     {sale.customer?.name || sale.customer
-                      ? `${sale.customer?.first_name || ""} ${sale.customer?.last_name || ""}`.trim() || sale.customer?.name
+                      ? `${sale.customer?.first_name || ""} ${sale.customer?.last_name || ""}`.trim() ||
+                        sale.customer?.name
                       : "Walk-in"}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-default-400 font-bold mb-1">Session</p>
-                  <p className="font-semibold">#{sale.cash_register_session_id || "—"}</p>
+                  <p className="text-[10px] uppercase tracking-widest text-default-400 font-bold mb-1">
+                    Session
+                  </p>
+                  <p className="font-semibold">
+                    #{sale.cash_register_session_id || "—"}
+                  </p>
                 </div>
               </div>
 
@@ -95,7 +123,9 @@ export default function SaleDetailModal({
 
               {/* Items Table */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-widest text-default-400 mb-3">Items ({items.length})</h4>
+                <h4 className="text-xs font-bold uppercase tracking-widest text-default-400 mb-3">
+                  Items ({items.length})
+                </h4>
                 <div className="bg-default-50 dark:bg-white/5 rounded-xl overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
@@ -110,26 +140,48 @@ export default function SaleDetailModal({
                     </thead>
                     <tbody>
                       {items.map((item, idx) => {
-                        const productName = item.variant?.product?.name || "Item";
+                        const productName =
+                          item.variant?.product?.name || "Item";
                         const variantLabel =
-                          item.variant?.name === "Standard" && item.variant?.value === "Default"
+                          item.variant?.name === "Standard" &&
+                          item.variant?.value === "Default"
                             ? ""
-                            : item.variant?.name ? `${item.variant.name}: ${item.variant.value}` : "";
+                            : item.variant?.name
+                              ? `${item.variant.name}: ${item.variant.value}`
+                              : "";
+
                         return (
-                          <tr key={idx} className="border-b border-default-100 last:border-b-0">
+                          <tr
+                            key={idx}
+                            className="border-b border-default-100 last:border-b-0"
+                          >
                             <td className="px-4 py-2.5">
                               <p className="font-semibold">{productName}</p>
                               {variantLabel && (
-                                <p className="text-[10px] text-default-400">{variantLabel}</p>
+                                <p className="text-[10px] text-default-400">
+                                  {variantLabel}
+                                </p>
                               )}
                             </td>
-                            <td className="text-center px-2 py-2.5">{Number(item.quantity)}</td>
-                            <td className="text-right px-2 py-2.5">{fmt(item.sell_price_at_sale)}</td>
-                            <td className="text-right px-2 py-2.5 text-danger">
-                              {Number(item.discount_amount) > 0 ? `-${fmt(item.discount_amount)}` : "—"}
+                            <td className="text-center px-2 py-2.5">
+                              {Number(item.quantity)}
                             </td>
-                            <td className="text-right px-2 py-2.5">{Number(item.tax_amount) > 0 ? fmt(item.tax_amount) : "—"}</td>
-                            <td className="text-right px-4 py-2.5 font-bold">{fmt(item.line_total)}</td>
+                            <td className="text-right px-2 py-2.5">
+                              {fmt(item.sell_price_at_sale)}
+                            </td>
+                            <td className="text-right px-2 py-2.5 text-danger">
+                              {Number(item.discount_amount) > 0
+                                ? `-${fmt(item.discount_amount)}`
+                                : "—"}
+                            </td>
+                            <td className="text-right px-2 py-2.5">
+                              {Number(item.tax_amount) > 0
+                                ? fmt(item.tax_amount)
+                                : "—"}
+                            </td>
+                            <td className="text-right px-4 py-2.5 font-bold">
+                              {fmt(item.line_total)}
+                            </td>
                           </tr>
                         );
                       })}
@@ -144,20 +196,29 @@ export default function SaleDetailModal({
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <h4 className="text-xs font-bold uppercase tracking-widest text-default-400 mb-2">
-                    <CreditCard size={14} className="inline mr-1" /> Payments ({payments.length})
+                    <CreditCard className="inline mr-1" size={14} /> Payments (
+                    {payments.length})
                   </h4>
                   {payments.map((p, idx) => (
-                    <div key={idx} className="bg-default-50 dark:bg-white/5 rounded-lg p-3">
+                    <div
+                      key={idx}
+                      className="bg-default-50 dark:bg-white/5 rounded-lg p-3"
+                    >
                       <div className="flex justify-between">
-                        <span className="font-semibold text-sm">{p.payment_method?.name || "Payment"}</span>
-                        <span className="font-bold text-sm">{fmt(p.amount)}</span>
+                        <span className="font-semibold text-sm">
+                          {p.payment_method?.name || "Payment"}
+                        </span>
+                        <span className="font-bold text-sm">
+                          {fmt(p.amount)}
+                        </span>
                       </div>
-                      {Number(p.amount_received || 0) > 0 && Number(p.amount_received) !== Number(p.amount) && (
-                        <div className="flex justify-between text-xs text-default-400 mt-1">
-                          <span>Received</span>
-                          <span>{fmt(p.amount_received!)}</span>
-                        </div>
-                      )}
+                      {Number(p.amount_received || 0) > 0 &&
+                        Number(p.amount_received) !== Number(p.amount) && (
+                          <div className="flex justify-between text-xs text-default-400 mt-1">
+                            <span>Received</span>
+                            <span>{fmt(p.amount_received!)}</span>
+                          </div>
+                        )}
                       {Number(p.change || 0) > 0 && (
                         <div className="flex justify-between text-xs text-default-400">
                           <span>Change</span>
@@ -169,7 +230,9 @@ export default function SaleDetailModal({
                 </div>
 
                 <div className="space-y-2 text-sm">
-                  <h4 className="text-xs font-bold uppercase tracking-widest text-default-400 mb-2">Summary</h4>
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-default-400 mb-2">
+                    Summary
+                  </h4>
                   <div className="bg-default-50 dark:bg-white/5 rounded-lg p-3 space-y-2">
                     <div className="flex justify-between">
                       <span className="text-default-500">Subtotal</span>
@@ -200,9 +263,9 @@ export default function SaleDetailModal({
               <div>
                 {onVoid && sale.status !== "voided" && (
                   <Button
+                    className="font-bold"
                     color="danger"
                     variant="flat"
-                    className="font-bold"
                     onPress={() => onVoid(sale)}
                   >
                     Void Sale
@@ -212,10 +275,10 @@ export default function SaleDetailModal({
               <div className="flex gap-2">
                 {onPrintReceipt && (
                   <Button
-                    color="primary"
-                    variant="flat"
-                    startContent={<Printer size={16} />}
                     className="font-bold"
+                    color="primary"
+                    startContent={<Printer size={16} />}
+                    variant="flat"
                     onPress={() => onPrintReceipt(sale)}
                   >
                     Re-print Receipt

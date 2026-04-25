@@ -260,7 +260,7 @@ export interface PaymentMethod {
   branch_id?: number;
   billing_counter_id?: number;
   name: string;
-  type: 'cash' | 'card' | 'online' | 'other' | 'billing_counter';
+  type: "cash" | "card" | "online" | "other" | "billing_counter";
   description?: string;
   balance?: string | number;
   is_active: boolean;
@@ -287,8 +287,8 @@ export interface ReceiptSettings {
   show_address: boolean;
   show_contact_info: boolean;
   template_style?: string;
-  paper_size: '58mm' | '80mm' | 'a4';
-  font_size: 'small' | 'medium' | 'large';
+  paper_size: "58mm" | "80mm" | "a4";
+  font_size: "small" | "medium" | "large";
   show_tax_breakdown: boolean;
   show_payment_details: boolean;
   show_barcode: boolean;

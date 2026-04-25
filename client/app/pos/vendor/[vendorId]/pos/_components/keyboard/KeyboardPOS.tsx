@@ -1,17 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  Tabs,
-  Tab,
-  Button,
-  Card,
-  CardBody,
-  Divider,
-  Input,
-  useDisclosure,
-} from "@heroui/react";
-import { ShortcutKey } from "@/components/ui/ShortcutKey";
+import { Tabs, Tab, Button, Card, CardBody, Input } from "@heroui/react";
 import { X } from "lucide-react";
 import clsx from "clsx";
 
@@ -21,6 +11,7 @@ import { KeyboardPayment } from "./KeyboardPayment";
 import { KeyboardCustomer } from "./KeyboardCustomer";
 import { PaymentMethodSelectorModal } from "./PaymentMethodSelectorModal";
 
+import { ShortcutKey } from "@/components/ui/ShortcutKey";
 import { PosPayment } from "@/lib/types/pos";
 import { PosTab } from "@/lib/types/pos";
 import { PaymentMethod, CashRegisterSession } from "@/lib/types/general";
@@ -136,6 +127,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
     (e: MouseEvent) => {
       if (isResizing) {
         const newWidth = window.innerWidth - e.clientX;
+
         if (newWidth >= 400 && newWidth <= 900) {
           setSidebarWidth(newWidth);
         }
@@ -152,6 +144,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
       window.removeEventListener("mousemove", resize);
       window.removeEventListener("mouseup", stopResizing);
     }
+
     return () => {
       window.removeEventListener("mousemove", resize);
       window.removeEventListener("mouseup", stopResizing);
@@ -183,12 +176,11 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
         focusArea: curFocusArea,
         activeTab: curActiveTab,
         paymentMethods: curPaymentMethods,
-        remaining: curRemaining,
         selectedIndex: curSelectedIndex,
         addTab: doAddTab,
-        addPayment: doAddPayment,
         removeFromCart: doRemoveFromCart,
       } = stateRef.current;
+
       console.log(e.key);
       if (e.key === "F1") {
         e.preventDefault();
@@ -265,17 +257,19 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
     return () => window.removeEventListener("keydown", handleKeyDown, true);
   }, []);
 
-  if (!activeTab) return null;
-
   const handleEsc = React.useCallback(() => {
     setFocusArea("search");
   }, [setFocusArea]);
 
+  if (!activeTab) return null;
+
   return (
-    <div className={clsx(
-      "flex flex-col min-h-[calc(100vh-64px)] bg-content1 text-foreground",
-      isResizing && "select-none cursor-col-resize"
-    )}>
+    <div
+      className={clsx(
+        "flex flex-col min-h-[calc(100vh-64px)] bg-content1 text-foreground",
+        isResizing && "select-none cursor-col-resize",
+      )}
+    >
       {/* Sale Tabs */}
       <div className="flex items-center px-4 pt-2 bg-default-50 border-b border-default-200">
         <Tabs
@@ -302,9 +296,9 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                   <span>{tab.name}</span>
                   {state.tabs.length > 1 && (
                     <span
+                      className="hover:text-danger-500 transition-colors p-0.5 rounded-full hover:bg-default-100 cursor-pointer"
                       role="button"
                       tabIndex={0}
-                      className="hover:text-danger-500 transition-colors p-0.5 rounded-full hover:bg-default-100 cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation();
                         closeTab(tab.id);
@@ -339,37 +333,40 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
         {/* Left Side: Cart */}
         <div className="flex-1 flex flex-col min-w-0">
           <KeyboardSearch
-            isFocused={focusArea === "search"}
             focusTrigger={searchFocusTrigger}
+            isFocused={focusArea === "search"}
             onSearch={handleProductSearch}
             onSelect={handleProductSelect}
           />
           <KeyboardCartTable
+            currencySymbol={currencySymbol}
             focusArea={focusArea}
             items={activeTab.items}
             selectedIndex={selectedIndex}
             onEsc={handleEsc}
             onRemove={removeFromCart}
             onUpdateQty={updateCartItem}
-            currencySymbol={currencySymbol}
           />
         </div>
 
         {/* Resize Handle */}
         <div
+          aria-label="Resize Sidebar"
           className={clsx(
             "w-1.5 relative z-50 group cursor-col-resize transition-colors duration-200",
-            isResizing ? "bg-primary" : "bg-transparent hover:bg-primary/30"
+            isResizing ? "bg-primary" : "bg-transparent hover:bg-primary/30",
           )}
+          role="button"
+          tabIndex={-1}
           onMouseDown={startResizing}
         >
           <div className="absolute inset-y-0 -left-2 -right-2 bg-transparent" />
         </div>
 
         {/* Right Side: Sidebar */}
-        <div 
-          style={{ width: `${sidebarWidth}px`, minWidth: '400px' }}
+        <div
           className="flex flex-col gap-4 overflow-y-auto no-scrollbar pb-6"
+          style={{ width: `${sidebarWidth}px`, minWidth: "400px" }}
         >
           <KeyboardCustomer
             isFocused={focusArea === "customer"}
@@ -408,7 +405,9 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-default-500">VAT ({vatRate || 0}%)</span>
+                  <span className="text-default-500">
+                    VAT ({vatRate || 0}%)
+                  </span>
                   <span className="font-mono font-bold tracking-tight">
                     {currencySymbol}{" "}
                     {totalTax.toLocaleString(undefined, {
@@ -428,8 +427,8 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                       placeholder="0.00"
                       size="sm"
                       type="number"
-                      variant="bordered"
                       value={activeTab.discount_value.toString()}
+                      variant="bordered"
                       onValueChange={(val) =>
                         updateActiveTab({
                           discount_value: parseFloat(val) || 0,
@@ -477,8 +476,8 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                       className="w-32"
                       placeholder="CODE"
                       size="sm"
-                      variant="bordered"
                       value={activeTab.coupon_code}
+                      variant="bordered"
                       onValueChange={(val) =>
                         updateActiveTab({ coupon_code: val })
                       }
@@ -504,8 +503,8 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                     placeholder="0.00"
                     size="sm"
                     type="number"
-                    variant="bordered"
                     value={activeTab.extra_charge.toString()}
+                    variant="bordered"
                     onValueChange={(val) =>
                       updateActiveTab({ extra_charge: parseFloat(val) || 0 })
                     }
@@ -556,12 +555,12 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                 )}
 
                 <KeyboardPayment
+                  currencySymbol={currencySymbol}
                   grandTotal={grandTotal}
                   isFocused={focusArea === "payment"}
                   payments={activeTab.payments}
                   onRemovePayment={removePayment}
                   onUpdatePayment={updatePayment}
-                  currencySymbol={currencySymbol}
                 />
 
                 <div
@@ -672,9 +671,9 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
       </div>
       <PaymentMethodSelectorModal
         isOpen={isSelectorOpen}
-        onOpenChange={onSelectorOpenChange}
         methods={selectorMethods}
         title={selectorTitle}
+        onOpenChange={onSelectorOpenChange}
         onSelect={(method: PaymentMethod) => {
           addPayment({
             methodId: method.id,

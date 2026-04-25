@@ -7,9 +7,8 @@ import {
   ModalHeader,
   ModalBody,
   Button,
-  Divider,
 } from "@heroui/react";
-import { Printer, X, Plus } from "lucide-react";
+import { Printer, Plus } from "lucide-react";
 
 interface ReceiptModalProps {
   isOpen: boolean;
@@ -38,17 +37,24 @@ export default function ReceiptModal({
       const timer = setTimeout(() => {
         handlePrint();
       }, 500);
+
       return () => clearTimeout(timer);
     }
   }, [isOpen, autoPrint, saleData]);
 
   const handlePrint = () => {
     const printContent = receiptRef.current;
+
     if (!printContent) return;
 
     const paperMm = receiptSettings?.paper_size || "80mm";
     const printWidth = paperMm === "a4" ? "210mm" : paperMm;
-    const printWindow = window.open("", "_blank", `width=${paperMm === "58mm" ? 260 : paperMm === "a4" ? 800 : 320},height=600`);
+    const printWindow = window.open(
+      "",
+      "_blank",
+      `width=${paperMm === "58mm" ? 260 : paperMm === "a4" ? 800 : 320},height=600`,
+    );
+
     if (!printWindow) return;
 
     printWindow.document.write(`
@@ -106,7 +112,8 @@ export default function ReceiptModal({
     medium: "text-[11px]",
     large: "text-[13px]",
   };
-  const fontSize = fontSizeMap[receiptSettings?.font_size || "medium"] || "text-[11px]";
+  const fontSize =
+    fontSizeMap[receiptSettings?.font_size || "medium"] || "text-[11px]";
 
   // Paper width mapping
   const paperWidthMap: Record<string, string> = {
@@ -114,7 +121,8 @@ export default function ReceiptModal({
     "80mm": "max-w-[302px]",
     a4: "max-w-full",
   };
-  const paperWidth = paperWidthMap[receiptSettings?.paper_size || "80mm"] || "max-w-[302px]";
+  const paperWidth =
+    paperWidthMap[receiptSettings?.paper_size || "80mm"] || "max-w-[302px]";
 
   // Setting defaults (true unless explicitly false)
   const showTaxBreakdown = receiptSettings?.show_tax_breakdown !== false;
@@ -129,13 +137,15 @@ export default function ReceiptModal({
 
   return (
     <Modal
-      isOpen={isOpen}
-      onOpenChange={(open) => { if (!open) onClose(); }}
-      size="md"
-      scrollBehavior="inside"
       classNames={{
         base: "bg-content1",
         header: "border-b border-default-100",
+      }}
+      isOpen={isOpen}
+      scrollBehavior="inside"
+      size="md"
+      onOpenChange={(open) => {
+        if (!open) onClose();
       }}
     >
       <ModalContent>
@@ -143,9 +153,13 @@ export default function ReceiptModal({
           <>
             <ModalHeader className="flex justify-between items-center gap-2">
               <div className="flex items-center gap-2">
-                <Printer size={20} className="text-primary" />
-                <span className="font-black uppercase tracking-wide">Receipt</span>
-                <span className="text-default-400 text-sm font-mono">#{saleData.id}</span>
+                <Printer className="text-primary" size={20} />
+                <span className="font-black uppercase tracking-wide">
+                  Receipt
+                </span>
+                <span className="text-default-400 text-sm font-mono">
+                  #{saleData.id}
+                </span>
               </div>
             </ModalHeader>
             <ModalBody className="p-4">
@@ -188,7 +202,11 @@ export default function ReceiptModal({
                 {/* Sale Info */}
                 <div className="flex justify-between text-[10px] text-gray-500 mb-2">
                   {showSaleId && <span>Sale #{saleData.id}</span>}
-                  {showDateTime && <span>{new Date(saleData.created_at).toLocaleString()}</span>}
+                  {showDateTime && (
+                    <span>
+                      {new Date(saleData.created_at).toLocaleString()}
+                    </span>
+                  )}
                 </div>
                 {customer && (
                   <div className="text-[10px] text-gray-500 mb-1">
@@ -209,29 +227,46 @@ export default function ReceiptModal({
                     <tr className="text-[10px] text-gray-500 border-b border-gray-200">
                       <td className="pb-1 font-bold">Item</td>
                       <td className="pb-1 font-bold text-center">Qty</td>
-                      <td className="pb-1 font-bold" style={{ textAlign: "right" }}>Total</td>
+                      <td
+                        className="pb-1 font-bold"
+                        style={{ textAlign: "right" }}
+                      >
+                        Total
+                      </td>
                     </tr>
                   </thead>
                   <tbody>
                     {saleItems.map((item: any, idx: number) => {
                       const productName = item.variant?.product?.name || "Item";
                       const variantLabel =
-                        item.variant?.name === "Standard" && item.variant?.value === "Default"
+                        item.variant?.name === "Standard" &&
+                        item.variant?.value === "Default"
                           ? ""
                           : ` (${item.variant?.name}: ${item.variant?.value})`;
+
                       return (
                         <tr key={idx} className="border-b border-gray-100">
                           <td className="py-1">
-                            <div className="font-bold text-[11px]">{productName}</div>
+                            <div className="font-bold text-[11px]">
+                              {productName}
+                            </div>
                             {variantLabel && (
-                              <div className="text-[9px] text-gray-400">{variantLabel}</div>
+                              <div className="text-[9px] text-gray-400">
+                                {variantLabel}
+                              </div>
                             )}
                             <div className="text-[9px] text-gray-400">
-                              {formatAmount(item.sell_price_at_sale)} × {Number(item.quantity)}
+                              {formatAmount(item.sell_price_at_sale)} ×{" "}
+                              {Number(item.quantity)}
                             </div>
                           </td>
-                          <td className="py-1 text-center">{Number(item.quantity)}</td>
-                          <td className="py-1 font-bold" style={{ textAlign: "right" }}>
+                          <td className="py-1 text-center">
+                            {Number(item.quantity)}
+                          </td>
+                          <td
+                            className="py-1 font-bold"
+                            style={{ textAlign: "right" }}
+                          >
                             {formatAmount(item.line_total)}
                           </td>
                         </tr>
@@ -251,7 +286,9 @@ export default function ReceiptModal({
                   {Number(saleData.total_discount_amount) > 0 && (
                     <div className="flex justify-between text-red-600">
                       <span>Discount</span>
-                      <span>-{formatAmount(saleData.total_discount_amount)}</span>
+                      <span>
+                        -{formatAmount(saleData.total_discount_amount)}
+                      </span>
                     </div>
                   )}
                   {showTaxBreakdown && Number(saleData.tax_amount) > 0 && (
@@ -271,29 +308,32 @@ export default function ReceiptModal({
 
                 {/* Payments */}
                 {showPaymentDetails && (
-                <div className="space-y-1">
-                  <div className="text-[10px] font-bold uppercase text-gray-500 mb-1">Payment(s)</div>
-                  {salePayments.map((p: any, idx: number) => (
-                    <div key={idx} className="space-y-0.5">
-                      <div className="flex justify-between">
-                        <span>{p.payment_method?.name || "Payment"}</span>
-                        <span>{formatAmount(p.amount)}</span>
-                      </div>
-                      {Number(p.amount_received) > 0 && Number(p.amount_received) !== Number(p.amount) && (
-                        <div className="flex justify-between text-[10px] text-gray-400">
-                          <span>Received</span>
-                          <span>{formatAmount(p.amount_received)}</span>
-                        </div>
-                      )}
-                      {Number(p.change) > 0 && (
-                        <div className="flex justify-between text-[10px] text-gray-400">
-                          <span>Change</span>
-                          <span>{formatAmount(p.change)}</span>
-                        </div>
-                      )}
+                  <div className="space-y-1">
+                    <div className="text-[10px] font-bold uppercase text-gray-500 mb-1">
+                      Payment(s)
                     </div>
-                  ))}
-                </div>
+                    {salePayments.map((p: any, idx: number) => (
+                      <div key={idx} className="space-y-0.5">
+                        <div className="flex justify-between">
+                          <span>{p.payment_method?.name || "Payment"}</span>
+                          <span>{formatAmount(p.amount)}</span>
+                        </div>
+                        {Number(p.amount_received) > 0 &&
+                          Number(p.amount_received) !== Number(p.amount) && (
+                            <div className="flex justify-between text-[10px] text-gray-400">
+                              <span>Received</span>
+                              <span>{formatAmount(p.amount_received)}</span>
+                            </div>
+                          )}
+                        {Number(p.change) > 0 && (
+                          <div className="flex justify-between text-[10px] text-gray-400">
+                            <span>Change</span>
+                            <span>{formatAmount(p.change)}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 )}
 
                 <div className="divider border-t border-dashed border-gray-400 my-2" />
@@ -308,7 +348,11 @@ export default function ReceiptModal({
                 {/* Footer */}
                 <div className="text-center text-[9px] text-gray-400 mt-2">
                   <div>Thank you for your purchase!</div>
-                  {showDateTime && <div className="mt-1">{new Date(saleData.created_at).toLocaleString()}</div>}
+                  {showDateTime && (
+                    <div className="mt-1">
+                      {new Date(saleData.created_at).toLocaleString()}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -327,8 +371,8 @@ export default function ReceiptModal({
                   className="flex-1 font-black uppercase tracking-widest"
                   color="success"
                   size="lg"
-                  variant="flat"
                   startContent={<Plus size={18} />}
+                  variant="flat"
                   onPress={onClose}
                 >
                   New Sale
