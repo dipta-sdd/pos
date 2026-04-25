@@ -78,9 +78,6 @@ export default function PointOfSalePage() {
   const subtotal = activeTab
     ? (activeTab.items || []).reduce((sum, item) => sum + item.subtotal, 0)
     : 0;
-  const totalTax = activeTab
-    ? (activeTab.items || []).reduce((sum, item) => sum + item.tax_amount, 0)
-    : 0;
   const itemsTotal = activeTab
     ? (activeTab.items || []).reduce((sum, item) => sum + item.total, 0)
     : 0;
@@ -89,8 +86,12 @@ export default function PointOfSalePage() {
       ? (subtotal * activeTab.discount_value) / 100
       : activeTab.discount_value
     : 0;
-  const grandTotal =
-    itemsTotal - globalDiscount + (activeTab?.extra_charge || 0);
+  
+  const amountAfterDiscounts = itemsTotal - globalDiscount;
+  const vatRate = vendor?.settings?.vat_rate ? Number(vendor.settings.vat_rate) : 0;
+  const totalTax = amountAfterDiscounts > 0 ? (amountAfterDiscounts * vatRate) / 100 : 0;
+
+  const grandTotal = amountAfterDiscounts + totalTax + (activeTab?.extra_charge || 0);
   const totalApplied = activeTab
     ? (activeTab.payments || []).reduce((sum, p) => sum + p.appliedAmount, 0)
     : 0;
@@ -366,11 +367,8 @@ export default function PointOfSalePage() {
         total_discount_amount:
           (activeTab.items || []).reduce((sum, i) => sum + i.discount, 0) +
           globalDiscount,
-        tax_amount: (activeTab.items || []).reduce(
-          (sum, i) => sum + i.tax_amount,
-          0,
-        ),
-        final_amount: total,
+        tax_amount: totalTax,
+        final_amount: grandTotal,
         status: "completed",
         items: (activeTab.items || []).map((item) => ({
           variant_id: item.variant.id,
@@ -378,8 +376,8 @@ export default function PointOfSalePage() {
           quantity: item.quantity,
           sell_price_at_sale: item.price,
           discount_amount: item.discount,
-          tax_amount: item.tax_amount,
-          tax_rate_applied: item.tax_rate,
+          tax_amount: 0,
+          tax_rate_applied: 0,
           line_total: item.total,
         })),
         payments: (activeTab.payments || []).map((p) => ({
