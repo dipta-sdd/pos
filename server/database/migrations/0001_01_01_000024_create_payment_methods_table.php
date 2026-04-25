@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->decimal('balance', 10, 2)->nullable();
             $table->boolean('is_active')->default(true);
+            $table->decimal('total_collected', 15, 2)->default(0);
             $table->timestamps();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');

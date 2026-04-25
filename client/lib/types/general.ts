@@ -109,6 +109,35 @@ export interface Sale {
   updated_at: string;
   customer?: Customer;
   branch?: Branch;
+  sales_person?: { id: number; name: string };
+  sale_items?: SaleItem[];
+  sale_payments?: SalePaymentDetail[];
+}
+
+export interface SaleItem {
+  id: number;
+  sale_id: number;
+  variant_id: number;
+  product_stock_id?: number;
+  quantity: string | number;
+  buy_price: string | number;
+  sell_price_at_sale: string | number;
+  discount_amount: string | number;
+  tax_amount: string | number;
+  tax_rate_applied: string | number;
+  line_total: string | number;
+  variant?: Variant & { product?: Product };
+}
+
+export interface SalePaymentDetail {
+  id: number;
+  sale_id: number;
+  payment_method_id: number;
+  cash_register_session_id?: number;
+  amount: string | number;
+  amount_received?: string | number;
+  change?: string | number;
+  payment_method?: PaymentMethod;
 }
 
 export interface SaleReturn {
@@ -150,6 +179,8 @@ export interface CashRegisterSession {
   started_at: string;
   ended_at?: string;
   status: string;
+  sales_count?: number;
+  sale_payments_sum_amount?: string | number;
   user?: {
     name: string;
   };
@@ -157,6 +188,7 @@ export interface CashRegisterSession {
     id: number;
     name: string;
     branch_id: number;
+    branch?: Branch;
   };
 }
 
@@ -229,7 +261,10 @@ export interface PaymentMethod {
   billing_counter_id?: number;
   name: string;
   type: 'cash' | 'card' | 'online' | 'other' | 'billing_counter';
+  description?: string;
+  balance?: string | number;
   is_active: boolean;
+  total_collected: string | number;
   created_at: string;
   updated_at: string;
 }
@@ -252,6 +287,14 @@ export interface ReceiptSettings {
   show_address: boolean;
   show_contact_info: boolean;
   template_style?: string;
+  paper_size: '58mm' | '80mm' | 'a4';
+  font_size: 'small' | 'medium' | 'large';
+  show_tax_breakdown: boolean;
+  show_payment_details: boolean;
+  show_barcode: boolean;
+  show_salesperson: boolean;
+  show_sale_id: boolean;
+  show_date_time: boolean;
   updated_at: string;
 }
 

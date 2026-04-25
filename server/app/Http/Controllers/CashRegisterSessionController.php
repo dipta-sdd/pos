@@ -9,7 +9,9 @@ class CashRegisterSessionController extends Controller
 {
     public function index(Request $request)
     {
-        $query = CashRegisterSession::with(['billingCounter', 'user', 'billingCounter.branch']);
+        $query = CashRegisterSession::with(['billingCounter.branch', 'user'])
+            ->withCount('sales')
+            ->withSum('salePayments', 'amount');
 
         if ($request->has('vendor_id')) {
             $query->whereHas('billingCounter.branch', function ($q) use ($request) {
@@ -23,6 +25,31 @@ class CashRegisterSessionController extends Controller
                 $q->whereIn('branch_id', $branchIds);
             });
         }
+
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->has('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($uq) use ($search) {
+                        $uq->where('firstName', 'like', "%{$search}%")
+                           ->orWhere('lastName', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        // Sorting
+        $sortable = ['id', 'started_at', 'ended_at', 'status', 'opening_balance', 'closing_balance'];
+        $sortBy = in_array($request->input('sort_by'), $sortable) ? $request->input('sort_by') : 'started_at';
+        $sortDir = $request->input('sort_direction', 'desc') === 'asc' ? 'asc' : 'desc';
+        $query->orderBy($sortBy, $sortDir);
 
         $perPage = $request->input('per_page', 10);
         return $query->paginate($perPage);

@@ -65,6 +65,8 @@ class AdminSeeder extends Seeder
                         'pos_interface' => 'touch',
                         'vat_rate' => 5,
                         'currency_symbol' => '৳',
+                        'receipt_print_mode' => 'browser',
+                        'auto_print_receipt' => false,
                     ],
                 ]
             );
@@ -246,6 +248,7 @@ class AdminSeeder extends Seeder
                         'name' => 'Cash - ' . $counter->name,
                         'type' => 'billing_counter',
                         'balance' => 0,
+                        'total_collected' => 0,
                         'is_active' => true,
                         'created_by' => $user->id,
                         'updated_by' => $user->id,
@@ -270,11 +273,36 @@ class AdminSeeder extends Seeder
                     [
                         'type' => $pm['type'],
                         'is_active' => $pm['is_active'],
+                        'balance' => 0,
+                        'total_collected' => 0,
                         'created_by' => $user->id,
                         'updated_by' => $user->id,
                     ]
                 );
             }
+
+            // 8b. Create Receipt Settings
+            \App\Models\ReceiptSettings::firstOrCreate(
+                ['vendor_id' => $vendor->id],
+                [
+                    'header_text' => 'Thank you for shopping with us!',
+                    'footer_text' => 'Please keep your receipt for returns.',
+                    'show_logo' => false,
+                    'show_address' => true,
+                    'show_contact_info' => true,
+                    'template_style' => 'default',
+                    'paper_size' => '80mm',
+                    'font_size' => 'medium',
+                    'show_tax_breakdown' => true,
+                    'show_payment_details' => true,
+                    'show_barcode' => false,
+                    'show_salesperson' => true,
+                    'show_sale_id' => true,
+                    'show_date_time' => true,
+                    'created_by' => $user->id,
+                    'updated_by' => $user->id,
+                ]
+            );
 
             // 9. Create Units of Measure
             $units = [

@@ -22,6 +22,14 @@ class ReceiptSettingsController extends Controller
             'show_address' => 'boolean',
             'show_contact_info' => 'boolean',
             'template_style' => 'string|max:255',
+            'paper_size' => 'in:58mm,80mm,a4',
+            'font_size' => 'in:small,medium,large',
+            'show_tax_breakdown' => 'boolean',
+            'show_payment_details' => 'boolean',
+            'show_barcode' => 'boolean',
+            'show_salesperson' => 'boolean',
+            'show_sale_id' => 'boolean',
+            'show_date_time' => 'boolean',
         ]);
 
         $validatedData['created_by'] = $request->user()->id;
@@ -48,6 +56,14 @@ class ReceiptSettingsController extends Controller
             'show_address' => 'boolean',
             'show_contact_info' => 'boolean',
             'template_style' => 'string|max:255',
+            'paper_size' => 'in:58mm,80mm,a4',
+            'font_size' => 'in:small,medium,large',
+            'show_tax_breakdown' => 'boolean',
+            'show_payment_details' => 'boolean',
+            'show_barcode' => 'boolean',
+            'show_salesperson' => 'boolean',
+            'show_sale_id' => 'boolean',
+            'show_date_time' => 'boolean',
         ]);
 
         $validatedData['updated_by'] = $request->user()->id;

@@ -46,7 +46,9 @@ export default function ReceiptModal({
     const printContent = receiptRef.current;
     if (!printContent) return;
 
-    const printWindow = window.open("", "_blank", "width=320,height=600");
+    const paperMm = receiptSettings?.paper_size || "80mm";
+    const printWidth = paperMm === "a4" ? "210mm" : paperMm;
+    const printWindow = window.open("", "_blank", `width=${paperMm === "58mm" ? 260 : paperMm === "a4" ? 800 : 320},height=600`);
     if (!printWindow) return;
 
     printWindow.document.write(`
@@ -58,8 +60,8 @@ export default function ReceiptModal({
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body {
               font-family: 'Courier New', monospace;
-              font-size: 12px;
-              width: 80mm;
+              font-size: ${receiptSettings?.font_size === "small" ? "10px" : receiptSettings?.font_size === "large" ? "14px" : "12px"};
+              width: ${printWidth};
               padding: 4mm;
               color: #000;
             }
@@ -98,6 +100,29 @@ export default function ReceiptModal({
   const branch = saleData.branch;
   const salesPerson = saleData.sales_person;
 
+  // Font size mapping
+  const fontSizeMap: Record<string, string> = {
+    small: "text-[9px]",
+    medium: "text-[11px]",
+    large: "text-[13px]",
+  };
+  const fontSize = fontSizeMap[receiptSettings?.font_size || "medium"] || "text-[11px]";
+
+  // Paper width mapping
+  const paperWidthMap: Record<string, string> = {
+    "58mm": "max-w-[220px]",
+    "80mm": "max-w-[302px]",
+    a4: "max-w-full",
+  };
+  const paperWidth = paperWidthMap[receiptSettings?.paper_size || "80mm"] || "max-w-[302px]";
+
+  // Setting defaults (true unless explicitly false)
+  const showTaxBreakdown = receiptSettings?.show_tax_breakdown !== false;
+  const showPaymentDetails = receiptSettings?.show_payment_details !== false;
+  const showSalesperson = receiptSettings?.show_salesperson !== false;
+  const showSaleId = receiptSettings?.show_sale_id !== false;
+  const showDateTime = receiptSettings?.show_date_time !== false;
+
   const formatAmount = (val: number | string) => {
     return `${currencySymbol}${Number(val || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
   };
@@ -127,7 +152,7 @@ export default function ReceiptModal({
               {/* Printable Receipt Content */}
               <div
                 ref={receiptRef}
-                className="bg-white text-black rounded-xl p-6 shadow-inner border border-default-200 font-mono text-[11px] leading-relaxed"
+                className={`bg-white text-black rounded-xl p-6 shadow-inner border border-default-200 font-mono ${fontSize} leading-relaxed mx-auto ${paperWidth}`}
               >
                 {/* Header */}
                 <div className="text-center mb-3">
@@ -162,15 +187,15 @@ export default function ReceiptModal({
 
                 {/* Sale Info */}
                 <div className="flex justify-between text-[10px] text-gray-500 mb-2">
-                  <span>Sale #{saleData.id}</span>
-                  <span>{new Date(saleData.created_at).toLocaleString()}</span>
+                  {showSaleId && <span>Sale #{saleData.id}</span>}
+                  {showDateTime && <span>{new Date(saleData.created_at).toLocaleString()}</span>}
                 </div>
                 {customer && (
                   <div className="text-[10px] text-gray-500 mb-1">
                     Customer: {customer.name}
                   </div>
                 )}
-                {salesPerson && (
+                {showSalesperson && salesPerson && (
                   <div className="text-[10px] text-gray-500 mb-1">
                     Cashier: {salesPerson.name}
                   </div>
@@ -229,7 +254,7 @@ export default function ReceiptModal({
                       <span>-{formatAmount(saleData.total_discount_amount)}</span>
                     </div>
                   )}
-                  {Number(saleData.tax_amount) > 0 && (
+                  {showTaxBreakdown && Number(saleData.tax_amount) > 0 && (
                     <div className="flex justify-between">
                       <span>VAT</span>
                       <span>{formatAmount(saleData.tax_amount)}</span>
@@ -245,6 +270,7 @@ export default function ReceiptModal({
                 <div className="divider border-t border-dashed border-gray-400 my-2" />
 
                 {/* Payments */}
+                {showPaymentDetails && (
                 <div className="space-y-1">
                   <div className="text-[10px] font-bold uppercase text-gray-500 mb-1">Payment(s)</div>
                   {salePayments.map((p: any, idx: number) => (
@@ -268,6 +294,7 @@ export default function ReceiptModal({
                     </div>
                   ))}
                 </div>
+                )}
 
                 <div className="divider border-t border-dashed border-gray-400 my-2" />
 
@@ -281,7 +308,7 @@ export default function ReceiptModal({
                 {/* Footer */}
                 <div className="text-center text-[9px] text-gray-400 mt-2">
                   <div>Thank you for your purchase!</div>
-                  <div className="mt-1">{new Date(saleData.created_at).toLocaleString()}</div>
+                  {showDateTime && <div className="mt-1">{new Date(saleData.created_at).toLocaleString()}</div>}
                 </div>
               </div>
 

@@ -11,7 +11,7 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@heroui/dropdown";
-import { Selection } from "@heroui/react";
+import { Selection, Chip } from "@heroui/react";
 import {
   Modal,
   ModalContent,
@@ -36,12 +36,15 @@ import { UserLoding } from "@/components/user-loding";
 
 const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
+  { name: "TYPE", uid: "type", sortable: true },
+  { name: "TOTAL COLLECTED", uid: "total_collected", sortable: true },
+  { name: "BALANCE", uid: "balance", sortable: true },
   { name: "IS ACTIVE", uid: "is_active", sortable: true },
   { name: "CREATED AT", uid: "created_at", sortable: true },
   { name: "ACTIONS", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "is_active", "created_at", "actions"];
+const INITIAL_VISIBLE_COLUMNS = ["name", "type", "total_collected", "balance", "is_active", "created_at", "actions"];
 
 function capitalize(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
@@ -126,11 +129,41 @@ export default function PaymentMethodsPage() {
     setDeleteConfirmOpen(false);
   };
 
+  const typeColor: Record<string, "success" | "primary" | "secondary" | "warning" | "default"> = {
+    cash: "success",
+    billing_counter: "success",
+    card: "primary",
+    online: "secondary",
+    other: "default",
+  };
+
   const renderCell = useCallback(
     (item: PaymentMethod, columnKey: React.Key) => {
       switch (columnKey) {
+        case "type":
+          return (
+            <Chip size="sm" variant="flat" color={typeColor[item.type] || "default"} className="text-[10px] font-bold uppercase">
+              {item.type === "billing_counter" ? "Counter Cash" : item.type}
+            </Chip>
+          );
+        case "total_collected":
+          return (
+            <span className="font-semibold">
+              {Number(item.total_collected || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            </span>
+          );
+        case "balance":
+          return (
+            <span>
+              {item.balance != null ? Number(item.balance).toLocaleString(undefined, { minimumFractionDigits: 2 }) : "—"}
+            </span>
+          );
         case "is_active":
-          return item.is_active ? "Yes" : "No";
+          return (
+            <Chip size="sm" variant="flat" color={item.is_active ? "success" : "default"} className="font-bold">
+              {item.is_active ? "Active" : "Inactive"}
+            </Chip>
+          );
         case "created_at":
           return formatDateTime(item.created_at);
         case "actions":

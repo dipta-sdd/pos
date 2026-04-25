@@ -21,12 +21,26 @@ class ReceiptSettings extends Model
         'show_address',
         'show_contact_info',
         'template_style',
+        'paper_size',
+        'font_size',
+        'show_tax_breakdown',
+        'show_payment_details',
+        'show_barcode',
+        'show_salesperson',
+        'show_sale_id',
+        'show_date_time',
     ];
 
     protected $casts = [
         'show_logo' => 'boolean',
         'show_address' => 'boolean',
         'show_contact_info' => 'boolean',
+        'show_tax_breakdown' => 'boolean',
+        'show_payment_details' => 'boolean',
+        'show_barcode' => 'boolean',
+        'show_salesperson' => 'boolean',
+        'show_sale_id' => 'boolean',
+        'show_date_time' => 'boolean',
         'updated_at' => 'datetime',
     ];
 

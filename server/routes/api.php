@@ -203,6 +203,7 @@ Route::middleware('log.api')->group(function () {
             Route::post('/', [SaleController::class, 'store']);
             Route::get('/{sale}', [SaleController::class, 'show'])->middleware('permission:can_view_sales_history');
             Route::put('/{sale}', [SaleController::class, 'update']);
+            Route::post('/{sale}/void', [SaleController::class, 'void']);
             Route::delete('/{sale}', [SaleController::class, 'destroy']);
         });
 

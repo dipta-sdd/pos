@@ -10,7 +10,13 @@ class SaleController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Sale::with(['saleItems', 'salePayments']);
+        $query = Sale::with([
+            'customer',
+            'branch',
+            'salesPerson',
+            'saleItems',
+            'salePayments.paymentMethod',
+        ]);
 
         if ($request->has('vendor_id')) {
             $query->where('vendor_id', $request->vendor_id);
@@ -32,8 +38,44 @@ class SaleController extends Controller
             $query->where('status', $request->status);
         }
 
-        // Search options: by ID or Customer Name override if needed, 
-        // but for now simple structure is sufficient.
+        if ($request->has('sales_person_id')) {
+            $query->where('sales_person_id', $request->sales_person_id);
+        }
+
+        if ($request->has('cash_register_session_id')) {
+            $query->where('cash_register_session_id', $request->cash_register_session_id);
+        }
+
+        if ($request->has('payment_method_id')) {
+            $query->whereHas('salePayments', function ($q) use ($request) {
+                $q->where('payment_method_id', $request->payment_method_id);
+            });
+        }
+
+        if ($request->has('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->has('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                    ->orWhereHas('customer', function ($cq) use ($search) {
+                        $cq->where('name', 'like', "%{$search}%")
+                            ->orWhere('phone', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        // Sorting
+        $sortable = ['id', 'created_at', 'final_amount', 'subtotal_amount', 'status'];
+        $sortBy = in_array($request->input('sort_by'), $sortable) ? $request->input('sort_by') : 'created_at';
+        $sortDir = $request->input('sort_direction', 'desc') === 'asc' ? 'asc' : 'desc';
+        $query->orderBy($sortBy, $sortDir);
 
         $perPage = $request->input('per_page', 10);
         return $query->paginate($perPage);
@@ -183,5 +225,39 @@ class SaleController extends Controller
         $sale->delete();
 
         return response()->json(null, 204);
+    }
+
+    public function void(Request $request, Sale $sale)
+    {
+        if ($sale->status === 'voided') {
+            return response()->json(['message' => 'Sale is already voided.'], 422);
+        }
+
+        return DB::transaction(function () use ($sale, $request) {
+            // 1. Reverse Stock
+            foreach ($sale->saleItems as $item) {
+                if ($item->product_stock_id) {
+                    \App\Models\ProductStock::where('id', $item->product_stock_id)
+                        ->increment('quantity', $item->quantity);
+                }
+            }
+
+            // 2. Reverse Financial Entries (Decrement total_collected)
+            foreach ($sale->salePayments as $payment) {
+                \App\Models\PaymentMethod::where('id', $payment->payment_method_id)
+                    ->decrement('total_collected', $payment->amount);
+            }
+
+            // 3. Update Status
+            $sale->update([
+                'status' => 'voided',
+                'updated_by' => $request->user()->id ?? $sale->updated_by,
+            ]);
+
+            return response()->json([
+                'message' => 'Sale voided successfully.',
+                'sale' => $sale->load(['saleItems', 'salePayments'])
+            ]);
+        });
     }
 }
