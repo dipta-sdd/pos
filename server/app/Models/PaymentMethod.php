@@ -20,12 +20,14 @@ class PaymentMethod extends Model
         'description',
         'balance',
         'is_active',
+        'total_collected',
         'created_by',
         'updated_by',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'total_collected' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

@@ -59,7 +59,6 @@ class SaleController extends Controller
             'items.*.variant_id' => 'required|exists:variants,id',
             'items.*.product_stock_id' => 'nullable|exists:product_stocks,id',
             'items.*.quantity' => 'required|numeric|min:0.01',
-            'items.*.buy_price' => 'numeric|min:0',
             'items.*.sell_price_at_sale' => 'required|numeric|min:0',
             'items.*.discount_amount' => 'numeric|min:0',
             'items.*.tax_amount' => 'numeric|min:0',
@@ -70,6 +69,8 @@ class SaleController extends Controller
             'payments' => 'required|array',
             'payments.*.payment_method_id' => 'required|exists:payment_methods,id',
             'payments.*.amount' => 'required|numeric|min:0',
+            'payments.*.amount_received' => 'nullable|numeric|min:0',
+            'payments.*.change' => 'nullable|numeric|min:0',
         ]);
 
         $validatedData['created_by'] = $request->user()->id;
@@ -89,12 +90,70 @@ class SaleController extends Controller
             }
 
             $sale = Sale::create($validatedData);
-            $sale->saleItems()->createMany($request->items);
-            $sale->salePayments()->createMany($request->payments);
+
+            // Create sale items with stock deduction and buy_price capture
+            foreach ($request->items as $itemData) {
+                $buyPrice = 0;
+
+                // Deduct stock if product_stock_id is provided
+                if (!empty($itemData['product_stock_id'])) {
+                    $productStock = \App\Models\ProductStock::lockForUpdate()
+                        ->find($itemData['product_stock_id']);
+
+                    if ($productStock) {
+                        $buyPrice = $productStock->cost_price;
+                        $productStock->decrement('quantity', $itemData['quantity']);
+                    }
+                }
+
+                $sale->saleItems()->create([
+                    'variant_id' => $itemData['variant_id'],
+                    'product_stock_id' => $itemData['product_stock_id'] ?? null,
+                    'quantity' => $itemData['quantity'],
+                    'buy_price' => $buyPrice,
+                    'sell_price_at_sale' => $itemData['sell_price_at_sale'],
+                    'discount_amount' => $itemData['discount_amount'] ?? 0,
+                    'tax_amount' => $itemData['tax_amount'] ?? 0,
+                    'tax_rate_applied' => $itemData['tax_rate_applied'] ?? 0,
+                    'line_total' => $itemData['line_total'],
+                    'unit_of_measure_id' => $itemData['unit_of_measure_id'] ?? null,
+                    'other' => $itemData['other'] ?? null,
+                    'created_by' => $validatedData['created_by'],
+                    'updated_by' => $validatedData['updated_by'],
+                ]);
+            }
+
+            // Create sale payments with full details and update payment method totals
+            foreach ($request->payments as $paymentData) {
+                $sale->salePayments()->create([
+                    'cash_register_session_id' => $validatedData['cash_register_session_id'],
+                    'payment_method_id' => $paymentData['payment_method_id'],
+                    'amount' => $paymentData['amount'],
+                    'amount_received' => $paymentData['amount_received'] ?? $paymentData['amount'],
+                    'change' => $paymentData['change'] ?? 0,
+                    'created_by' => $validatedData['created_by'],
+                ]);
+
+                // Increment total_collected on the payment method
+                \App\Models\PaymentMethod::where('id', $paymentData['payment_method_id'])
+                    ->increment('total_collected', $paymentData['amount']);
+            }
+
             return $sale;
         });
 
-        return response()->json($sale->load(['saleItems', 'salePayments']), 201);
+        // Return enriched response for receipt
+        return response()->json(
+            $sale->load([
+                'saleItems.variant.product',
+                'saleItems.variant',
+                'salePayments.paymentMethod',
+                'customer',
+                'branch',
+                'salesPerson',
+            ]),
+            201
+        );
     }
 
     public function show(Sale $sale)

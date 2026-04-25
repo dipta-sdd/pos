@@ -48,6 +48,8 @@ export default function ReceiptSettingsPage() {
     },
   });
 
+  const [isNew, setIsNew] = useState(false);
+
   useEffect(() => {
     if (vendor?.id) {
       fetchSettings();
@@ -67,8 +69,19 @@ export default function ReceiptSettingsPage() {
           vendor_id: vendor?.id,
         });
       }
-    } catch (error) {
-      console.error("Failed to fetch receipt settings", error);
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        // No settings yet — will create on save
+        setIsNew(true);
+        reset({
+          show_logo: false,
+          show_address: true,
+          show_contact_info: true,
+          vendor_id: vendor?.id,
+        });
+      } else {
+        console.error("Failed to fetch receipt settings", error);
+      }
     } finally {
       setLoading(false);
     }
@@ -76,10 +89,15 @@ export default function ReceiptSettingsPage() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      await api.put(`/receipt-settings/${vendor?.id}`, data);
-      toast.success("Receipt settings updated successfully");
+      if (isNew) {
+        await api.post(`/receipt-settings`, data);
+        setIsNew(false);
+      } else {
+        await api.put(`/receipt-settings/${vendor?.id}`, data);
+      }
+      toast.success("Receipt settings saved successfully");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to update settings");
+      toast.error(error.response?.data?.message || "Failed to save settings");
     }
   };
 
@@ -208,9 +226,9 @@ export default function ReceiptSettingsPage() {
                         {vendor?.name || "VENDOR NAME"}
                       </div>
                       {watch("show_address") && (
-                        <div>123 Business St, City</div>
+                        <div>{vendor?.address || "Business Address"}</div>
                       )}
-                      {watch("show_contact_info") && <div>+1 234 567 890</div>}
+                      {watch("show_contact_info") && <div>{vendor?.phone || "Contact Info"}</div>}
                     </div>
                     <div className="py-2 space-y-1">
                       <div className="text-center italic">

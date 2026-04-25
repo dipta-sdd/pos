@@ -12,13 +12,18 @@ class SalePayment extends Model
 
     protected $fillable = [
         'sale_id',
+        'cash_register_session_id',
         'payment_method_id',
         'amount',
+        'amount_received',
+        'change',
         'created_by',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
+        'amount_received' => 'decimal:2',
+        'change' => 'decimal:2',
         'created_at' => 'datetime',
     ];
 

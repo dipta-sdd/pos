@@ -9,6 +9,7 @@ import { useParams } from "next/navigation";
 import RegisterStatusModal from "./_components/RegisterStatusModal";
 import PosTouchScreen from "./_components/PosTouchScreen";
 import { KeyboardPOS } from "./_components/keyboard/KeyboardPOS";
+import ReceiptModal from "./_components/ReceiptModal";
 
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { useVendor } from "@/lib/contexts/VendorContext";
@@ -53,6 +54,9 @@ export default function PointOfSalePage() {
 
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
+  const [receiptSettings, setReceiptSettings] = useState<any>(null);
+  const [completedSale, setCompletedSale] = useState<any>(null);
+  const [isReceiptOpen, setIsReceiptOpen] = useState(false);
 
   // UI State shared across layouts
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -100,6 +104,21 @@ export default function PointOfSalePage() {
       setPosMode(vendor.settings.pos_interface);
     }
   }, [vendor]);
+
+  // Fetch receipt settings
+  useEffect(() => {
+    const fetchReceiptSettings = async () => {
+      if (!vendor?.id) return;
+      try {
+        const res: any = await api.get(`/receipt-settings/${vendor.id}`);
+        setReceiptSettings(res.data);
+      } catch (err) {
+        // Receipt settings may not exist yet — that's OK
+        console.log("No receipt settings found, using defaults");
+      }
+    };
+    fetchReceiptSettings();
+  }, [vendor?.id]);
 
   const fetchActiveSession = async () => {
     if (!vendor?.id) return;
@@ -350,11 +369,15 @@ export default function PointOfSalePage() {
         payments: (activeTab.payments || []).map((p) => ({
           payment_method_id: p.methodId,
           amount: p.appliedAmount,
+          amount_received: p.tenderedAmount,
+          change: p.changeAmount,
         })),
       };
 
-      await api.post("/sales", payload);
+      const response: any = await api.post("/sales", payload);
       toast.success("Sale completed successfully!");
+      setCompletedSale(response.data);
+      setIsReceiptOpen(true);
       clearCart();
       setView("cart");
     } catch (error: any) {
@@ -448,7 +471,7 @@ export default function PointOfSalePage() {
     currencySymbol: vendor?.settings?.currency_symbol || "৳",
   };
 
-  console.log("activeSession", activeSession);
+
 
   return (
     <PermissionGuard permission="can_use_pos">
@@ -482,6 +505,19 @@ export default function PointOfSalePage() {
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         onSessionChange={fetchActiveSession}
+      />
+
+      <ReceiptModal
+        isOpen={isReceiptOpen}
+        onClose={() => {
+          setIsReceiptOpen(false);
+          setCompletedSale(null);
+        }}
+        saleData={completedSale}
+        receiptSettings={receiptSettings}
+        vendor={vendor}
+        currencySymbol={vendor?.settings?.currency_symbol || "৳"}
+        autoPrint={vendor?.settings?.auto_print_receipt || false}
       />
     </PermissionGuard>
   );

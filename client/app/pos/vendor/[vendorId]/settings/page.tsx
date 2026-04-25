@@ -18,11 +18,11 @@ import {
 import {
   TabletSmartphone,
   Percent,
-  Warehouse,
   Coins,
   Save,
   Keyboard,
   MousePointer2,
+  Printer,
 } from "lucide-react";
 import api from "@/lib/api";
 import { toast } from "sonner";
@@ -31,6 +31,8 @@ interface PosSettings {
   pos_interface: "touch" | "keyboard";
   vat_rate: number;
   currency_symbol: string;
+  receipt_print_mode: "browser" | "thermal";
+  auto_print_receipt: boolean;
 }
 
 export default function PosSettingsPage() {
@@ -43,6 +45,8 @@ export default function PosSettingsPage() {
     pos_interface: "touch",
     vat_rate: 5,
     currency_symbol: "৳",
+    receipt_print_mode: "browser",
+    auto_print_receipt: false,
   });
 
   useEffect(() => {
@@ -197,6 +201,65 @@ export default function PosSettingsPage() {
                   variant="bordered"
                   value={settings.currency_symbol}
                   onValueChange={(val) => setSettings({ ...settings, currency_symbol: val })}
+                />
+              </div>
+            </CardBody>
+          </Card>
+
+          <Card className="border-none shadow-sm bg-content1">
+            <CardHeader className="flex gap-3 px-6 pt-6">
+              <div className="p-2 bg-warning/10 rounded-lg text-warning">
+                <Printer size={24} />
+              </div>
+              <div className="flex flex-col">
+                <p className="text-md font-bold uppercase tracking-wider">Receipt & Printing</p>
+                <p className="text-xs text-default-400">Configure how receipts are printed after checkout.</p>
+              </div>
+            </CardHeader>
+            <CardBody className="px-6 py-6 space-y-6">
+              <div>
+                <p className="text-sm font-bold mb-3">Print Method</p>
+                <Tabs
+                  selectedKey={settings.receipt_print_mode}
+                  onSelectionChange={(key) => setSettings({ ...settings, receipt_print_mode: key as any })}
+                  variant="bordered"
+                  color="primary"
+                  classNames={{
+                    tabList: "w-full",
+                    tab: "h-16",
+                  }}
+                >
+                  <Tab
+                    key="browser"
+                    title={
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="font-bold text-sm">Browser Print</span>
+                        <span className="text-[10px] opacity-60">Uses system print dialog</span>
+                      </div>
+                    }
+                  />
+                  <Tab
+                    key="thermal"
+                    title={
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="font-bold text-sm">Thermal / ESC/POS</span>
+                        <span className="text-[10px] opacity-60">Direct to thermal printer</span>
+                      </div>
+                    }
+                  />
+                </Tabs>
+              </div>
+
+              <Divider />
+
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm font-bold">Auto-Print Receipt</p>
+                  <p className="text-xs text-default-400">Automatically trigger print after each completed sale.</p>
+                </div>
+                <Switch
+                  isSelected={settings.auto_print_receipt}
+                  onValueChange={(val) => setSettings({ ...settings, auto_print_receipt: val })}
                 />
               </div>
             </CardBody>
