@@ -17,6 +17,7 @@ import {
 } from "next/navigation";
 
 import { useAuth } from "../hooks/useAuth";
+import api from "../api";
 
 interface VendorContextType {
   vendor: Vendor | null;
@@ -25,6 +26,7 @@ interface VendorContextType {
   isLoading: boolean;
   selectedBranchIds: string[];
   updateBranchFilter: (ids: string[]) => void;
+  refreshVendor: () => Promise<void>;
 }
 
 const VendorContext = createContext<VendorContextType | undefined>(undefined);
@@ -128,6 +130,18 @@ export const VendorProvider = ({ children }: VendorProviderProps) => {
     setIsLoading(false);
   }, [user, authLoading, params.vendorId, router]);
 
+  const refreshVendor = async () => {
+    if (!vendor) return;
+    try {
+      const res: any = await api.get(`/vendors/${vendor.id}`);
+      if (res.data) {
+        setVendor(res.data);
+      }
+    } catch (e) {
+      console.error("Failed to refresh vendor", e);
+    }
+  };
+
   const value = {
     vendor,
     membership,
@@ -135,6 +149,7 @@ export const VendorProvider = ({ children }: VendorProviderProps) => {
     isLoading: isLoading || authLoading,
     selectedBranchIds,
     updateBranchFilter,
+    refreshVendor,
   };
 
   return (

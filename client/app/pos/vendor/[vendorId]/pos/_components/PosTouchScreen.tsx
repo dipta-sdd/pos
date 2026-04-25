@@ -67,7 +67,9 @@ interface PosTouchScreenProps {
     product: Product,
     variant: Variant,
     batch: ProductStock,
-    quantity: number,
+    quantity?: number,
+    forcedId?: string,
+    defaultTaxRate?: number,
   ) => void;
   updateCartItem: (itemId: string, updates: Partial<CartItem>) => void;
   removeFromCart: (itemId: string) => void;
@@ -360,7 +362,9 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
             <ProductSelection
               category={activeCategory}
               search={searchQuery}
-              onSelect={(p, v, b) => props.addToCart(p, v, b, 1)}
+              onSelect={(p, v, b) =>
+                props.addToCart(p, v, b, 1, undefined, props.vatRate || 0)
+              }
             />
           </div>
         </div>

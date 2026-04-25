@@ -25,6 +25,7 @@ import {
 import { toast } from "sonner";
 
 import api from "@/lib/api";
+import { useVendor } from "@/lib/contexts/VendorContext";
 
 interface PosSettings {
   pos_interface: "touch" | "keyboard";
@@ -71,12 +72,15 @@ export default function PosSettingsPage() {
     }
   };
 
+  const { refreshVendor } = useVendor();
+
   const handleSave = async () => {
     try {
       setIsSaving(true);
       await api.put(`/vendors/${vendorId}/settings`, {
         settings: settings,
       });
+      await refreshVendor();
       toast.success("Settings saved successfully");
     } catch (error) {
       console.error("Failed to save settings", error);

@@ -71,17 +71,50 @@ export default function ReceiptModal({
               padding: 4mm;
               color: #000;
             }
-            .center { text-align: center; }
-            .bold { font-weight: bold; }
-            .divider { border-top: 1px dashed #000; margin: 6px 0; }
-            .row { display: flex; justify-content: space-between; margin: 2px 0; }
-            .item-name { max-width: 60%; }
-            .item-total { text-align: right; }
-            .grand-total { font-size: 16px; font-weight: bold; }
-            .small { font-size: 10px; color: #555; }
+            .text-center { text-align: center; }
+            .text-right { text-align: right; }
+            .font-bold { font-weight: bold; }
+            .uppercase { text-transform: uppercase; }
+            .italic { font-style: italic; }
+            .flex { display: flex; }
+            .justify-between { justify-content: space-between; }
+            .items-center { align-items: center; }
+            .w-full { width: 100%; }
+            .w-10 { width: 40px; }
+            .h-10 { height: 40px; }
+            .mx-auto { margin-left: auto; margin-right: auto; }
+            .mb-1 { margin-bottom: 4px; }
+            .mb-2 { margin-bottom: 8px; }
+            .mb-3 { margin-bottom: 12px; }
+            .my-1 { margin-top: 4px; margin-bottom: 4px; }
+            .my-2 { margin-top: 8px; margin-bottom: 8px; }
+            .py-1 { padding-top: 4px; padding-bottom: 4px; }
+            .pb-1 { padding-bottom: 4px; }
+            .text-\\[8px\\] { font-size: 8px; }
+            .text-\\[9px\\] { font-size: 9px; }
+            .text-\\[10px\\] { font-size: 10px; }
+            .text-\\[11px\\] { font-size: 11px; }
+            .text-sm { font-size: 14px; }
+            .text-gray-500 { color: #6b7280; }
+            .text-gray-400 { color: #9ca3af; }
+            .text-red-600 { color: #dc2626; }
+            .bg-gray-200 { background-color: #e5e7eb; }
+            .rounded-full { border-radius: 9999px; }
+            .border-t { border-top-width: 1px; border-top-style: solid; }
+            .border-b { border-bottom-width: 1px; border-bottom-style: solid; }
+            .border-dashed { border-style: dashed; }
+            .border-gray-400 { border-color: #9ca3af; }
+            .border-gray-300 { border-color: #d1d5db; }
+            .border-gray-200 { border-color: #e5e7eb; }
+            .border-gray-100 { border-color: #f3f4f6; }
+            .space-y-1 > * + * { margin-top: 4px; }
+            .space-y-0\\.5 > * + * { margin-top: 2px; }
+            .tracking-wide { letter-spacing: 0.025em; }
+            .tracking-wider { letter-spacing: 0.05em; }
+            .tracking-tighter { letter-spacing: -0.05em; }
+            .mt-4 { margin-top: 16px; }
             table { width: 100%; border-collapse: collapse; }
             td { padding: 2px 0; vertical-align: top; }
-            td:last-child { text-align: right; white-space: nowrap; }
             @media print {
               body { width: 80mm; }
             }

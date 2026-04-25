@@ -296,7 +296,7 @@ function calculateItemTotals(item: CartItem): CartItem {
   const subtotal = item.price * item.quantity;
   const discountAmount = item.discount;
   const afterDiscount = subtotal - discountAmount;
-  const taxAmount = (afterDiscount * item.tax_rate) / 100;
+  const taxAmount = (afterDiscount * Number(item.tax_rate || 0)) / 100;
   const total = afterDiscount + taxAmount;
 
   return {
