@@ -22,6 +22,7 @@ interface KeyboardPaymentProps {
   onUpdatePayment: (id: string, updates: Partial<PosPayment>) => void;
   onRemovePayment: (id: string) => void;
   isFocused: boolean;
+  currencySymbol: string;
 }
 
 export const KeyboardPayment: React.FC<KeyboardPaymentProps> = ({
@@ -30,6 +31,7 @@ export const KeyboardPayment: React.FC<KeyboardPaymentProps> = ({
   onUpdatePayment,
   onRemovePayment,
   isFocused,
+  currencySymbol,
 }) => {
   const totalAppliedWithoutCurrent = (currentId: string) =>
     (payments || [])
@@ -199,7 +201,7 @@ export const KeyboardPayment: React.FC<KeyboardPaymentProps> = ({
                   Change
                 </span>
                 <span className="text-sm font-mono font-black text-success">
-                  ৳ {p.changeAmount.toFixed(2)}
+                  {currencySymbol} {p.changeAmount.toFixed(2)}
                 </span>
               </div>
             )}

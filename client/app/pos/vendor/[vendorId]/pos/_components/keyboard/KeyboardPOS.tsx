@@ -70,6 +70,8 @@ interface KeyboardPOSProps {
   onSelectorOpenChange: (isOpen: boolean) => void;
   selectorMethods: PaymentMethod[];
   selectorTitle: string;
+  currencySymbol: string;
+  vatRate: number;
 }
 
 export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
@@ -97,6 +99,8 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
   state,
   updateCartItem,
   removeFromCart,
+  currencySymbol,
+  vatRate,
   // Shared UI State
   selectedIndex,
   setSelectedIndex,
@@ -347,6 +351,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
             onEsc={handleEsc}
             onRemove={removeFromCart}
             onUpdateQty={updateCartItem}
+            currencySymbol={currencySymbol}
           />
         </div>
 
@@ -396,16 +401,16 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-default-500">Subtotal</span>
                   <span className="font-mono font-bold tracking-tight">
-                    ৳{" "}
+                    {currencySymbol}{" "}
                     {subtotal.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
                     })}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-default-500">VAT (5%)</span>
+                  <span className="text-default-500">VAT ({vatRate || 0}%)</span>
                   <span className="font-mono font-bold tracking-tight">
-                    ৳{" "}
+                    {currencySymbol}{" "}
                     {totalTax.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
                     })}
@@ -456,7 +461,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                           updateActiveTab({ discount_type: "fixed" })
                         }
                       >
-                        ৳
+                        {currencySymbol}
                       </button>
                     </div>
                   </div>
@@ -519,7 +524,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                     Grand Total
                   </span>
                   <span className="text-2xl font-mono font-black tracking-tighter">
-                    ৳{" "}
+                    {currencySymbol}{" "}
                     {grandTotal.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
                     })}
@@ -529,7 +534,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                 <div className="flex justify-between items-center text-sm ">
                   <span className="text-default-500">Paid Amount</span>
                   <span className="font-mono font-bold text-success">
-                    ৳{" "}
+                    {currencySymbol}{" "}
                     {totalApplied.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
                     })}
@@ -542,7 +547,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                       Change
                     </span>
                     <span className="font-mono font-bold text-success">
-                      ৳{" "}
+                      {currencySymbol}{" "}
                       {totalChange.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                       })}
@@ -556,6 +561,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
                   payments={activeTab.payments}
                   onRemovePayment={removePayment}
                   onUpdatePayment={updatePayment}
+                  currencySymbol={currencySymbol}
                 />
 
                 <div
@@ -608,7 +614,7 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
               </span>
               <div className="flex items-center gap-2">
                 <span className="text-xl font-mono font-black">
-                  ৳{" "}
+                  {currencySymbol}{" "}
                   {remaining.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                   })}

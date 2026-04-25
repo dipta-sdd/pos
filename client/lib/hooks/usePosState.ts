@@ -124,6 +124,7 @@ export function usePosState() {
       batch: ProductStock,
       quantity: number = 1,
       forcedId?: string,
+      defaultTaxRate: number = 0,
     ) => {
       let resultId = "";
 
@@ -158,7 +159,7 @@ export function usePosState() {
             quantity,
             price: Number(batch.selling_price || product.base_price || 0),
             discount: 0,
-            tax_rate: 0,
+            tax_rate: defaultTaxRate,
             tax_amount: 0,
             subtotal: 0,
             total: 0,

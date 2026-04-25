@@ -201,7 +201,7 @@ export default function PointOfSalePage() {
           name: item.product_name,
           image_url: item.image_url,
         };
-        const variantObj: any = {
+      const variantObj: any = {
           id: item.id,
           name: item.variant_name,
           value: item.variant_value,
@@ -209,7 +209,7 @@ export default function PointOfSalePage() {
           barcode: item.barcode,
         };
         
-        addToCart(productObj, variantObj, batches[0], 1);
+        addToCart(productObj, variantObj, batches[0], 1, undefined, vendor?.settings?.vat_rate || 0);
 
         // Barcode detection: if it matches query exactly, keep focus on search
         const isBarcode =
@@ -445,6 +445,7 @@ export default function PointOfSalePage() {
     selectorMethods,
     selectorTitle,
     categories,
+    currencySymbol: vendor?.settings?.currency_symbol || "৳",
   };
 
   console.log("activeSession", activeSession);

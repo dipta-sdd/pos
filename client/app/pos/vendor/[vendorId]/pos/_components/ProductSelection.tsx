@@ -163,7 +163,7 @@ export default function ProductSelection({
 
                   <div className="flex justify-between items-center mt-auto pt-1">
                     <p className="text-primary font-black text-sm tracking-tighter">
-                      ৳{Number(item.base_price || 0).toLocaleString()}
+                      {vendor?.settings?.currency_symbol || "৳"}{Number(item.base_price || 0).toLocaleString()}
                     </p>
                     <div className="w-8 h-8 bg-primary/10 text-primary rounded-xl flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all shadow-lg group-hover:shadow-primary/30">
                       <ShoppingCart size={14} />

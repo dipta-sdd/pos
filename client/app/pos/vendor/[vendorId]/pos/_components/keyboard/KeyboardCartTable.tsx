@@ -22,6 +22,7 @@ interface KeyboardCartTableProps {
   onRemove: (itemId: string) => void;
   focusArea: string;
   onEsc: () => void;
+  currencySymbol: string;
 }
 
 const QuantityCell = ({ 
@@ -97,6 +98,7 @@ export const KeyboardCartTable: React.FC<KeyboardCartTableProps> = ({
   onRemove,
   focusArea,
   onEsc,
+  currencySymbol,
 }) => {
   return (
     <div className="flex-1 overflow-auto bg-black/5 rounded-xl border border-default-200 p-2">
@@ -175,10 +177,10 @@ export const KeyboardCartTable: React.FC<KeyboardCartTableProps> = ({
                 />
               </TableCell>
               <TableCell className="text-right font-mono">
-                {item.price.toLocaleString()}
+                {currencySymbol}{item.price.toLocaleString()}
               </TableCell>
               <TableCell className="text-right font-mono font-bold">
-                {item.total.toLocaleString()}
+                {currencySymbol}{item.total.toLocaleString()}
               </TableCell>
               <TableCell>
                 <Button

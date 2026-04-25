@@ -94,6 +94,8 @@ interface PosTouchScreenProps {
   totalApplied: number;
   totalChange: number;
   remaining: number;
+  currencySymbol: string;
+  vatRate: number;
 }
 
 export default function PosTouchScreen(props: PosTouchScreenProps) {
@@ -104,10 +106,13 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
     isProcessing,
     onOpen,
     addTab,
+    closeTab,
     setActiveTab,
     updateActiveTab,
+    addToCart,
     updateCartItem,
     removeFromCart,
+    clearCart,
     handleCheckout,
     subtotal,
     totalTax,
@@ -115,8 +120,8 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
     remaining,
     totalApplied,
     totalChange,
-    categories,
     globalDiscount,
+    addPayment,
     updatePayment,
     removePayment,
     handleAddPaymentByType,
@@ -125,6 +130,9 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
     selectorMethods,
     selectorTitle,
     paymentMethods,
+    currencySymbol,
+    vatRate,
+    categories,
   } = props;
 
   const [sidebarMode, setSidebarMode] = useState<"cart" | "payment">("cart");
@@ -485,10 +493,10 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                     </div>
                     <div className="text-right">
                       <p className="text-[11px] font-black text-foreground">
-                        ৳{item.total.toLocaleString()}
+                        {currencySymbol}{item.total.toLocaleString()}
                       </p>
                       <p className="text-[9px] text-default-500 font-bold mt-0.5 tracking-tighter">
-                        ৳{item.price.toLocaleString()} × {item.quantity}
+                        {currencySymbol}{item.price.toLocaleString()} × {item.quantity}
                       </p>
                       <button
                         onClick={() => removeFromCart(item.id)}
@@ -510,15 +518,15 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                     Subtotal
                   </span>
                   <span className="font-black text-default-400">
-                    ৳{subtotal.toLocaleString()}
+                    {currencySymbol}{subtotal.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between text-[10px]">
-                  <span className="text-default-500 font-black uppercase tracking-widest">
-                    VAT (5%)
+                  <span className="text-default-400 font-bold uppercase tracking-tight">
+                    VAT ({props.vatRate || 0}%)
                   </span>
                   <span className="font-black text-default-400">
-                    ৳{totalTax.toLocaleString()}
+                    {currencySymbol}{totalTax.toLocaleString()}
                   </span>
                 </div>
 
@@ -564,7 +572,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                           updateActiveTab({ discount_type: "fixed" })
                         }
                       >
-                        ৳
+                        {currencySymbol}
                       </button>
                     </div>
                   </div>
@@ -614,7 +622,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                       Discount Applied
                     </span>
                     <span className="font-black text-warning">
-                      -৳{globalDiscount.toLocaleString()}
+                      -{currencySymbol}{globalDiscount.toLocaleString()}
                     </span>
                   </div>
                 )}
@@ -625,7 +633,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                     Grand Total
                   </span>
                   <span className="text-2xl font-black text-primary tracking-tighter">
-                    ৳{grandTotal.toLocaleString()}
+                    {currencySymbol}{grandTotal.toLocaleString()}
                   </span>
                 </div>
               </div>
@@ -672,7 +680,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                         Total
                       </span>
                       <span className="text-2xl font-black text-foreground tracking-tighter">
-                        ৳{grandTotal.toLocaleString()}
+                        {currencySymbol}{grandTotal.toLocaleString()}
                       </span>
                     </div>
                     <div className="text-right flex flex-col gap-0.5">
@@ -680,7 +688,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                         Paid
                       </span>
                       <span className="text-xl font-black text-primary tracking-tighter">
-                        ৳{totalApplied.toLocaleString()}
+                        {currencySymbol}{totalApplied.toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -698,7 +706,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                           remaining > 0 ? "text-warning" : "text-success",
                         )}
                       >
-                        ৳{remaining.toLocaleString()}
+                        {currencySymbol}{remaining.toLocaleString()}
                       </span>
                     </div>
                     {totalChange > 0 && (
@@ -707,7 +715,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                           Change
                         </span>
                         <span className="text-xl font-black text-success tracking-tighter">
-                          ৳{totalChange.toLocaleString()}
+                          {currencySymbol}{totalChange.toLocaleString()}
                         </span>
                       </div>
                     )}
@@ -824,7 +832,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                                 Change
                               </span>
                               <span className="text-sm font-mono font-black text-success">
-                                ৳{p.changeAmount.toFixed(2)}
+                                {currencySymbol}{p.changeAmount.toFixed(2)}
                               </span>
                             </div>
                           )}
@@ -879,7 +887,7 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                 isLoading={isProcessing}
               >
                 {remaining > 0
-                  ? `DUE: ৳${remaining.toLocaleString()}`
+                  ? `DUE: ${currencySymbol}${remaining.toLocaleString()}`
                   : "COMPLETE SALE"}
               </Button>
             </div>
