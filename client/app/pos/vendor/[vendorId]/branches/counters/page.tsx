@@ -11,7 +11,7 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@heroui/dropdown";
-import { Selection } from "@heroui/react";
+import { Selection, Chip } from "@heroui/react";
 import {
   Modal,
   ModalContent,
@@ -40,6 +40,7 @@ import { UserLoding } from "@/components/user-loding";
 const columns: Column[] = [
   { name: "NAME", uid: "name", sortable: true },
   { name: "BRANCH", uid: "branch", sortable: false },
+  { name: "STATUS", uid: "status", sortable: false },
   ...LOGGER_COLUMNS,
   { name: "ACTIONS", uid: "actions" },
 ];
@@ -47,6 +48,7 @@ const columns: Column[] = [
 const INITIAL_VISIBLE_COLUMNS = [
   "name",
   "branch",
+  "status",
   "created_at",
   "created_by",
   "actions",
@@ -142,6 +144,18 @@ export default function BillingCountersPage() {
       switch (columnKey) {
         case "branch":
           return item.branch?.name || "N/A";
+        case "status":
+          const hasSession = !!(item as any).active_session;
+          return (
+            <Chip 
+              color={hasSession ? "success" : "default"} 
+              size="sm" 
+              variant="flat"
+              className="font-bold uppercase text-[10px]"
+            >
+              {hasSession ? "Session Open" : "No Session"}
+            </Chip>
+          );
         case "actions":
           return (
             <div className="flex items-center justify-end gap-2">

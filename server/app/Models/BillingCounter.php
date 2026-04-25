@@ -56,6 +56,11 @@ class BillingCounter extends Model
         return $this->hasMany(CashRegisterSession::class);
     }
 
+    public function activeSession(): HasOne
+    {
+        return $this->hasOne(CashRegisterSession::class)->where('status', 'open');
+    }
+
     public function sales(): HasMany
     {
         return $this->hasMany(Sale::class);
