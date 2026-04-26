@@ -39,7 +39,7 @@ export default function EditPurchaseOrderPage() {
   if (!order) return <div className="p-6">Order not found.</div>;
 
   return (
-    <PermissionGuard permission="can_view_purchase_orders">
+    <PermissionGuard permission="can_view_operations">
       <div className="p-6">
         <PageHeader
           description={`Viewing Order #${order.id}`}

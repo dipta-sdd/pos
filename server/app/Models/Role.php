@@ -17,28 +17,14 @@ class Role extends Model
     protected $fillable = [
         'vendor_id',
         'name',
-        // User Management Permissions
-        'can_view_users',
-        'can_edit_users',
-        'can_delete_users',
-        'can_view_roles',
-        'can_edit_roles',
-        'can_delete_roles',
-        'can_view_user_activity_log',
+        // Access Control Permissions
+        'can_view_access_control',
+        'can_manage_access_control',
+        'can_delete_access_control',
         // Product & Catalog Permissions
-        'can_view_products',
-        'can_edit_products',
-        'can_delete_products',
-        'can_import_products',
-        'can_export_products',
-        // Category Permissions
-        'can_view_categories',
-        'can_edit_categories',
-        'can_delete_categories',
-        // Unit of Measure Permissions
-        'can_view_units_of_measure',
-        'can_edit_units_of_measure',
-        'can_delete_units_of_measure',
+        'can_view_catalog',
+        'can_manage_catalog',
+        'can_delete_catalog',
         // Organization Settings
         'can_view_organization_settings',
         'can_edit_organization_settings',
@@ -46,21 +32,11 @@ class Role extends Model
         // Inventory & Stock Management
         'can_view_stock_and_inventory',
         'can_manage_stock_and_inventory',
-        // Purchase Order Permissions
-        'can_view_purchase_orders',
-        'can_edit_purchase_orders',
-        'can_delete_purchase_orders',
-        // Supplier Permissions
-        'can_view_suppliers',
-        'can_edit_suppliers',
-        'can_delete_suppliers',
-        // Expense Permissions
-        'can_view_expenses',
-        'can_edit_expenses',
-        'can_delete_expenses',
+        // Operations & Procurement
+        'can_view_operations',
+        'can_manage_operations',
+        'can_delete_operations',
         // Cash Transaction Permissions
-        'can_request_cash_transactions',
-        'can_approve_cash_transactions',
         // Sales & POS Permissions
         'can_use_pos',
         'can_manage_checkout_pricing',
@@ -77,41 +53,24 @@ class Role extends Model
         'can_edit_promotions',
         'can_delete_promotions',
         // Financial & Cash Management Permissions
-        'can_view_cash_sessions',
-        'can_open_close_cash_register',
+        'can_manage_cash_drawer',
         // Reports & Analytics Permissions
-        'can_view_dashboard',
         'can_view_reports',
-        'can_view_profit_loss_data',
-        'can_export_data',
+        'can_view_financial_analytics',
         // Audit fields
         'created_by',
         'updated_by',
     ];
 
     protected $casts = [
-        // User Management
-        'can_view_users' => 'boolean',
-        'can_edit_users' => 'boolean',
-        'can_delete_users' => 'boolean',
-        'can_view_roles' => 'boolean',
-        'can_edit_roles' => 'boolean',
-        'can_delete_roles' => 'boolean',
-        'can_view_user_activity_log' => 'boolean',
+        // Access Control
+        'can_view_access_control' => 'boolean',
+        'can_manage_access_control' => 'boolean',
+        'can_delete_access_control' => 'boolean',
         // Product & Catalog
-        'can_view_products' => 'boolean',
-        'can_edit_products' => 'boolean',
-        'can_delete_products' => 'boolean',
-        'can_import_products' => 'boolean',
-        'can_export_products' => 'boolean',
-        // Categories
-        'can_view_categories' => 'boolean',
-        'can_edit_categories' => 'boolean',
-        'can_delete_categories' => 'boolean',
-        // Units of Measure
-        'can_view_units_of_measure' => 'boolean',
-        'can_edit_units_of_measure' => 'boolean',
-        'can_delete_units_of_measure' => 'boolean',
+        'can_view_catalog' => 'boolean',
+        'can_manage_catalog' => 'boolean',
+        'can_delete_catalog' => 'boolean',
         // Organization Settings
         'can_view_organization_settings' => 'boolean',
         'can_edit_organization_settings' => 'boolean',
@@ -119,21 +78,10 @@ class Role extends Model
         // Inventory & Stock Management
         'can_view_stock_and_inventory' => 'boolean',
         'can_manage_stock_and_inventory' => 'boolean',
-        // Purchase Orders
-        'can_view_purchase_orders' => 'boolean',
-        'can_edit_purchase_orders' => 'boolean',
-        'can_delete_purchase_orders' => 'boolean',
-        // Suppliers
-        'can_view_suppliers' => 'boolean',
-        'can_edit_suppliers' => 'boolean',
-        'can_delete_suppliers' => 'boolean',
-        // Expenses
-        'can_view_expenses' => 'boolean',
-        'can_edit_expenses' => 'boolean',
-        'can_delete_expenses' => 'boolean',
-        // Cash Transactions
-        'can_request_cash_transactions' => 'boolean',
-        'can_approve_cash_transactions' => 'boolean',
+        // Operations & Procurement
+        'can_view_operations' => 'boolean',
+        'can_manage_operations' => 'boolean',
+        'can_delete_operations' => 'boolean',
         // Sales & POS
         'can_use_pos' => 'boolean',
         'can_manage_checkout_pricing' => 'boolean',
@@ -150,14 +98,11 @@ class Role extends Model
         'can_view_promotions' => 'boolean',
         'can_edit_promotions' => 'boolean',
         'can_delete_promotions' => 'boolean',
-        // Financial
-        'can_view_cash_sessions' => 'boolean',
-        'can_open_close_cash_register' => 'boolean',
+        // Financial & Cash Management
+        'can_manage_cash_drawer' => 'boolean',
         // Reports & Analytics
-        'can_view_dashboard' => 'boolean',
         'can_view_reports' => 'boolean',
-        'can_view_profit_loss_data' => 'boolean',
-        'can_export_data' => 'boolean',
+        'can_view_financial_analytics' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -187,5 +132,10 @@ class Role extends Model
     public function updatedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+}updated_by');
+    }
+}  }
+}updated_by');
     }
 }

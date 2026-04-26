@@ -29,74 +29,33 @@ interface RoleFormProps {
 }
 
 const PERMISSION_GROUPS = {
-  "Dashboard & Reports": [
-    "can_view_dashboard",
+  "Financial & Analytics": [
+    "can_manage_cash_drawer",
     "can_view_reports",
-    "can_view_profit_loss_data",
-    "can_export_data",
-    "can_view_user_activity_log",
+    "can_view_financial_analytics",
   ],
   "POS & Sales": [
     "can_use_pos",
     "can_manage_checkout_pricing",
     "can_manage_sales",
     "can_process_returns",
-    "can_open_close_cash_register",
-    "can_request_cash_transactions",
-    "can_approve_cash_transactions",
     "can_issue_cash_refunds",
     "can_issue_store_credit",
   ],
-  "Products & Catalog": [
-    "can_view_products",
-    "can_edit_products",
-    "can_delete_products",
-    "can_import_products",
-    "can_export_products",
+  Catalog: [
+    "can_view_catalog",
+    "can_manage_catalog",
+    "can_delete_catalog",
   ],
-  Categories: [
-    "can_view_categories",
-    "can_edit_categories",
-    "can_delete_categories",
+  Operations: [
+    "can_view_operations",
+    "can_manage_operations",
+    "can_delete_operations",
   ],
-  "Units of Measure": [
-    "can_view_units_of_measure",
-    "can_edit_units_of_measure",
-    "can_delete_units_of_measure",
-  ],
-  Inventory: [
-    "can_view_stock_and_inventory",
-    "can_manage_stock_and_inventory",
-    "can_view_purchase_orders",
-    "can_edit_purchase_orders",
-    "can_delete_purchase_orders",
-    "can_view_suppliers",
-    "can_edit_suppliers",
-    "can_delete_suppliers",
-  ],
-  "Customers & Promos": [
-    "can_view_customers",
-    "can_manage_customers",
-    "can_view_promotions",
-    "can_manage_promotions",
-  ],
-  "Organization Settings": [
-    "can_view_organization_settings",
-    "can_edit_organization_settings",
-    "can_delete_organization_settings",
-  ],
-  "Financial & Expenses": [
-    "can_view_expenses",
-    "can_edit_expenses",
-    "can_delete_expenses",
-  ],
-  "Users & Roles": [
-    "can_view_users",
-    "can_edit_users",
-    "can_delete_users",
-    "can_view_roles",
-    "can_edit_roles",
-    "can_delete_roles",
+  "Access Control": [
+    "can_view_access_control",
+    "can_manage_access_control",
+    "can_delete_access_control",
   ],
 };
 
@@ -268,78 +227,40 @@ export const roleSchema = z.object({
     .regex(/^[a-zA-Z0-9\s\-_&.]+$/, "Role name contains invalid characters"),
 
   // Permissions
-  // Dashboard & Reports
-  can_view_dashboard: z.boolean().default(false),
+  // Financial & Analytics
+  can_manage_cash_drawer: z.boolean().default(false),
   can_view_reports: z.boolean().default(false),
-  can_view_profit_loss_data: z.boolean().default(false),
-  can_export_data: z.boolean().default(false),
-  can_view_user_activity_log: z.boolean().default(false),
+  can_view_financial_analytics: z.boolean().default(false),
 
   // POS & Sales
   can_use_pos: z.boolean().default(false),
   can_manage_checkout_pricing: z.boolean().default(false),
   can_manage_sales: z.boolean().default(false),
   can_process_returns: z.boolean().default(false),
-  can_open_close_cash_register: z.boolean().default(false),
-  can_request_cash_transactions: z.boolean().default(false),
-  can_approve_cash_transactions: z.boolean().default(false),
   can_issue_cash_refunds: z.boolean().default(false),
   can_issue_store_credit: z.boolean().default(false),
 
-  // Products & Catalog
-  can_view_products: z.boolean().default(true),
-  can_edit_products: z.boolean().default(false),
-  can_delete_products: z.boolean().default(false),
-  can_import_products: z.boolean().default(false),
-  can_export_products: z.boolean().default(false),
+  // Catalog
+  can_view_catalog: z.boolean().default(true),
+  can_manage_catalog: z.boolean().default(false),
+  can_delete_catalog: z.boolean().default(false),
 
-  // Categories
-  can_view_categories: z.boolean().default(true),
-  can_edit_categories: z.boolean().default(false),
-  can_delete_categories: z.boolean().default(false),
+  // Operations & Procurement
+  can_view_operations: z.boolean().default(false),
+  can_manage_operations: z.boolean().default(false),
+  can_delete_operations: z.boolean().default(false),
 
-  // Units of Measure
-  can_view_units_of_measure: z.boolean().default(true),
-  can_edit_units_of_measure: z.boolean().default(false),
-  can_delete_units_of_measure: z.boolean().default(false),
-
-  // Inventory & Stock Management
-  can_view_stock_and_inventory: z.boolean().default(false),
-  can_manage_stock_and_inventory: z.boolean().default(false),
-  can_view_purchase_orders: z.boolean().default(false),
-  can_edit_purchase_orders: z.boolean().default(false),
-  can_delete_purchase_orders: z.boolean().default(false),
-  can_view_suppliers: z.boolean().default(false),
-  can_edit_suppliers: z.boolean().default(false),
-  can_delete_suppliers: z.boolean().default(false),
-
-  // Customers & Promos
-  can_view_customers: z.boolean().default(false),
-  can_manage_customers: z.boolean().default(false),
-  can_view_promotions: z.boolean().default(false),
-  can_manage_promotions: z.boolean().default(false),
-
-  // Organization Settings
-  can_view_organization_settings: z.boolean().default(true),
-  can_edit_organization_settings: z.boolean().default(false),
-  can_delete_organization_settings: z.boolean().default(false),
-
-  // Financial & Expenses
-  can_view_expenses: z.boolean().default(false),
-  can_edit_expenses: z.boolean().default(false),
-  can_delete_expenses: z.boolean().default(false),
-
-  // Users & Roles
-  can_view_users: z.boolean().default(true),
-  can_edit_users: z.boolean().default(false),
-  can_delete_users: z.boolean().default(false),
-  can_view_roles: z.boolean().default(true),
-  can_edit_roles: z.boolean().default(false),
-  can_delete_roles: z.boolean().default(false),
+  // Access Control
+  can_view_access_control: z.boolean().default(true),
+  can_manage_access_control: z.boolean().default(false),
+  can_delete_access_control: z.boolean().default(false),
 });
 
 export type RoleFormData = z.infer<typeof roleSchema>;
 
 export const roleUpdateSchema = roleSchema.partial();
+
+export type RoleUpdateFormData = z.infer<typeof roleUpdateSchema>;
+();
 
 export type RoleUpdateFormData = z.infer<typeof roleUpdateSchema>;

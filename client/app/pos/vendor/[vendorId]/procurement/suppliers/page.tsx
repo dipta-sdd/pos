@@ -169,7 +169,7 @@ export default function SuppliersPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_view_suppliers">
+    <PermissionGuard permission="can_view_operations">
       <div className="p-6">
         <PageHeader
           description="Manage your product suppliers"

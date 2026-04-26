@@ -262,7 +262,7 @@ export default function CashManagementPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_open_close_cash_register">
+    <PermissionGuard permission="can_manage_cash_drawer">
       <div className="p-6">
         <PageHeader
           description="Open/Close register and track cash sessions"

@@ -16,12 +16,12 @@ export default function EditRolePage() {
   const [role, setRole] = useState<Role | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Check if the user has permission to manage roles
-  const canManageRoles = currentRole?.can_edit_roles || false;
-  const canDeleteRoles = currentRole?.can_view_roles || false;
+  // Check if the user has permission to manage access control
+  const canManageAccess = currentRole?.can_manage_access_control || false;
+  const canDeleteAccess = currentRole?.can_delete_access_control || false;
 
-  // If they can't manage, they are in read-only mode (since they passed the PermissionGuard which checks can_view_roles)
-  const isReadOnly = !canManageRoles;
+  // If they can't manage, they are in read-only mode (since they passed the PermissionGuard which checks can_view_access_control)
+  const isReadOnly = !canManageAccess;
 
   useEffect(() => {
     const fetchRole = async () => {
@@ -48,7 +48,7 @@ export default function EditRolePage() {
   if (!role) return <div>Role not found</div>;
 
   return (
-    <PermissionGuard permission="can_view_roles">
+    <PermissionGuard permission="can_view_access_control">
       <div className="p-6 mx-auto w-full">
         <div className="flex items-center gap-4 mb-6">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -58,7 +58,7 @@ export default function EditRolePage() {
 
         <RoleForm
           isEditing
-          canDeleteRoles={canDeleteRoles}
+          canDeleteRoles={canDeleteAccess}
           initialData={role}
           readOnly={isReadOnly}
         />

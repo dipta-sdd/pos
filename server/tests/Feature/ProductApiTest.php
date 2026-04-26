@@ -37,7 +37,7 @@ class ProductApiTest extends TestCase
 
     public function test_can_get_all_products_with_permission()
     {
-        $this->setupUserWithPermissions(['can_view_products' => true]);
+        $this->setupUserWithPermissions(['can_view_catalog' => true]);
         Product::factory()->count(3)->create(['vendor_id' => $this->vendor->id]);
 
         $response = $this->getJson('/api/products');
@@ -48,7 +48,7 @@ class ProductApiTest extends TestCase
 
     public function test_cannot_get_all_products_without_permission()
     {
-        $this->setupUserWithPermissions(['can_view_products' => false]);
+        $this->setupUserWithPermissions(['can_view_catalog' => false]);
         $response = $this->getJson('/api/products');
         $response->assertStatus(403);
     }

@@ -80,28 +80,14 @@ class VendorController extends Controller
             $ownerRole = Role::create([
                 'vendor_id' => $vendor->id,
                 'name' => 'Owner',
-                // User Management
-                'can_view_users' => true,
-                'can_edit_users' => true,
-                'can_delete_users' => true,
-                'can_view_roles' => true,
-                'can_edit_roles' => true,
-                'can_delete_roles' => true,
-                'can_view_user_activity_log' => true,
+                // Access Control
+                'can_view_access_control' => true,
+                'can_manage_access_control' => true,
+                'can_delete_access_control' => true,
                 // Product & Catalog
-                'can_view_products' => true,
-                'can_edit_products' => true,
-                'can_delete_products' => true,
-                'can_import_products' => true,
-                'can_export_products' => true,
-                // Categories
-                'can_view_categories' => true,
-                'can_edit_categories' => true,
-                'can_delete_categories' => true,
-                // Units of Measure
-                'can_view_units_of_measure' => true,
-                'can_edit_units_of_measure' => true,
-                'can_delete_units_of_measure' => true,
+                'can_view_catalog' => true,
+                'can_manage_catalog' => true,
+                'can_delete_catalog' => true,
                 // Organization Settings
                 'can_view_organization_settings' => true,
                 'can_edit_organization_settings' => true,
@@ -109,21 +95,11 @@ class VendorController extends Controller
                 // Inventory & Stock Management
                 'can_view_stock_and_inventory' => true,
                 'can_manage_stock_and_inventory' => true,
-                // Purchase Orders
-                'can_view_purchase_orders' => true,
-                'can_edit_purchase_orders' => true,
-                'can_delete_purchase_orders' => true,
-                // Suppliers
-                'can_view_suppliers' => true,
-                'can_edit_suppliers' => true,
-                'can_delete_suppliers' => true,
-                // Expenses
-                'can_view_expenses' => true,
-                'can_edit_expenses' => true,
-                'can_delete_expenses' => true,
+                // Operations & Procurement
+                'can_view_operations' => true,
+                'can_manage_operations' => true,
+                'can_delete_operations' => true,
                 // Cash Transactions
-                'can_request_cash_transactions' => true,
-                'can_approve_cash_transactions' => true,
                 // Sales & POS
                 'can_use_pos' => true,
                 'can_manage_checkout_pricing' => true,
@@ -138,13 +114,11 @@ class VendorController extends Controller
                 // Promotions
                 'can_view_promotions' => true,
                 'can_manage_promotions' => true,
-                // Financial
-                'can_open_close_cash_register' => true,
+                // Financial & Cash Management
+                'can_manage_cash_drawer' => true,
                 // Reports & Analytics
-                'can_view_dashboard' => true,
                 'can_view_reports' => true,
-                'can_view_profit_loss_data' => true,
-                'can_export_data' => true,
+                'can_view_financial_analytics' => true,
                 'created_by' => Auth::id(),
                 'updated_by' => Auth::id(),
             ]);

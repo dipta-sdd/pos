@@ -187,33 +187,33 @@ export default function ProductsPage() {
         case "actions":
           return (
             <div className="flex items-center justify-end gap-2">
-              <PermissionGuard permission="can_edit_products">
+              <PermissionGuard permission="can_manage_catalog">
                 <Button
                   isIconOnly
                   size="sm"
                   variant="light"
                   onPress={() =>
-                    router.push(`/pos/vendor/${vendor?.id}/products/${item.id}`)
+                    router.push(
+                      `/pos/vendor/${vendor?.id}/products/${item.product_id}`
+                    )
                   }
                 >
-                  <Edit className="w-4 h-4 text-default-400" />
+                  <Pencil className="w-4 h-4 text-primary" />
                 </Button>
               </PermissionGuard>
-              <PermissionGuard permission="can_delete_products">
+              <PermissionGuard permission="can_delete_catalog">
                 <Button
                   isIconOnly
                   size="sm"
                   variant="light"
                   onPress={() => {
-                    setDeleteConfirmId(item.id);
+                    setDeleteConfirmId(item.product_id);
                     setDeleteConfirmOpen(true);
                   }}
                 >
                   <Trash2 className="w-4 h-4 text-danger" />
                 </Button>
               </PermissionGuard>
-            </div>
-          );
         default:
           return (item as any)[columnKey as keyof Product];
       }
@@ -224,10 +224,10 @@ export default function ProductsPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_view_products">
+    <PermissionGuard permission="can_view_catalog">
       <div className="p-6">
-        <PageHeader description="Manage your product catalog" title="Products">
-          <PermissionGuard permission="can_edit_products">
+        <PageHeader description="Manage your products and variants" title="Products">
+          <PermissionGuard permission="can_manage_catalog">
             <Button
               color="primary"
               startContent={<Plus className="w-4 h-4" />}

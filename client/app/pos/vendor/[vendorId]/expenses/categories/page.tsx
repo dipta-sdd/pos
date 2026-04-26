@@ -164,7 +164,7 @@ export default function ExpenseCategoriesPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_view_expenses">
+    <PermissionGuard permission="can_view_operations">
       <div className="p-6">
         <PageHeader
           description="Manage expense categories"

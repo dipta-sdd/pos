@@ -176,13 +176,13 @@ export default function RolesPage() {
                   className="min-w-none"
                   color="primary"
                   size="sm"
-                  title={membership?.role?.can_edit_roles ? "Edit" : "View"}
+                  title={membership?.role?.can_manage_access_control ? "Edit" : "View"}
                   variant="light"
                   onPress={() =>
                     router.push(`/pos/vendor/${vendor?.id}/roles/${role.id}`)
                   }
                 >
-                  {membership?.role?.can_edit_roles ? (
+                  {membership?.role?.can_manage_access_control ? (
                     <Edit className="w-4 h-4" />
                   ) : (
                     <Eye className="w-4 h-4" />
@@ -190,7 +190,7 @@ export default function RolesPage() {
                 </Button>
               )}
 
-              {membership?.role?.can_delete_roles && (
+              {membership?.role?.can_delete_access_control && (
                 <Button
                   className="min-w-none"
                   color="danger"
@@ -217,13 +217,13 @@ export default function RolesPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_view_roles">
+    <PermissionGuard permission="can_view_access_control">
       <div className="p-6">
         <PageHeader
           description="Manage your staff roles and permissions"
           title="Roles"
         >
-          {membership?.role?.can_edit_roles && (
+          {membership?.role?.can_manage_access_control && (
             <Button
               color="primary"
               radius="sm"

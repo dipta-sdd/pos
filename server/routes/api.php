@@ -109,31 +109,31 @@ Route::middleware('log.api')->group(function () {
         // Category routes (protected)
         Route::prefix('categories')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/pos/page.tsx, app/pos/vendor/[vendorId]/products/_components/ProductForm.tsx, app/pos/vendor/[vendorId]/products/categories/_components/CategoryForm.tsx, app/pos/vendor/[vendorId]/products/categories/page.tsx, app/pos/vendor/[vendorId]/promotions/_components/PromotionForm.tsx
-            Route::get('/', [CategoryController::class, 'index'])->middleware('permission:can_view_categories');
+            Route::get('/', [CategoryController::class, 'index'])->middleware('permission:can_view_catalog');
             // Used in: app/pos/vendor/[vendorId]/products/categories/_components/CategoryForm.tsx
-            Route::post('/', [CategoryController::class, 'store'])->middleware('permission:can_edit_categories');
+            Route::post('/', [CategoryController::class, 'store'])->middleware('permission:can_manage_catalog');
             // Used in: app/pos/vendor/[vendorId]/pos/page.tsx, app/pos/vendor/[vendorId]/products/_components/ProductForm.tsx, app/pos/vendor/[vendorId]/products/categories/_components/CategoryForm.tsx, app/pos/vendor/[vendorId]/products/categories/page.tsx, app/pos/vendor/[vendorId]/promotions/_components/PromotionForm.tsx
-            Route::get('/{category}', [CategoryController::class, 'show'])->middleware('permission:can_view_categories');
+            Route::get('/{category}', [CategoryController::class, 'show'])->middleware('permission:can_view_catalog');
             // Used in: app/pos/vendor/[vendorId]/products/categories/_components/CategoryForm.tsx
-            Route::put('/{category}', [CategoryController::class, 'update'])->middleware('permission:can_edit_categories');
+            Route::put('/{category}', [CategoryController::class, 'update'])->middleware('permission:can_manage_catalog');
             // Used in: app/pos/vendor/[vendorId]/products/categories/page.tsx
-            Route::delete('/{category}', [CategoryController::class, 'destroy'])->middleware('permission:can_delete_categories');
+            Route::delete('/{category}', [CategoryController::class, 'destroy'])->middleware('permission:can_delete_catalog');
         });
 
         // Product routes (protected)
         Route::prefix('products')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/products/page.tsx
-            Route::post('/bulk-delete', [ProductController::class, 'bulkDelete'])->middleware('permission:can_delete_products');
+            Route::post('/bulk-delete', [ProductController::class, 'bulkDelete'])->middleware('permission:can_delete_catalog');
             // Not currently used in the frontend
-            Route::get('/export', [ProductController::class, 'export'])->middleware('permission:can_export_products');
+            Route::get('/export', [ProductController::class, 'export'])->middleware('permission:can_manage_catalog');
             // Not currently used in the frontend
-            Route::post('/import', [ProductController::class, 'import'])->middleware('permission:can_import_products');
+            Route::post('/import', [ProductController::class, 'import'])->middleware('permission:can_manage_catalog');
         });
         // Used in: app/pos/vendor/[vendorId]/products/[productId]/page.tsx, app/pos/vendor/[vendorId]/products/_components/ProductForm.tsx, app/pos/vendor/[vendorId]/products/page.tsx, app/pos/vendor/[vendorId]/promotions/_components/PromotionForm.tsx
-        Route::apiResource('products', ProductController::class)->middleware(['permission:can_view_products']);
+        Route::apiResource('products', ProductController::class)->middleware(['permission:can_view_catalog']);
 
         // Variant routes (protected)
-        Route::prefix('variants')->middleware('permission:can_edit_products')->group(function () {
+        Route::prefix('variants')->middleware('permission:can_manage_catalog')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/inventory/adjustments/_components/InventoryAdjustmentForm.tsx, app/pos/vendor/[vendorId]/inventory/transfers/_components/StockTransferForm.tsx, app/pos/vendor/[vendorId]/procurement/orders/_components/PurchaseOrderForm.tsx
             Route::get('/', [VariantController::class, 'index']);
             // Used in: app/pos/vendor/[vendorId]/products/_components/ProductForm.tsx
@@ -153,7 +153,7 @@ Route::middleware('log.api')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/inventory/_components/NewInventoryModal.tsx, app/pos/vendor/[vendorId]/inventory/page.tsx, components/navbar.tsx
             Route::get('/', [BranchProductController::class, 'index']);
             // Used in: app/pos/vendor/[vendorId]/inventory/page.tsx
-            Route::post('/toggle-status', [BranchProductController::class, 'toggleStatus'])->middleware('permission:can_edit_products');
+            Route::post('/toggle-status', [BranchProductController::class, 'toggleStatus'])->middleware('permission:can_manage_catalog');
             // Used in: app/pos/vendor/[vendorId]/inventory/_components/AddStockModal.tsx
             Route::post('/add-stock', [BranchProductController::class, 'addStock'])->middleware('permission:can_manage_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/_components/ViewStockModal.tsx
@@ -167,20 +167,20 @@ Route::middleware('log.api')->group(function () {
         // Unit of Measure routes (protected)
         Route::prefix('units-of-measure')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/products/_components/ProductForm.tsx, app/pos/vendor/[vendorId]/products/units/page.tsx
-            Route::get('/', [UnitOfMeasureController::class, 'index'])->middleware('permission:can_view_units_of_measure');
+            Route::get('/', [UnitOfMeasureController::class, 'index'])->middleware('permission:can_view_catalog');
             // Used in: app/pos/vendor/[vendorId]/products/units/_components/UnitOfMeasureForm.tsx
-            Route::post('/', [UnitOfMeasureController::class, 'store'])->middleware('permission:can_edit_units_of_measure');
+            Route::post('/', [UnitOfMeasureController::class, 'store'])->middleware('permission:can_manage_catalog');
             // Used in: app/pos/vendor/[vendorId]/products/_components/ProductForm.tsx, app/pos/vendor/[vendorId]/products/units/page.tsx
-            Route::get('/{unitOfMeasure}', [UnitOfMeasureController::class, 'show'])->middleware('permission:can_view_units_of_measure');
+            Route::get('/{unitOfMeasure}', [UnitOfMeasureController::class, 'show'])->middleware('permission:can_view_catalog');
             // Used in: app/pos/vendor/[vendorId]/products/units/_components/UnitOfMeasureForm.tsx
-            Route::put('/{unitOfMeasure}', [UnitOfMeasureController::class, 'update'])->middleware('permission:can_edit_units_of_measure');
+            Route::put('/{unitOfMeasure}', [UnitOfMeasureController::class, 'update'])->middleware('permission:can_manage_catalog');
             // Used in: app/pos/vendor/[vendorId]/products/units/page.tsx
-            Route::delete('/{unitOfMeasure}', [UnitOfMeasureController::class, 'destroy'])->middleware('permission:can_delete_units_of_measure');
+            Route::delete('/{unitOfMeasure}', [UnitOfMeasureController::class, 'destroy'])->middleware('permission:can_delete_catalog');
         });
 
         // Dashboard & Reports
         // Used in: app/pos/vendor/[vendorId]/dashboard/page.tsx
-        Route::get('/dashboard/stats', [DashboardController::class, 'index'])->middleware('permission:can_view_dashboard');
+        Route::get('/dashboard/stats', [DashboardController::class, 'index'])->middleware('permission:can_view_reports');
         // Used in: app/pos/vendor/[vendorId]/reports/sales/page.tsx
         Route::get('/reports/sales', [ReportController::class, 'sales'])->middleware('permission:can_view_reports');
         // Used in: app/pos/vendor/[vendorId]/reports/bills/page.tsx
@@ -191,15 +191,15 @@ Route::middleware('log.api')->group(function () {
         // Supplier routes (protected)
         Route::prefix('suppliers')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/procurement/orders/_components/PurchaseOrderForm.tsx, app/pos/vendor/[vendorId]/procurement/suppliers/page.tsx
-            Route::get('/', [SupplierController::class, 'index'])->middleware('permission:can_view_suppliers');
+            Route::get('/', [SupplierController::class, 'index'])->middleware('permission:can_view_operations');
             // Used in: app/pos/vendor/[vendorId]/procurement/suppliers/_components/SupplierForm.tsx
-            Route::post('/', [SupplierController::class, 'store'])->middleware('permission:can_edit_suppliers');
+            Route::post('/', [SupplierController::class, 'store'])->middleware('permission:can_manage_operations');
             // Used in: app/pos/vendor/[vendorId]/procurement/orders/_components/PurchaseOrderForm.tsx, app/pos/vendor/[vendorId]/procurement/suppliers/page.tsx
-            Route::get('/{supplier}', [SupplierController::class, 'show'])->middleware('permission:can_view_suppliers');
+            Route::get('/{supplier}', [SupplierController::class, 'show'])->middleware('permission:can_view_operations');
             // Used in: app/pos/vendor/[vendorId]/procurement/suppliers/_components/SupplierForm.tsx
-            Route::put('/{supplier}', [SupplierController::class, 'update'])->middleware('permission:can_edit_suppliers');
+            Route::put('/{supplier}', [SupplierController::class, 'update'])->middleware('permission:can_manage_operations');
             // Used in: app/pos/vendor/[vendorId]/procurement/suppliers/page.tsx
-            Route::delete('/{supplier}', [SupplierController::class, 'destroy'])->middleware('permission:can_delete_suppliers');
+            Route::delete('/{supplier}', [SupplierController::class, 'destroy'])->middleware('permission:can_delete_operations');
         });
 
         // Tax routes (protected)
@@ -243,7 +243,7 @@ Route::middleware('log.api')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/customers/_components/CustomerForm.tsx
             Route::put('/{customer}', [CustomerController::class, 'update'])->middleware('permission:can_edit_customers');
             // Not currently used in the frontend
-            Route::get('/export', [CustomerController::class, 'export'])->middleware('permission:can_export_data');
+            Route::get('/export', [CustomerController::class, 'export'])->middleware('permission:can_view_financial_analytics');
             // Used in: app/pos/vendor/[vendorId]/customers/page.tsx
             Route::delete('/{customer}', [CustomerController::class, 'destroy'])->middleware('permission:can_delete_customers');
         });
@@ -251,43 +251,43 @@ Route::middleware('log.api')->group(function () {
         // Expense Category routes (protected)
         Route::prefix('expense-categories')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/expenses/_components/ExpenseForm.tsx, app/pos/vendor/[vendorId]/expenses/categories/page.tsx
-            Route::get('/', [ExpenseCategoryController::class, 'index'])->middleware('permission:can_view_expenses');
+            Route::get('/', [ExpenseCategoryController::class, 'index'])->middleware('permission:can_view_operations');
             // Used in: app/pos/vendor/[vendorId]/expenses/categories/_components/ExpenseCategoryForm.tsx
-            Route::post('/', [ExpenseCategoryController::class, 'store'])->middleware('permission:can_edit_expenses');
+            Route::post('/', [ExpenseCategoryController::class, 'store'])->middleware('permission:can_manage_operations');
             // Used in: app/pos/vendor/[vendorId]/expenses/_components/ExpenseForm.tsx, app/pos/vendor/[vendorId]/expenses/categories/page.tsx
-            Route::get('/{expenseCategory}', [ExpenseCategoryController::class, 'show'])->middleware('permission:can_view_expenses');
+            Route::get('/{expenseCategory}', [ExpenseCategoryController::class, 'show'])->middleware('permission:can_view_operations');
             // Used in: app/pos/vendor/[vendorId]/expenses/categories/_components/ExpenseCategoryForm.tsx
-            Route::put('/{expenseCategory}', [ExpenseCategoryController::class, 'update'])->middleware('permission:can_edit_expenses');
+            Route::put('/{expenseCategory}', [ExpenseCategoryController::class, 'update'])->middleware('permission:can_manage_operations');
             // Used in: app/pos/vendor/[vendorId]/expenses/categories/page.tsx
-            Route::delete('/{expenseCategory}', [ExpenseCategoryController::class, 'destroy'])->middleware('permission:can_delete_expenses');
+            Route::delete('/{expenseCategory}', [ExpenseCategoryController::class, 'destroy'])->middleware('permission:can_delete_operations');
         });
 
         // Expense routes (protected)
         Route::prefix('expenses')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/expenses/page.tsx
-            Route::get('/', [ExpenseController::class, 'index'])->middleware('permission:can_view_expenses');
+            Route::get('/', [ExpenseController::class, 'index'])->middleware('permission:can_view_operations');
             // Used in: app/pos/vendor/[vendorId]/expenses/_components/ExpenseForm.tsx
-            Route::post('/', [ExpenseController::class, 'store'])->middleware('permission:can_edit_expenses');
+            Route::post('/', [ExpenseController::class, 'store'])->middleware('permission:can_manage_operations');
             // Used in: app/pos/vendor/[vendorId]/expenses/page.tsx
-            Route::get('/{expense}', [ExpenseController::class, 'show'])->middleware('permission:can_view_expenses');
+            Route::get('/{expense}', [ExpenseController::class, 'show'])->middleware('permission:can_view_operations');
             // Used in: app/pos/vendor/[vendorId]/expenses/_components/ExpenseForm.tsx
-            Route::put('/{expense}', [ExpenseController::class, 'update'])->middleware('permission:can_edit_expenses');
+            Route::put('/{expense}', [ExpenseController::class, 'update'])->middleware('permission:can_manage_operations');
             // Used in: app/pos/vendor/[vendorId]/expenses/page.tsx
-            Route::delete('/{expense}', [ExpenseController::class, 'destroy'])->middleware('permission:can_delete_expenses');
+            Route::delete('/{expense}', [ExpenseController::class, 'destroy'])->middleware('permission:can_delete_operations');
         });
 
         // Purchase Order routes (protected)
         Route::prefix('purchase-orders')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/procurement/orders/page.tsx
-            Route::get('/', [PurchaseOrderController::class, 'index'])->middleware('permission:can_view_purchase_orders');
+            Route::get('/', [PurchaseOrderController::class, 'index'])->middleware('permission:can_view_operations');
             // Used in: app/pos/vendor/[vendorId]/procurement/orders/_components/PurchaseOrderForm.tsx
-            Route::post('/', [PurchaseOrderController::class, 'store'])->middleware('permission:can_edit_purchase_orders');
+            Route::post('/', [PurchaseOrderController::class, 'store'])->middleware('permission:can_manage_operations');
             // Used in: app/pos/vendor/[vendorId]/procurement/orders/[orderId]/page.tsx
-            Route::get('/{purchaseOrder}', [PurchaseOrderController::class, 'show'])->middleware('permission:can_view_purchase_orders');
+            Route::get('/{purchaseOrder}', [PurchaseOrderController::class, 'show'])->middleware('permission:can_view_operations');
             // Used in: app/pos/vendor/[vendorId]/procurement/orders/_components/PurchaseOrderForm.tsx
-            Route::put('/{purchaseOrder}', [PurchaseOrderController::class, 'update'])->middleware('permission:can_edit_purchase_orders');
+            Route::put('/{purchaseOrder}', [PurchaseOrderController::class, 'update'])->middleware('permission:can_manage_operations');
             // Used in: app/pos/vendor/[vendorId]/procurement/orders/page.tsx
-            Route::delete('/{purchaseOrder}', [PurchaseOrderController::class, 'destroy'])->middleware('permission:can_delete_purchase_orders');
+            Route::delete('/{purchaseOrder}', [PurchaseOrderController::class, 'destroy'])->middleware('permission:can_delete_operations');
         });
 
         // Sale routes (protected)
@@ -303,7 +303,7 @@ Route::middleware('log.api')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/sales/page.tsx
             Route::post('/{sale}/void', [SaleController::class, 'void'])->middleware('permission:can_manage_sales');
             // Not currently used in the frontend
-            Route::get('/export', [SaleController::class, 'export'])->middleware('permission:can_export_data');
+            Route::get('/export', [SaleController::class, 'export'])->middleware('permission:can_view_financial_analytics');
             // Used in: app/pos/vendor/[vendorId]/sales/page.tsx
             Route::delete('/{sale}', [SaleController::class, 'destroy'])->middleware('permission:can_manage_sales');
         });
@@ -355,15 +355,15 @@ Route::middleware('log.api')->group(function () {
         // Role routes (protected)
         Route::prefix('roles')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/roles/page.tsx, app/pos/vendor/[vendorId]/users/_components/UserForm.tsx, app/pos/vendor/[vendorId]/users/page.tsx
-            Route::get('/', [RoleController::class, 'index'])->middleware('permission:can_view_roles');
+            Route::get('/', [RoleController::class, 'index'])->middleware('permission:can_view_access_control');
             // Used in: app/pos/vendor/[vendorId]/roles/_components/RoleForm.tsx
-            Route::post('/', [RoleController::class, 'store'])->middleware('permission:can_edit_roles');
+            Route::post('/', [RoleController::class, 'store'])->middleware('permission:can_manage_access_control');
             // Used in: app/pos/vendor/[vendorId]/roles/[roleId]/page.tsx
-            Route::get('/{role}', [RoleController::class, 'show'])->middleware('permission:can_view_roles');
+            Route::get('/{role}', [RoleController::class, 'show'])->middleware('permission:can_view_access_control');
             // Used in: app/pos/vendor/[vendorId]/roles/_components/RoleForm.tsx
-            Route::put('/{role}', [RoleController::class, 'update'])->middleware('permission:can_edit_roles');
+            Route::put('/{role}', [RoleController::class, 'update'])->middleware('permission:can_manage_access_control');
             // Used in: app/pos/vendor/[vendorId]/roles/page.tsx
-            Route::delete('/{role}', [RoleController::class, 'destroy'])->middleware('permission:can_delete_roles');
+            Route::delete('/{role}', [RoleController::class, 'destroy'])->middleware('permission:can_delete_access_control');
         });
 
         // Billing Counter routes (protected)
@@ -400,28 +400,28 @@ Route::middleware('log.api')->group(function () {
             Route::get('/active', [CashRegisterSessionController::class, 'activeSession']);
             
             // Used in: app/pos/vendor/[vendorId]/cash-management/page.tsx
-            Route::get('/', [CashRegisterSessionController::class, 'index'])->middleware('permission:can_view_cash_sessions');
+            Route::get('/', [CashRegisterSessionController::class, 'index'])->middleware('permission:can_view_reports');
             // Used in: app/pos/vendor/[vendorId]/pos/_components/RegisterStatusModal.tsx
-            Route::get('/{cashRegisterSession}', [CashRegisterSessionController::class, 'show'])->middleware('permission:can_view_cash_sessions');
+            Route::get('/{cashRegisterSession}', [CashRegisterSessionController::class, 'show'])->middleware('permission:can_view_reports');
             
             // Used in: app/pos/vendor/[vendorId]/pos/_components/RegisterStatusModal.tsx
-            Route::post('/open', [CashRegisterSessionController::class, 'openSession'])->middleware('permission:can_open_close_cash_register');
+            Route::post('/open', [CashRegisterSessionController::class, 'openSession'])->middleware('permission:can_manage_cash_drawer');
             // Used in: app/pos/vendor/[vendorId]/pos/_components/RegisterStatusModal.tsx
-            Route::post('/{cashRegisterSession}/close', [CashRegisterSessionController::class, 'closeSession'])->middleware('permission:can_open_close_cash_register');
+            Route::post('/{cashRegisterSession}/close', [CashRegisterSessionController::class, 'closeSession'])->middleware('permission:can_manage_cash_drawer');
             // Used in: app/pos/vendor/[vendorId]/cash-management/_components/CashSessionForm.tsx
-            Route::put('/{cashRegisterSession}', [CashRegisterSessionController::class, 'update'])->middleware('permission:can_open_close_cash_register');
+            Route::put('/{cashRegisterSession}', [CashRegisterSessionController::class, 'update'])->middleware('permission:can_manage_cash_drawer');
             // Used in: app/pos/vendor/[vendorId]/cash-management/page.tsx
-            Route::delete('/{cashRegisterSession}', [CashRegisterSessionController::class, 'destroy'])->middleware('permission:can_open_close_cash_register');
+            Route::delete('/{cashRegisterSession}', [CashRegisterSessionController::class, 'destroy'])->middleware('permission:can_manage_cash_drawer');
         });
 
         // Cash Transaction routes (protected)
         Route::prefix('cash-transactions')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/cash-management/page.tsx
-            Route::get('/', [CashTransactionController::class, 'index'])->middleware('permission:can_approve_cash_transactions');
+            Route::get('/', [CashTransactionController::class, 'index'])->middleware('permission:can_manage_cash_drawer');
             // Used in: app/pos/vendor/[vendorId]/pos/_components/RegisterStatusModal.tsx
-            Route::post('/', [CashTransactionController::class, 'store'])->middleware('permission:can_request_cash_transactions');
+            Route::post('/', [CashTransactionController::class, 'store'])->middleware('permission:can_manage_cash_drawer');
             // Used in: app/pos/vendor/[vendorId]/cash-management/page.tsx
-            Route::get('/{cashTransaction}', [CashTransactionController::class, 'show'])->middleware('permission:can_approve_cash_transactions');
+            Route::get('/{cashTransaction}', [CashTransactionController::class, 'show'])->middleware('permission:can_manage_cash_drawer');
         });
 
         // Customer Store Credit routes (protected)
@@ -483,19 +483,19 @@ Route::middleware('log.api')->group(function () {
         // Membership routes (protected)
         Route::prefix('memberships')->group(function () {
             // Not currently used in the frontend
-            Route::get('/', [MembershipController::class, 'index'])->middleware('permission:can_view_roles|can_view_users');
+            Route::get('/', [MembershipController::class, 'index'])->middleware('permission:can_view_access_control');
             // Not currently used in the frontend
-            Route::post('/', [MembershipController::class, 'store'])->middleware('permission:can_edit_users');
+            Route::post('/', [MembershipController::class, 'store'])->middleware('permission:can_manage_access_control');
             // Not currently used in the frontend
-            Route::get('/{membership}', [MembershipController::class, 'show'])->middleware('permission:can_view_roles|can_view_users');
+            Route::get('/{membership}', [MembershipController::class, 'show'])->middleware('permission:can_view_access_control');
             // Not currently used in the frontend
-            Route::put('/{membership}', [MembershipController::class, 'update'])->middleware('permission:can_edit_users');
+            Route::put('/{membership}', [MembershipController::class, 'update'])->middleware('permission:can_manage_access_control');
             // Not currently used in the frontend
-            Route::delete('/{membership}', [MembershipController::class, 'destroy'])->middleware('permission:can_delete_users');
+            Route::delete('/{membership}', [MembershipController::class, 'destroy'])->middleware('permission:can_delete_access_control');
         });
 
         // Activity Logs (protected)
-        Route::prefix('activity-logs')->middleware('permission:can_view_user_activity_log')->group(function () {
+        Route::prefix('activity-logs')->middleware('permission:can_view_access_control')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/activity-log/page.tsx
             Route::get('/', [ActivityLogController::class, 'index']);
             // Used in: app/pos/vendor/[vendorId]/activity-log/page.tsx
@@ -505,15 +505,15 @@ Route::middleware('log.api')->group(function () {
         // User Branch Assignment routes (protected)
         Route::prefix('user-branch-assignments')->group(function () {
             // Not currently used in the frontend
-            Route::get('/', [UserBranchAssignmentController::class, 'index'])->middleware('permission:can_view_users');
+            Route::get('/', [UserBranchAssignmentController::class, 'index'])->middleware('permission:can_view_access_control');
             // Not currently used in the frontend
-            Route::post('/', [UserBranchAssignmentController::class, 'store'])->middleware('permission:can_edit_users');
+            Route::post('/', [UserBranchAssignmentController::class, 'store'])->middleware('permission:can_manage_access_control');
             // Not currently used in the frontend
-            Route::get('/{userBranchAssignment}', [UserBranchAssignmentController::class, 'show'])->middleware('permission:can_view_users');
+            Route::get('/{userBranchAssignment}', [UserBranchAssignmentController::class, 'show'])->middleware('permission:can_view_access_control');
             // Not currently used in the frontend
-            Route::put('/{userBranchAssignment}', [UserBranchAssignmentController::class, 'update'])->middleware('permission:can_edit_users');
+            Route::put('/{userBranchAssignment}', [UserBranchAssignmentController::class, 'update'])->middleware('permission:can_manage_access_control');
             // Not currently used in the frontend
-            Route::delete('/{userBranchAssignment}', [UserBranchAssignmentController::class, 'destroy'])->middleware('permission:can_delete_users');
+            Route::delete('/{userBranchAssignment}', [UserBranchAssignmentController::class, 'destroy'])->middleware('permission:can_delete_access_control');
         });
 
         // Vendor User routes (protected) - explicitly using VendorUserController
@@ -521,17 +521,17 @@ Route::middleware('log.api')->group(function () {
         // but typically 'users' endpoint suggests managing users under the current context
         Route::prefix('users')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/users/page.tsx
-            Route::get('/', [\App\Http\Controllers\VendorUserController::class, 'index'])->middleware('permission:can_view_users');
+            Route::get('/', [\App\Http\Controllers\VendorUserController::class, 'index'])->middleware('permission:can_view_access_control');
             // Used in: app/pos/vendor/[vendorId]/users/_components/UserForm.tsx
-            Route::post('/', [\App\Http\Controllers\VendorUserController::class, 'store'])->middleware('permission:can_edit_users');
+            Route::post('/', [\App\Http\Controllers\VendorUserController::class, 'store'])->middleware('permission:can_manage_access_control');
             // Not currently used in the frontend
-            Route::delete('/bulk', [\App\Http\Controllers\VendorUserController::class, 'bulkDestroy'])->middleware('permission:can_delete_users');
+            Route::delete('/bulk', [\App\Http\Controllers\VendorUserController::class, 'bulkDestroy'])->middleware('permission:can_delete_access_control');
             // Used in: app/pos/vendor/[vendorId]/users/page.tsx
-            Route::get('/{user}', [\App\Http\Controllers\VendorUserController::class, 'show'])->middleware('permission:can_view_users');
+            Route::get('/{user}', [\App\Http\Controllers\VendorUserController::class, 'show'])->middleware('permission:can_view_access_control');
             // Used in: app/pos/vendor/[vendorId]/users/_components/UserForm.tsx
-            Route::put('/{user}', [\App\Http\Controllers\VendorUserController::class, 'update'])->middleware('permission:can_edit_users');
+            Route::put('/{user}', [\App\Http\Controllers\VendorUserController::class, 'update'])->middleware('permission:can_manage_access_control');
             // Used in: app/pos/vendor/[vendorId]/users/page.tsx
-            Route::delete('/{user}', [\App\Http\Controllers\VendorUserController::class, 'destroy'])->middleware('permission:can_delete_users');
+            Route::delete('/{user}', [\App\Http\Controllers\VendorUserController::class, 'destroy'])->middleware('permission:can_delete_access_control');
         });
     });
 

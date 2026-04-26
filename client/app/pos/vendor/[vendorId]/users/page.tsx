@@ -321,7 +321,7 @@ export default function UsersPage() {
         case "actions":
           return (
             <div className="flex items-center justify-end gap-2">
-              {membership?.role?.can_edit_users && (
+              {membership?.role?.can_manage_access_control && (
                 <Button
                   className="min-w-none"
                   color="primary"
@@ -334,7 +334,7 @@ export default function UsersPage() {
                 </Button>
               )}
 
-              {membership?.role?.can_delete_users && (
+              {membership?.role?.can_delete_access_control && (
                 <Button
                   className="min-w-none"
                   color="danger"
@@ -361,13 +361,13 @@ export default function UsersPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_view_users">
+    <PermissionGuard permission="can_view_access_control">
       <div className="p-6">
         <PageHeader
           description="Manage staff members and their roles"
           title="User Management"
         >
-          {membership?.role?.can_edit_users && (
+          {membership?.role?.can_manage_access_control && (
             <Button
               color="primary"
               radius="sm"
@@ -393,7 +393,7 @@ export default function UsersPage() {
             onValueChange={onSearchChange}
           />
           <div className="flex gap-3">
-            {membership?.role?.can_delete_users &&
+            {membership?.role?.can_delete_access_control &&
             selectedKeys !== "all" &&
             (selectedKeys as any).size > 0 ? (
               <Button
@@ -405,7 +405,7 @@ export default function UsersPage() {
               >
                 Delete Selected ({(selectedKeys as any).size})
               </Button>
-            ) : membership?.role?.can_delete_users && selectedKeys === "all" ? (
+            ) : membership?.role?.can_delete_access_control && selectedKeys === "all" ? (
               <Button
                 color="danger"
                 radius="sm"

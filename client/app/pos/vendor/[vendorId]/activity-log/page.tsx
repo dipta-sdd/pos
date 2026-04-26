@@ -145,7 +145,7 @@ export default function ActivityLogPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_view_user_activity_log">
+    <PermissionGuard permission="can_view_access_control">
       <div className="p-6">
         <PageHeader 
           title="Activity Audit Log" 

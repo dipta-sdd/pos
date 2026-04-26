@@ -32,7 +32,7 @@ interface Membership {
   role: {
     name: string;
     can_use_pos: boolean;
-    can_view_dashboard: boolean;
+    can_view_reports: boolean;
   };
 }
 

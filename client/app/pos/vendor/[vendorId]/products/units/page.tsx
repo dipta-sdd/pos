@@ -172,7 +172,7 @@ export default function UnitsOfMeasurePage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_view_units_of_measure">
+    <PermissionGuard permission="can_view_catalog">
       <div className="p-6">
         <PageHeader
           description="Manage product units of measure"

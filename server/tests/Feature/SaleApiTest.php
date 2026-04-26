@@ -28,7 +28,6 @@ class SaleApiTest extends TestCase
         $role = Role::factory()->create([
             'vendor_id' => $this->vendor->id,
             'can_use_pos' => true,
-            'can_view_sales_history' => true,
         ]);
         $this->user->memberships()->create([
             'vendor_id' => $this->vendor->id,

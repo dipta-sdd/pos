@@ -191,7 +191,7 @@ export default function ExpensesPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_view_expenses">
+    <PermissionGuard permission="can_view_operations">
       <div className="p-6">
         <PageHeader description="Track business expenses" title="Expenses">
           <Button

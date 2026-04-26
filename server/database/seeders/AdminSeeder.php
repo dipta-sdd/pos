@@ -86,28 +86,14 @@ class AdminSeeder extends Seeder
 
             // List of permissions from Role.php
             $permissions = [
-                // User Management
-                'can_view_users',
-                'can_edit_users',
-                'can_delete_users',
-                'can_view_roles',
-                'can_edit_roles',
-                'can_delete_roles',
-                'can_view_user_activity_log',
+                // Access Control
+                'can_view_access_control',
+                'can_manage_access_control',
+                'can_delete_access_control',
                 // Product & Catalog
-                'can_view_products',
-                'can_edit_products',
-                'can_delete_products',
-                'can_import_products',
-                'can_export_products',
-                // Categories
-                'can_view_categories',
-                'can_edit_categories',
-                'can_delete_categories',
-                // Units of Measure
-                'can_view_units_of_measure',
-                'can_edit_units_of_measure',
-                'can_delete_units_of_measure',
+                'can_view_catalog',
+                'can_manage_catalog',
+                'can_delete_catalog',
                 // Organization Settings
                 'can_view_organization_settings',
                 'can_edit_organization_settings',
@@ -115,21 +101,10 @@ class AdminSeeder extends Seeder
                 // Inventory & Stock Management
                 'can_view_stock_and_inventory',
                 'can_manage_stock_and_inventory',
-                // Purchase Orders
-                'can_view_purchase_orders',
-                'can_edit_purchase_orders',
-                'can_delete_purchase_orders',
-                // Suppliers
-                'can_view_suppliers',
-                'can_edit_suppliers',
-                'can_delete_suppliers',
-                // Expenses
-                'can_view_expenses',
-                'can_edit_expenses',
-                'can_delete_expenses',
-                // Cash Transactions
-                'can_request_cash_transactions',
-                'can_approve_cash_transactions',
+                // Operations & Procurement
+                'can_view_operations',
+                'can_manage_operations',
+                'can_delete_operations',
                 // Sales & POS
                 'can_use_pos',
                 'can_manage_checkout_pricing',
@@ -145,14 +120,11 @@ class AdminSeeder extends Seeder
                 'can_view_promotions',
                 'can_edit_promotions',
                 'can_delete_promotions',
-                // Financial
-                'can_view_cash_sessions',
-                'can_open_close_cash_register',
+                // Financial & Cash Management
+                'can_manage_cash_drawer',
                 // Reports & Analytics
-                'can_view_dashboard',
                 'can_view_reports',
-                'can_view_profit_loss_data',
-                'can_export_data',
+                'can_view_financial_analytics',
             ];
 
             foreach ($permissions as $perm) {
@@ -167,8 +139,7 @@ class AdminSeeder extends Seeder
             // Create Manager Role (slightly restricted)
             $managerRoleData = $roleData;
             $managerRoleData['name'] = 'Manager';
-            unset($managerRoleData['can_delete_users']);
-            unset($managerRoleData['can_delete_roles']);
+            unset($managerRoleData['can_delete_access_control']);
             unset($managerRoleData['can_delete_organization_settings']);
 
             $managerRole = Role::firstOrCreate(
@@ -1048,6 +1019,11 @@ class AdminSeeder extends Seeder
                     'sale_item_id' => $saleItem->id,
                     'quantity' => $saleItem->quantity,
                 ]);
+            }
+        });
+    }
+}
+
             }
         });
     }

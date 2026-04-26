@@ -22,7 +22,7 @@ export default function DataExportsPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_export_data">
+    <PermissionGuard permission="can_view_financial_analytics">
       <div className="p-6">
         <PageHeader
           description="Export your business data in various formats"

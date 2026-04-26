@@ -45,28 +45,14 @@ class RoleController extends Controller
     private function permissionRules(): array
     {
         return [
-            // User Management
-            'can_view_users' => 'boolean',
-            'can_edit_users' => 'boolean',
-            'can_delete_users' => 'boolean',
-            'can_view_roles' => 'boolean',
-            'can_edit_roles' => 'boolean',
-            'can_delete_roles' => 'boolean',
-            'can_view_user_activity_log' => 'boolean',
+            // Access Control
+            'can_view_access_control' => 'boolean',
+            'can_manage_access_control' => 'boolean',
+            'can_delete_access_control' => 'boolean',
             // Product & Catalog
-            'can_view_products' => 'boolean',
-            'can_edit_products' => 'boolean',
-            'can_delete_products' => 'boolean',
-            'can_import_products' => 'boolean',
-            'can_export_products' => 'boolean',
-            // Categories
-            'can_view_categories' => 'boolean',
-            'can_edit_categories' => 'boolean',
-            'can_delete_categories' => 'boolean',
-            // Units of Measure
-            'can_view_units_of_measure' => 'boolean',
-            'can_edit_units_of_measure' => 'boolean',
-            'can_delete_units_of_measure' => 'boolean',
+            'can_view_catalog' => 'boolean',
+            'can_manage_catalog' => 'boolean',
+            'can_delete_catalog' => 'boolean',
             // Organization Settings
             'can_view_organization_settings' => 'boolean',
             'can_edit_organization_settings' => 'boolean',
@@ -74,21 +60,11 @@ class RoleController extends Controller
             // Inventory & Stock Management
             'can_view_stock_and_inventory' => 'boolean',
             'can_manage_stock_and_inventory' => 'boolean',
-            // Purchase Orders
-            'can_view_purchase_orders' => 'boolean',
-            'can_edit_purchase_orders' => 'boolean',
-            'can_delete_purchase_orders' => 'boolean',
-            // Suppliers
-            'can_view_suppliers' => 'boolean',
-            'can_edit_suppliers' => 'boolean',
-            'can_delete_suppliers' => 'boolean',
-            // Expenses
-            'can_view_expenses' => 'boolean',
-            'can_edit_expenses' => 'boolean',
-            'can_delete_expenses' => 'boolean',
+            // Operations & Procurement
+            'can_view_operations' => 'boolean',
+            'can_manage_operations' => 'boolean',
+            'can_delete_operations' => 'boolean',
             // Cash Transactions
-            'can_request_cash_transactions' => 'boolean',
-            'can_approve_cash_transactions' => 'boolean',
             // Sales & POS
             'can_use_pos' => 'boolean',
             'can_manage_checkout_pricing' => 'boolean',
@@ -103,13 +79,11 @@ class RoleController extends Controller
             // Promotions
             'can_view_promotions' => 'boolean',
             'can_manage_promotions' => 'boolean',
-            // Financial
-            'can_open_close_cash_register' => 'boolean',
+            // Financial & Cash Management
+            'can_manage_cash_drawer' => 'boolean',
             // Reports & Analytics
-            'can_view_dashboard' => 'boolean',
             'can_view_reports' => 'boolean',
-            'can_view_profit_loss_data' => 'boolean',
-            'can_export_data' => 'boolean',
+            'can_view_financial_analytics' => 'boolean',
         ];
     }
 

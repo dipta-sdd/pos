@@ -13,7 +13,7 @@ export default function NewProductPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_view_products">
+    <PermissionGuard permission="can_view_catalog">
       <div className="p-6">
         <PageHeader
           description="Add a new product to your catalog"
