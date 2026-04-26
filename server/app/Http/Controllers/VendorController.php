@@ -139,10 +139,8 @@ class VendorController extends Controller
                 'can_customize_receipts' => true,
                 // Sales & POS
                 'can_use_pos' => true,
-                'can_view_sales_history' => true,
-                'can_override_prices' => true,
-                'can_apply_manual_discounts' => true,
-                'can_void_sales' => true,
+                'can_manage_checkout_pricing' => true,
+                'can_manage_sales' => true,
                 // Returns
                 'can_process_returns' => true,
                 'can_issue_cash_refunds' => true,

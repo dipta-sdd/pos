@@ -337,17 +337,19 @@ export default function SalesPage() {
             >
               <Eye className="w-4 h-4 text-primary" />
             </Button>
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onPress={() => {
-                setDeleteConfirmId(item.id);
-                setDeleteConfirmOpen(true);
-              }}
-            >
-              <Trash2 className="w-4 h-4 text-danger" />
-            </Button>
+            {membership?.role.can_manage_sales && (
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onPress={() => {
+                  setDeleteConfirmId(item.id);
+                  setDeleteConfirmOpen(true);
+                }}
+              >
+                <Trash2 className="w-4 h-4 text-danger" />
+              </Button>
+            )}
           </div>
         );
       default:
@@ -358,7 +360,7 @@ export default function SalesPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_view_sales_history">
+    <PermissionGuard permission="can_use_pos">
       <div className="p-6">
         <PageHeader
           description="View and manage sales transactions"

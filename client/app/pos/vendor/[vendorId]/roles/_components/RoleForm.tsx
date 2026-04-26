@@ -38,14 +38,12 @@ const PERMISSION_GROUPS = {
   ],
   "POS & Sales": [
     "can_use_pos",
-    "can_view_sales_history",
+    "can_manage_checkout_pricing",
+    "can_manage_sales",
     "can_process_returns",
     "can_open_close_cash_register",
     "can_request_cash_transactions",
     "can_approve_cash_transactions",
-    "can_override_prices",
-    "can_apply_manual_discounts",
-    "can_void_sales",
     "can_issue_cash_refunds",
     "can_issue_store_credit",
   ],
@@ -291,14 +289,12 @@ export const roleSchema = z.object({
 
   // POS & Sales
   can_use_pos: z.boolean().default(false),
-  can_view_sales_history: z.boolean().default(false),
+  can_manage_checkout_pricing: z.boolean().default(false),
+  can_manage_sales: z.boolean().default(false),
   can_process_returns: z.boolean().default(false),
   can_open_close_cash_register: z.boolean().default(false),
   can_request_cash_transactions: z.boolean().default(false),
   can_approve_cash_transactions: z.boolean().default(false),
-  can_override_prices: z.boolean().default(false),
-  can_apply_manual_discounts: z.boolean().default(false),
-  can_void_sales: z.boolean().default(false),
   can_issue_cash_refunds: z.boolean().default(false),
   can_issue_store_credit: z.boolean().default(false),
 

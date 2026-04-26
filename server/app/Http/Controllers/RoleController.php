@@ -104,10 +104,8 @@ class RoleController extends Controller
             'can_customize_receipts' => 'boolean',
             // Sales & POS
             'can_use_pos' => 'boolean',
-            'can_view_sales_history' => 'boolean',
-            'can_override_prices' => 'boolean',
-            'can_apply_manual_discounts' => 'boolean',
-            'can_void_sales' => 'boolean',
+            'can_manage_checkout_pricing' => 'boolean',
+            'can_manage_sales' => 'boolean',
             // Returns
             'can_process_returns' => 'boolean',
             'can_issue_cash_refunds' => 'boolean',

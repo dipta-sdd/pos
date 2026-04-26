@@ -78,10 +78,8 @@ class Role extends Model
         'can_customize_receipts',
         // Sales & POS Permissions
         'can_use_pos',
-        'can_view_sales_history',
-        'can_override_prices',
-        'can_apply_manual_discounts',
-        'can_void_sales',
+        'can_manage_checkout_pricing',
+        'can_manage_sales',
         // Returns Permissions
         'can_process_returns',
         'can_issue_cash_refunds',
@@ -168,10 +166,8 @@ class Role extends Model
         'can_customize_receipts' => 'boolean',
         // Sales & POS
         'can_use_pos' => 'boolean',
-        'can_view_sales_history' => 'boolean',
-        'can_override_prices' => 'boolean',
-        'can_apply_manual_discounts' => 'boolean',
-        'can_void_sales' => 'boolean',
+        'can_manage_checkout_pricing' => 'boolean',
+        'can_manage_sales' => 'boolean',
         // Returns
         'can_process_returns' => 'boolean',
         'can_issue_cash_refunds' => 'boolean',

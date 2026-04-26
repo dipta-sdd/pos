@@ -179,16 +179,14 @@ return new class extends Migration {
             
 
             // Sales & POS Permissions
-            // Sidebar => Point of Sale (POS)
-            // Backend APIs: GET /sales, POST /sales, GET /sales/{sale}, PUT /sales/{sale}, POST /sales/{sale}/void, GET /sales/export, DELETE /sales/{sale}, GET /pos/active-session, GET /pos/customers, GET /pos/payment-methods, GET /pos/products, GET /pos/products/stocks, POST /pos/calculate-discounts
-            $table->boolean('can_use_pos')->default(false); // also include counter session
-            // Sidebar => Sales History
-            // Backend APIs: GET /sales, GET /sales/{sale}
-            $table->boolean('can_view_sales_history')->default(false);
-            $table->boolean('can_override_prices')->default(false);
-            $table->boolean('can_apply_manual_discounts')->default(false);
-            // Backend APIs: POST /sales/{sale}/void
-            $table->boolean('can_void_sales')->default(false);
+            // Sidebar => Point of Sale (POS), Sales History
+            // Backend APIs: GET /sales, POST /sales, GET /sales/{sale}, GET /pos/active-session, GET /pos/customers, GET /pos/payment-methods, GET /pos/products, GET /pos/products/stocks, POST /pos/calculate-discounts
+            $table->boolean('can_use_pos')->default(false); // include sales history
+            // Used in Frontend: POS checkout pricing overrides
+            $table->boolean('can_manage_checkout_pricing')->default(false); // override prices, manual discounts
+            // Used in Frontend: app/pos/vendor/[vendorId]/sales/page.tsx
+            // Backend APIs: PUT /sales/{sale}, POST /sales/{sale}/void, DELETE /sales/{sale}
+            $table->boolean('can_manage_sales')->default(false); // edit, void, delete sales
 
             // Returns Permissions
             // Sidebar => Sales -> Returns

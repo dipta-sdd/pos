@@ -293,19 +293,19 @@ Route::middleware('log.api')->group(function () {
         // Sale routes (protected)
         Route::prefix('sales')->middleware('permission:can_use_pos')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/returns/_components/ReturnForm.tsx, app/pos/vendor/[vendorId]/sales/page.tsx
-            Route::get('/', [SaleController::class, 'index'])->middleware('permission:can_view_sales_history');
+            Route::get('/', [SaleController::class, 'index']);
             // Used in: app/pos/vendor/[vendorId]/pos/page.tsx
             Route::post('/', [SaleController::class, 'store']);
             // Used in: app/pos/vendor/[vendorId]/returns/_components/ReturnForm.tsx
-            Route::get('/{sale}', [SaleController::class, 'show'])->middleware('permission:can_view_sales_history');
+            Route::get('/{sale}', [SaleController::class, 'show']);
             // Used in: app/pos/vendor/[vendorId]/sales/page.tsx
-            Route::put('/{sale}', [SaleController::class, 'update']);
+            Route::put('/{sale}', [SaleController::class, 'update'])->middleware('permission:can_manage_sales');
             // Used in: app/pos/vendor/[vendorId]/sales/page.tsx
-            Route::post('/{sale}/void', [SaleController::class, 'void']);
+            Route::post('/{sale}/void', [SaleController::class, 'void'])->middleware('permission:can_manage_sales');
             // Not currently used in the frontend
             Route::get('/export', [SaleController::class, 'export'])->middleware('permission:can_export_data');
             // Used in: app/pos/vendor/[vendorId]/sales/page.tsx
-            Route::delete('/{sale}', [SaleController::class, 'destroy']);
+            Route::delete('/{sale}', [SaleController::class, 'destroy'])->middleware('permission:can_manage_sales');
         });
 
         // POS-specific specialized routes

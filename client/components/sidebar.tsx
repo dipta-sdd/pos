@@ -87,13 +87,13 @@ export default function Sidebar() {
     {
       icon: ReceiptText,
       label: "Sales",
-      permission: "can_view_sales_history",
+      permission: "can_use_pos",
       subItems: [
         {
           icon: History,
           label: "Sales History",
           href: `/pos/vendor/${vendor.id}/sales`,
-          permission: "can_view_sales_history",
+          permission: "can_use_pos",
         },
         {
           icon: Undo2,
