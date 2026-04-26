@@ -14,6 +14,7 @@ class CashTransaction extends Model
     use HasFactory;
 
     protected $fillable = [
+        'payment_method_id',
         'cash_register_session_id',
         'amount',
         'type',

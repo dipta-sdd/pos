@@ -17,6 +17,8 @@ class ReturnItem extends Model
         'return_id',
         'sale_item_id',
         'quantity',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [
