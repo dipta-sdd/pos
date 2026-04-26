@@ -102,7 +102,7 @@ Route::middleware('log.api')->group(function () {
                 // Used in: app/pos/vendor/[vendorId]/settings/page.tsx, lib/contexts/VendorContext.tsx
                 Route::get('/{vendor_id}', [VendorController::class, 'show']);
                 // Used in: app/pos/vendor/[vendorId]/settings/page.tsx
-                Route::put('/{vendor_id}/settings', [VendorController::class, 'updateSettings'])->middleware('permission:can_manage_shop_settings');
+                Route::put('/{vendor_id}/settings', [VendorController::class, 'updateSettings'])->middleware('permission:can_edit_organization_settings');
             });
         });
 
@@ -205,15 +205,15 @@ Route::middleware('log.api')->group(function () {
         // Tax routes (protected)
         Route::prefix('taxes')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/settings/taxes/page.tsx
-            Route::get('/', [TaxController::class, 'index'])->middleware('permission:can_view_taxes');
+            Route::get('/', [TaxController::class, 'index'])->middleware('permission:can_view_organization_settings');
             // Used in: app/pos/vendor/[vendorId]/settings/taxes/_components/TaxForm.tsx
-            Route::post('/', [TaxController::class, 'store'])->middleware('permission:can_edit_taxes');
+            Route::post('/', [TaxController::class, 'store'])->middleware('permission:can_edit_organization_settings');
             // Used in: app/pos/vendor/[vendorId]/settings/taxes/page.tsx
-            Route::get('/{tax}', [TaxController::class, 'show'])->middleware('permission:can_view_taxes');
+            Route::get('/{tax}', [TaxController::class, 'show'])->middleware('permission:can_view_organization_settings');
             // Used in: app/pos/vendor/[vendorId]/settings/taxes/_components/TaxForm.tsx
-            Route::put('/{tax}', [TaxController::class, 'update'])->middleware('permission:can_edit_taxes');
+            Route::put('/{tax}', [TaxController::class, 'update'])->middleware('permission:can_edit_organization_settings');
             // Used in: app/pos/vendor/[vendorId]/settings/taxes/page.tsx
-            Route::delete('/{tax}', [TaxController::class, 'destroy'])->middleware('permission:can_delete_taxes');
+            Route::delete('/{tax}', [TaxController::class, 'destroy'])->middleware('permission:can_delete_organization_settings');
         });
 
         // Promotion routes (protected)
@@ -369,29 +369,29 @@ Route::middleware('log.api')->group(function () {
         // Billing Counter routes (protected)
         Route::prefix('billing-counters')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/branches/counters/page.tsx, app/pos/vendor/[vendorId]/cash-management/_components/CashSessionForm.tsx, app/pos/vendor/[vendorId]/pos/_components/RegisterStatusModal.tsx
-            Route::get('/', [BillingCounterController::class, 'index'])->middleware('permission:can_view_counters');
+            Route::get('/', [BillingCounterController::class, 'index'])->middleware('permission:can_view_organization_settings');
             // Used in: app/pos/vendor/[vendorId]/branches/counters/_components/BillingCounterForm.tsx
-            Route::post('/', [BillingCounterController::class, 'store'])->middleware('permission:can_edit_counters');
+            Route::post('/', [BillingCounterController::class, 'store'])->middleware('permission:can_edit_organization_settings');
             // Used in: app/pos/vendor/[vendorId]/branches/counters/page.tsx, app/pos/vendor/[vendorId]/cash-management/_components/CashSessionForm.tsx, app/pos/vendor/[vendorId]/pos/_components/RegisterStatusModal.tsx
-            Route::get('/{billingCounter}', [BillingCounterController::class, 'show'])->middleware('permission:can_view_counters');
+            Route::get('/{billingCounter}', [BillingCounterController::class, 'show'])->middleware('permission:can_view_organization_settings');
             // Used in: app/pos/vendor/[vendorId]/branches/counters/_components/BillingCounterForm.tsx
-            Route::put('/{billingCounter}', [BillingCounterController::class, 'update'])->middleware('permission:can_edit_counters');
+            Route::put('/{billingCounter}', [BillingCounterController::class, 'update'])->middleware('permission:can_edit_organization_settings');
             // Used in: app/pos/vendor/[vendorId]/branches/counters/page.tsx
-            Route::delete('/{billingCounter}', [BillingCounterController::class, 'destroy'])->middleware('permission:can_delete_counters');
+            Route::delete('/{billingCounter}', [BillingCounterController::class, 'destroy'])->middleware('permission:can_delete_organization_settings');
         });
 
         // Branch routes (protected)
         Route::prefix('branches')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/branches/counters/_components/BillingCounterForm.tsx, app/pos/vendor/[vendorId]/branches/page.tsx, app/pos/vendor/[vendorId]/expenses/_components/ExpenseForm.tsx, app/pos/vendor/[vendorId]/inventory/adjustments/_components/InventoryAdjustmentForm.tsx, app/pos/vendor/[vendorId]/inventory/transfers/_components/StockTransferForm.tsx, app/pos/vendor/[vendorId]/procurement/orders/_components/PurchaseOrderForm.tsx, app/pos/vendor/[vendorId]/users/_components/UserForm.tsx
-            Route::get('/', [BranchController::class, 'index'])->middleware('permission:can_view_branches');
+            Route::get('/', [BranchController::class, 'index'])->middleware('permission:can_view_organization_settings');
             // Used in: app/pos/vendor/[vendorId]/branches/_components/BranchForm.tsx
-            Route::post('/', [BranchController::class, 'store'])->middleware('permission:can_edit_branches');
+            Route::post('/', [BranchController::class, 'store'])->middleware('permission:can_edit_organization_settings');
             // Used in: app/pos/vendor/[vendorId]/branches/counters/_components/BillingCounterForm.tsx, app/pos/vendor/[vendorId]/branches/page.tsx, app/pos/vendor/[vendorId]/expenses/_components/ExpenseForm.tsx, app/pos/vendor/[vendorId]/inventory/adjustments/_components/InventoryAdjustmentForm.tsx, app/pos/vendor/[vendorId]/inventory/transfers/_components/StockTransferForm.tsx, app/pos/vendor/[vendorId]/procurement/orders/_components/PurchaseOrderForm.tsx, app/pos/vendor/[vendorId]/users/_components/UserForm.tsx
-            Route::get('/{branch}', [BranchController::class, 'show'])->middleware('permission:can_view_branches');
+            Route::get('/{branch}', [BranchController::class, 'show'])->middleware('permission:can_view_organization_settings');
             // Used in: app/pos/vendor/[vendorId]/branches/_components/BranchForm.tsx
-            Route::put('/{branch}', [BranchController::class, 'update'])->middleware('permission:can_edit_branches');
+            Route::put('/{branch}', [BranchController::class, 'update'])->middleware('permission:can_edit_organization_settings');
             // Used in: app/pos/vendor/[vendorId]/branches/page.tsx
-            Route::delete('/{branch}', [BranchController::class, 'destroy'])->middleware('permission:can_delete_branches');
+            Route::delete('/{branch}', [BranchController::class, 'destroy'])->middleware('permission:can_delete_organization_settings');
         });
 
         // Cash Register Session routes (protected)
@@ -441,19 +441,19 @@ Route::middleware('log.api')->group(function () {
         // Payment Method routes (protected)
         Route::prefix('payment-methods')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/pos/_components/PaymentSection.tsx, app/pos/vendor/[vendorId]/pos/_components/RegisterStatusModal.tsx, app/pos/vendor/[vendorId]/sales/page.tsx, app/pos/vendor/[vendorId]/settings/payment-methods/page.tsx
-            Route::get('/', [PaymentMethodController::class, 'index'])->middleware('permission:can_view_payment_methods');
+            Route::get('/', [PaymentMethodController::class, 'index'])->middleware('permission:can_view_organization_settings');
             // Used in: app/pos/vendor/[vendorId]/settings/payment-methods/_components/PaymentMethodForm.tsx
-            Route::post('/', [PaymentMethodController::class, 'store'])->middleware('permission:can_edit_payment_methods');
+            Route::post('/', [PaymentMethodController::class, 'store'])->middleware('permission:can_edit_organization_settings');
             // Used in: app/pos/vendor/[vendorId]/pos/_components/PaymentSection.tsx, app/pos/vendor/[vendorId]/pos/_components/RegisterStatusModal.tsx, app/pos/vendor/[vendorId]/sales/page.tsx, app/pos/vendor/[vendorId]/settings/payment-methods/page.tsx
-            Route::get('/{paymentMethod}', [PaymentMethodController::class, 'show'])->middleware('permission:can_view_payment_methods');
+            Route::get('/{paymentMethod}', [PaymentMethodController::class, 'show'])->middleware('permission:can_view_organization_settings');
             // Used in: app/pos/vendor/[vendorId]/settings/payment-methods/_components/PaymentMethodForm.tsx
-            Route::put('/{paymentMethod}', [PaymentMethodController::class, 'update'])->middleware('permission:can_edit_payment_methods');
+            Route::put('/{paymentMethod}', [PaymentMethodController::class, 'update'])->middleware('permission:can_edit_organization_settings');
             // Used in: app/pos/vendor/[vendorId]/settings/payment-methods/page.tsx
-            Route::delete('/{paymentMethod}', [PaymentMethodController::class, 'destroy'])->middleware('permission:can_delete_payment_methods');
+            Route::delete('/{paymentMethod}', [PaymentMethodController::class, 'destroy'])->middleware('permission:can_delete_organization_settings');
         });
 
         // Receipt Settings routes (protected)
-        Route::prefix('receipt-settings')->middleware('permission:can_customize_receipts')->group(function () {
+        Route::prefix('receipt-settings')->middleware('permission:can_edit_organization_settings')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/sales/page.tsx
             Route::get('/', [ReceiptSettingsController::class, 'index']);
             // Used in: app/pos/vendor/[vendorId]/settings/receipts/page.tsx
@@ -545,4 +545,25 @@ Route::middleware('log.api')->group(function () {
         ]);
     });
 
-});
+});        ]);
+    });
+
+});;
+    });
+
+});;
+
+});;
+
+});;});
+});;
+
+});;
+
+});;;;
+
+});;
+
+});;
+
+});});});

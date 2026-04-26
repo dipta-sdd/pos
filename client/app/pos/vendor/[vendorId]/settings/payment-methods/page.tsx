@@ -227,7 +227,7 @@ export default function PaymentMethodsPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_view_payment_methods">
+    <PermissionGuard permission="can_view_organization_settings">
       <div className="p-6">
         <PageHeader
           description="Configure accepted payment methods"

@@ -38,7 +38,7 @@ export default function IntegrationsPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_manage_shop_settings">
+    <PermissionGuard permission="can_edit_organization_settings">
       <div className="p-6">
         <PageHeader
           description="Connect your POS with other business tools"

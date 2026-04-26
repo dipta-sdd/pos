@@ -28,18 +28,10 @@ export interface Role {
   can_view_units_of_measure: boolean;
   can_edit_units_of_measure: boolean;
   can_delete_units_of_measure: boolean;
-  // Branches
-  can_view_branches: boolean;
-  can_edit_branches: boolean;
-  can_delete_branches: boolean;
-  // Counters
-  can_view_counters: boolean;
-  can_edit_counters: boolean;
-  can_delete_counters: boolean;
-  // Payment Methods
-  can_view_payment_methods: boolean;
-  can_edit_payment_methods: boolean;
-  can_delete_payment_methods: boolean;
+  // Organization Settings
+  can_view_organization_settings: boolean;
+  can_edit_organization_settings: boolean;
+  can_delete_organization_settings: boolean;
   // Inventory & Stock Management
   can_view_stock_and_inventory: boolean;
   can_manage_stock_and_inventory: boolean;
@@ -58,11 +50,6 @@ export interface Role {
   // Cash Transactions
   can_request_cash_transactions: boolean;
   can_approve_cash_transactions: boolean;
-  // Shop & Organization
-  can_manage_shop_settings: boolean;
-  can_manage_billing_and_plan: boolean;
-  can_configure_taxes: boolean;
-  can_customize_receipts: boolean;
   // Sales & POS
   can_use_pos: boolean;
   can_manage_checkout_pricing: boolean;

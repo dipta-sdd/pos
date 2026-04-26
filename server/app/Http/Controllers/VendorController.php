@@ -102,18 +102,10 @@ class VendorController extends Controller
                 'can_view_units_of_measure' => true,
                 'can_edit_units_of_measure' => true,
                 'can_delete_units_of_measure' => true,
-                // Branches
-                'can_view_branches' => true,
-                'can_edit_branches' => true,
-                'can_delete_branches' => true,
-                // Counters
-                'can_view_counters' => true,
-                'can_edit_counters' => true,
-                'can_delete_counters' => true,
-                // Payment Methods
-                'can_view_payment_methods' => true,
-                'can_edit_payment_methods' => true,
-                'can_delete_payment_methods' => true,
+                // Organization Settings
+                'can_view_organization_settings' => true,
+                'can_edit_organization_settings' => true,
+                'can_delete_organization_settings' => true,
                 // Inventory & Stock Management
                 'can_view_stock_and_inventory' => true,
                 'can_manage_stock_and_inventory' => true,
@@ -132,11 +124,6 @@ class VendorController extends Controller
                 // Cash Transactions
                 'can_request_cash_transactions' => true,
                 'can_approve_cash_transactions' => true,
-                // Shop & Organization
-                'can_manage_shop_settings' => true,
-                'can_manage_billing_and_plan' => true,
-                'can_configure_taxes' => true,
-                'can_customize_receipts' => true,
                 // Sales & POS
                 'can_use_pos' => true,
                 'can_manage_checkout_pricing' => true,
@@ -587,7 +574,7 @@ class VendorController extends Controller
                 ->where('vendor_id', $id)
                 ->first();
 
-            if (!$membership || !$membership->role->can_manage_shop_settings) {
+            if (!$membership || !$membership->role->can_edit_organization_settings) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Unauthorized: You do not have permission to manage shop settings.'

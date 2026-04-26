@@ -169,7 +169,7 @@ export default function TaxesPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_configure_taxes">
+    <PermissionGuard permission="can_view_organization_settings">
       <div className="p-6">
         <PageHeader
           description="Configure tax rates for your products"

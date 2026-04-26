@@ -80,18 +80,12 @@ const PERMISSION_GROUPS = {
     "can_view_promotions",
     "can_manage_promotions",
   ],
-  "Branches & Counters": [
-    "can_view_branches",
-    "can_edit_branches",
-    "can_delete_branches",
-    "can_view_counters",
-    "can_edit_counters",
-    "can_delete_counters",
+  "Organization Settings": [
+    "can_view_organization_settings",
+    "can_edit_organization_settings",
+    "can_delete_organization_settings",
   ],
-  "Payment & Expenses": [
-    "can_view_payment_methods",
-    "can_edit_payment_methods",
-    "can_delete_payment_methods",
+  "Financial & Expenses": [
     "can_view_expenses",
     "can_edit_expenses",
     "can_delete_expenses",
@@ -103,12 +97,6 @@ const PERMISSION_GROUPS = {
     "can_view_roles",
     "can_edit_roles",
     "can_delete_roles",
-  ],
-  "Shop Settings": [
-    "can_manage_shop_settings",
-    "can_manage_billing_and_plan",
-    "can_configure_taxes",
-    "can_customize_receipts",
   ],
 };
 
@@ -331,18 +319,12 @@ export const roleSchema = z.object({
   can_view_promotions: z.boolean().default(false),
   can_manage_promotions: z.boolean().default(false),
 
-  // Branches & Counters
-  can_view_branches: z.boolean().default(true),
-  can_edit_branches: z.boolean().default(false),
-  can_delete_branches: z.boolean().default(false),
-  can_view_counters: z.boolean().default(true),
-  can_edit_counters: z.boolean().default(false),
-  can_delete_counters: z.boolean().default(false),
+  // Organization Settings
+  can_view_organization_settings: z.boolean().default(true),
+  can_edit_organization_settings: z.boolean().default(false),
+  can_delete_organization_settings: z.boolean().default(false),
 
-  // Payment & Expenses
-  can_view_payment_methods: z.boolean().default(true),
-  can_edit_payment_methods: z.boolean().default(false),
-  can_delete_payment_methods: z.boolean().default(false),
+  // Financial & Expenses
   can_view_expenses: z.boolean().default(false),
   can_edit_expenses: z.boolean().default(false),
   can_delete_expenses: z.boolean().default(false),
@@ -354,12 +336,6 @@ export const roleSchema = z.object({
   can_view_roles: z.boolean().default(true),
   can_edit_roles: z.boolean().default(false),
   can_delete_roles: z.boolean().default(false),
-
-  // Shop Settings
-  can_manage_shop_settings: z.boolean().default(false),
-  can_manage_billing_and_plan: z.boolean().default(false),
-  can_configure_taxes: z.boolean().default(false),
-  can_customize_receipts: z.boolean().default(false),
 });
 
 export type RoleFormData = z.infer<typeof roleSchema>;

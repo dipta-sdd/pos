@@ -65,35 +65,11 @@ return new class extends Migration {
             // Backend APIs: DELETE /units-of-measure/{unitOfMeasure}
             $table->boolean('can_delete_units_of_measure')->default(false);
 
-            // Used in Frontend: app/pos/vendor/[vendorId]/branches/page.tsx
-            // Backend APIs: GET /branches, GET /branches/{branch}
-            // Sidebar => Settings -> Branches
-            // Backend APIs: GET /branches, GET /branches/{branch}
-            $table->boolean('can_view_branches')->default(true);
-            // Backend APIs: POST /branches, PUT /branches/{branch}
-            $table->boolean('can_edit_branches')->default(false);
-            // Backend APIs: DELETE /branches/{branch}
-            $table->boolean('can_delete_branches')->default(false);
-
-            // Used in Frontend: app/pos/vendor/[vendorId]/branches/counters/page.tsx
-            // Backend APIs: GET /billing-counters, GET /billing-counters/{billingCounter}
-            // Sidebar => Operations -> Counters
-            // Backend APIs: GET /billing-counters, GET /billing-counters/{billingCounter}
-            $table->boolean('can_view_counters')->default(true);
-            // Backend APIs: POST /billing-counters, PUT /billing-counters/{billingCounter}
-            $table->boolean('can_edit_counters')->default(false);
-            // Backend APIs: DELETE /billing-counters/{billingCounter}
-            $table->boolean('can_delete_counters')->default(false);
-
-            // Used in Frontend: app/pos/vendor/[vendorId]/settings/payment-methods/page.tsx
-            // Backend APIs: GET /payment-methods, GET /payment-methods/{paymentMethod}
-            // Sidebar => Settings -> Payment Methods
-            // Backend APIs: GET /payment-methods, GET /payment-methods/{paymentMethod}
-            $table->boolean('can_view_payment_methods')->default(true);
-            // Backend APIs: POST /payment-methods, PUT /payment-methods/{paymentMethod}
-            $table->boolean('can_edit_payment_methods')->default(false);
-            // Backend APIs: DELETE /payment-methods/{paymentMethod}
-            $table->boolean('can_delete_payment_methods')->default(false);
+            // Organization Settings Permissions
+            // Consolidates Branches, Counters, Payment Methods, Taxes, Receipts, and General Settings
+            $table->boolean('can_view_organization_settings')->default(true);
+            $table->boolean('can_edit_organization_settings')->default(false);
+            $table->boolean('can_delete_organization_settings')->default(false);
 
             // Inventory & Stock Management
             // Used in Frontend: app/pos/vendor/[vendorId]/inventory/page.tsx, app/pos/vendor/[vendorId]/inventory/transfers/page.tsx, app/pos/vendor/[vendorId]/inventory/transfers/new/page.tsx, app/pos/vendor/[vendorId]/inventory/transfers/[transferId]/page.tsx
@@ -146,22 +122,6 @@ return new class extends Migration {
             // depricated end
 
             // dont-know start - most of these permissions are in use ,but we will devide many of them in multiple permissions
-            // Shop & Organization Permissions
-            // Sidebar => Settings -> POS Settings, Business Profile, Integrations
-            // Backend APIs: PUT /vendors/{vendor_id}/settings
-            $table->boolean('can_manage_shop_settings')->default(false);
-            // Sidebar => Settings -> Billing & Plan
-            $table->boolean('can_manage_billing_and_plan')->default(false);
-            // Sidebar => Settings -> Taxes
-            // Backend APIs: GET /taxes, GET /taxes/{tax}
-            $table->boolean('can_view_taxes')->default(false);
-            // Backend APIs: POST /taxes, PUT /taxes/{tax}
-            $table->boolean('can_edit_taxes')->default(false);
-            // Backend APIs: DELETE /taxes/{tax}
-            $table->boolean('can_delete_taxes')->default(false);
-            // Sidebar => Settings -> Receipts
-            // Backend APIs: GET /receipt-settings, POST /receipt-settings, GET /receipt-settings/{vendor_id}, PUT /receipt-settings/{vendor_id}, DELETE /receipt-settings/{vendor_id}
-            $table->boolean('can_customize_receipts')->default(false);
 
             // User Management Permissions
             // Sidebar => Operations -> Audit Log

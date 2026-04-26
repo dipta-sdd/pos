@@ -21,7 +21,9 @@ class TaxApiTest extends TestCase
         $this->user = User::factory()->create();
         $role = Role::factory()->create([
             'vendor_id' => $this->vendor->id,
-            'can_configure_taxes' => true,
+            'can_view_organization_settings' => true,
+            'can_edit_organization_settings' => true,
+            'can_delete_organization_settings' => true,
         ]);
         $this->user->memberships()->create([
             'vendor_id' => $this->vendor->id,

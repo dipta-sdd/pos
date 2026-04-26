@@ -16,7 +16,7 @@ export default function BillingPage() {
   if (!vendor) return null;
 
   return (
-    <PermissionGuard permission="can_manage_billing_and_plan">
+    <PermissionGuard permission="can_edit_organization_settings">
       <div className="p-6">
         <PageHeader
           description="Manage your subscription and billing details"

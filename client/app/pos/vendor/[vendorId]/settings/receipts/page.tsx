@@ -182,7 +182,7 @@ export default function ReceiptSettingsPage() {
   const previewPaperWidth = "max-w-[280px]";
 
   return (
-    <PermissionGuard permission="can_customize_receipts">
+    <PermissionGuard permission="can_edit_organization_settings">
       <div className="p-6">
         <form onSubmit={handleSubmit(onSubmit)}>
           <PageHeader

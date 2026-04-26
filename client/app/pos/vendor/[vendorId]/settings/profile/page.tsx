@@ -68,7 +68,7 @@ export default function BusinessProfilePage() {
   if (!vendor) return null;
 
   return (
-    <PermissionGuard permission="can_manage_shop_settings">
+    <PermissionGuard permission="can_edit_organization_settings">
       <div className="p-6">
         <form onSubmit={handleSubmit(onSubmit)}>
           <PageHeader

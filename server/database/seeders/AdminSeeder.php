@@ -108,18 +108,10 @@ class AdminSeeder extends Seeder
                 'can_view_units_of_measure',
                 'can_edit_units_of_measure',
                 'can_delete_units_of_measure',
-                // Branches
-                'can_view_branches',
-                'can_edit_branches',
-                'can_delete_branches',
-                // Counters
-                'can_view_counters',
-                'can_edit_counters',
-                'can_delete_counters',
-                // Payment Methods
-                'can_view_payment_methods',
-                'can_edit_payment_methods',
-                'can_delete_payment_methods',
+                // Organization Settings
+                'can_view_organization_settings',
+                'can_edit_organization_settings',
+                'can_delete_organization_settings',
                 // Inventory & Stock Management
                 'can_view_stock_and_inventory',
                 'can_manage_stock_and_inventory',
@@ -138,13 +130,6 @@ class AdminSeeder extends Seeder
                 // Cash Transactions
                 'can_request_cash_transactions',
                 'can_approve_cash_transactions',
-                // Shop & Organization
-                'can_manage_shop_settings',
-                'can_manage_billing_and_plan',
-                'can_view_taxes',
-                'can_edit_taxes',
-                'can_delete_taxes',
-                'can_customize_receipts',
                 // Sales & POS
                 'can_use_pos',
                 'can_manage_checkout_pricing',
@@ -184,7 +169,7 @@ class AdminSeeder extends Seeder
             $managerRoleData['name'] = 'Manager';
             unset($managerRoleData['can_delete_users']);
             unset($managerRoleData['can_delete_roles']);
-            unset($managerRoleData['can_manage_billing_and_plan']);
+            unset($managerRoleData['can_delete_organization_settings']);
 
             $managerRole = Role::firstOrCreate(
                 ['name' => 'Manager', 'vendor_id' => $vendor->id],

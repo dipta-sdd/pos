@@ -39,18 +39,10 @@ class Role extends Model
         'can_view_units_of_measure',
         'can_edit_units_of_measure',
         'can_delete_units_of_measure',
-        // Branch Permissions
-        'can_view_branches',
-        'can_edit_branches',
-        'can_delete_branches',
-        // Counter Permissions
-        'can_view_counters',
-        'can_edit_counters',
-        'can_delete_counters',
-        // Payment Method Permissions
-        'can_view_payment_methods',
-        'can_edit_payment_methods',
-        'can_delete_payment_methods',
+        // Organization Settings
+        'can_view_organization_settings',
+        'can_edit_organization_settings',
+        'can_delete_organization_settings',
         // Inventory & Stock Management
         'can_view_stock_and_inventory',
         'can_manage_stock_and_inventory',
@@ -69,13 +61,6 @@ class Role extends Model
         // Cash Transaction Permissions
         'can_request_cash_transactions',
         'can_approve_cash_transactions',
-        // Shop & Organization Permissions
-        'can_manage_shop_settings',
-        'can_manage_billing_and_plan',
-        'can_view_taxes',
-        'can_edit_taxes',
-        'can_delete_taxes',
-        'can_customize_receipts',
         // Sales & POS Permissions
         'can_use_pos',
         'can_manage_checkout_pricing',
@@ -127,18 +112,10 @@ class Role extends Model
         'can_view_units_of_measure' => 'boolean',
         'can_edit_units_of_measure' => 'boolean',
         'can_delete_units_of_measure' => 'boolean',
-        // Branches
-        'can_view_branches' => 'boolean',
-        'can_edit_branches' => 'boolean',
-        'can_delete_branches' => 'boolean',
-        // Counters
-        'can_view_counters' => 'boolean',
-        'can_edit_counters' => 'boolean',
-        'can_delete_counters' => 'boolean',
-        // Payment Methods
-        'can_view_payment_methods' => 'boolean',
-        'can_edit_payment_methods' => 'boolean',
-        'can_delete_payment_methods' => 'boolean',
+        // Organization Settings
+        'can_view_organization_settings' => 'boolean',
+        'can_edit_organization_settings' => 'boolean',
+        'can_delete_organization_settings' => 'boolean',
         // Inventory & Stock Management
         'can_view_stock_and_inventory' => 'boolean',
         'can_manage_stock_and_inventory' => 'boolean',
@@ -157,13 +134,6 @@ class Role extends Model
         // Cash Transactions
         'can_request_cash_transactions' => 'boolean',
         'can_approve_cash_transactions' => 'boolean',
-        // Shop & Organization
-        'can_manage_shop_settings' => 'boolean',
-        'can_manage_billing_and_plan' => 'boolean',
-        'can_view_taxes' => 'boolean',
-        'can_edit_taxes' => 'boolean',
-        'can_delete_taxes' => 'boolean',
-        'can_customize_receipts' => 'boolean',
         // Sales & POS
         'can_use_pos' => 'boolean',
         'can_manage_checkout_pricing' => 'boolean',
