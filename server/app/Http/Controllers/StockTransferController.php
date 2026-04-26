@@ -10,7 +10,7 @@ class StockTransferController extends Controller
 {
     public function index(Request $request)
     {
-        $query = StockTransfer::with(['stockTransferItems', 'fromBranch', 'toBranch']);
+        $query = StockTransfer::with(['fromBranch', 'toBranch']);
 
         if ($request->has('vendor_id')) {
             $query->where('vendor_id', $request->vendor_id);
@@ -44,15 +44,15 @@ class StockTransferController extends Controller
         }
 
         $perPage = $request->input('per_page', 10);
-        return $query->paginate($perPage);
+        return response()->json($query->paginate($perPage));
     }
 
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'from_branch_id' => 'required|exists:branches,id',
-            'to_branch_id' => 'required|exists:branches,id',
-            'status' => 'required|in:pending,shipped,received,cancelled',
+            'from_branch_id' => 'required|exists:branches,id,vendor_id,' . $request->vendor_id,
+            'to_branch_id' => 'required|exists:branches,id,vendor_id,' . $request->vendor_id,
+            'status' => 'required|in:draft,pending_approval,in_transit,completed,cancelled,rejected,requested',
             'notes' => 'nullable|string',
             'vendor_id' => 'required|exists:vendors,id',
             'items' => 'required|array',
@@ -64,6 +64,7 @@ class StockTransferController extends Controller
 
         $validatedData['created_by'] = $request->user()->id;
         $validatedData['updated_by'] = $request->user()->id;
+        $validatedData['notes'] = $validatedData['notes'] ?? "";
 
         $stockTransfer = DB::transaction(function () use ($validatedData, $request) {
             $stockTransfer = StockTransfer::create($validatedData);
@@ -76,7 +77,7 @@ class StockTransferController extends Controller
 
     public function show(StockTransfer $stockTransfer)
     {
-        return $stockTransfer->load('stockTransferItems');
+        return response()->json($stockTransfer->load('stockTransferItems'));
     }
 
     public function update(Request $request, StockTransfer $stockTransfer)
@@ -84,7 +85,7 @@ class StockTransferController extends Controller
         $validatedData = $request->validate([
             'from_branch_id' => 'exists:branches,id',
             'to_branch_id' => 'exists:branches,id',
-            'status' => 'in:pending,shipped,received,cancelled',
+            'status' => 'in:draft,pending_approval,in_transit,completed,cancelled,rejected,requested',
             'notes' => 'nullable|string',
             'items' => 'sometimes|array',
             'items.*.id' => 'sometimes|exists:stock_transfer_items,id',
@@ -95,6 +96,7 @@ class StockTransferController extends Controller
         ]);
 
         $validatedData['updated_by'] = $request->user()->id;
+        $validatedData['notes'] = $validatedData['notes'] ?? "";
 
         DB::transaction(function () use ($validatedData, $request, $stockTransfer) {
             $oldStatus = $stockTransfer->status;

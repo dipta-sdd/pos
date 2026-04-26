@@ -31,6 +31,7 @@ const columns: Column[] = [
   { name: "FROM BRANCH", uid: "from_branch", sortable: false },
   { name: "TO BRANCH", uid: "to_branch", sortable: false },
   { name: "STATUS", uid: "status", sortable: true },
+  { name: "BRANCH TYPE", uid: "branch_type", sortable: false },
   { name: "CREATED AT", uid: "created_at", sortable: true },
   { name: "ACTIONS", uid: "actions" },
 ];
@@ -40,6 +41,7 @@ const INITIAL_VISIBLE_COLUMNS = [
   "from_branch",
   "to_branch",
   "status",
+  "branch_type",
   "created_at",
   "actions",
 ];
@@ -133,6 +135,8 @@ export default function StockTransfersPage() {
           return item.from_branch?.name || "N/A";
         case "to_branch":
           return item.to_branch?.name || "N/A";
+        case "branch_type":
+          return item.from_branch?.branch_type || "N/A";
         case "created_at":
           return formatDateTime(item.created_at);
         case "actions":

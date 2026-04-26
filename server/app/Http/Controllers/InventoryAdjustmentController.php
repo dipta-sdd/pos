@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\InventoryAdjustment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class InventoryAdjustmentController extends Controller
 {
@@ -32,7 +33,7 @@ class InventoryAdjustmentController extends Controller
     {
         $validatedData = $request->validate([
             'vendor_id' => 'required|exists:vendors,id',
-            'branch_id' => 'required|exists:branches,id',
+            'branch_id' => 'required|exists:branches,id,vendor_id,' . $request->vendor_id,
             'variant_id' => 'required|exists:variants,id',
             'quantity' => 'required|numeric|min:0.01',
             'type' => 'required|in:addition,subtraction',

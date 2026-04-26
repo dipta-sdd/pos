@@ -158,11 +158,12 @@ export default function StoreCreditsPage() {
             "N/A"
           );
         case "current_balance":
-          return typeof item.current_balance === "number"
-            ? item.current_balance.toFixed(2)
-            : item.current_balance;
+          const balance = Number(item.current_balance);
+          return isNaN(balance) ? "0.00" : balance.toFixed(2);
         case "updated_at":
           return formatDateTime(item.updated_at);
+        case "branch_type":
+          return item.from_branch?.branch_type || "N/A";
         case "created_at":
           return formatDateTime(item.created_at);
         case "actions":

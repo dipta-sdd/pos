@@ -9,8 +9,11 @@ class ActivityLogController extends Controller
 {
     public function index(Request $request)
     {
-        $query = ActivityLog::with(['user', 'branch'])
-            ->where('vendor_id', $request->vendor_id);
+        $query = ActivityLog::with(['user', 'branch']);
+        
+        if ($request->has('vendor_id')) {
+            $query->where('vendor_id', $request->vendor_id);
+        }
 
         if ($request->has('search')) {
             $search = $request->search;

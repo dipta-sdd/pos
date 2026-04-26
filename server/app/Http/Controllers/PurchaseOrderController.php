@@ -40,7 +40,7 @@ class PurchaseOrderController extends Controller
     {
         $validatedData = $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
-            'branch_id' => 'required|exists:branches,id',
+            'branch_id' => 'required|exists:branches,id,vendor_id,' . $request->vendor_id,
             'status' => 'required|in:pending,received,cancelled',
             'total_amount' => 'required|numeric|min:0',
             'paid_amount' => 'numeric|min:0',

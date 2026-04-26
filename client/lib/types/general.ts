@@ -4,6 +4,7 @@ export interface Branch {
   description?: string;
   phone?: string;
   address?: string;
+  branch_type?: string;
   created_at: string;
   created_by_name?: string;
   updated_at: string;

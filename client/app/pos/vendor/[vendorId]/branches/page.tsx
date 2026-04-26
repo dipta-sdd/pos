@@ -41,6 +41,7 @@ const columns: Column[] = [
   { name: "DESCRIPTION", uid: "description" },
   { name: "PHONE", uid: "phone", sortable: true },
   { name: "ADDRESS", uid: "address", sortable: true },
+  { name: "TYPE", uid: "branch_type", sortable: true },
   { name: "CREATED AT", uid: "created_at", sortable: true },
   { name: "CREATED BY", uid: "created_by_name", sortable: true },
   { name: "UPDATED AT", uid: "updated_at", sortable: true },
@@ -52,6 +53,7 @@ const INITIAL_VISIBLE_COLUMNS = [
   "name",
   "phone",
   "address",
+  "branch_type",
   "updated_at",
   "actions",
 ];

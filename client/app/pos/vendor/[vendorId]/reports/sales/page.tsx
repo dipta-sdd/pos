@@ -44,7 +44,14 @@ export default function SalesReportPage() {
           branch_ids: selectedBranchIds.length > 0 ? selectedBranchIds : undefined,
         }
       });
-      setData(response.data);
+      const formattedData = {
+        ...response.data,
+        sales_over_time: response.data.sales_over_time?.map((item: any) => ({
+          ...item,
+          total: Number(item.total)
+        })) || []
+      };
+      setData(formattedData);
     } catch (error) {
       console.error("Failed to fetch report data", error);
     } finally {

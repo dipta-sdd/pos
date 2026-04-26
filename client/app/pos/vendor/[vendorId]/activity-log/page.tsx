@@ -10,11 +10,13 @@ import {
   ModalHeader,
   ModalBody,
   useDisclosure,
+} from "@heroui/modal";
+import {
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-} from "@heroui/react";
+} from "@heroui/dropdown";
 import { type Selection } from "@heroui/react";
 import { type SortDescriptor } from "@heroui/table";
 

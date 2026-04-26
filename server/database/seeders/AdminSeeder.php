@@ -265,6 +265,7 @@ class AdminSeeder extends Seeder
                     'description' => 'Main Head Office',
                     'phone' => '1111111111',
                     'address' => 'Head Office Address',
+                    'branch_type' => 'warehouse',
                     'created_by' => $user->id,
                     'updated_by' => $user->id,
                 ]
@@ -278,6 +279,7 @@ class AdminSeeder extends Seeder
                     'description' => 'Second Location',
                     'phone' => '2222222222',
                     'address' => 'Secondary Address',
+                    'branch_type' => 'retail',
                     'created_by' => $user->id,
                     'updated_by' => $user->id,
                 ]
@@ -823,26 +825,26 @@ class AdminSeeder extends Seeder
 
             // 11. Create 20 Stock Transfers (Manual)
             $transferData = [
-                ['from_branch_id' => 1, 'to_branch_id' => 2, 'status' => 'pending_approval'],
-                ['from_branch_id' => 1, 'to_branch_id' => 2, 'status' => 'in_transit'],
-                ['from_branch_id' => 1, 'to_branch_id' => 2, 'status' => 'completed'],
-                ['from_branch_id' => 2, 'to_branch_id' => 1, 'status' => 'pending_approval'],
-                ['from_branch_id' => 2, 'to_branch_id' => 1, 'status' => 'in_transit'],
-                ['from_branch_id' => 2, 'to_branch_id' => 1, 'status' => 'completed'],
-                ['from_branch_id' => 1, 'to_branch_id' => 2, 'status' => 'pending_approval'],
-                ['from_branch_id' => 1, 'to_branch_id' => 2, 'status' => 'in_transit'],
-                ['from_branch_id' => 1, 'to_branch_id' => 2, 'status' => 'completed'],
-                ['from_branch_id' => 2, 'to_branch_id' => 1, 'status' => 'pending_approval'],
-                ['from_branch_id' => 2, 'to_branch_id' => 1, 'status' => 'in_transit'],
-                ['from_branch_id' => 2, 'to_branch_id' => 1, 'status' => 'completed'],
-                ['from_branch_id' => 1, 'to_branch_id' => 2, 'status' => 'pending_approval'],
-                ['from_branch_id' => 1, 'to_branch_id' => 2, 'status' => 'in_transit'],
-                ['from_branch_id' => 1, 'to_branch_id' => 2, 'status' => 'completed'],
-                ['from_branch_id' => 2, 'to_branch_id' => 1, 'status' => 'pending_approval'],
-                ['from_branch_id' => 2, 'to_branch_id' => 1, 'status' => 'in_transit'],
-                ['from_branch_id' => 2, 'to_branch_id' => 1, 'status' => 'completed'],
-                ['from_branch_id' => 1, 'to_branch_id' => 2, 'status' => 'pending_approval'],
-                ['from_branch_id' => 2, 'to_branch_id' => 1, 'status' => 'completed'],
+                ['from_branch_id' => $branch1->id, 'to_branch_id' => $branch2->id, 'status' => 'pending_approval'],
+                ['from_branch_id' => $branch1->id, 'to_branch_id' => $branch2->id, 'status' => 'in_transit'],
+                ['from_branch_id' => $branch1->id, 'to_branch_id' => $branch2->id, 'status' => 'completed'],
+                ['from_branch_id' => $branch2->id, 'to_branch_id' => $branch1->id, 'status' => 'pending_approval'],
+                ['from_branch_id' => $branch2->id, 'to_branch_id' => $branch1->id, 'status' => 'in_transit'],
+                ['from_branch_id' => $branch2->id, 'to_branch_id' => $branch1->id, 'status' => 'completed'],
+                ['from_branch_id' => $branch1->id, 'to_branch_id' => $branch2->id, 'status' => 'pending_approval'],
+                ['from_branch_id' => $branch1->id, 'to_branch_id' => $branch2->id, 'status' => 'in_transit'],
+                ['from_branch_id' => $branch1->id, 'to_branch_id' => $branch2->id, 'status' => 'completed'],
+                ['from_branch_id' => $branch2->id, 'to_branch_id' => $branch1->id, 'status' => 'pending_approval'],
+                ['from_branch_id' => $branch2->id, 'to_branch_id' => $branch1->id, 'status' => 'in_transit'],
+                ['from_branch_id' => $branch2->id, 'to_branch_id' => $branch1->id, 'status' => 'completed'],
+                ['from_branch_id' => $branch1->id, 'to_branch_id' => $branch2->id, 'status' => 'pending_approval'],
+                ['from_branch_id' => $branch1->id, 'to_branch_id' => $branch2->id, 'status' => 'in_transit'],
+                ['from_branch_id' => $branch1->id, 'to_branch_id' => $branch2->id, 'status' => 'completed'],
+                ['from_branch_id' => $branch2->id, 'to_branch_id' => $branch1->id, 'status' => 'pending_approval'],
+                ['from_branch_id' => $branch2->id, 'to_branch_id' => $branch1->id, 'status' => 'in_transit'],
+                ['from_branch_id' => $branch2->id, 'to_branch_id' => $branch1->id, 'status' => 'completed'],
+                ['from_branch_id' => $branch1->id, 'to_branch_id' => $branch2->id, 'status' => 'pending_approval'],
+                ['from_branch_id' => $branch2->id, 'to_branch_id' => $branch1->id, 'status' => 'completed'],
             ];
 
             foreach ($transferData as $t) {
@@ -850,12 +852,13 @@ class AdminSeeder extends Seeder
                     'vendor_id' => $vendor->id,
                     'created_by' => $user->id,
                     'updated_by' => $user->id,
+                    'notes' => "",
                 ]));
 
                 \App\Models\StockTransferItem::create([
                     'stock_transfer_id' => $transfer->id,
                     'variant_id' => $allVariants[1]->id,
-                    'product_stocks_id' => 1,
+                    'product_stocks_id' => \App\Models\ProductStock::where('branch_id', $transfer->from_branch_id)->where('variant_id', $allVariants[1]->id)->first()?->id ?? 1,
                     'unit_of_measure_id' => 1,
                     'quantity' => 5,
                 ]);
