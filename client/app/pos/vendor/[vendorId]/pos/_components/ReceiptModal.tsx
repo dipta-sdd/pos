@@ -253,15 +253,25 @@ export default function ReceiptModal({
                 <table className="w-full">
                   <thead>
                     <tr className="text-[10px] text-gray-500 border-b border-gray-200">
-                      <td className="pb-1 font-bold">Item</td>
-                      {showItemQty && <td className="pb-1 font-bold text-center">Qty</td>}
-                      {showItemPrice && <td className="pb-1 font-bold text-center">Price</td>}
+                      <td className="pb-1 font-bold">
+                        {receiptSettings?.label_item || "Item"}
+                      </td>
+                      {showItemQty && (
+                        <td className="pb-1 font-bold text-center">
+                          {receiptSettings?.label_qty || "Qty"}
+                        </td>
+                      )}
+                      {showItemPrice && (
+                        <td className="pb-1 font-bold text-center">
+                          {receiptSettings?.label_price || "Price"}
+                        </td>
+                      )}
                       {showItemTotal && (
                         <td
                           className="pb-1 font-bold"
                           style={{ textAlign: "right" }}
                         >
-                          Total
+                          {receiptSettings?.label_total || "Total"}
                         </td>
                       )}
                     </tr>

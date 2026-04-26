@@ -31,6 +31,14 @@ return new class extends Migration {
             $table->boolean('show_item_discount')->default(false);
             $table->boolean('show_item_tax')->default(false);
             $table->boolean('show_item_total')->default(true);
+
+            // Custom Labels
+            $table->string('label_item')->nullable();
+            $table->string('label_qty')->nullable();
+            $table->string('label_price')->nullable();
+            $table->string('label_unit')->nullable();
+            $table->string('label_total')->nullable();
+
             $table->timestamps();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');

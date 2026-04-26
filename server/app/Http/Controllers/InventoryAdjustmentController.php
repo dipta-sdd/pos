@@ -41,7 +41,38 @@ class InventoryAdjustmentController extends Controller
 
         $validatedData['created_by'] = $request->user()->id;
 
-        $adjustment = InventoryAdjustment::create($validatedData);
+        $adjustment = DB::transaction(function () use ($validatedData) {
+            $adjustment = InventoryAdjustment::create($validatedData);
+
+            // Find or create the ProductStock record for this variant/branch
+            $productStock = \App\Models\ProductStock::where('branch_id', $validatedData['branch_id'])
+                ->where('variant_id', $validatedData['variant_id'])
+                ->first();
+
+            if (!$productStock && $validatedData['type'] === 'addition') {
+                // If it doesn't exist and we are adding, we need a base record.
+                // We'll use the variant's default prices if available.
+                $variant = \App\Models\Variant::find($validatedData['variant_id']);
+                $productStock = \App\Models\ProductStock::create([
+                    'branch_id' => $validatedData['branch_id'],
+                    'product_id' => $variant->product_id,
+                    'variant_id' => $variant->id,
+                    'quantity' => 0,
+                    'cost_price' => $variant->cost_price ?? 0,
+                    'selling_price' => $variant->selling_price ?? 0,
+                ]);
+            }
+
+            if ($productStock) {
+                if ($validatedData['type'] === 'addition') {
+                    $productStock->increment('quantity', $validatedData['quantity']);
+                } else {
+                    $productStock->decrement('quantity', $validatedData['quantity']);
+                }
+            }
+
+            return $adjustment;
+        });
 
         return response()->json($adjustment->load(['user', 'variant.product']), 201);
     }

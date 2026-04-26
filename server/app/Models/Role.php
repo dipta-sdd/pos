@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Role extends Model
 {
+    use LogsActivity;
     use HasFactory;
 
     protected $fillable = [
@@ -73,7 +76,9 @@ class Role extends Model
         // Shop & Organization Permissions
         'can_manage_shop_settings',
         'can_manage_billing_and_plan',
-        'can_configure_taxes',
+        'can_view_taxes',
+        'can_edit_taxes',
+        'can_delete_taxes',
         'can_customize_receipts',
         // Sales & POS Permissions
         'can_use_pos',
@@ -85,13 +90,15 @@ class Role extends Model
         'can_process_returns',
         'can_issue_cash_refunds',
         'can_issue_store_credit',
-        // Customer Management Permissions
         'can_view_customers',
-        'can_manage_customers',
+        'can_edit_customers',
+        'can_delete_customers',
         // Promotions & Discounts Permissions
         'can_view_promotions',
-        'can_manage_promotions',
+        'can_edit_promotions',
+        'can_delete_promotions',
         // Financial & Cash Management Permissions
+        'can_view_cash_sessions',
         'can_open_close_cash_register',
         // Reports & Analytics Permissions
         'can_view_dashboard',
@@ -163,7 +170,9 @@ class Role extends Model
         // Shop & Organization
         'can_manage_shop_settings' => 'boolean',
         'can_manage_billing_and_plan' => 'boolean',
-        'can_configure_taxes' => 'boolean',
+        'can_view_taxes' => 'boolean',
+        'can_edit_taxes' => 'boolean',
+        'can_delete_taxes' => 'boolean',
         'can_customize_receipts' => 'boolean',
         // Sales & POS
         'can_use_pos' => 'boolean',
@@ -177,11 +186,14 @@ class Role extends Model
         'can_issue_store_credit' => 'boolean',
         // Customers
         'can_view_customers' => 'boolean',
-        'can_manage_customers' => 'boolean',
+        'can_edit_customers' => 'boolean',
+        'can_delete_customers' => 'boolean',
         // Promotions
         'can_view_promotions' => 'boolean',
-        'can_manage_promotions' => 'boolean',
+        'can_edit_promotions' => 'boolean',
+        'can_delete_promotions' => 'boolean',
         // Financial
+        'can_view_cash_sessions' => 'boolean',
         'can_open_close_cash_register' => 'boolean',
         // Reports & Analytics
         'can_view_dashboard' => 'boolean',

@@ -1,34 +1,38 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\OtpController;
-use App\Http\Controllers\VendorController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\VariantController;
-use App\Http\Controllers\UnitOfMeasureController;
-use App\Http\Controllers\SupplierController;
-use App\Http\Controllers\TaxController;
-use App\Http\Controllers\PromotionController;
-use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\ExpenseCategoryController;
-use App\Http\Controllers\ExpenseController;
-use App\Http\Controllers\PurchaseOrderController;
-use App\Http\Controllers\SaleController;
-use App\Http\Controllers\StockTransferController;
-use App\Http\Controllers\InventoryAdjustmentController;
-use App\Http\Controllers\RoleController;
 use App\Http\Controllers\BillingCounterController;
 use App\Http\Controllers\BranchController;
-use App\Http\Controllers\CashRegisterSessionController;
-use App\Http\Controllers\CustomerStoreCreditController;
-use App\Http\Controllers\PaymentMethodController;
-use App\Http\Controllers\ReceiptSettingsController;
-use App\Http\Controllers\SaleReturnController;
-use App\Http\Controllers\MembershipController;
-use App\Http\Controllers\UserBranchAssignmentController;
 use App\Http\Controllers\BranchProductController;
+use App\Http\Controllers\CashRegisterSessionController;
+use App\Http\Controllers\CashTransactionController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CustomerStoreCreditController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExpenseCategoryController;
+use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\InventoryAdjustmentController;
+use App\Http\Controllers\MembershipController;
+use App\Http\Controllers\OtpController;
+use App\Http\Controllers\PaymentMethodController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PromotionController;
+use App\Http\Controllers\PurchaseOrderController;
+use App\Http\Controllers\ReceiptSettingsController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SaleController;
+use App\Http\Controllers\SaleReturnController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\StockTransferController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\TaxController;
+use App\Http\Controllers\UnitOfMeasureController;
+use App\Http\Controllers\UserBranchAssignmentController;
+use App\Http\Controllers\VariantController;
+use App\Http\Controllers\VendorController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -68,9 +72,9 @@ Route::middleware('log.api')->group(function () {
             Route::post('logout', [AuthController::class, 'logout']);
             Route::post('refresh', [AuthController::class, 'refresh']);
             Route::get('me', [AuthController::class, 'userProfile']);
-            // Route::put('profile', [AuthController::class, 'updateProfile']);
-            // Route::put('change-password', [AuthController::class, 'changePassword']);
         });
+
+        Route::get('global-search', [SearchController::class, 'globalSearch']);
 
         Route::prefix('otp')->group(function () {
             Route::post('send', [OtpController::class, 'send']);
@@ -98,12 +102,11 @@ Route::middleware('log.api')->group(function () {
 
         // Product routes (protected)
         Route::prefix('products')->group(function () {
-            Route::get('/', [ProductController::class, 'index'])->middleware('permission:can_view_products');
-            Route::post('/', [ProductController::class, 'store'])->middleware('permission:can_edit_products');
-            Route::get('/{product}', [ProductController::class, 'show'])->middleware('permission:can_view_products');
-            Route::put('/{product}', [ProductController::class, 'update'])->middleware('permission:can_edit_products');
-            Route::delete('/{product}', [ProductController::class, 'destroy'])->middleware('permission:can_delete_products');
+            Route::post('/bulk-delete', [ProductController::class, 'bulkDelete'])->middleware('permission:can_delete_products');
+            Route::get('/export', [ProductController::class, 'export'])->middleware('permission:can_export_products');
+            Route::post('/import', [ProductController::class, 'import'])->middleware('permission:can_import_products');
         });
+        Route::apiResource('products', ProductController::class)->middleware(['permission:can_view_products']);
 
         // Variant routes (protected)
         Route::prefix('variants')->middleware('permission:can_edit_products')->group(function () {
@@ -134,6 +137,12 @@ Route::middleware('log.api')->group(function () {
             Route::delete('/{unitOfMeasure}', [UnitOfMeasureController::class, 'destroy'])->middleware('permission:can_delete_units_of_measure');
         });
 
+        // Dashboard & Reports
+        Route::get('/dashboard/stats', [DashboardController::class, 'index'])->middleware('permission:can_view_dashboard');
+        Route::get('/reports/sales', [ReportController::class, 'sales'])->middleware('permission:can_view_reports');
+        Route::get('/reports/financial', [ReportController::class, 'financialLedger'])->middleware('permission:can_view_reports');
+        Route::get('/reports/inventory', [ReportController::class, 'inventorySummary'])->middleware('permission:can_view_reports');
+
         // Supplier routes (protected)
         Route::prefix('suppliers')->group(function () {
             Route::get('/', [SupplierController::class, 'index'])->middleware('permission:can_view_suppliers');
@@ -144,30 +153,32 @@ Route::middleware('log.api')->group(function () {
         });
 
         // Tax routes (protected)
-        Route::prefix('taxes')->middleware('permission:can_configure_taxes')->group(function () {
-            Route::get('/', [TaxController::class, 'index']);
-            Route::post('/', [TaxController::class, 'store']);
-            Route::get('/{tax}', [TaxController::class, 'show']);
-            Route::put('/{tax}', [TaxController::class, 'update']);
-            Route::delete('/{tax}', [TaxController::class, 'destroy']);
+        Route::prefix('taxes')->group(function () {
+            Route::get('/', [TaxController::class, 'index'])->middleware('permission:can_view_taxes');
+            Route::post('/', [TaxController::class, 'store'])->middleware('permission:can_edit_taxes');
+            Route::get('/{tax}', [TaxController::class, 'show'])->middleware('permission:can_view_taxes');
+            Route::put('/{tax}', [TaxController::class, 'update'])->middleware('permission:can_edit_taxes');
+            Route::delete('/{tax}', [TaxController::class, 'destroy'])->middleware('permission:can_delete_taxes');
         });
 
         // Promotion routes (protected)
         Route::prefix('promotions')->group(function () {
             Route::get('/', [PromotionController::class, 'index'])->middleware('permission:can_view_promotions');
-            Route::post('/', [PromotionController::class, 'store'])->middleware('permission:can_manage_promotions');
+            Route::post('/', [PromotionController::class, 'store'])->middleware('permission:can_edit_promotions');
             Route::get('/{promotion}', [PromotionController::class, 'show'])->middleware('permission:can_view_promotions');
-            Route::put('/{promotion}', [PromotionController::class, 'update'])->middleware('permission:can_manage_promotions');
-            Route::delete('/{promotion}', [PromotionController::class, 'destroy'])->middleware('permission:can_manage_promotions');
+            Route::put('/{promotion}', [PromotionController::class, 'update'])->middleware('permission:can_edit_promotions');
+            Route::delete('/{promotion}', [PromotionController::class, 'destroy'])->middleware('permission:can_delete_promotions');
         });
 
         // Customer routes (protected)
         Route::prefix('customers')->group(function () {
             Route::get('/', [CustomerController::class, 'index'])->middleware('permission:can_view_customers');
-            Route::post('/', [CustomerController::class, 'store'])->middleware('permission:can_manage_customers');
+            Route::post('/', [CustomerController::class, 'store'])->middleware('permission:can_edit_customers');
+            Route::post('/import', [CustomerController::class, 'import'])->middleware('permission:can_edit_customers');
             Route::get('/{customer}', [CustomerController::class, 'show'])->middleware('permission:can_view_customers');
-            Route::put('/{customer}', [CustomerController::class, 'update'])->middleware('permission:can_manage_customers');
-            Route::delete('/{customer}', [CustomerController::class, 'destroy'])->middleware('permission:can_manage_customers');
+            Route::put('/{customer}', [CustomerController::class, 'update'])->middleware('permission:can_edit_customers');
+            Route::get('/export', [CustomerController::class, 'export'])->middleware('permission:can_export_data');
+            Route::delete('/{customer}', [CustomerController::class, 'destroy'])->middleware('permission:can_delete_customers');
         });
 
         // Expense Category routes (protected)
@@ -204,6 +215,7 @@ Route::middleware('log.api')->group(function () {
             Route::get('/{sale}', [SaleController::class, 'show'])->middleware('permission:can_view_sales_history');
             Route::put('/{sale}', [SaleController::class, 'update']);
             Route::post('/{sale}/void', [SaleController::class, 'void']);
+            Route::get('/export', [SaleController::class, 'export'])->middleware('permission:can_export_data');
             Route::delete('/{sale}', [SaleController::class, 'destroy']);
         });
 
@@ -214,6 +226,7 @@ Route::middleware('log.api')->group(function () {
             Route::get('/payment-methods', [PaymentMethodController::class, 'posIndex']);
             Route::get('/products', [BranchProductController::class, 'index']);
             Route::get('/products/stocks', [BranchProductController::class, 'getStocks']);
+            Route::post('/calculate-discounts', [PromotionController::class, 'calculateDiscounts']);
         });
 
         // Stock Transfer routes (protected)
@@ -265,14 +278,13 @@ Route::middleware('log.api')->group(function () {
         Route::prefix('cash-register-sessions')->group(function () {
             Route::get('/active', [CashRegisterSessionController::class, 'activeSession']);
             
-            Route::middleware('permission:can_open_close_cash_register')->group(function () {
-                Route::get('/', [CashRegisterSessionController::class, 'index']);
-                Route::post('/open', [CashRegisterSessionController::class, 'openSession']);
-                Route::post('/{cashRegisterSession}/close', [CashRegisterSessionController::class, 'closeSession']);
-                Route::get('/{cashRegisterSession}', [CashRegisterSessionController::class, 'show']);
-                Route::put('/{cashRegisterSession}', [CashRegisterSessionController::class, 'update']);
-                Route::delete('/{cashRegisterSession}', [CashRegisterSessionController::class, 'destroy']);
-            });
+            Route::get('/', [CashRegisterSessionController::class, 'index'])->middleware('permission:can_view_cash_sessions');
+            Route::get('/{cashRegisterSession}', [CashRegisterSessionController::class, 'show'])->middleware('permission:can_view_cash_sessions');
+            
+            Route::post('/open', [CashRegisterSessionController::class, 'openSession'])->middleware('permission:can_open_close_cash_register');
+            Route::post('/{cashRegisterSession}/close', [CashRegisterSessionController::class, 'closeSession'])->middleware('permission:can_open_close_cash_register');
+            Route::put('/{cashRegisterSession}', [CashRegisterSessionController::class, 'update'])->middleware('permission:can_open_close_cash_register');
+            Route::delete('/{cashRegisterSession}', [CashRegisterSessionController::class, 'destroy'])->middleware('permission:can_open_close_cash_register');
         });
 
         // Cash Transaction routes (protected)
@@ -325,6 +337,12 @@ Route::middleware('log.api')->group(function () {
             Route::get('/{membership}', [MembershipController::class, 'show'])->middleware('permission:can_view_roles|can_view_users');
             Route::put('/{membership}', [MembershipController::class, 'update'])->middleware('permission:can_edit_users');
             Route::delete('/{membership}', [MembershipController::class, 'destroy'])->middleware('permission:can_delete_users');
+        });
+
+        // Activity Logs (protected)
+        Route::prefix('activity-logs')->middleware('permission:can_view_user_activity_log')->group(function () {
+            Route::get('/', [ActivityLogController::class, 'index']);
+            Route::get('/{activityLog}', [ActivityLogController::class, 'show']);
         });
 
         // User Branch Assignment routes (protected)

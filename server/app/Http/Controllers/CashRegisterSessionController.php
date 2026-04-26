@@ -152,7 +152,14 @@ class CashRegisterSessionController extends Controller
 
     public function show(CashRegisterSession $cashRegisterSession)
     {
-        return $cashRegisterSession->load(['billingCounter', 'user', 'salePayments', 'cashTransactions']);
+        $cashRegisterSession->load(['billingCounter', 'user', 'salePayments.sale', 'cashTransactions']);
+        
+        // Append calculated totals for the UI
+        $cashRegisterSession->total_sales_cash = $cashRegisterSession->salePayments()->sum('amount');
+        $cashRegisterSession->total_cash_in = $cashRegisterSession->cashTransactions()->whereIn('type', ['cash_in', 'transfer_in_from_branch'])->sum('amount');
+        $cashRegisterSession->total_cash_out = $cashRegisterSession->cashTransactions()->whereIn('type', ['cash_out', 'transfer_out_to_branch', 'refund'])->sum('amount');
+        
+        return $cashRegisterSession;
     }
 
     public function destroy(CashRegisterSession $cashRegisterSession)

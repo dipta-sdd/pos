@@ -38,6 +38,13 @@ export interface PosTab {
   payments: PosPayment[];
   discount_type: "percentage" | "fixed";
   discount_value: number;
+  promotion_discount: number;
+  applied_promotions: {
+    item_index: number;
+    discount_amount: number;
+    promotion_id: number;
+    promotion_name: string;
+  }[];
   coupon_code: string;
   extra_charge: number;
   notes: string;

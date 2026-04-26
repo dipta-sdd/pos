@@ -6,7 +6,6 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
   perPage?: number;
   onPerPageChange?: (perPage: number) => void;
-  total?: number;
 }
 
 export default function Pagination({
@@ -15,8 +14,6 @@ export default function Pagination({
   onPageChange,
   perPage,
   onPerPageChange,
-  // @ts-ignore
-  total,
 }: PaginationProps) {
   // Always show pagination, even if there's only one page
 

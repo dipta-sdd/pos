@@ -82,9 +82,11 @@ export default function ProductsPage() {
   const [visibleColumns, setVisibleColumns] = useState<Selection>(
     new Set(INITIAL_VISIBLE_COLUMNS),
   );
+  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+  const [isBulkDelete, setIsBulkDelete] = useState<boolean>(false);
 
   const fetchItems = async (page: number) => {
     if (!vendor?.id) return;
@@ -118,15 +120,23 @@ export default function ProductsPage() {
     }
   }, [vendor?.id, currentPage, perPage, sortDescriptor, searchValue]);
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: number | "bulk") => {
     try {
-      await api.delete(`/products/${id}`);
-      toast.success("Product deleted successfully");
+      if (id === "bulk") {
+        const ids = Array.from(selectedKeys);
+        await api.post(`/products/bulk-delete`, { ids });
+        toast.success(`${ids.length} products deleted successfully`);
+        setSelectedKeys(new Set([]));
+      } else {
+        await api.delete(`/products/${id}`);
+        toast.success("Product deleted successfully");
+      }
       fetchItems(currentPage);
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to delete product");
     }
     setDeleteConfirmOpen(false);
+    setIsBulkDelete(false);
   };
 
   const renderCell = useCallback(
@@ -177,27 +187,31 @@ export default function ProductsPage() {
         case "actions":
           return (
             <div className="flex items-center justify-end gap-2">
-              <Button
-                isIconOnly
-                size="sm"
-                variant="light"
-                onPress={() =>
-                  router.push(`/pos/vendor/${vendor?.id}/products/${item.id}`)
-                }
-              >
-                <Edit className="w-4 h-4 text-default-400" />
-              </Button>
-              <Button
-                isIconOnly
-                size="sm"
-                variant="light"
-                onPress={() => {
-                  setDeleteConfirmId(item.id);
-                  setDeleteConfirmOpen(true);
-                }}
-              >
-                <Trash2 className="w-4 h-4 text-danger" />
-              </Button>
+              <PermissionGuard permission="can_edit_products">
+                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="light"
+                  onPress={() =>
+                    router.push(`/pos/vendor/${vendor?.id}/products/${item.id}`)
+                  }
+                >
+                  <Edit className="w-4 h-4 text-default-400" />
+                </Button>
+              </PermissionGuard>
+              <PermissionGuard permission="can_delete_products">
+                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="light"
+                  onPress={() => {
+                    setDeleteConfirmId(item.id);
+                    setDeleteConfirmOpen(true);
+                  }}
+                >
+                  <Trash2 className="w-4 h-4 text-danger" />
+                </Button>
+              </PermissionGuard>
             </div>
           );
         default:
@@ -213,15 +227,17 @@ export default function ProductsPage() {
     <PermissionGuard permission="can_view_products">
       <div className="p-6">
         <PageHeader description="Manage your product catalog" title="Products">
-          <Button
-            color="primary"
-            startContent={<Plus className="w-4 h-4" />}
-            onPress={() =>
-              router.push(`/pos/vendor/${vendor?.id}/products/new`)
-            }
-          >
-            Add Product
-          </Button>
+          <PermissionGuard permission="can_edit_products">
+            <Button
+              color="primary"
+              startContent={<Plus className="w-4 h-4" />}
+              onPress={() =>
+                router.push(`/pos/vendor/${vendor?.id}/products/new`)
+              }
+            >
+              Add Product
+            </Button>
+          </PermissionGuard>
         </PageHeader>
 
         <div className="flex justify-between gap-3 items-end mb-4">
@@ -234,6 +250,19 @@ export default function ProductsPage() {
             onValueChange={setSearchValue}
           />
           <div className="flex gap-3">
+            {selectedKeys instanceof Set && selectedKeys.size > 0 && (
+              <Button
+                color="danger"
+                startContent={<Trash2 className="w-4 h-4" />}
+                variant="flat"
+                onPress={() => {
+                  setIsBulkDelete(true);
+                  setDeleteConfirmOpen(true);
+                }}
+              >
+                Delete Selected ({selectedKeys.size})
+              </Button>
+            )}
             <Dropdown radius="sm">
               <DropdownTrigger className="flex">
                 <Button
@@ -269,19 +298,22 @@ export default function ProductsPage() {
           lastPage={lastPage}
           perPage={perPage}
           renderCell={renderCell}
+          selectedKeys={selectedKeys}
+          selectionMode="multiple"
           setCurrentPage={setCurrentPage}
           setPerPage={setPerPage}
           setSortDescriptor={setSortDescriptor}
           sortDescriptor={sortDescriptor}
           visibleColumns={visibleColumns}
+          onSelectionChange={setSelectedKeys}
         />
 
         <Confirm
           isOpen={deleteConfirmOpen}
-          message="Are you sure you want to delete this product?"
-          title="Delete Product"
-          onConfirm={(id) => handleDelete(id as number)}
-          onConfirmProp={deleteConfirmId || ""}
+          message={isBulkDelete ? `Are you sure you want to delete ${selectedKeys instanceof Set ? selectedKeys.size : 0} products?` : "Are you sure you want to delete this product?"}
+          title={isBulkDelete ? "Bulk Delete Products" : "Delete Product"}
+          onConfirm={(id) => handleDelete(id as number | "bulk")}
+          onConfirmProp={isBulkDelete ? "bulk" : (deleteConfirmId || "")}
           onOpenChange={setDeleteConfirmOpen}
         />
       </div>

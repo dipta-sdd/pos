@@ -329,3 +329,25 @@ export interface ProductStock {
   created_at: string;
   updated_at: string;
 }
+export interface CustomerStoreCredit {
+  id: number;
+  vendor_id: number;
+  customer_id: number;
+  current_balance: string | number;
+  created_at: string;
+  updated_at: string;
+  customer?: Customer;
+  transactions?: StoreCreditTransaction[];
+}
+
+export interface StoreCreditTransaction {
+  id: number;
+  store_credit_id: number;
+  amount: string | number;
+  type: "credit" | "debit";
+  referenceable_id?: number;
+  referenceable_type?: string;
+  created_by?: number;
+  created_at: string;
+  updated_at: string;
+}

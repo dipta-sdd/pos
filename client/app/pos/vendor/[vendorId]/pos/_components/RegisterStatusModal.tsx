@@ -39,6 +39,7 @@ export default function RegisterStatusModal({
   const [openingBalance, setOpeningBalance] = useState("0");
   const [selectedCounterId, setSelectedCounterId] = useState<string>("");
   const [closingBalance, setClosingBalance] = useState("0");
+  const [fullSession, setFullSession] = useState<any>(null);
   const [mode, setMode] = useState<"summary" | "close" | "transaction">(
     "summary",
   );
@@ -54,8 +55,21 @@ export default function RegisterStatusModal({
     }
     if (isOpen && activeSession) {
       setMode("summary");
+      fetchFullSession();
     }
   }, [isOpen, activeSession, vendor?.id]);
+
+  const fetchFullSession = async () => {
+    if (!activeSession?.id) return;
+    try {
+      const response: any = await api.get(
+        `/cash-register-sessions/${activeSession.id}`,
+      );
+      setFullSession(response.data);
+    } catch (error) {
+      console.error("Failed to fetch full session details", error);
+    }
+  };
 
   const fetchCounters = async () => {
     try {
@@ -227,26 +241,31 @@ export default function RegisterStatusModal({
                     <div className="flex justify-between items-center text-success">
                       <p className="font-medium">Total Sales (Cash)</p>
                       <p className="font-bold font-mono">
-                        + {Number(0).toFixed(2)}
+                        + {Number(fullSession?.total_sales_cash || 0).toFixed(2)}
                       </p>
                     </div>
                     <div className="flex justify-between items-center text-success">
                       <p className="font-medium">Total Cash In</p>
                       <p className="font-bold font-mono">
-                        + {Number(0).toFixed(2)}
+                        + {Number(fullSession?.total_cash_in || 0).toFixed(2)}
                       </p>
                     </div>
                     <div className="flex justify-between items-center text-danger">
                       <p className="font-medium">Total Cash Out</p>
                       <p className="font-bold font-mono">
-                        - {Number(0).toFixed(2)}
+                        - {Number(fullSession?.total_cash_out || 0).toFixed(2)}
                       </p>
                     </div>
                     <Divider />
                     <div className="flex justify-between items-center text-lg">
                       <p className="font-bold">Expected Cash</p>
                       <p className="font-bold font-mono">
-                        {Number(activeSession.opening_balance).toFixed(2)}
+                        {(
+                          Number(activeSession.opening_balance) +
+                          Number(fullSession?.total_sales_cash || 0) +
+                          Number(fullSession?.total_cash_in || 0) -
+                          Number(fullSession?.total_cash_out || 0)
+                        ).toFixed(2)}
                       </p>
                     </div>
                   </div>

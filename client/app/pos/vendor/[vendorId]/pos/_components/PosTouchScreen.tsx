@@ -649,6 +649,18 @@ export default function PosTouchScreen(props: PosTouchScreenProps) {
                   </div>
                 )}
 
+                {activeTab.promotion_discount > 0 && (
+                  <div className="flex justify-between text-[10px]">
+                    <span className="text-success font-black uppercase tracking-widest flex items-center gap-1">
+                      <Zap size={10} /> Promotions
+                    </span>
+                    <span className="font-black text-success">
+                      -{currencySymbol}
+                      {activeTab.promotion_discount.toLocaleString()}
+                    </span>
+                  </div>
+                )}
+
                 <Divider className="bg-default-100 my-1" />
                 <div className="flex justify-between items-center">
                   <span className="text-default-400 font-black uppercase tracking-[0.1em] text-[10px]">

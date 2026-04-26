@@ -147,4 +147,68 @@ class ProductController extends Controller
 
         return response()->json(null, 204);
     }
+
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:products,id'
+        ]);
+
+        Product::whereIn('id', $request->ids)->delete();
+
+        return response()->json(null, 204);
+    }
+
+    public function export(Request $request)
+    {
+        $query = Product::with(['category', 'unitOfMeasure', 'variants']);
+        
+        if ($request->has('vendor_id')) {
+            $query->where('vendor_id', $request->vendor_id);
+        }
+
+        $products = $query->get();
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="products_export_' . now()->format('Y-m-d') . '.csv"',
+        ];
+
+        $callback = function() use ($products) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['ID', 'Name', 'Category', 'Unit', 'SKU', 'Variant Name', 'Cost Price', 'Selling Price']);
+
+            foreach ($products as $product) {
+                if ($product->variants->isEmpty()) {
+                    fputcsv($file, [
+                        $product->id,
+                        $product->name,
+                        $product->category->name ?? 'N/A',
+                        $product->unitOfMeasure->name ?? 'N/A',
+                        $product->sku,
+                        'N/A',
+                        $product->base_price,
+                        $product->base_price,
+                    ]);
+                } else {
+                    foreach ($product->variants as $variant) {
+                        fputcsv($file, [
+                            $product->id,
+                            $product->name,
+                            $product->category->name ?? 'N/A',
+                            $product->unitOfMeasure->name ?? 'N/A',
+                            $variant->sku,
+                            $variant->name,
+                            $variant->cost_price,
+                            $variant->selling_price,
+                        ]);
+                    }
+                }
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

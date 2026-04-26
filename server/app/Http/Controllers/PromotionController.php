@@ -87,4 +87,24 @@ class PromotionController extends Controller
 
         return response()->json(null, 204);
     }
+
+    public function calculateDiscounts(Request $request, \App\Services\PromotionService $promotionService)
+    {
+        $validatedData = $request->validate([
+            'vendor_id' => 'required|exists:vendors,id',
+            'branch_id' => 'nullable|exists:branches,id',
+            'items' => 'required|array',
+            'items.*.variant_id' => 'required|exists:variants,id',
+            'items.*.quantity' => 'required|numeric|min:0.01',
+            'items.*.price' => 'required|numeric|min:0',
+        ]);
+
+        $discounts = $promotionService->calculateDiscounts(
+            $validatedData['vendor_id'],
+            $validatedData['branch_id'] ?? null,
+            $validatedData['items']
+        );
+
+        return response()->json($discounts);
+    }
 }

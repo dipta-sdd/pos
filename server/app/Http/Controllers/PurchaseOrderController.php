@@ -98,6 +98,9 @@ class PurchaseOrderController extends Controller
         $validatedData['updated_by'] = $request->user()->id;
 
         DB::transaction(function () use ($validatedData, $request, $purchaseOrder) {
+            $oldStatus = $purchaseOrder->status;
+            $newStatus = $validatedData['status'] ?? $oldStatus;
+
             $purchaseOrder->update($validatedData);
 
             if ($request->has('items')) {
@@ -115,6 +118,31 @@ class PurchaseOrderController extends Controller
                     }
                 }
                 $purchaseOrder->purchaseOrderItems()->whereNotIn('id', $itemIds)->delete();
+            }
+
+            // Inventory Addition on 'received'
+            if ($newStatus === 'received' && $oldStatus !== 'received') {
+                foreach ($purchaseOrder->purchaseOrderItems as $item) {
+                    $productStock = \App\Models\ProductStock::where('branch_id', $purchaseOrder->branch_id)
+                        ->where('variant_id', $item->variant_id)
+                        ->first();
+
+                    if (!$productStock) {
+                        $variant = \App\Models\Variant::find($item->variant_id);
+                        $productStock = \App\Models\ProductStock::create([
+                            'branch_id' => $purchaseOrder->branch_id,
+                            'product_id' => $variant->product_id,
+                            'variant_id' => $variant->id,
+                            'quantity' => 0,
+                            'cost_price' => $item->unit_cost, // Use PO cost
+                            'selling_price' => $variant->selling_price ?? 0,
+                        ]);
+                    } else {
+                        // Optional: Update cost price if it changed?
+                        // For now, just add quantity.
+                        $productStock->increment('quantity', $item->quantity_ordered);
+                    }
+                }
             }
         });
 

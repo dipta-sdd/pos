@@ -260,4 +260,50 @@ class SaleController extends Controller
             ]);
         });
     }
+    public function export(Request $request)
+    {
+        $query = Sale::with(['customer', 'branch', 'salesPerson']);
+        
+        if ($request->has('vendor_id')) {
+            $query->where('vendor_id', $request->vendor_id);
+        }
+        
+        if ($request->has('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        
+        if ($request->has('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        $sales = $query->get();
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="sales_export_' . now()->format('Y-m-d') . '.csv"',
+        ];
+
+        $callback = function() use ($sales) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['Sale ID', 'Date', 'Customer', 'Branch', 'Sales Person', 'Subtotal', 'Tax', 'Discount', 'Total', 'Status']);
+
+            foreach ($sales as $sale) {
+                fputcsv($file, [
+                    $sale->id,
+                    $sale->created_at->format('Y-m-d H:i'),
+                    $sale->customer->name ?? 'Guest',
+                    $sale->branch->name ?? 'N/A',
+                    $sale->salesPerson->name ?? 'N/A',
+                    $sale->subtotal_amount,
+                    $sale->tax_amount,
+                    $sale->total_discount_amount,
+                    $sale->final_amount,
+                    $sale->status
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

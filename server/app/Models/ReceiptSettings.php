@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ReceiptSettings extends Model
 {
+    use LogsActivity;
     use HasFactory;
 
     protected $primaryKey = 'vendor_id';
@@ -34,6 +37,13 @@ class ReceiptSettings extends Model
         'show_item_discount',
         'show_item_tax',
         'show_item_total',
+        'label_item',
+        'label_qty',
+        'label_price',
+        'label_unit',
+        'label_total',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [

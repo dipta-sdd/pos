@@ -81,7 +81,9 @@ return new class extends Migration {
             // Shop & Organization Permissions
             $table->boolean('can_manage_shop_settings')->default(false);
             $table->boolean('can_manage_billing_and_plan')->default(false);
-            $table->boolean('can_configure_taxes')->default(false);
+            $table->boolean('can_view_taxes')->default(false);
+            $table->boolean('can_edit_taxes')->default(false);
+            $table->boolean('can_delete_taxes')->default(false);
             $table->boolean('can_customize_receipts')->default(false);
 
             // User Management Permissions
@@ -110,13 +112,16 @@ return new class extends Migration {
 
             // Customer Management Permissions
             $table->boolean('can_view_customers')->default(false);
-            $table->boolean('can_manage_customers')->default(false);
+            $table->boolean('can_edit_customers')->default(false);
+            $table->boolean('can_delete_customers')->default(false);
 
             // Promotions & Discounts Permissions
             $table->boolean('can_view_promotions')->default(false);
-            $table->boolean('can_manage_promotions')->default(false);
+            $table->boolean('can_edit_promotions')->default(false);
+            $table->boolean('can_delete_promotions')->default(false);
 
             // Financial & Cash Management Permissions
+            $table->boolean('can_view_cash_sessions')->default(false);
             $table->boolean('can_open_close_cash_register')->default(false);
             
 

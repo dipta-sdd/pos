@@ -145,7 +145,9 @@ class AdminSeeder extends Seeder
                 // Shop & Organization
                 'can_manage_shop_settings',
                 'can_manage_billing_and_plan',
-                'can_configure_taxes',
+                'can_view_taxes',
+                'can_edit_taxes',
+                'can_delete_taxes',
                 'can_customize_receipts',
                 // Sales & POS
                 'can_use_pos',
@@ -157,13 +159,15 @@ class AdminSeeder extends Seeder
                 'can_process_returns',
                 'can_issue_cash_refunds',
                 'can_issue_store_credit',
-                // Customers
                 'can_view_customers',
-                'can_manage_customers',
+                'can_edit_customers',
+                'can_delete_customers',
                 // Promotions
                 'can_view_promotions',
-                'can_manage_promotions',
+                'can_edit_promotions',
+                'can_delete_promotions',
                 // Financial
+                'can_view_cash_sessions',
                 'can_open_close_cash_register',
                 // Reports & Analytics
                 'can_view_dashboard',

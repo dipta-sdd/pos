@@ -56,6 +56,65 @@ class SaleReturnController extends Controller
         $saleReturn = DB::transaction(function () use ($validatedData, $request) {
             $saleReturn = SaleReturn::create($validatedData);
             $saleReturn->returnItems()->createMany($request->items);
+
+            // 1. Inventory Replenishment
+            foreach ($request->items as $itemData) {
+                $saleItem = \App\Models\SaleItem::find($itemData['sale_item_id']);
+                if ($saleItem && $saleItem->product_stock_id) {
+                    \App\Models\ProductStock::where('id', $saleItem->product_stock_id)
+                        ->increment('quantity', $itemData['quantity']);
+                } else {
+                    // Fallback to variant/branch if sale_item doesn't have stock link
+                    \App\Models\ProductStock::where('branch_id', $validatedData['branch_id'])
+                        ->where('variant_id', $saleItem->variant_id)
+                        ->increment('quantity', $itemData['quantity']);
+                }
+            }
+
+            // 2. Refund Processing
+            $originalSale = \App\Models\Sale::find($validatedData['original_sale_id']);
+            
+            if ($validatedData['refund_type'] === 'store_credit' && $originalSale->customer_id) {
+                $storeCredit = \App\Models\CustomerStoreCredit::firstOrCreate(
+                    ['customer_id' => $originalSale->customer_id],
+                    [
+                        'vendor_id' => $validatedData['vendor_id'],
+                        'current_balance' => 0,
+                        'created_by' => $validatedData['created_by'],
+                        'updated_by' => $validatedData['updated_by'],
+                    ]
+                );
+
+                $storeCredit->increment('current_balance', $validatedData['refund_amount']);
+
+                \App\Models\CustomerStoreCreditTransaction::create([
+                    'store_credit_id' => $storeCredit->id,
+                    'amount' => $validatedData['refund_amount'],
+                    'type' => 'credit',
+                    'referenceable_id' => $saleReturn->id,
+                    'referenceable_type' => SaleReturn::class,
+                    'created_by' => $validatedData['created_by'],
+                ]);
+            } elseif ($validatedData['refund_type'] === 'cash_back') {
+                // Record cash out in the register session
+                $session = \App\Models\CashRegisterSession::where('branch_id', $validatedData['branch_id'])
+                    ->where('user_id', $request->user()->id)
+                    ->where('status', 'open')
+                    ->first();
+
+                if ($session) {
+                    \App\Models\CashTransaction::create([
+                        'cash_register_session_id' => $session->id,
+                        'vendor_id' => $validatedData['vendor_id'],
+                        'branch_id' => $validatedData['branch_id'],
+                        'amount' => $validatedData['refund_amount'],
+                        'type' => 'out',
+                        'reason' => 'Sale Return Refund (Cash Back): Sale #' . $originalSale->id,
+                        'created_by' => $validatedData['created_by'],
+                    ]);
+                }
+            }
+
             return $saleReturn;
         });
 

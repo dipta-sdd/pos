@@ -2,20 +2,26 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Promotion extends Model
 {
+    use LogsActivity;
     use HasFactory;
 
     protected $fillable = [
         'vendor_id',
         'branch_id',
         'name',
+        'promotion_type',
         'discount_type',
         'discount_value',
+        'buy_quantity',
+        'get_quantity',
         'applies_to',
         'product_id',
         'variant_id',

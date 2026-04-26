@@ -213,6 +213,12 @@ export default function Sidebar() {
           permission: "can_view_expenses",
         },
         {
+          icon: ShieldCheck,
+          label: "Audit Log",
+          href: `/pos/vendor/${vendor.id}/activity-log`,
+          permission: "can_view_user_activity_log",
+        },
+        {
           icon: Contact,
           label: "Users",
           href: `/pos/vendor/${vendor.id}/users`,

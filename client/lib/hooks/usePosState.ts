@@ -14,6 +14,8 @@ const DEFAULT_TAB = (): PosTab => ({
   payments: [],
   discount_type: "percentage",
   discount_value: 0,
+  promotion_discount: 0,
+  applied_promotions: [],
   coupon_code: "",
   extra_charge: 0,
   notes: "",
@@ -44,6 +46,8 @@ export function usePosState() {
             payments: tab.payments || [],
             discount_type: tab.discount_type || "percentage",
             discount_value: tab.discount_value || 0,
+            promotion_discount: tab.promotion_discount || 0,
+            applied_promotions: tab.applied_promotions || [],
             coupon_code: tab.coupon_code || "",
             extra_charge: tab.extra_charge || 0,
           }));

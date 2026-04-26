@@ -110,6 +110,10 @@ class BranchProductController extends Controller
             $query->orderBy('variants.id', $sortDirection);
         }
 
+        if ($request->has('low_stock_only')) {
+            $query->where('total_quantity', '<=', 10); // Or use a variable threshold
+        }
+
         $perPage = $request->input('per_page', 10);
         return $query->paginate($perPage);
     }

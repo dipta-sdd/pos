@@ -96,6 +96,7 @@ export default function InventoryPage() {
   const [visibleColumns, setVisibleColumns] = useState<Selection>(
     new Set(INITIAL_VISIBLE_COLUMNS),
   );
+  const [showLowStock, setShowLowStock] = useState<boolean>(false);
 
   const [isAddStockModalOpen, setIsAddStockModalOpen] = useState(false);
   const [isViewStockModalOpen, setIsViewStockModalOpen] = useState(false);
@@ -116,6 +117,7 @@ export default function InventoryPage() {
           per_page: perPage,
           vendor_id: vendor.id,
           search: searchValue,
+          low_stock_only: showLowStock ? 1 : undefined,
           sort_by:
             sortDescriptor.column === "product_name"
               ? "product"
@@ -148,6 +150,7 @@ export default function InventoryPage() {
     sortDescriptor,
     searchValue,
     selectedBranchIds,
+    showLowStock,
   ]);
 
   useEffect(() => {
@@ -330,7 +333,17 @@ export default function InventoryPage() {
             value={searchValue}
             onValueChange={setSearchValue}
           />
-          <div className="flex gap-3">
+          <div className="flex gap-3 items-center">
+            <div className="flex items-center gap-2 mr-2 bg-red-50 dark:bg-red-900/10 px-3 py-1.5 rounded-lg border border-red-100 dark:border-red-900/20">
+              <span className="text-xs font-bold text-red-600 dark:text-red-400">Low Stock Only</span>
+              <Switch 
+                color="danger" 
+                isSelected={showLowStock} 
+                size="sm" 
+                onValueChange={setShowLowStock} 
+              />
+            </div>
+            
             <Dropdown radius="sm">
               <DropdownTrigger className="flex">
                 <Button

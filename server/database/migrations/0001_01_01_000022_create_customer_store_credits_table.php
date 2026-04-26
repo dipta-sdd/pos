@@ -13,9 +13,12 @@ return new class extends Migration
     {
         Schema::create('customer_store_credits', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('vendor_id')->constrained('vendors')->onDelete('cascade');
             $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
             $table->decimal('current_balance', 10, 2)->default(0);
             $table->timestamps();
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
         });
     }
 

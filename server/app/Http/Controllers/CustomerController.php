@@ -96,4 +96,66 @@ class CustomerController extends Controller
 
         return response()->json(null, 204);
     }
+
+    public function export(Request $request)
+    {
+        $query = Customer::query();
+        
+        if ($request->has('vendor_id')) {
+            $query->where('vendor_id', $request->vendor_id);
+        }
+
+        $customers = $query->get();
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="customers_export_' . now()->format('Y-m-d') . '.csv"',
+        ];
+
+        $callback = function() use ($customers) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['ID', 'Name', 'Email', 'Phone', 'Address', 'Join Date']);
+
+            foreach ($customers as $customer) {
+                fputcsv($file, [
+                    $customer->id,
+                    $customer->name,
+                    $customer->email,
+                    $customer->phone,
+                    $customer->address,
+                    $customer->created_at->format('Y-m-d'),
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'customers' => 'required|array',
+            'customers.*.name' => 'required|string',
+            'customers.*.phone' => 'nullable|string',
+            'customers.*.email' => 'nullable|email',
+        ]);
+
+        $vendorId = $request->vendor_id;
+        $count = 0;
+
+        foreach ($request->customers as $data) {
+            \App\Models\Customer::updateOrCreate(
+                ['vendor_id' => $vendorId, 'phone' => $data['phone']],
+                [
+                    'name' => $data['name'],
+                    'email' => $data['email'] ?? null,
+                    'address' => $data['address'] ?? null,
+                ]
+            );
+            $count++;
+        }
+
+        return response()->json(['message' => "Successfully imported {$count} customers"]);
+    }
 }

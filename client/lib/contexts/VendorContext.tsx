@@ -59,12 +59,6 @@ export const VendorProvider = ({ children }: VendorProviderProps) => {
 
   // Initialize from URL on mount
   useEffect(() => {
-    const branchIds = searchParams.getAll("branch_ids[]");
-    // Handle both array notation and single value (or comma separated if we supported that, but stick to array notation standard)
-    // Next.js readable params might be key=val&key=val2 for branch_ids
-    // Or users might manually navigate.
-    // The previous implementation used get("branch_ids") which implies single. Usually frameworks differentiate.
-    // Let's rely on getAll for 'branch_ids' or 'branch_ids[]'
     let ids = searchParams.getAll("branch_ids");
 
     if (ids.length === 0) {

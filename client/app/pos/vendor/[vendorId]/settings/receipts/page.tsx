@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@heroui/button";
 import { Card, CardBody } from "@heroui/card";
 import { Printer } from "lucide-react";
-import { Switch, Select, SelectItem } from "@heroui/react";
+import { Switch, Select, SelectItem, Input } from "@heroui/react";
 
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
@@ -40,6 +40,11 @@ export default function ReceiptSettingsPage() {
     show_item_discount: z.boolean(),
     show_item_tax: z.boolean(),
     show_item_total: z.boolean(),
+    label_item: z.string().default("Item"),
+    label_qty: z.string().default("Qty"),
+    label_price: z.string().default("Price"),
+    label_unit: z.string().default("Unit"),
+    label_total: z.string().default("Total"),
     vendor_id: z.number(),
   });
 
@@ -72,6 +77,11 @@ export default function ReceiptSettingsPage() {
       show_item_discount: false,
       show_item_tax: false,
       show_item_total: true,
+      label_item: "Item",
+      label_qty: "Qty",
+      label_price: "Price",
+      label_unit: "Unit",
+      label_total: "Total",
       vendor_id: vendor?.id,
     },
   });
@@ -106,6 +116,11 @@ export default function ReceiptSettingsPage() {
           show_item_discount: Boolean(response.data.show_item_discount),
           show_item_tax: Boolean(response.data.show_item_tax),
           show_item_total: Boolean(response.data.show_item_total),
+          label_item: response.data.label_item || "Item",
+          label_qty: response.data.label_qty || "Qty",
+          label_price: response.data.label_price || "Price",
+          label_unit: response.data.label_unit || "Unit",
+          label_total: response.data.label_total || "Total",
           font_size: response.data.font_size || "medium",
           vendor_id: vendor?.id,
         });
@@ -343,42 +358,96 @@ export default function ReceiptSettingsPage() {
               <Card>
                 <CardBody className="p-6 space-y-6">
                   <h3 className="text-lg font-semibold">Item Table Columns</h3>
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {[
                       {
                         key: "show_item_qty" as const,
-                        label: "Show Quantity",
-                        desc: "Display the quantity purchased for each item",
+                        labelKey: "label_qty" as const,
+                        label: "Quantity Column",
+                        desc: "Display the quantity purchased",
                       },
                       {
                         key: "show_item_price" as const,
-                        label: "Show Unit Price",
-                        desc: "Display the individual price of each item",
+                        labelKey: "label_price" as const,
+                        label: "Unit Price Column",
+                        desc: "Display individual item price",
                       },
                       {
                         key: "show_item_unit" as const,
-                        label: "Show Unit of Measure",
-                        desc: "Display unit indicators (e.g. kg, lit, pieces)",
-                      },
-                      {
-                        key: "show_item_discount" as const,
-                        label: "Show Item Discount",
-                        desc: "Display discounts applied to individual items",
-                      },
-                      {
-                        key: "show_item_tax" as const,
-                        label: "Show Item Tax",
-                        desc: "Display the tax applied to individual items",
+                        labelKey: "label_unit" as const,
+                        label: "Unit Column",
+                        desc: "Display UOM (kg, lit, etc)",
                       },
                       {
                         key: "show_item_total" as const,
-                        label: "Show Line Total",
-                        desc: "Display the total line amount for the item",
+                        labelKey: "label_total" as const,
+                        label: "Line Total Column",
+                        desc: "Display final line amount",
                       },
                     ].map((opt) => (
                       <div
                         key={opt.key}
-                        className="flex items-center justify-between"
+                        className="p-4 rounded-xl border border-default-100 bg-default-50/50 space-y-4"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex flex-col">
+                            <span className="font-bold text-sm">
+                              {opt.label}
+                            </span>
+                            <span className="text-xs text-default-400">
+                              {opt.desc}
+                            </span>
+                          </div>
+                          <Switch
+                            isSelected={watch(opt.key)}
+                            onValueChange={(val) => setValue(opt.key, val)}
+                          />
+                        </div>
+                        {watch(opt.key) && (
+                          <div className="pt-2">
+                            <Input
+                              label="Column Header Label"
+                              size="sm"
+                              variant="bordered"
+                              {...register(opt.labelKey)}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+
+                    <div className="pt-4 border-t border-dashed border-default-200 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col">
+                          <span className="font-bold text-sm">Item Column</span>
+                          <span className="text-xs text-default-400">
+                            Always visible
+                          </span>
+                        </div>
+                      </div>
+                      <Input
+                        label="Column Header Label"
+                        size="sm"
+                        variant="bordered"
+                        {...register("label_item")}
+                      />
+                    </div>
+
+                    {[
+                      {
+                        key: "show_item_discount" as const,
+                        label: "Show Item Discount",
+                        desc: "Display discounts below item name",
+                      },
+                      {
+                        key: "show_item_tax" as const,
+                        label: "Show Item Tax",
+                        desc: "Display tax below item name",
+                      },
+                    ].map((opt) => (
+                      <div
+                        key={opt.key}
+                        className="flex items-center justify-between pt-2"
                       >
                         <div className="flex flex-col">
                           <span className="font-medium text-sm">
@@ -403,7 +472,6 @@ export default function ReceiptSettingsPage() {
                 <CardBody className="p-6 space-y-6">
                   <h3 className="text-lg font-semibold">Format Options</h3>
                   <div className="space-y-4">
-
                     <div>
                       <Select
                         label="Font Size"
@@ -458,9 +526,11 @@ export default function ReceiptSettingsPage() {
                     </div>
 
                     {watch("header_text") && (
-                      <div 
+                      <div
                         className="text-center italic text-gray-500"
-                        dangerouslySetInnerHTML={{ __html: watch("header_text")! }}
+                        dangerouslySetInnerHTML={{
+                          __html: watch("header_text")!,
+                        }}
                       />
                     )}
 
@@ -478,15 +548,28 @@ export default function ReceiptSettingsPage() {
                       <table className="w-full">
                         <thead>
                           <tr className="text-gray-500 border-b border-gray-200">
-                            <td className="pb-1 font-bold">Item</td>
+                            <td className="pb-1 font-bold">
+                              {watch("label_item") || "Item"}
+                            </td>
                             {watch("show_item_qty") && (
-                              <td className="pb-1 font-bold text-center">Qty</td>
+                              <td className="pb-1 font-bold text-center">
+                                {watch("label_qty") || "Qty"}
+                              </td>
                             )}
                             {watch("show_item_price") && (
-                              <td className="pb-1 font-bold text-center">Price</td>
+                              <td className="pb-1 font-bold text-center">
+                                {watch("label_price") || "Price"}
+                              </td>
+                            )}
+                            {watch("show_item_unit") && (
+                              <td className="pb-1 font-bold text-center">
+                                {watch("label_unit") || "Unit"}
+                              </td>
                             )}
                             {watch("show_item_total") && (
-                              <td className="pb-1 font-bold text-right">Total</td>
+                              <td className="pb-1 font-bold text-right">
+                                {watch("label_total") || "Total"}
+                              </td>
                             )}
                           </tr>
                         </thead>
@@ -507,7 +590,9 @@ export default function ReceiptSettingsPage() {
                               <td className="py-1 text-center">$10.00</td>
                             )}
                             {watch("show_item_total") && (
-                              <td className="py-1 text-right font-bold">$20.00</td>
+                              <td className="py-1 text-right font-bold">
+                                $20.00
+                              </td>
                             )}
                           </tr>
                           <tr className="border-b border-gray-100">
@@ -524,7 +609,9 @@ export default function ReceiptSettingsPage() {
                               <td className="py-1 text-center">$10.00</td>
                             )}
                             {watch("show_item_total") && (
-                              <td className="py-1 text-right font-bold">$15.00</td>
+                              <td className="py-1 text-right font-bold">
+                                $15.00
+                              </td>
                             )}
                           </tr>
                         </tbody>
@@ -574,9 +661,11 @@ export default function ReceiptSettingsPage() {
                       )}
 
                       {watch("footer_text") && (
-                        <div 
+                        <div
                           className="text-center pt-2 italic text-gray-500"
-                          dangerouslySetInnerHTML={{ __html: watch("footer_text")! }}
+                          dangerouslySetInnerHTML={{
+                            __html: watch("footer_text")!,
+                          }}
                         />
                       )}
                     </div>

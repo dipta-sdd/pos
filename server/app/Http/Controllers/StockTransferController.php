@@ -97,6 +97,9 @@ class StockTransferController extends Controller
         $validatedData['updated_by'] = $request->user()->id;
 
         DB::transaction(function () use ($validatedData, $request, $stockTransfer) {
+            $oldStatus = $stockTransfer->status;
+            $newStatus = $validatedData['status'] ?? $oldStatus;
+
             $stockTransfer->update($validatedData);
 
             if ($request->has('items')) {
@@ -114,6 +117,45 @@ class StockTransferController extends Controller
                     }
                 }
                 $stockTransfer->stockTransferItems()->whereNotIn('id', $itemIds)->delete();
+            }
+
+            // Handle Inventory Movement based on status transition
+            if ($oldStatus !== $newStatus) {
+                foreach ($stockTransfer->stockTransferItems as $item) {
+                    // 1. Shipped: Deduct from Source
+                    if ($newStatus === 'shipped' && $oldStatus === 'pending') {
+                        \App\Models\ProductStock::where('branch_id', $stockTransfer->from_branch_id)
+                            ->where('variant_id', $item->variant_id)
+                            ->decrement('quantity', $item->quantity);
+                    }
+
+                    // 2. Received: Add to Destination
+                    if ($newStatus === 'received' && $oldStatus === 'shipped') {
+                        $destStock = \App\Models\ProductStock::where('branch_id', $stockTransfer->to_branch_id)
+                            ->where('variant_id', $item->variant_id)
+                            ->first();
+
+                        if (!$destStock) {
+                            $variant = \App\Models\Variant::find($item->variant_id);
+                            $destStock = \App\Models\ProductStock::create([
+                                'branch_id' => $stockTransfer->to_branch_id,
+                                'product_id' => $variant->product_id,
+                                'variant_id' => $variant->id,
+                                'quantity' => 0,
+                                'cost_price' => $variant->cost_price ?? 0,
+                                'selling_price' => $variant->selling_price ?? 0,
+                            ]);
+                        }
+                        $destStock->increment('quantity', $item->quantity);
+                    }
+
+                    // 3. Cancelled (if already shipped): Replenish Source
+                    if ($newStatus === 'cancelled' && $oldStatus === 'shipped') {
+                        \App\Models\ProductStock::where('branch_id', $stockTransfer->from_branch_id)
+                            ->where('variant_id', $item->variant_id)
+                            ->increment('quantity', $item->quantity);
+                    }
+                }
             }
         });
 
