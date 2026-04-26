@@ -309,7 +309,7 @@ export default function InventoryPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_view_inventory_levels">
+    <PermissionGuard permission="can_view_stock_and_inventory">
       <div className="p-6">
         <PageHeader
           description="Manage products and stock levels across branches"

@@ -177,7 +177,7 @@ export default function StockTransfersPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_view_stock_transfers">
+    <PermissionGuard permission="can_view_stock_and_inventory">
       <div className="p-6">
         <PageHeader
           description="Move stock between branches"

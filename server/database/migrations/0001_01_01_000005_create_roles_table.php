@@ -47,15 +47,6 @@ return new class extends Migration {
             // Backend APIs: POST /products/bulk-delete
             $table->boolean('can_delete_products')->default(false);
 
-            // Used in Frontend: app/pos/vendor/[vendorId]/inventory/page.tsx
-            // Sidebar => Inventory -> Stock Levels
-            // Backend APIs: GET /branch-products, POST /branch-products/toggle-status, POST /branch-products/add-stock, GET /branch-products/stocks, PUT /branch-products/stocks/{stock}, DELETE /branch-products/stocks/{stock}
-            $table->boolean('can_view_inventory_levels')->default(false);
-            // Used in Frontend: app/pos/vendor/[vendorId]/inventory/adjustments/page.tsx
-            // Sidebar => Inventory -> Stock Adjustments
-            // Backend APIs: POST /branch-products/add-stock, PUT /branch-products/stocks/{stock}, DELETE /branch-products/stocks/{stock}, GET /inventory-adjustments, POST /inventory-adjustments, GET /inventory-adjustments/{inventoryAdjustment}, PUT /inventory-adjustments/{inventoryAdjustment}, DELETE /inventory-adjustments/{inventoryAdjustment}
-            $table->boolean('can_perform_stock_adjustments')->default(false);
-
             // Used in Frontend: app/pos/vendor/[vendorId]/products/categories/page.tsx
             // Sidebar => Catalog -> Categories
             // Backend APIs: GET /categories, GET /categories/{category}
@@ -104,15 +95,15 @@ return new class extends Migration {
             // Backend APIs: DELETE /payment-methods/{paymentMethod}
             $table->boolean('can_delete_payment_methods')->default(false);
 
-            // Used in Frontend: app/pos/vendor/[vendorId]/inventory/transfers/[transferId]/page.tsx, app/pos/vendor/[vendorId]/inventory/transfers/new/page.tsx, app/pos/vendor/[vendorId]/inventory/transfers/page.tsx
-            // Backend APIs: GET /stock-transfers, GET /stock-transfers/{stockTransfer}
-            // Sidebar => Inventory -> Stock Transfers
-            // Backend APIs: GET /stock-transfers, GET /stock-transfers/{stockTransfer}
-            $table->boolean('can_view_stock_transfers')->default(false);
-            // Backend APIs: POST /stock-transfers, PUT /stock-transfers/{stockTransfer}
-            $table->boolean('can_edit_stock_transfers')->default(false);
-            // Backend APIs: DELETE /stock-transfers/{stockTransfer}
-            $table->boolean('can_delete_stock_transfers')->default(false);
+            // Inventory & Stock Management
+            // Used in Frontend: app/pos/vendor/[vendorId]/inventory/page.tsx, app/pos/vendor/[vendorId]/inventory/transfers/page.tsx, app/pos/vendor/[vendorId]/inventory/transfers/new/page.tsx, app/pos/vendor/[vendorId]/inventory/transfers/[transferId]/page.tsx
+            // Sidebar => Inventory -> Stock Levels, Stock Transfers
+            // Backend APIs: GET /branch-products, GET /stock-transfers, etc.
+            $table->boolean('can_view_stock_and_inventory')->default(false);
+            // Used in Frontend: app/pos/vendor/[vendorId]/inventory/adjustments/page.tsx, app/pos/vendor/[vendorId]/inventory/_components/AddStockModal.tsx, app/pos/vendor/[vendorId]/inventory/_components/ViewStockModal.tsx
+            // Sidebar => Inventory -> Stock Adjustments
+            // Backend APIs: POST /branch-products/add-stock, POST /stock-transfers, POST /inventory-adjustments, etc.
+            $table->boolean('can_manage_stock_and_inventory')->default(false);
 
             // Used in Frontend: app/pos/vendor/[vendorId]/procurement/orders/[orderId]/page.tsx, app/pos/vendor/[vendorId]/procurement/orders/new/page.tsx, app/pos/vendor/[vendorId]/procurement/orders/page.tsx
             // Backend APIs: GET /purchase-orders, GET /purchase-orders/{purchaseOrder}

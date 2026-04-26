@@ -40,13 +40,9 @@ export interface Role {
   can_view_payment_methods: boolean;
   can_edit_payment_methods: boolean;
   can_delete_payment_methods: boolean;
-  // Inventory
-  can_view_inventory_levels: boolean;
-  can_perform_stock_adjustments: boolean;
-  // Stock Transfers
-  can_view_stock_transfers: boolean;
-  can_edit_stock_transfers: boolean;
-  can_delete_stock_transfers: boolean;
+  // Inventory & Stock Management
+  can_view_stock_and_inventory: boolean;
+  can_manage_stock_and_inventory: boolean;
   // Purchase Orders
   can_view_purchase_orders: boolean;
   can_edit_purchase_orders: boolean;

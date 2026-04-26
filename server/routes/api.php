@@ -149,19 +149,19 @@ Route::middleware('log.api')->group(function () {
         });
 
         // Branch Product routes (protected)
-        Route::prefix('branch-products')->middleware('permission:can_view_inventory_levels')->group(function () {
+        Route::prefix('branch-products')->middleware('permission:can_view_stock_and_inventory')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/inventory/_components/NewInventoryModal.tsx, app/pos/vendor/[vendorId]/inventory/page.tsx, components/navbar.tsx
             Route::get('/', [BranchProductController::class, 'index']);
             // Used in: app/pos/vendor/[vendorId]/inventory/page.tsx
             Route::post('/toggle-status', [BranchProductController::class, 'toggleStatus'])->middleware('permission:can_edit_products');
             // Used in: app/pos/vendor/[vendorId]/inventory/_components/AddStockModal.tsx
-            Route::post('/add-stock', [BranchProductController::class, 'addStock'])->middleware('permission:can_perform_stock_adjustments');
+            Route::post('/add-stock', [BranchProductController::class, 'addStock'])->middleware('permission:can_manage_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/_components/ViewStockModal.tsx
             Route::get('/stocks', [BranchProductController::class, 'getStocks']);
             // Used in: app/pos/vendor/[vendorId]/inventory/_components/ViewStockModal.tsx
-            Route::put('/stocks/{stock}', [BranchProductController::class, 'updateStock'])->middleware('permission:can_perform_stock_adjustments');
+            Route::put('/stocks/{stock}', [BranchProductController::class, 'updateStock'])->middleware('permission:can_manage_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/_components/ViewStockModal.tsx
-            Route::delete('/stocks/{stock}', [BranchProductController::class, 'destroyStock'])->middleware('permission:can_perform_stock_adjustments');
+            Route::delete('/stocks/{stock}', [BranchProductController::class, 'destroyStock'])->middleware('permission:can_manage_stock_and_inventory');
         });
 
         // Unit of Measure routes (protected)
@@ -327,19 +327,19 @@ Route::middleware('log.api')->group(function () {
         // Stock Transfer routes (protected)
         Route::prefix('stock-transfers')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/page.tsx
-            Route::get('/', [StockTransferController::class, 'index'])->middleware('permission:can_view_stock_transfers');
+            Route::get('/', [StockTransferController::class, 'index'])->middleware('permission:can_view_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/_components/StockTransferForm.tsx
-            Route::post('/', [StockTransferController::class, 'store'])->middleware('permission:can_edit_stock_transfers');
+            Route::post('/', [StockTransferController::class, 'store'])->middleware('permission:can_manage_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/[transferId]/page.tsx
-            Route::get('/{stockTransfer}', [StockTransferController::class, 'show'])->middleware('permission:can_view_stock_transfers');
+            Route::get('/{stockTransfer}', [StockTransferController::class, 'show'])->middleware('permission:can_view_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/_components/StockTransferForm.tsx
-            Route::put('/{stockTransfer}', [StockTransferController::class, 'update'])->middleware('permission:can_edit_stock_transfers');
+            Route::put('/{stockTransfer}', [StockTransferController::class, 'update'])->middleware('permission:can_manage_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/page.tsx
-            Route::delete('/{stockTransfer}', [StockTransferController::class, 'destroy'])->middleware('permission:can_delete_stock_transfers');
+            Route::delete('/{stockTransfer}', [StockTransferController::class, 'destroy'])->middleware('permission:can_manage_stock_and_inventory');
         });
 
         // Inventory Adjustment routes (protected)
-        Route::prefix('inventory-adjustments')->middleware('permission:can_perform_stock_adjustments')->group(function () {
+        Route::prefix('inventory-adjustments')->middleware('permission:can_manage_stock_and_inventory')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/inventory/adjustments/page.tsx
             Route::get('/', [InventoryAdjustmentController::class, 'index']);
             // Used in: app/pos/vendor/[vendorId]/inventory/adjustments/_components/InventoryAdjustmentForm.tsx

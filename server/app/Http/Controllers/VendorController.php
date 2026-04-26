@@ -114,13 +114,9 @@ class VendorController extends Controller
                 'can_view_payment_methods' => true,
                 'can_edit_payment_methods' => true,
                 'can_delete_payment_methods' => true,
-                // Inventory
-                'can_view_inventory_levels' => true,
-                'can_perform_stock_adjustments' => true,
-                // Stock Transfers
-                'can_view_stock_transfers' => true,
-                'can_edit_stock_transfers' => true,
-                'can_delete_stock_transfers' => true,
+                // Inventory & Stock Management
+                'can_view_stock_and_inventory' => true,
+                'can_manage_stock_and_inventory' => true,
                 // Purchase Orders
                 'can_view_purchase_orders' => true,
                 'can_edit_purchase_orders' => true,

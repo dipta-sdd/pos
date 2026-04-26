@@ -67,11 +67,8 @@ const PERMISSION_GROUPS = {
     "can_delete_units_of_measure",
   ],
   Inventory: [
-    "can_view_inventory_levels",
-    "can_perform_stock_adjustments",
-    "can_view_stock_transfers",
-    "can_edit_stock_transfers",
-    "can_delete_stock_transfers",
+    "can_view_stock_and_inventory",
+    "can_manage_stock_and_inventory",
     "can_view_purchase_orders",
     "can_edit_purchase_orders",
     "can_delete_purchase_orders",
@@ -322,12 +319,9 @@ export const roleSchema = z.object({
   can_edit_units_of_measure: z.boolean().default(false),
   can_delete_units_of_measure: z.boolean().default(false),
 
-  // Inventory
-  can_view_inventory_levels: z.boolean().default(false),
-  can_perform_stock_adjustments: z.boolean().default(false),
-  can_view_stock_transfers: z.boolean().default(false),
-  can_edit_stock_transfers: z.boolean().default(false),
-  can_delete_stock_transfers: z.boolean().default(false),
+  // Inventory & Stock Management
+  can_view_stock_and_inventory: z.boolean().default(false),
+  can_manage_stock_and_inventory: z.boolean().default(false),
   can_view_purchase_orders: z.boolean().default(false),
   can_edit_purchase_orders: z.boolean().default(false),
   can_delete_purchase_orders: z.boolean().default(false),

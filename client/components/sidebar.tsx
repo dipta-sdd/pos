@@ -149,25 +149,25 @@ export default function Sidebar() {
     {
       icon: Boxes,
       label: "Inventory",
-      permission: "can_view_inventory_levels",
+      permission: "can_view_stock_and_inventory",
       subItems: [
         {
           icon: Warehouse,
           label: "Stock Levels",
           href: `/pos/vendor/${vendor.id}/inventory`,
-          permission: "can_view_inventory_levels",
+          permission: "can_view_stock_and_inventory",
         },
         {
           icon: FileWrench,
           label: "Stock Adjustments",
           href: `/pos/vendor/${vendor.id}/inventory/adjustments`,
-          permission: "can_perform_stock_adjustments",
+          permission: "can_manage_stock_and_inventory",
         },
         {
           icon: Truck,
           label: "Stock Transfers",
           href: `/pos/vendor/${vendor.id}/inventory/transfers`,
-          permission: "can_view_stock_transfers",
+          permission: "can_view_stock_and_inventory",
         },
         {
           icon: History,

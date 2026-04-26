@@ -204,7 +204,7 @@ export default function StockAdjustmentsPage() {
   if (contextLoading) return <UserLoding />;
 
   return (
-    <PermissionGuard permission="can_perform_stock_adjustments">
+    <PermissionGuard permission="can_manage_stock_and_inventory">
       <div className="p-6">
         <PageHeader
           description="Record and view inventory adjustments"
