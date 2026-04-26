@@ -37,7 +37,7 @@ class DashboardController extends Controller
         }
 
         // 1. Today's Sales Total
-        $todaySales = $salesQuery->sum('total_amount');
+        $todaySales = $salesQuery->sum('final_amount');
 
         // 2. Total Products
         $totalProducts = Product::where('vendor_id', $vendorId)->count();
@@ -52,7 +52,7 @@ class DashboardController extends Controller
                 'type' => 'sale',
                 'title' => 'Sale #' . $item->id,
                 'description' => 'Customer: ' . ($item->customer?->name ?? 'Guest'),
-                'amount' => $item->total_amount,
+                'amount' => $item->final_amount,
                 'status' => $item->status,
                 'date' => $item->created_at,
             ]);

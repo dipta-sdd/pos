@@ -27,7 +27,7 @@ class ReportController extends Controller
             $salesQuery->whereIn('branch_id', $branchIds);
         }
 
-        $salesOverTime = $salesQuery->selectRaw('DATE(created_at) as date, sum(total_amount) as total')
+        $salesOverTime = $salesQuery->selectRaw('DATE(created_at) as date, sum(final_amount) as total')
             ->groupBy('date')
             ->orderBy('date')
             ->get();
@@ -43,7 +43,7 @@ class ReportController extends Controller
             })
             ->with(['variant.product']);
 
-        $topProducts = $topProductsQuery->selectRaw('variant_id, sum(quantity) as total_qty, sum(total_amount) as total_revenue')
+        $topProducts = $topProductsQuery->selectRaw('variant_id, sum(quantity) as total_qty, sum(line_total) as total_revenue')
             ->groupBy('variant_id')
             ->orderByDesc('total_revenue')
             ->limit(10)
@@ -62,7 +62,7 @@ class ReportController extends Controller
             ->join('products', 'variants.product_id', '=', 'products.id')
             ->join('categories', 'products.category_id', '=', 'categories.id');
 
-        $salesByCategory = $salesByCategoryQuery->selectRaw('categories.name as category_name, sum(sale_items.total_amount) as total')
+        $salesByCategory = $salesByCategoryQuery->selectRaw('categories.name as category_name, sum(sale_items.line_total) as total')
             ->groupBy('categories.name')
             ->get();
 
@@ -75,7 +75,7 @@ class ReportController extends Controller
             $taxSummaryQuery->whereIn('branch_id', $branchIds);
         }
 
-        $taxSummary = $taxSummaryQuery->selectRaw('sum(tax_amount) as total_tax, sum(total_amount) as total_sales')
+        $taxSummary = $taxSummaryQuery->selectRaw('sum(tax_amount) as total_tax, sum(final_amount) as total_sales')
             ->first();
 
         return response()->json([
@@ -109,7 +109,7 @@ class ReportController extends Controller
             ->get();
 
         // 2. Expenses by Category
-        $expensesQuery = \App\Models\Expense::where('vendor_id', $vendorId)
+        $expensesQuery = \App\Models\Expense::where('expenses.vendor_id', $vendorId)
             ->whereBetween('expense_date', [$startDate->toDateString(), $endDate->toDateString()]);
 
         if (!empty($branchIds)) {
@@ -130,7 +130,7 @@ class ReportController extends Controller
             $dailySalesQuery->whereIn('branch_id', $branchIds);
         }
 
-        $dailyRevenue = $dailySalesQuery->selectRaw('DATE(created_at) as date, sum(total_amount) as total')
+        $dailyRevenue = $dailySalesQuery->selectRaw('DATE(created_at) as date, sum(final_amount) as total')
             ->groupBy('date')
             ->get()
             ->pluck('total', 'date');

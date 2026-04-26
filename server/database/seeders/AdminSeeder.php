@@ -503,7 +503,6 @@ class AdminSeeder extends Seeder
 
             foreach ($suppliersData as $s) {
                 \App\Models\Supplier::firstOrCreate(
-                    ['email' => $s['email']],
                     array_merge($s, [
                         'vendor_id' => $vendor->id,
                         'created_by' => $user->id,
@@ -512,9 +511,9 @@ class AdminSeeder extends Seeder
                 );
             }
 
-            // 8c. Create 25 Customers (Manual)
+            // 8c. Create 20 Customers (Manual)
             $customersData = [
-                ['firstName' => 'John', 'lastName' => 'Customer', 'email' => 'john@cust.com', 'mobile' => '20001', 'address' => 'Customer St 1'],
+                ['firstName' => 'John', 'lastName' => 'Doe', 'email' => 'john@cust.com', 'mobile' => '20001', 'address' => 'Customer St 1'],
                 ['firstName' => 'Sarah', 'lastName' => 'Miller', 'email' => 'sarah@cust.com', 'mobile' => '20002', 'address' => 'Customer St 2'],
                 ['firstName' => 'Michael', 'lastName' => 'Brown', 'email' => 'michael@cust.com', 'mobile' => '20003', 'address' => 'Customer St 3'],
                 ['firstName' => 'Emily', 'lastName' => 'Davis', 'email' => 'emily@cust.com', 'mobile' => '20004', 'address' => 'Customer St 4'],
@@ -534,15 +533,10 @@ class AdminSeeder extends Seeder
                 ['firstName' => 'Betty', 'lastName' => 'Martin', 'email' => 'betty@cust.com', 'mobile' => '20018', 'address' => 'Customer St 18'],
                 ['firstName' => 'Paul', 'lastName' => 'Lee', 'email' => 'paul@cust.com', 'mobile' => '20019', 'address' => 'Customer St 19'],
                 ['firstName' => 'Sandra', 'lastName' => 'Perez', 'email' => 'sandra@cust.com', 'mobile' => '20020', 'address' => 'Customer St 20'],
-                ['firstName' => 'Kevin', 'lastName' => 'Thompson', 'email' => 'kevin@cust.com', 'mobile' => '20021', 'address' => 'Customer St 21'],
-                ['firstName' => 'Donna', 'lastName' => 'White', 'email' => 'donna@cust.com', 'mobile' => '20022', 'address' => 'Customer St 22'],
-                ['firstName' => 'Jason', 'lastName' => 'Harris', 'email' => 'jason@cust.com', 'mobile' => '20023', 'address' => 'Customer St 23'],
-                ['firstName' => 'Carol', 'lastName' => 'Clark', 'email' => 'carol@cust.com', 'mobile' => '20024', 'address' => 'Customer St 24'],
-                ['firstName' => 'Jeff', 'lastName' => 'Lewis', 'email' => 'jeff@cust.com', 'mobile' => '20025', 'address' => 'Customer St 25'],
             ];
 
             foreach ($customersData as $c) {
-                \App\Models\Customer::firstOrCreate(
+                $customer = \App\Models\Customer::firstOrCreate(
                     ['email' => $c['email']],
                     [
                         'name' => $c['firstName'] . ' ' . $c['lastName'],
@@ -550,6 +544,16 @@ class AdminSeeder extends Seeder
                         'phone' => $c['mobile'],
                         'address' => $c['address'],
                         'vendor_id' => $vendor->id,
+                        'created_by' => $user->id,
+                        'updated_by' => $user->id,
+                    ]
+                );
+
+                // Create initial store credit record
+                \App\Models\CustomerStoreCredit::firstOrCreate(
+                    ['customer_id' => $customer->id, 'vendor_id' => $vendor->id],
+                    [
+                        'current_balance' => rand(100, 1000),
                         'created_by' => $user->id,
                         'updated_by' => $user->id,
                     ]

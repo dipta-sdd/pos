@@ -7,9 +7,15 @@ use Illuminate\Http\Request;
 
 class CustomerStoreCreditController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return CustomerStoreCredit::paginate();
+        $query = CustomerStoreCredit::with('customer');
+
+        if ($request->has('vendor_id')) {
+            $query->where('vendor_id', $request->vendor_id);
+        }
+
+        return $query->paginate($request->input('per_page', 10));
     }
 
     public function store(Request $request)

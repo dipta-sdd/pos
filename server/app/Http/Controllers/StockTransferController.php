@@ -10,7 +10,7 @@ class StockTransferController extends Controller
 {
     public function index(Request $request)
     {
-        $query = StockTransfer::with('stockTransferItems');
+        $query = StockTransfer::with(['stockTransferItems', 'fromBranch', 'toBranch']);
 
         if ($request->has('vendor_id')) {
             $query->where('vendor_id', $request->vendor_id);
