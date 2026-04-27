@@ -537,7 +537,7 @@ class AdminSeeder extends Seeder
             ];
 
             foreach ($promotionsData as $p) {
-                \App\Models\Promotion::firstOrCreate(
+                \App\Models\Promotion::updateOrCreate(
                     ['name' => $p['name'], 'vendor_id' => $vendor->id],
                     [
                         'name' => $p['name'],

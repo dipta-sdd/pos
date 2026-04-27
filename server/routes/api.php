@@ -220,6 +220,8 @@ Route::middleware('log.api')->group(function () {
         Route::prefix('promotions')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/promotions/page.tsx
             Route::get('/', [PromotionController::class, 'index'])->middleware('permission:can_view_promotions');
+            // Bulk update status
+            Route::post('/bulk-status', [PromotionController::class, 'bulkStatus'])->middleware('permission:can_edit_promotions');
             // Used in: app/pos/vendor/[vendorId]/promotions/_components/PromotionForm.tsx
             Route::post('/', [PromotionController::class, 'store'])->middleware('permission:can_edit_promotions');
             // Used in: app/pos/vendor/[vendorId]/promotions/page.tsx

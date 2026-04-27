@@ -46,12 +46,31 @@ class PromotionController extends Controller
             'branch_id' => 'nullable|exists:branches,id',
         ]);
 
+    $validatedData = $this->mapPromotionData($validatedData);
         $validatedData['created_by'] = $request->user()->id;
         $validatedData['updated_by'] = $request->user()->id;
 
         $promotion = Promotion::create($validatedData);
 
         return response()->json($promotion, 201);
+    }
+
+    public function bulkStatus(Request $request)
+    {
+        $validatedData = $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:promotions,id',
+            'is_active' => 'required|boolean',
+        ]);
+
+        Promotion::whereIn('id', $validatedData['ids'])
+            ->update([
+                'is_active' => $validatedData['is_active'],
+                'updated_by' => $request->user()->id,
+                'updated_at' => now(),
+            ]);
+
+        return response()->json(['message' => 'Promotions updated successfully']);
     }
 
     public function show(Promotion $promotion)
@@ -74,11 +93,33 @@ class PromotionController extends Controller
             'branch_id' => 'nullable|exists:branches,id',
         ]);
 
+        if (isset($validatedData['discount_type']) || isset($validatedData['applies_to'])) {
+            $validatedData = $this->mapPromotionData($validatedData);
+        }
+
         $validatedData['updated_by'] = $request->user()->id;
 
         $promotion->update($validatedData);
 
         return response()->json($promotion);
+    }
+
+    private function mapPromotionData(array $data): array
+    {
+        if (isset($data['discount_type'])) {
+            $data['discount_type'] = $data['discount_type'] === 'fixed' ? 'fixed_amount' : 'percentage';
+        }
+
+        if (isset($data['applies_to'])) {
+            $map = [
+                'all_products' => 'entire_vendor',
+                'specific_product' => 'product',
+                'specific_category' => 'category',
+            ];
+            $data['applies_to'] = $map[$data['applies_to']] ?? $data['applies_to'];
+        }
+
+        return $data;
     }
 
     public function destroy(Promotion $promotion)

@@ -81,6 +81,9 @@ export default function PromotionsPage() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
+  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
+  const [isBulkLoading, setIsBulkLoading] = useState(false);
+
   const fetchItems = async (page: number) => {
     if (!vendor?.id) return;
     setLoading(true);
@@ -138,6 +141,34 @@ export default function PromotionsPage() {
     setDeleteConfirmOpen(false);
   };
 
+  const handleBulkStatus = async (is_active: boolean) => {
+    const ids =
+      selectedKeys === "all"
+        ? items.map((item) => item.id)
+        : Array.from(selectedKeys).map((id) => Number(id));
+
+    if (ids.length === 0) return;
+
+    setIsBulkLoading(true);
+    try {
+      await api.post(`/promotions/bulk-status`, {
+        ids,
+        is_active,
+      });
+      toast.success(
+        `Promotions ${is_active ? "activated" : "deactivated"} successfully`,
+      );
+      setSelectedKeys(new Set([]));
+      fetchItems(currentPage);
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message || "Failed to update promotions",
+      );
+    } finally {
+      setIsBulkLoading(false);
+    }
+  };
+
   const renderCell = useCallback((item: Promotion, columnKey: React.Key) => {
     switch (columnKey) {
       case "is_active":
@@ -190,13 +221,37 @@ export default function PromotionsPage() {
           description="Manage discounts and special offers"
           title="Promotions"
         >
-          <Button
-            color="primary"
-            startContent={<Plus className="w-4 h-4" />}
-            onPress={handleCreate}
-          >
-            Add Promotion
-          </Button>
+          <div className="flex gap-2">
+            {(selectedKeys === "all" || selectedKeys.size > 0) && (
+              <div className="flex gap-2 mr-2 animate-in fade-in zoom-in duration-200">
+                <Button
+                  color="success"
+                  isLoading={isBulkLoading}
+                  size="sm"
+                  variant="flat"
+                  onPress={() => handleBulkStatus(true)}
+                >
+                  Activate Selected
+                </Button>
+                <Button
+                  color="warning"
+                  isLoading={isBulkLoading}
+                  size="sm"
+                  variant="flat"
+                  onPress={() => handleBulkStatus(false)}
+                >
+                  Deactivate Selected
+                </Button>
+              </div>
+            )}
+            <Button
+              color="primary"
+              startContent={<Plus className="w-4 h-4" />}
+              onPress={handleCreate}
+            >
+              Add Promotion
+            </Button>
+          </div>
         </PageHeader>
 
         <div className="flex justify-between gap-3 items-end mb-4">
@@ -244,11 +299,14 @@ export default function PromotionsPage() {
           lastPage={lastPage}
           perPage={perPage}
           renderCell={renderCell}
+          selectedKeys={selectedKeys}
+          selectionMode="multiple"
           setCurrentPage={setCurrentPage}
           setPerPage={setPerPage}
           setSortDescriptor={setSortDescriptor}
           sortDescriptor={sortDescriptor}
           visibleColumns={visibleColumns}
+          onSelectionChange={setSelectedKeys}
         />
 
         <Modal isOpen={isOpen} size="2xl" onOpenChange={onOpenChange}>

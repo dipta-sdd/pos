@@ -69,11 +69,22 @@ export default function PromotionForm({
     resolver: zodResolver(promotionSchema) as any,
     defaultValues: {
       name: initialData?.name || "",
-      discount_type: (initialData?.discount_type as any) || "percentage",
+      discount_type:
+        initialData?.discount_type === "fixed_amount"
+          ? "fixed"
+          : (initialData?.discount_type as any) || "percentage",
       discount_value: initialData?.discount_value
         ? Number(initialData.discount_value)
         : 0,
-      applies_to: (initialData?.applies_to as any) || "all_products",
+      applies_to:
+        initialData?.applies_to === "entire_vendor" ||
+        initialData?.applies_to === "entire_branch"
+          ? "all_products"
+          : initialData?.applies_to === "product"
+            ? "specific_product"
+            : initialData?.applies_to === "category"
+              ? "specific_category"
+              : (initialData?.applies_to as any) || "all_products",
       product_id: initialData?.product_id,
       category_id: initialData?.category_id,
       start_date: initialData?.start_date
