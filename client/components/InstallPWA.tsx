@@ -14,7 +14,6 @@ export default function InstallPWA({
   variant = "sidebar",
 }: InstallPWAProps) {
   const { isInstallable, install } = usePWA();
-  console.log(isInstallable);
 
   if (!isInstallable) return null;
 

@@ -3,7 +3,9 @@ import axios from "axios";
 import { getToken } from "./hooks/useAuth";
 
 // Backend URL - hardcoded as requested
-export const BACKEND_URL = "http://localhost:8000";
+// export const BACKEND_URL = "http://localhost:8000";
+// Backend URL - dynamic based on hostname
+export const BACKEND_URL = typeof window !== "undefined" ? `${window.location.protocol}//${window.location.hostname}:8000` : "http://localhost:8000";
 
 // Create axios instance with default configuration
 const api = axios.create({

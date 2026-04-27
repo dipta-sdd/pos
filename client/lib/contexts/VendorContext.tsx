@@ -118,7 +118,6 @@ export const VendorProvider = ({ children }: VendorProviderProps) => {
 
       return;
     }
-    console.log(foundMembership);
     setMembership(foundMembership);
     setVendor(foundMembership.vendor);
     setIsLoading(false);

@@ -78,13 +78,11 @@ function LoginContent() {
 
       if (success) {
         // Redirect to POS dashboard or previous page
-        console.log("Login success, redirecting to:", redirectTo);
         router.push(redirectTo);
       } else {
         setError("Invalid credentials. Please check your email and password.");
       }
     } catch (err: any) {
-      console.error("Login error:", err);
       setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);

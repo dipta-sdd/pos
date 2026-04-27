@@ -66,7 +66,6 @@ export default function VendorNavbar() {
                 let href = "";
 
                 // Map segments to readable labels
-                console.log("segment", segment);
                 switch (segment) {
                   case "roles":
                     label = "Roles & Permissions";

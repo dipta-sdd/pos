@@ -181,7 +181,6 @@ export const KeyboardPOS: React.FC<KeyboardPOSProps> = ({
         removeFromCart: doRemoveFromCart,
       } = stateRef.current;
 
-      console.log(e.key);
       if (e.key === "F1") {
         e.preventDefault();
         e.stopPropagation();

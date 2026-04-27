@@ -154,7 +154,6 @@ export default function PointOfSalePage() {
         setReceiptSettings(res.data);
       } catch (error) {
         // Receipt settings may not exist yet — that's OK
-        console.log("No receipt settings found, using defaults");
       }
     };
 

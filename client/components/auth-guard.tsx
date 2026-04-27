@@ -30,15 +30,12 @@ export function AuthGuard({
     if (!isLoading) {
       if (requireAuth) {
         if (!isAuthenticated) {
-          console.log("Not Authenticated redirecting to login");
           const currentUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
 
           router.push(`/login?redirect_to=${encodeURIComponent(currentUrl)}`);
         } else {
           if (requireVerification) {
             if (!user?.email_verified_at && !user?.mobile_verified_at) {
-              console.log("Not Verified redirecting to verify");
-
               router.push("/verify");
             } else {
               setIsVerified(true);
@@ -46,7 +43,6 @@ export function AuthGuard({
             }
           } else {
             if (user?.email_verified_at || user?.mobile_verified_at) {
-              console.log("Verified redirecting to pos");
               setIsVerified(true);
               setIsVerifying(false);
               router.push("/pos");
@@ -54,12 +50,10 @@ export function AuthGuard({
           }
         }
       } else {
-        console.log("Not requireAuth");
         if (isAuthenticated) {
           const authRedirect =
             searchParams.get("redirect_to") || redirectTo || "/pos";
 
-          console.log(`Already Authenticated redirecting to ${authRedirect}`);
           router.push(authRedirect);
         }
       }
@@ -75,25 +69,12 @@ export function AuthGuard({
   ]);
 
   if (isLoading || (requireVerification && !isVerified)) {
-    console.table({
-      isAuthenticated,
-      isLoading,
-      requireAuth,
-      redirectTo,
-      requireVerification,
-      isVerified,
-    });
-
     return <Loading />;
   }
   if (requireAuth && !isAuthenticated) {
-    console.log("Not Authenticated");
-
     return <AccessDenied />;
   }
   if (!requireAuth && isAuthenticated) {
-    console.log("Already Authenticated");
-
     return <AlreadyAuthenticated />;
   }
 

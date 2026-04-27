@@ -1,5 +1,4 @@
 export const formatDateTime = (dateString: string | null) => {
-  console.log(dateString);
   if (!dateString) return "-";
 
   return new Date(dateString).toLocaleString("en-GB", {
@@ -13,7 +12,6 @@ export const formatDateTime = (dateString: string | null) => {
 };
 
 export const formatDate = (dateString: string | null) => {
-  console.log(dateString);
   if (!dateString) return "-";
 
   return new Date(dateString).toLocaleDateString("en-GB", {
