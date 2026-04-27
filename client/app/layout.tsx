@@ -1,5 +1,5 @@
 import "@/styles/globals.css";
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 
 import { Providers } from "./providers";
@@ -14,9 +14,29 @@ export const metadata: Metadata = {
     template: `%s - ${siteConfig.name}`,
   },
   description: siteConfig.description,
+  applicationName: "POS System",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "POS System",
+  },
+  formatDetection: {
+    telephone: false,
+  },
   icons: {
     icon: "/favicon.ico",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "white" },
+    { media: "(prefers-color-scheme: dark)", color: "black" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({

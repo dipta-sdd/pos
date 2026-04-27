@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { Logo } from "@/components/icons";
 import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
+import InstallPWA from "./InstallPWA";
 
 export const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -273,6 +274,8 @@ export const Navbar = () => {
                 </NextLink>
               </div>
             )}
+
+            <InstallPWA variant="navbar" />
 
             <ThemeSwitch />
 

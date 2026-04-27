@@ -13,6 +13,7 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import { useSidebar } from "@/lib/contexts/SidebarContext";
+import InstallPWA from "../InstallPWA";
 
 export default function VendorNavbar() {
   const { vendor, currentRole, isLoading } = useVendor();
@@ -106,6 +107,7 @@ export default function VendorNavbar() {
       </div>
 
       <div className="flex items-center gap-4">
+        <InstallPWA variant="navbar" />
         {/* Theme Switch */}
         <ThemeSwitch />
 

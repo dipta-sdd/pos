@@ -34,7 +34,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 
 export const Navbar2 = () => {
   const { user, logout } = useAuth();
-
+  
   const searchInput = (
     <Input
       aria-label="Search.."
