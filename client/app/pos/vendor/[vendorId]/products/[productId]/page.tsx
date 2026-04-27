@@ -6,15 +6,18 @@ import { Printer } from "lucide-react";
 import { Button } from "@heroui/button";
 
 import ProductForm from "../_components/ProductForm";
+
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import api from "@/lib/api";
+import ResourceNotFound from "@/components/ui/ResourceNotFound";
 
 export default function EditProductPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
   const params = useParams();
   const productId = params.productId;
+  const vendorId = params.vendorId;
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -88,7 +91,16 @@ export default function EditProductPage() {
   };
 
   if (contextLoading || loading) return <div className="p-6">Loading...</div>;
-  if (!product) return <div className="p-6">Product not found.</div>;
+
+  if (!product) {
+    return (
+      <ResourceNotFound
+        title="Product"
+        backLink={`/pos/vendor/${vendorId}/products`}
+        backLabel="Back to Products"
+      />
+    );
+  }
 
   return (
     <PermissionGuard permission="can_manage_catalog">

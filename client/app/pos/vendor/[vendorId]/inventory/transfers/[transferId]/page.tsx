@@ -9,11 +9,13 @@ import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import api from "@/lib/api";
+import ResourceNotFound from "@/components/ui/ResourceNotFound";
 
 export default function EditStockTransferPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
   const params = useParams();
   const transferId = params.transferId;
+  const vendorId = params.vendorId;
   const [transfer, setTransfer] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -36,7 +38,16 @@ export default function EditStockTransferPage() {
   };
 
   if (contextLoading || loading) return <div className="p-6">Loading...</div>;
-  if (!transfer) return <div className="p-6">Transfer not found.</div>;
+
+  if (!transfer) {
+    return (
+      <ResourceNotFound
+        title="Stock Transfer"
+        backLink={`/pos/vendor/${vendorId}/inventory/transfers`}
+        backLabel="Back to Transfers"
+      />
+    );
+  }
 
   return (
     <PermissionGuard permission="can_view_stock_and_inventory">
