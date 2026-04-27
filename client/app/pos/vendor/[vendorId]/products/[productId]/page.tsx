@@ -12,6 +12,7 @@ import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import api from "@/lib/api";
 import ResourceNotFound from "@/components/ui/ResourceNotFound";
+import { Skeleton } from "@heroui/skeleton";
 
 export default function EditProductPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
@@ -90,7 +91,67 @@ export default function EditProductPage() {
     printWindow.document.close();
   };
 
-  if (contextLoading || loading) return <div className="p-6">Loading...</div>;
+  if (contextLoading || loading) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex justify-between items-center mb-8">
+          <div className="space-y-3">
+            <Skeleton className="w-48 h-8 rounded-lg" />
+            <Skeleton className="w-64 h-4 rounded-lg" />
+          </div>
+          <Skeleton className="w-32 h-10 rounded-lg" />
+        </div>
+        <div className="mt-6 max-w-5xl space-y-8">
+          {/* General Information Card */}
+          <div className="bg-white dark:bg-default-50 rounded-xl border border-default-200 p-6 space-y-6">
+            <Skeleton className="w-48 h-6 rounded-lg" />
+            <div className="flex flex-col md:flex-row gap-6">
+              {/* Image Skeleton */}
+              <Skeleton className="w-32 h-32 rounded-xl flex-shrink-0" />
+              
+              <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Skeleton className="h-12 w-full rounded-xl" />
+                <Skeleton className="h-12 w-full rounded-xl" />
+                <div className="md:col-span-2">
+                  <Skeleton className="h-24 w-full rounded-xl" />
+                </div>
+                <Skeleton className="h-12 w-full rounded-xl" />
+              </div>
+            </div>
+          </div>
+
+          {/* Variants Card */}
+          <div className="bg-white dark:bg-default-50 rounded-xl border border-default-200 p-6 space-y-6">
+            <div className="flex justify-between items-center">
+              <Skeleton className="w-40 h-6 rounded-lg" />
+              <Skeleton className="w-32 h-8 rounded-lg" />
+            </div>
+            <div className="space-y-4">
+              {[1, 2].map((i) => (
+                <div key={i} className="p-4 border border-default-200 rounded-lg space-y-4">
+                  <div className="flex justify-between">
+                    <Skeleton className="w-24 h-4 rounded" />
+                    <Skeleton className="w-8 h-8 rounded" />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <Skeleton className="h-10 w-full rounded-lg" />
+                    <Skeleton className="h-10 w-full rounded-lg" />
+                    <Skeleton className="h-10 w-full rounded-lg" />
+                    <Skeleton className="h-10 w-full rounded-lg" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <Skeleton className="h-10 w-24 rounded-lg" />
+            <Skeleton className="h-10 w-32 rounded-lg" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
