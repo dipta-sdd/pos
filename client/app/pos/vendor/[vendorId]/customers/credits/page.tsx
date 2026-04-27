@@ -162,8 +162,6 @@ export default function StoreCreditsPage() {
           return isNaN(balance) ? "0.00" : balance.toFixed(2);
         case "updated_at":
           return formatDateTime(item.updated_at);
-        case "branch_type":
-          return item.from_branch?.branch_type || "N/A";
         case "created_at":
           return formatDateTime(item.created_at);
         case "actions":

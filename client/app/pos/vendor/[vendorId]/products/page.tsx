@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { SortDescriptor } from "@heroui/table";
-import { Plus, ChevronDown, Edit, Trash2 } from "lucide-react";
+import { Plus, ChevronDown, Edit, Trash2, Pencil } from "lucide-react";
 import {
   Dropdown,
   DropdownTrigger,
@@ -194,7 +194,7 @@ export default function ProductsPage() {
                   variant="light"
                   onPress={() =>
                     router.push(
-                      `/pos/vendor/${vendor?.id}/products/${item.product_id}`
+                      `/pos/vendor/${vendor?.id}/products/${item.id}`
                     )
                   }
                 >
@@ -207,7 +207,7 @@ export default function ProductsPage() {
                   size="sm"
                   variant="light"
                   onPress={() => {
-                    setDeleteConfirmId(item.product_id);
+                    setDeleteConfirmId(item.id);
                     setDeleteConfirmOpen(true);
                   }}
                 >
