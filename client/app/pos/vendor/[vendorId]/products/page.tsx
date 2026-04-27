@@ -214,6 +214,8 @@ export default function ProductsPage() {
                   <Trash2 className="w-4 h-4 text-danger" />
                 </Button>
               </PermissionGuard>
+            </div>
+          );
         default:
           return (item as any)[columnKey as keyof Product];
       }

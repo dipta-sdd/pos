@@ -8,8 +8,6 @@ import {
   History,
   Undo2,
   Contact,
-  BookMarked,
-  Package,
   FolderTree,
   Boxes,
   Warehouse,
@@ -34,6 +32,10 @@ import {
   PlugZap,
   ChevronDown,
   X,
+  Layers,
+  ShoppingBasket,
+  Tags,
+  Ruler,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

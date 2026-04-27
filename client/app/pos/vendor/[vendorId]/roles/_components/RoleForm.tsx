@@ -42,11 +42,7 @@ const PERMISSION_GROUPS = {
     "can_issue_cash_refunds",
     "can_issue_store_credit",
   ],
-  Catalog: [
-    "can_view_catalog",
-    "can_manage_catalog",
-    "can_delete_catalog",
-  ],
+  Catalog: ["can_view_catalog", "can_manage_catalog", "can_delete_catalog"],
   Operations: [
     "can_view_operations",
     "can_manage_operations",
@@ -259,8 +255,5 @@ export const roleSchema = z.object({
 export type RoleFormData = z.infer<typeof roleSchema>;
 
 export const roleUpdateSchema = roleSchema.partial();
-
-export type RoleUpdateFormData = z.infer<typeof roleUpdateSchema>;
-();
 
 export type RoleUpdateFormData = z.infer<typeof roleUpdateSchema>;

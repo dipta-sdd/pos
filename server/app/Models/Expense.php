@@ -42,7 +42,7 @@ class Expense extends Model
         return $this->belongsTo(Branch::class);
     }
 
-    public function expenseCategory(): BelongsTo
+    public function expense_category(): BelongsTo
     {
         return $this->belongsTo(ExpenseCategory::class);
     }
@@ -56,4 +56,4 @@ class Expense extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
-} 
+}

@@ -24,7 +24,7 @@ class DashboardController extends Controller
             ->where('status', '!=', 'void');
 
         $expensesQuery = \App\Models\Expense::where('vendor_id', $vendorId)
-            ->whereDate('date', $today);
+            ->whereDate('expense_date', $today);
 
         $recentSalesQuery = Sale::with(['customer'])
             ->where('vendor_id', $vendorId)
@@ -59,7 +59,7 @@ class DashboardController extends Controller
 
         $recentExpensesQuery = \App\Models\Expense::with(['expense_category'])
             ->where('vendor_id', $vendorId)
-            ->orderBy('date', 'desc');
+            ->orderBy('expense_date', 'desc');
 
         if (!empty($branchIds)) {
             $recentExpensesQuery->whereIn('branch_id', $branchIds);
@@ -73,7 +73,7 @@ class DashboardController extends Controller
                 'description' => $item->description,
                 'amount' => $item->amount,
                 'status' => 'paid',
-                'date' => $item->date,
+                'date' => $item->expense_date,
             ]);
 
         $recentActivity = $recentSales->concat($recentExpenses)
