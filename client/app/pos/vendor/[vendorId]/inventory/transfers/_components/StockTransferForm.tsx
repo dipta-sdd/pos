@@ -672,14 +672,6 @@ export default function StockTransferForm({
                                 `items.${index}.approved_quantity`,
                                 watchItems[index].quantity,
                               );
-                              setValue(
-                                `items.${index}.cost_price`,
-                                watchItems[index].variant?.cost_price || 0,
-                              );
-                              setValue(
-                                `items.${index}.selling_price`,
-                                watchItems[index].variant?.selling_price || 0,
-                              );
                             });
                             toast.success("Approved selected items");
                             setSelectedItems(new Set());
@@ -986,15 +978,6 @@ export default function StockTransferForm({
                                                   `items.${index}.approved_quantity`,
                                                   item.quantity,
                                                 );
-                                                setValue(
-                                                  `items.${index}.cost_price`,
-                                                  item.variant?.cost_price || 0,
-                                                );
-                                                setValue(
-                                                  `items.${index}.selling_price`,
-                                                  item.variant?.selling_price ||
-                                                    0,
-                                                );
                                               }}
                                             >
                                               <Check className="w-3.5 h-3.5" />
@@ -1031,59 +1014,21 @@ export default function StockTransferForm({
 
                             {/* Snapshot Columns */}
                             <td className="py-5 px-4 border-b border-default-50">
-                              {isEditingRow ? (
-                                <Input
-                                  size="sm"
-                                  type="number"
-                                  variant="bordered"
-                                  className="w-24"
-                                  {...register(
-                                    `items.${index}.cost_price` as any,
-                                  )}
-                                />
-                              ) : (
-                                <span className="text-sm font-medium text-default-600">
-                                  {item.cost_price
-                                    ? `$${item.cost_price}`
-                                    : "-"}
-                                </span>
-                              )}
+                              <span className="text-sm font-medium text-default-600">
+                                {item.cost_price ? `$${item.cost_price}` : "-"}
+                              </span>
                             </td>
                             <td className="py-5 px-4 border-b border-default-50">
-                              {isEditingRow ? (
-                                <Input
-                                  size="sm"
-                                  type="number"
-                                  variant="bordered"
-                                  className="w-24"
-                                  {...register(
-                                    `items.${index}.selling_price` as any,
-                                  )}
-                                />
-                              ) : (
-                                <span className="text-sm font-medium text-default-600">
-                                  {item.selling_price
-                                    ? `$${item.selling_price}`
-                                    : "-"}
-                                </span>
-                              )}
+                              <span className="text-sm font-medium text-default-600">
+                                {item.selling_price
+                                  ? `$${item.selling_price}`
+                                  : "-"}
+                              </span>
                             </td>
                             <td className="py-5 px-4 border-b border-default-50">
-                              {isEditingRow ? (
-                                <Input
-                                  size="sm"
-                                  type="date"
-                                  variant="bordered"
-                                  className="w-32"
-                                  {...register(
-                                    `items.${index}.expiry_date` as any,
-                                  )}
-                                />
-                              ) : (
-                                <span className="text-sm font-medium text-default-600">
-                                  {item.expiry_date || "-"}
-                                </span>
-                              )}
+                              <span className="text-sm font-medium text-default-600">
+                                {item.expiry_date || "-"}
+                              </span>
                             </td>
                             {initialData?.status !== "requested" && (
                               <td className="py-5 px-4 border-b border-default-50">

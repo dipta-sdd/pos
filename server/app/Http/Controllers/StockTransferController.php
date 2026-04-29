@@ -247,6 +247,23 @@ class StockTransferController extends Controller
                     // 1. Shipped: Deduct from Source (using approved_quantity)
                     if ($newStatus === 'in_transit' && ($oldStatus === 'pending' || $oldStatus === 'accepted')) {
                         $deductQty = $item->approved_quantity ?? $item->quantity;
+                        
+                        // Fetch stock details to fill missing prices/expiry
+                        $sourceStock = \App\Models\ProductStock::where('branch_id', $stockTransfer->from_branch_id)
+                            ->where('variant_id', $item->variant_id)
+                            ->first();
+
+                        if ($sourceStock) {
+                            $itemUpdate = [];
+                            if (!$item->cost_price) $itemUpdate['cost_price'] = $sourceStock->cost_price;
+                            if (!$item->selling_price) $itemUpdate['selling_price'] = $sourceStock->selling_price;
+                            if (!$item->expiry_date) $itemUpdate['expiry_date'] = $sourceStock->expiry_date;
+                            
+                            if (!empty($itemUpdate)) {
+                                $item->update($itemUpdate);
+                            }
+                        }
+
                         \App\Models\ProductStock::where('branch_id', $stockTransfer->from_branch_id)
                             ->where('variant_id', $item->variant_id)
                             ->decrement('quantity', $deductQty);
