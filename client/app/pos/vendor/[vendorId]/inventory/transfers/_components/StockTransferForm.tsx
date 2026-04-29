@@ -466,7 +466,7 @@ export default function StockTransferForm({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <Select
                     isRequired
-                    isDisabled={isEditing}
+                    isDisabled={isEditing && !(initialData?.status === "requested" && isReceiver)}
                     label="Source Branch"
                     placeholder="Select source"
                     selectedKeys={
