@@ -19,6 +19,7 @@ class StockTransferItem extends Model
         'product_stocks_id',
         'unit_of_measure_id',
         'quantity',
+        'status',
     ];
 
     protected $casts = [

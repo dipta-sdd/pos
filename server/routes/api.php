@@ -331,11 +331,15 @@ Route::middleware('log.api')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/page.tsx
             Route::get('/', [StockTransferController::class, 'index'])->middleware('permission:can_view_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/_components/StockTransferForm.tsx
+            Route::get('/search-variants', [StockTransferController::class, 'searchVariants'])->middleware('permission:can_view_stock_and_inventory');
+            // Used in: app/pos/vendor/[vendorId]/inventory/transfers/_components/StockTransferForm.tsx
             Route::post('/', [StockTransferController::class, 'store'])->middleware('permission:can_manage_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/[transferId]/page.tsx
             Route::get('/{stockTransfer}', [StockTransferController::class, 'show'])->middleware('permission:can_view_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/_components/StockTransferForm.tsx
             Route::put('/{stockTransfer}', [StockTransferController::class, 'update'])->middleware('permission:can_manage_stock_and_inventory');
+            // Used in: app/pos/vendor/[vendorId]/inventory/transfers/[transferId]/page.tsx
+            Route::post('/{stockTransfer}/items/bulk-status', [StockTransferController::class, 'bulkUpdateItemStatus'])->middleware('permission:can_manage_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/page.tsx
             Route::delete('/{stockTransfer}', [StockTransferController::class, 'destroy'])->middleware('permission:can_manage_stock_and_inventory');
         });

@@ -222,6 +222,20 @@ export interface StockTransfer {
   updated_at: string;
   from_branch?: Branch;
   to_branch?: Branch;
+  stock_transfer_items?: StockTransferItem[];
+}
+
+export interface StockTransferItem {
+  id: number;
+  stock_transfer_id: number;
+  variant_id: number;
+  product_stocks_id?: number | null;
+  unit_of_measure_id?: number;
+  quantity: string | number;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  variant?: Variant & { product?: Product };
 }
 
 export interface Expense {

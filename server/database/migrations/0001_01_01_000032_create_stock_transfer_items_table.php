@@ -14,9 +14,10 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('stock_transfer_id')->constrained('stock_transfers')->onDelete('cascade');
             $table->foreignId('variant_id')->nullable()->constrained('variants')->onDelete('cascade');
-            $table->foreignId('product_stocks_id')->constrained('product_stocks')->onDelete('cascade');
+            $table->foreignId('product_stocks_id')->nullable()->constrained('product_stocks')->onDelete('cascade');
             $table->foreignId('unit_of_measure_id')->nullable()->constrained('units_of_measure')->onDelete('set null');
             $table->decimal('quantity', 10, 2);
+            $table->string('status')->default('pending');
             $table->timestamps();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');

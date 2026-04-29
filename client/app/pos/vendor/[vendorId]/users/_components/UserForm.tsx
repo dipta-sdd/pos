@@ -29,7 +29,7 @@ export default function UserForm({
   const { vendor } = useVendor();
   const router = useRouter();
   const [roles, setRoles] = useState<any[]>([]);
-  const [branches, setBranches] = useState<any[]>([]);
+  const branches = vendor?.branches || [];
 
   const userSchema = z.object({
     vendor_id: z.number(),
@@ -72,7 +72,6 @@ export default function UserForm({
   useEffect(() => {
     if (vendor?.id) {
       fetchRoles();
-      fetchBranches();
     }
   }, [vendor?.id]);
 
@@ -100,18 +99,7 @@ export default function UserForm({
     }
   };
 
-  const fetchBranches = async () => {
-    try {
-      const response = await api.get(
-        `/branches?vendor_id=${vendor?.id}&per_page=100`,
-      );
 
-      // @ts-ignore
-      setBranches(response?.data?.data);
-    } catch (error) {
-      console.error("Failed to fetch branches", error);
-    }
-  };
 
   const onSubmit = async (data: UserFormData) => {
     try {

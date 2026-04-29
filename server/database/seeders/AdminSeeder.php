@@ -778,8 +778,8 @@ class AdminSeeder extends Seeder
                 ['from_branch_id' => $branch1->id, 'to_branch_id' => $branch2->id, 'status' => 'pending_approval'],
                 ['from_branch_id' => $branch1->id, 'to_branch_id' => $branch2->id, 'status' => 'in_transit'],
                 ['from_branch_id' => $branch1->id, 'to_branch_id' => $branch2->id, 'status' => 'completed'],
-                ['from_branch_id' => $branch2->id, 'to_branch_id' => $branch1->id, 'status' => 'pending_approval'],
-                ['from_branch_id' => $branch2->id, 'to_branch_id' => $branch1->id, 'status' => 'in_transit'],
+                ['from_branch_id' => $branch2->id, 'to_branch_id' => $branch1->id, 'status' => 'requested'],
+                ['from_branch_id' => $branch2->id, 'to_branch_id' => $branch1->id, 'status' => 'rejected'],
                 ['from_branch_id' => $branch2->id, 'to_branch_id' => $branch1->id, 'status' => 'completed'],
                 ['from_branch_id' => $branch1->id, 'to_branch_id' => $branch2->id, 'status' => 'pending_approval'],
                 ['from_branch_id' => $branch1->id, 'to_branch_id' => $branch2->id, 'status' => 'in_transit'],
@@ -790,7 +790,7 @@ class AdminSeeder extends Seeder
                 ['from_branch_id' => $branch1->id, 'to_branch_id' => $branch2->id, 'status' => 'pending_approval'],
                 ['from_branch_id' => $branch1->id, 'to_branch_id' => $branch2->id, 'status' => 'in_transit'],
                 ['from_branch_id' => $branch1->id, 'to_branch_id' => $branch2->id, 'status' => 'completed'],
-                ['from_branch_id' => $branch2->id, 'to_branch_id' => $branch1->id, 'status' => 'pending_approval'],
+                ['from_branch_id' => $branch2->id, 'to_branch_id' => $branch1->id, 'status' => 'requested'],
                 ['from_branch_id' => $branch2->id, 'to_branch_id' => $branch1->id, 'status' => 'in_transit'],
                 ['from_branch_id' => $branch2->id, 'to_branch_id' => $branch1->id, 'status' => 'completed'],
                 ['from_branch_id' => $branch1->id, 'to_branch_id' => $branch2->id, 'status' => 'pending_approval'],
@@ -805,12 +805,16 @@ class AdminSeeder extends Seeder
                     'notes' => "",
                 ]));
 
+                $itemStatus = $t['status'];
+                if ($itemStatus === 'pending_approval') $itemStatus = 'pending';
+                
                 \App\Models\StockTransferItem::create([
                     'stock_transfer_id' => $transfer->id,
                     'variant_id' => $allVariants[1]->id,
-                    'product_stocks_id' => \App\Models\ProductStock::where('branch_id', $transfer->from_branch_id)->where('variant_id', $allVariants[1]->id)->first()?->id ?? 1,
+                    'product_stocks_id' => ($itemStatus === 'requested') ? null : (\App\Models\ProductStock::where('branch_id', $transfer->from_branch_id)->where('variant_id', $allVariants[1]->id)->first()?->id ?? 1),
                     'unit_of_measure_id' => 1,
                     'quantity' => 5,
+                    'status' => $itemStatus,
                 ]);
             }
 

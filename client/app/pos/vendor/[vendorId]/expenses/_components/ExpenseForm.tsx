@@ -26,7 +26,7 @@ export default function ExpenseForm({
 }: ExpenseFormProps) {
   const { vendor } = useVendor();
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
-  const [branches, setBranches] = useState<Branch[]>([]);
+  const branches = vendor?.branches || [];
 
   const expenseSchema = z.object({
     amount: z.coerce.number().min(0.01, "Amount must be greater than 0"),
@@ -69,7 +69,6 @@ export default function ExpenseForm({
   useEffect(() => {
     if (vendor?.id) {
       fetchCategories();
-      fetchBranches();
     }
   }, [vendor?.id]);
 
@@ -82,18 +81,6 @@ export default function ExpenseForm({
       setCategories(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch expense categories", error);
-    }
-  };
-
-  const fetchBranches = async () => {
-    try {
-      const response: any = await api.get(
-        `/branches?vendor_id=${vendor?.id}&per_page=100`,
-      );
-
-      setBranches(response?.data?.data || []);
-    } catch (error) {
-      console.error("Failed to fetch branches", error);
     }
   };
 

@@ -25,7 +25,7 @@ export default function BillingCounterForm({
   onCancel,
 }: BillingCounterFormProps) {
   const { vendor } = useVendor();
-  const [branches, setBranches] = useState<Branch[]>([]);
+  const branches = vendor?.branches || [];
 
   const schema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -51,23 +51,7 @@ export default function BillingCounterForm({
     },
   });
 
-  useEffect(() => {
-    if (vendor?.id) {
-      fetchBranches();
-    }
-  }, [vendor?.id]);
 
-  const fetchBranches = async () => {
-    try {
-      const response: any = await api.get(
-        `/branches?vendor_id=${vendor?.id}&per_page=100`,
-      );
-
-      setBranches(response?.data?.data || []);
-    } catch (error) {
-      console.error("Failed to fetch branches", error);
-    }
-  };
 
   const onSubmit = async (data: any) => {
     try {

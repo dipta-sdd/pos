@@ -32,7 +32,7 @@ export default function PurchaseOrderForm({
   const { vendor } = useVendor();
   const router = useRouter();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [branches, setBranches] = useState<Branch[]>([]);
+  const branches = vendor?.branches || [];
   const [variants, setVariants] = useState<Variant[]>([]);
 
   const orderSchema = z.object({
@@ -110,7 +110,6 @@ export default function PurchaseOrderForm({
   useEffect(() => {
     if (vendor?.id) {
       fetchSuppliers();
-      fetchBranches();
       fetchVariants();
     }
   }, [vendor?.id]);
@@ -124,18 +123,6 @@ export default function PurchaseOrderForm({
       setSuppliers(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch suppliers", error);
-    }
-  };
-
-  const fetchBranches = async () => {
-    try {
-      const response: any = await api.get(
-        `/branches?vendor_id=${vendor?.id}&per_page=100`,
-      );
-
-      setBranches(response?.data?.data || []);
-    } catch (error) {
-      console.error("Failed to fetch branches", error);
     }
   };
 

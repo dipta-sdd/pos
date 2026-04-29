@@ -26,7 +26,7 @@ export default function InventoryAdjustmentForm({
 }: InventoryAdjustmentFormProps) {
   const { vendor } = useVendor();
   const [variants, setVariants] = useState<Variant[]>([]);
-  const [branches, setBranches] = useState<any[]>([]);
+  const branches = vendor?.branches || [];
 
   const schema = z.object({
     variant_id: z.any(),
@@ -68,7 +68,6 @@ export default function InventoryAdjustmentForm({
   useEffect(() => {
     if (vendor?.id) {
       fetchVariants();
-      fetchBranches();
     }
   }, [vendor?.id]);
 
@@ -81,18 +80,6 @@ export default function InventoryAdjustmentForm({
       setVariants(response?.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch variants", error);
-    }
-  };
-
-  const fetchBranches = async () => {
-    try {
-      const response: any = await api.get(
-        `/branches?vendor_id=${vendor?.id}&per_page=100`,
-      );
-
-      setBranches(response?.data?.data || []);
-    } catch (error) {
-      console.error("Failed to fetch branches", error);
     }
   };
 
