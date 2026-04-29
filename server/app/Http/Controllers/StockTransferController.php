@@ -68,7 +68,7 @@ class StockTransferController extends Controller
             'variants.barcode',
             'products.id as product_id',
             'products.name as product_name',
-            'units_of_measure.abbreviation as unit_abbreviation',
+            'units_of_measure.abbreviation as unit_abbreviation'
         ])
             ->join('products', 'variants.product_id', '=', 'products.id')
             ->leftJoin('units_of_measure', 'variants.unit_of_measure_id', '=', 'units_of_measure.id')
@@ -166,7 +166,7 @@ class StockTransferController extends Controller
 
     public function show(StockTransfer $stockTransfer)
     {
-        return response()->json($stockTransfer->load('stockTransferItems.variant.product', 'stockTransferItems.unitOfMeasure', 'fromBranch', 'toBranch'));
+        return response()->json($stockTransfer->load('stockTransferItems.variant.product', 'stockTransferItems.unitOfMeasure', 'fromBranch', 'toBranch', 'createdBy', 'updatedBy'));
     }
 
     public function update(Request $request, StockTransfer $stockTransfer)
@@ -193,7 +193,7 @@ class StockTransferController extends Controller
         $membership = $request->user()->memberships()->where('vendor_id', $stockTransfer->vendor_id)->first();
         $userBranchIds = $membership ? $membership->userBranchAssignments->pluck('branch_id')->toArray() : [];
         $isOnlyReceiver = in_array($stockTransfer->to_branch_id, $userBranchIds) && !in_array($stockTransfer->from_branch_id, $userBranchIds);
-        
+
         if ($isOnlyReceiver && !in_array($stockTransfer->status, ['draft', 'requested'])) {
             return response()->json(['message' => "You cannot edit this transfer after it has been accepted by the sender"], 403);
         }
@@ -318,7 +318,7 @@ class StockTransferController extends Controller
 
         // Handle Status Specific Logic (e.g. accepting a request)
         if ($newStatus === 'accepted') {
-             $newStatus = 'pending';
+            $newStatus = 'pending';
         }
 
         $stockTransfer->update(['status' => $newStatus]);

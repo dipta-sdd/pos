@@ -1,3 +1,5 @@
+import { User } from "./auth";
+
 export interface Branch {
   id: number;
   name: string;
@@ -223,6 +225,8 @@ export interface StockTransfer {
   from_branch?: Branch;
   to_branch?: Branch;
   stock_transfer_items?: StockTransferItem[];
+  created_by?: User;
+  updated_by?: User;
 }
 
 export interface StockTransferItem {

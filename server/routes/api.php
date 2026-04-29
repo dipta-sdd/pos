@@ -331,7 +331,7 @@ Route::middleware('log.api')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/page.tsx
             Route::get('/', [StockTransferController::class, 'index'])->middleware('permission:can_view_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/_components/StockTransferForm.tsx
-            Route::get('/search-variants', [StockTransferController::class, 'searchVariants'])->middleware('permission:can_view_stock_and_inventory');
+            Route::get('/search-variants', [BranchProductController::class, 'index'])->middleware('permission:can_view_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/_components/StockTransferForm.tsx
             Route::post('/', [StockTransferController::class, 'store'])->middleware('permission:can_manage_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/[transferId]/page.tsx

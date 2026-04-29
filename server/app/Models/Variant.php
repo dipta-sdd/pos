@@ -19,7 +19,6 @@ class Variant extends Model
         'value',
         'sku',
         'barcode',
-        'unit_of_measure_id',
         'created_by',
         'updated_by',
     ];
@@ -29,10 +28,6 @@ class Variant extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function unitOfMeasure(): BelongsTo
-    {
-        return $this->belongsTo(UnitOfMeasure::class);
-    }
 
     public function createdBy(): BelongsTo
     {

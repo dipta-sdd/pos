@@ -167,7 +167,9 @@ export default function StockTransferForm({
           status: i.status || "pending",
           variant: {
             ...i.variant,
-            unit_abbreviation: i.unit_of_measure?.abbreviation || i.variant?.unit_of_measure?.abbreviation
+            unit_abbreviation:
+              i.unit_of_measure?.abbreviation ||
+              i.variant?.unit_of_measure?.abbreviation,
           },
         })) || [],
     },
@@ -208,7 +210,7 @@ export default function StockTransferForm({
             },
           },
         );
-        setSearchResults(response.data || []);
+        setSearchResults(response.data?.data as Variant[] || []);
       } catch (error) {
         console.error("Search failed", error);
       } finally {
@@ -217,7 +219,6 @@ export default function StockTransferForm({
     }, 500),
     [vendor?.id, transferType, watchFromBranch],
   );
-
   const onAddProduct = (variant: Variant) => {
     const existingIndex = watchItems.findIndex(
       (i) => i.variant_id === variant.id,
@@ -269,7 +270,9 @@ export default function StockTransferForm({
         status: i.status,
         variant: {
           ...i.variant,
-          unit_abbreviation: i.unit_of_measure?.abbreviation || i.variant?.unit_of_measure?.abbreviation
+          unit_abbreviation:
+            i.unit_of_measure?.abbreviation ||
+            i.variant?.unit_of_measure?.abbreviation,
         },
       })),
     });
@@ -325,19 +328,6 @@ export default function StockTransferForm({
       {/* Breadcrumbs & Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-sm text-default-400">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="hover:text-primary transition-colors flex items-center gap-1"
-            >
-              <ArrowLeft className="w-3 h-3" /> Stock Transfers
-            </button>
-            <span>/</span>
-            <span className="text-default-600">
-              ST-{initialData?.id || "NEW"}
-            </span>
-          </div>
           <div className="flex items-center gap-4">
             <h1 className="text-3xl font-bold tracking-tight">
               Stock Transfer ST-{initialData?.id || "NEW"}
@@ -360,7 +350,10 @@ export default function StockTransferForm({
               </span>
               <span className="flex items-center gap-1.5">
                 <User className="w-3.5 h-3.5" />
-                by Warehouse Admin
+                by{" "}
+                {initialData?.created_by?.firstName +
+                  " " +
+                  initialData?.created_by?.lastName}
               </span>
             </p>
           )}
@@ -741,7 +734,8 @@ export default function StockTransferForm({
                                       )}
                                     />
                                     <span className="text-default-400 text-sm font-medium italic">
-                                      {item.variant?.unit_abbreviation || 'Units'}
+                                      {item.variant?.unit_abbreviation ||
+                                        "Units"}
                                     </span>
                                   </div>
                                 ) : (
@@ -750,7 +744,8 @@ export default function StockTransferForm({
                                       {item.quantity}
                                     </span>
                                     <span className="text-default-400 text-xs font-medium italic">
-                                      {item.variant?.unit_abbreviation || 'Units'}
+                                      {item.variant?.unit_abbreviation ||
+                                        "Units"}
                                     </span>
                                   </div>
                                 )}

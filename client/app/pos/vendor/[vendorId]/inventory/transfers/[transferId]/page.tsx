@@ -44,19 +44,19 @@ export default function StockTransferPage() {
       <div className="p-6 space-y-6">
         <Skeleton className="w-64 h-10 rounded-lg" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-           <Card className="md:col-span-1">
-              <CardBody className="gap-3">
-                 <Skeleton className="h-4 w-1/3 rounded-lg" />
-                 <Skeleton className="h-4 w-1/4 rounded-lg" />
-                 <Skeleton className="h-20 w-full rounded-lg" />
-              </CardBody>
-           </Card>
-           <Card className="md:col-span-2">
-              <CardBody className="gap-3">
-                 <Skeleton className="h-10 w-full rounded-lg" />
-                 <Skeleton className="h-40 w-full rounded-lg" />
-              </CardBody>
-           </Card>
+          <Card className="md:col-span-1">
+            <CardBody className="gap-3">
+              <Skeleton className="h-4 w-1/3 rounded-lg" />
+              <Skeleton className="h-4 w-1/4 rounded-lg" />
+              <Skeleton className="h-20 w-full rounded-lg" />
+            </CardBody>
+          </Card>
+          <Card className="md:col-span-2">
+            <CardBody className="gap-3">
+              <Skeleton className="h-10 w-full rounded-lg" />
+              <Skeleton className="h-40 w-full rounded-lg" />
+            </CardBody>
+          </Card>
         </div>
       </div>
     );
@@ -74,14 +74,8 @@ export default function StockTransferPage() {
 
   return (
     <PermissionGuard permission="can_view_stock_and_inventory">
-      <div className="p-6 space-y-6">
-        <PageHeader
-          description={`Viewing Transfer #${transfer.id}`}
-          title="Stock Transfer"
-        />
-        <div className="mt-6">
-          <StockTransferForm isEditing initialData={transfer} />
-        </div>
+      <div className="p-6  space-y-6">
+        <StockTransferForm isEditing initialData={transfer} />
       </div>
     </PermissionGuard>
   );
