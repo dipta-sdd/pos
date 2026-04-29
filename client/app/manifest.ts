@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "POS",
     description: "Modern Point of Sale Management System",
     start_url: "/pos",
-    display: "standalone",
+    display: "fullscreen",
     orientation: "any",
     background_color: "#ffffff",
     theme_color: "#3b82f6", // Matches your primary blue
