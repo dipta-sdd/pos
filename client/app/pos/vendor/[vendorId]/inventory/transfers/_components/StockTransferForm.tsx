@@ -150,6 +150,7 @@ export default function StockTransferForm({
     getValues,
     reset,
   } = useForm<TransferFormData>({
+    //@ts-ignore
     resolver: zodResolver(transferSchema),
     defaultValues: {
       from_branch_id: initialData?.from_branch_id,
@@ -164,7 +165,10 @@ export default function StockTransferForm({
           product_stocks_id: i.product_stocks_id,
           quantity: i.quantity,
           status: i.status || "pending",
-          variant: i.variant,
+          variant: {
+            ...i.variant,
+            unit_abbreviation: i.unit_of_measure?.abbreviation || i.variant?.unit_of_measure?.abbreviation
+          },
         })) || [],
     },
   });
@@ -263,7 +267,10 @@ export default function StockTransferForm({
         product_stocks_id: i.product_stocks_id,
         quantity: i.quantity,
         status: i.status,
-        variant: i.variant,
+        variant: {
+          ...i.variant,
+          unit_abbreviation: i.unit_of_measure?.abbreviation || i.variant?.unit_of_measure?.abbreviation
+        },
       })),
     });
   };
@@ -644,18 +651,17 @@ export default function StockTransferForm({
                       <th className="bg-default-50 py-4 px-8 font-bold text-default-500 uppercase tracking-wider text-xs border-b border-default-100">
                         ITEM NAME
                       </th>
-                      <th className="bg-default-50 py-4 px-4 font-bold text-default-500 uppercase tracking-wider text-xs border-b border-default-100">
-                        BATCH NO.
+                      <th className="bg-default-50 py-4 px-4 font-bold text-default-500 uppercase tracking-wider text-xs border-b border-default-100 text-center">
+                        PRIORITY LEVEL
                       </th>
                       <th className="bg-default-50 py-4 px-4 font-bold text-default-500 uppercase tracking-wider text-xs border-b border-default-100">
                         TRANSFER QUANTITY
                       </th>
-                      <th className="bg-default-50 py-4 px-4 font-bold text-default-500 uppercase tracking-wider text-xs border-b border-default-100">
-                        UNIT
-                      </th>
-                      <th className="bg-default-50 py-4 px-4 font-bold text-default-500 uppercase tracking-wider text-xs border-b border-default-100">
-                        ITEM STATUS
-                      </th>
+                      {initialData?.status !== "requested" && (
+                        <th className="bg-default-50 py-4 px-4 font-bold text-default-500 uppercase tracking-wider text-xs border-b border-default-100">
+                          ITEM STATUS
+                        </th>
+                      )}
                       {(!isEditing || canEditItems) && (
                         <th className="bg-default-50 py-4 px-8 font-bold text-default-500 uppercase tracking-wider text-xs border-b border-default-100 text-center">
                           ACTIONS
@@ -667,7 +673,15 @@ export default function StockTransferForm({
                     {fields.length === 0 ? (
                       <tr>
                         <td
-                          colSpan={!isEditing || canEditItems ? 6 : 5}
+                          colSpan={
+                            !isEditing || canEditItems
+                              ? initialData?.status !== "requested"
+                                ? 6
+                                : 5
+                              : initialData?.status !== "requested"
+                                ? 5
+                                : 4
+                          }
                           className="py-20 text-center text-default-400"
                         >
                           <div className="flex flex-col items-center gap-2">
@@ -702,47 +716,61 @@ export default function StockTransferForm({
                                 </div>
                               </div>
                             </td>
-                            <td className="py-5 px-4 border-b border-default-50">
-                              <span className="font-mono text-sm text-default-500 bg-default-100 px-2 py-1 rounded">
-                                BTCH-{(item.variant_id * 123) % 1000}
-                              </span>
+                            <td className="py-5 px-4 border-b border-default-50 text-center">
+                              <Chip
+                                size="sm"
+                                variant="flat"
+                                color="default"
+                                className="font-medium"
+                              >
+                                Standard
+                              </Chip>
                             </td>
                             <td className="py-5 px-4 border-b border-default-50">
-                              {isEditingRow ? (
-                                <Input
-                                  autoFocus
-                                  size="sm"
-                                  type="number"
-                                  variant="bordered"
-                                  className="w-32"
-                                  {...register(
-                                    `items.${index}.quantity` as const,
-                                  )}
-                                />
-                              ) : (
-                                <span className="text-xl font-black text-default-700">
-                                  {item.quantity}
-                                </span>
-                              )}
-                            </td>
-                            <td className="py-5 px-4 border-b border-default-50">
-                              <span className="text-default-500 font-medium italic">
-                                Units
-                              </span>
-                            </td>
-                            <td className="py-5 px-4 border-b border-default-50">
-                              <div className="flex items-center gap-2">
-                                <div
-                                  className={`w-2 h-2 rounded-full ${item.status === "pending" ? "bg-warning" : "bg-success shadow-[0_0_8px_rgba(25,135,84,0.4)]"}`}
-                                />
-                                <span className="text-sm font-semibold text-default-600 capitalize">
-                                  {item.status}
-                                </span>
+                              <div className="flex flex-col">
+                                {isEditingRow ? (
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      autoFocus
+                                      size="sm"
+                                      type="number"
+                                      variant="bordered"
+                                      className="w-24"
+                                      {...register(
+                                        `items.${index}.quantity` as const,
+                                      )}
+                                    />
+                                    <span className="text-default-400 text-sm font-medium italic">
+                                      {item.variant?.unit_abbreviation || 'Units'}
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-baseline gap-1">
+                                    <span className="text-xl font-black text-default-700">
+                                      {item.quantity}
+                                    </span>
+                                    <span className="text-default-400 text-xs font-medium italic">
+                                      {item.variant?.unit_abbreviation || 'Units'}
+                                    </span>
+                                  </div>
+                                )}
                               </div>
                             </td>
+                            {initialData?.status !== "requested" && (
+                              <td className="py-5 px-4 border-b border-default-50">
+                                <div className="flex items-center gap-2">
+                                  <div
+                                    className={`w-2 h-2 rounded-full ${item.status === "pending" ? "bg-warning" : "bg-success shadow-[0_0_8px_rgba(25,135,84,0.4)]"}`}
+                                  />
+                                  <span className="text-sm font-semibold text-default-600 capitalize">
+                                    {item.status}
+                                  </span>
+                                </div>
+                              </td>
+                            )}
                             {(!isEditing || canEditItems) && (
                               <td className="py-5 px-8 border-b border-default-50 text-center">
-                                <div className="flex justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="flex justify-center gap-1">
                                   {isEditingRow ? (
                                     <Button
                                       isIconOnly

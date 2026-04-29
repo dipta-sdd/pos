@@ -68,8 +68,10 @@ class StockTransferController extends Controller
             'variants.barcode',
             'products.id as product_id',
             'products.name as product_name',
+            'units_of_measure.abbreviation as unit_abbreviation',
         ])
             ->join('products', 'variants.product_id', '=', 'products.id')
+            ->leftJoin('units_of_measure', 'variants.unit_of_measure_id', '=', 'units_of_measure.id')
             ->where('products.vendor_id', $vendorId);
 
         if ($branchId) {
@@ -87,7 +89,8 @@ class StockTransferController extends Controller
                     'variants.sku',
                     'variants.barcode',
                     'products.id',
-                    'products.name'
+                    'products.name',
+                    'units_of_measure.abbreviation'
                 );
         }
 
@@ -163,7 +166,7 @@ class StockTransferController extends Controller
 
     public function show(StockTransfer $stockTransfer)
     {
-        return response()->json($stockTransfer->load('stockTransferItems.variant.product', 'fromBranch', 'toBranch'));
+        return response()->json($stockTransfer->load('stockTransferItems.variant.product', 'stockTransferItems.unitOfMeasure', 'fromBranch', 'toBranch'));
     }
 
     public function update(Request $request, StockTransfer $stockTransfer)
@@ -268,7 +271,7 @@ class StockTransferController extends Controller
             }
         });
 
-        return response()->json($stockTransfer->load('stockTransferItems'));
+        return response()->json($stockTransfer->load('stockTransferItems.unitOfMeasure'));
     }
 
     public function destroy(StockTransfer $stockTransfer)
