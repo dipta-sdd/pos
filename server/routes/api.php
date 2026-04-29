@@ -339,7 +339,7 @@ Route::middleware('log.api')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/_components/StockTransferForm.tsx
             Route::put('/{stockTransfer}', [StockTransferController::class, 'update'])->middleware('permission:can_manage_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/[transferId]/page.tsx
-            Route::post('/{stockTransfer}/items/bulk-status', [StockTransferController::class, 'bulkUpdateItemStatus'])->middleware('permission:can_manage_stock_and_inventory');
+            Route::post('/{stockTransfer}/status', [StockTransferController::class, 'updateTransferStatus'])->middleware('permission:can_manage_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/page.tsx
             Route::delete('/{stockTransfer}', [StockTransferController::class, 'destroy'])->middleware('permission:can_manage_stock_and_inventory');
         });

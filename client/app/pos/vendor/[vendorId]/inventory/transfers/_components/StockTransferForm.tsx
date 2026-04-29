@@ -17,35 +17,33 @@ import {
   AutocompleteItem,
   Tabs,
   Tab,
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
   Chip,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-  Selection,
+  Modal,
+  ModalContent,
+  ModalBody,
 } from "@heroui/react";
-import { useEffect, useState, useCallback, useMemo } from "react";
-import { 
-  Plus, 
-  Trash2, 
-  Search, 
-  Edit2, 
-  Check, 
-  X, 
-  ChevronDown, 
-  MoreVertical 
+import { useEffect, useState, useCallback } from "react";
+import {
+  ChevronDown,
+  MapPin,
+  Truck,
+  Download,
+  Clock,
+  User,
+  Package,
+  Layers,
+  ArrowLeft,
+  Search,
+  Trash2,
+  Edit2,
+  Check,
 } from "lucide-react";
 import debounce from "lodash/debounce";
+import { formatDate } from "@/lib/helper/dates";
 
 import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
-import { Variant as BaseVariant, StockTransfer, StockTransferItem } from "@/lib/types/general";
+import { Variant as BaseVariant, StockTransfer } from "@/lib/types/general";
 
 interface Variant extends BaseVariant {
   product_name: string;
@@ -67,12 +65,14 @@ const transferSchema = z.object({
   items: z
     .array(
       z.object({
-        id: z.number().optional(), // Existing item ID
+        id: z.number().optional(),
         variant_id: z.coerce.number().min(1, "Product is required"),
         product_stocks_id: z.number().nullable().optional(),
-        quantity: z.coerce.number().min(0.01, "Quantity must be greater than 0"),
+        quantity: z.coerce
+          .number()
+          .min(0.01, "Quantity must be greater than 0"),
         status: z.string().default("pending"),
-        variant: z.any().optional(), // For display purposes
+        variant: z.any().optional(),
       }),
     )
     .min(1, "At least one item is required"),
@@ -87,24 +87,64 @@ export default function StockTransferForm({
   const { vendor, membership } = useVendor();
   const router = useRouter();
   const allBranches = vendor?.branches || [];
-  const assignedBranchIds = membership?.user_branch_assignments?.map(a => a.branch_id) || [];
-  
-  // UI States
-  const [isDetailsEditing, setIsDetailsEditing] = useState(!isEditing);
+  const assignedBranchIds =
+    membership?.user_branch_assignments?.map((a) => a.branch_id) || [];
+
+  const [isDetailsEditing, setIsDetailsEditing] = useState(false);
   const [editingRowIndex, setEditingRowIndex] = useState<number | null>(null);
-  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
-  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResults, setSearchResults] = useState<Variant[]>([]);
   const [transferType, setTransferType] = useState<"transfer" | "request">(
-    initialData?.status === "requested" ? "request" : "transfer"
+    initialData?.status === "requested" ? "request" : "transfer",
   );
+
+  const [actingBranchId, setActingBranchId] = useState<number | null>(null);
+  const [showContextModal, setShowContextModal] = useState(false);
+
+  useEffect(() => {
+    if (isEditing && initialData && !actingBranchId && !showContextModal) {
+      const fromBranchAccessible = assignedBranchIds.includes(
+        initialData.from_branch_id,
+      );
+      const toBranchAccessible = assignedBranchIds.includes(
+        initialData.to_branch_id,
+      );
+
+      if (fromBranchAccessible && toBranchAccessible) {
+        setShowContextModal(true);
+      } else if (fromBranchAccessible) {
+        setActingBranchId(initialData.from_branch_id);
+      } else if (toBranchAccessible) {
+        setActingBranchId(initialData.to_branch_id);
+      }
+    }
+  }, [
+    isEditing,
+    initialData,
+    assignedBranchIds,
+    actingBranchId,
+    showContextModal,
+  ]);
+
+  const isSender = actingBranchId === initialData?.from_branch_id;
+  const isReceiver = actingBranchId === initialData?.to_branch_id;
+  const canEditDetails =
+    !isEditing ||
+    (isSender && initialData?.status === "pending") ||
+    (isReceiver && initialData?.status === "requested");
+  const canEditItems =
+    !isEditing ||
+    (isSender && initialData?.status === "pending") ||
+    (isReceiver && initialData?.status === "requested");
+
+  const senderStatuses = ["accepted", "rejected", "in_transit", "out_of_stock"];
+  const receiverStatuses = ["completed", "requested", "cancelled"];
 
   const {
     register,
     handleSubmit,
     control,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
     setValue,
     watch,
     getValues,
@@ -117,18 +157,19 @@ export default function StockTransferForm({
       notes: initialData?.notes || "",
       status: initialData?.status || "pending",
       vendor_id: vendor?.id || 0,
-      items: initialData?.stock_transfer_items?.map((i: any) => ({
-        id: i.id,
-        variant_id: i.variant_id,
-        product_stocks_id: i.product_stocks_id,
-        quantity: i.quantity,
-        status: i.status || "pending",
-        variant: i.variant,
-      })) || [],
+      items:
+        initialData?.stock_transfer_items?.map((i: any) => ({
+          id: i.id,
+          variant_id: i.variant_id,
+          product_stocks_id: i.product_stocks_id,
+          quantity: i.quantity,
+          status: i.status || "pending",
+          variant: i.variant,
+        })) || [],
     },
   });
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control,
     name: "items",
   });
@@ -137,11 +178,11 @@ export default function StockTransferForm({
   const watchToBranch = watch("to_branch_id");
   const watchItems = watch("items");
 
-  const fromBranches = allBranches.filter(b => 
-    transferType === "transfer" ? assignedBranchIds.includes(b.id) : true
+  const fromBranches = allBranches.filter((b) =>
+    transferType === "transfer" ? assignedBranchIds.includes(b.id) : true,
   );
-  const toBranches = allBranches.filter(b => 
-    transferType === "request" ? assignedBranchIds.includes(b.id) : true
+  const toBranches = allBranches.filter((b) =>
+    transferType === "request" ? assignedBranchIds.includes(b.id) : true,
   );
 
   const handleSearch = useCallback(
@@ -152,13 +193,17 @@ export default function StockTransferForm({
       }
       setSearchLoading(true);
       try {
-        const response: any = await api.get("/stock-transfers/search-variants", {
-          params: {
-            vendor_id: vendor?.id,
-            branch_id: transferType === "transfer" ? watchFromBranch : undefined,
-            search: query,
+        const response: any = await api.get(
+          "/stock-transfers/search-variants",
+          {
+            params: {
+              vendor_id: vendor?.id,
+              branch_id:
+                transferType === "transfer" ? watchFromBranch : undefined,
+              search: query,
+            },
           },
-        });
+        );
         setSearchResults(response.data || []);
       } catch (error) {
         console.error("Search failed", error);
@@ -166,12 +211,13 @@ export default function StockTransferForm({
         setSearchLoading(false);
       }
     }, 500),
-    [vendor?.id, transferType, watchFromBranch]
+    [vendor?.id, transferType, watchFromBranch],
   );
 
   const onAddProduct = (variant: Variant) => {
-    // Check if variant already exists
-    const existingIndex = watchItems.findIndex(i => i.variant_id === variant.id);
+    const existingIndex = watchItems.findIndex(
+      (i) => i.variant_id === variant.id,
+    );
     if (existingIndex > -1) {
       toast.info("Product already in list");
       setEditingRowIndex(existingIndex);
@@ -189,38 +235,37 @@ export default function StockTransferForm({
     setEditingRowIndex(watchItems.length);
   };
 
-  const onBulkStatusUpdate = async (newStatus: string) => {
-    if (!isEditing || !initialData) return;
-    
-    const selectedIds = selectedKeys === "all" 
-      ? watchItems.filter(i => i.id).map(i => i.id as number)
-      : Array.from(selectedKeys).map(id => Number(id));
-
-    if (selectedIds.length === 0) return;
-
+  const updateGlobalStatus = async (newStatus: string) => {
+    if (!initialData) return;
     try {
-      await api.post(`/stock-transfers/${initialData.id}/items/bulk-status`, {
-        item_ids: selectedIds,
-        status: newStatus
+      await api.post(`/stock-transfers/${initialData.id}/status`, {
+        status: newStatus,
       });
-      toast.success(`Updated ${selectedIds.length} items to ${newStatus}`);
-      // Refresh form data
-      const response: any = await api.get(`/stock-transfers/${initialData.id}`);
-      reset({
-        ...getValues(),
-        items: response.data.stock_transfer_items.map((i: any) => ({
-          id: i.id,
-          variant_id: i.variant_id,
-          product_stocks_id: i.product_stocks_id,
-          quantity: i.quantity,
-          status: i.status,
-          variant: i.variant,
-        }))
-      });
-      setSelectedKeys(new Set([]));
+
+      toast.success(`Transfer marked as ${newStatus}`);
+      refreshData();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to update statuses");
+      toast.error(
+        error.response?.data?.message || "Failed to update transfer status",
+      );
     }
+  };
+
+  const refreshData = async () => {
+    if (!initialData) return;
+    const response: any = await api.get(`/stock-transfers/${initialData.id}`);
+    reset({
+      ...getValues(),
+      status: response.data.status,
+      items: response.data.stock_transfer_items.map((i: any) => ({
+        id: i.id,
+        variant_id: i.variant_id,
+        product_stocks_id: i.product_stocks_id,
+        quantity: i.quantity,
+        status: i.status,
+        variant: i.variant,
+      })),
+    });
   };
 
   const onSubmit = async (data: any) => {
@@ -246,11 +291,6 @@ export default function StockTransferForm({
     }
   };
 
-  const filteredItems = useMemo(() => {
-    if (statusFilter === "all") return watchItems;
-    return watchItems.filter(i => i.status === statusFilter);
-  }, [watchItems, statusFilter]);
-
   const statusColorMap: any = {
     pending: "warning",
     accepted: "primary",
@@ -262,237 +302,554 @@ export default function StockTransferForm({
     out_of_stock: "danger",
   };
 
+  const statusLabelMap: any = {
+    pending: "Pending Approval",
+    accepted: "Accepted",
+    in_transit: "In Transit",
+    completed: "Completed",
+    cancelled: "Cancelled",
+    rejected: "Rejected",
+    requested: "Requested",
+    out_of_stock: "Out of Stock",
+  };
+
   return (
-    <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-      {!isEditing && (
-        <Tabs 
-          selectedKey={transferType} 
-          onSelectionChange={(key) => {
-            setTransferType(key as any);
-            setValue("from_branch_id", 0);
-            setValue("to_branch_id", 0);
-          }}
+    <div className=" space-y-8 pb-12">
+      {/* Breadcrumbs & Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-sm text-default-400">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="hover:text-primary transition-colors flex items-center gap-1"
+            >
+              <ArrowLeft className="w-3 h-3" /> Stock Transfers
+            </button>
+            <span>/</span>
+            <span className="text-default-600">
+              ST-{initialData?.id || "NEW"}
+            </span>
+          </div>
+          <div className="flex items-center gap-4">
+            <h1 className="text-3xl font-bold tracking-tight">
+              Stock Transfer ST-{initialData?.id || "NEW"}
+            </h1>
+            {initialData && (
+              <Chip
+                color={statusColorMap[initialData.status]}
+                variant="flat"
+                className="font-semibold px-3"
+              >
+                {statusLabelMap[initialData.status]}
+              </Chip>
+            )}
+          </div>
+          {initialData && (
+            <p className="text-default-400 text-sm flex items-center gap-4">
+              <span className="flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5" />
+                Created on {formatDate(initialData.created_at)}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5" />
+                by Warehouse Admin
+              </span>
+            </p>
+          )}
+        </div>
+
+        <div className="flex items-center gap-3">
+          {initialData && (
+            <Button
+              variant="bordered"
+              startContent={<Download className="w-4 h-4" />}
+            >
+              Download Manifest
+            </Button>
+          )}
+          {isEditing && !isDetailsEditing && canEditDetails && (
+            <Button
+              variant="bordered"
+              startContent={<Edit2 className="w-4 h-4" />}
+              onPress={() => setIsDetailsEditing(true)}
+            >
+              Edit Details
+            </Button>
+          )}
+          {isSender && initialData?.status === "requested" && (
+            <Button
+              color="primary"
+              className="font-semibold shadow-lg shadow-primary/20"
+              onPress={() => updateGlobalStatus("accepted")}
+            >
+              Approve Transfer
+            </Button>
+          )}
+        </div>
+      </div>
+
+      <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
+        {/* Branch Context Modal */}
+        <Modal
+          isOpen={showContextModal}
+          isDismissable={false}
+          hideCloseButton
+          placement="center"
         >
-          <Tab key="transfer" title="Initiate Transfer" />
-          <Tab key="request" title="Request Stock" />
-        </Tabs>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Left: Details Card */}
-        <Card className="md:col-span-1 h-fit">
-          <CardBody className="p-6 space-y-6">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">Transfer Details</h3>
-              {isEditing && !isDetailsEditing && (
-                <Button isIconOnly size="sm" variant="light" onPress={() => setIsDetailsEditing(true)}>
-                  <Edit2 className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
-
-            {isDetailsEditing ? (
-              <div className="space-y-4">
-                <Select
-                  isRequired
-                  label="From Branch"
-                  selectedKeys={watchFromBranch ? [String(watchFromBranch)] : []}
-                  variant="bordered"
-                  onChange={(e) => setValue("from_branch_id", Number(e.target.value))}
-                >
-                  {fromBranches.map((b) => (
-                    <SelectItem key={b.id} textValue={b.name}>{b.name}</SelectItem>
-                  ))}
-                </Select>
-
-                <Select
-                  isRequired
-                  label="To Branch"
-                  selectedKeys={watchToBranch ? [String(watchToBranch)] : []}
-                  variant="bordered"
-                  onChange={(e) => setValue("to_branch_id", Number(e.target.value))}
-                >
-                  {toBranches.map((b) => (
-                    <SelectItem key={b.id} textValue={b.name}>{b.name}</SelectItem>
-                  ))}
-                </Select>
-
-                <Textarea
-                  label="Notes"
-                  placeholder="Optional notes..."
-                  variant="bordered"
-                  {...register("notes")}
-                />
-                
-                {isEditing && (
-                   <div className="flex gap-2">
-                      <Button fullWidth size="sm" color="primary" onPress={() => setIsDetailsEditing(false)}>Done</Button>
-                   </div>
-                )}
+          <ModalContent>
+            <ModalBody className="p-8 space-y-6 text-center">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                <MapPin className="w-8 h-8 text-primary" />
               </div>
-            ) : (
-              <div className="space-y-4 text-sm">
-                <div className="flex justify-between border-b pb-2">
-                  <span className="text-default-500">From</span>
-                  <span className="font-medium">{allBranches.find(b => b.id === watchFromBranch)?.name}</span>
+              <div className="space-y-2">
+                <h3 className="text-2xl font-bold">Select Branch Context</h3>
+                <p className="text-default-500">
+                  You have access to both involved branches. Select which one
+                  you are acting as for this session.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <Button
+                  color="primary"
+                  variant="flat"
+                  className="h-14 font-semibold"
+                  onPress={() => {
+                    setActingBranchId(initialData!.from_branch_id);
+                    setShowContextModal(false);
+                  }}
+                >
+                  Sender (Source)
+                </Button>
+                <Button
+                  color="secondary"
+                  variant="flat"
+                  className="h-14 font-semibold"
+                  onPress={() => {
+                    setActingBranchId(initialData!.to_branch_id);
+                    setShowContextModal(false);
+                  }}
+                >
+                  Receiver (Dest)
+                </Button>
+              </div>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+
+        {/* Create Mode Tabs */}
+        {!isEditing && (
+          <Tabs
+            selectedKey={transferType}
+            variant="underlined"
+            className="border-b"
+            onSelectionChange={(key) => {
+              setTransferType(key as any);
+              setValue("from_branch_id", 0);
+              setValue("to_branch_id", 0);
+            }}
+          >
+            <Tab key="transfer" title="Initiate Transfer" />
+            <Tab key="request" title="Request Stock" />
+          </Tabs>
+        )}
+
+        {/* Main Dashboard Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card className="lg:col-span-2 shadow-sm border-default-100">
+            <CardBody className="p-8">
+              <p className="text-xs font-bold text-default-400 uppercase tracking-widest mb-6">
+                Transfer Route
+              </p>
+
+              {isDetailsEditing || !isEditing ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <Select
+                    isRequired
+                    isDisabled={isEditing}
+                    label="Source Branch"
+                    placeholder="Select source"
+                    selectedKeys={
+                      watchFromBranch ? [String(watchFromBranch)] : []
+                    }
+                    variant="bordered"
+                    onChange={(e) =>
+                      setValue("from_branch_id", Number(e.target.value))
+                    }
+                  >
+                    {fromBranches.map((b) => (
+                      <SelectItem key={b.id} textValue={b.name}>
+                        {b.name}
+                      </SelectItem>
+                    ))}
+                  </Select>
+
+                  <Select
+                    isRequired
+                    isDisabled={isEditing}
+                    label="Destination Branch"
+                    placeholder="Select destination"
+                    selectedKeys={watchToBranch ? [String(watchToBranch)] : []}
+                    variant="bordered"
+                    onChange={(e) =>
+                      setValue("to_branch_id", Number(e.target.value))
+                    }
+                  >
+                    {toBranches.map((b) => (
+                      <SelectItem key={b.id} textValue={b.name}>
+                        {b.name}
+                      </SelectItem>
+                    ))}
+                  </Select>
                 </div>
-                <div className="flex justify-between border-b pb-2">
-                  <span className="text-default-500">To</span>
-                  <span className="font-medium">{allBranches.find(b => b.id === watchToBranch)?.name}</span>
+              ) : (
+                <div className="flex items-center justify-between py-4 relative">
+                  <div className="flex items-start gap-4 flex-1">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center border border-primary/10">
+                      <MapPin className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-bold">
+                        {
+                          allBranches.find((b) => b.id === watchFromBranch)
+                            ?.name
+                        }
+                      </h4>
+                      <p className="text-default-400 text-sm">Source Branch</p>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 px-8 relative hidden md:block">
+                    <div className="absolute top-1/2 left-0 right-0 h-px border-t border-dashed border-default-200 -translate-y-1/2" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-4">
+                      <Truck className="w-6 h-6 text-default-300" />
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4 flex-1 justify-end text-right">
+                    <div>
+                      <h4 className="text-xl font-bold">
+                        {allBranches.find((b) => b.id === watchToBranch)?.name}
+                      </h4>
+                      <p className="text-default-400 text-sm">
+                        Destination Branch
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 rounded-2xl bg-success/5 flex items-center justify-center border border-success/10">
+                      <Package className="w-6 h-6 text-success" />
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between border-b pb-2">
-                  <span className="text-default-500">Status</span>
-                  <Chip color={statusColorMap[initialData?.status || "pending"]} size="sm" variant="flat">
-                    {(initialData?.status || "pending").toUpperCase()}
+              )}
+            </CardBody>
+          </Card>
+
+          <Card className="shadow-sm border-default-100">
+            <CardBody className="p-8 space-y-6">
+              <p className="text-xs font-bold text-default-400 uppercase tracking-widest">
+                Transfer Summary
+              </p>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2 text-default-500">
+                    <Layers className="w-4 h-4" />
+                    <span>Total Items</span>
+                  </div>
+                  <span className="font-bold text-lg">
+                    {watchItems.length} Line Items
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2 text-default-500">
+                    <Package className="w-4 h-4" />
+                    <span>Total Quantity</span>
+                  </div>
+                  <span className="font-bold text-lg">
+                    {watchItems.reduce(
+                      (acc, curr) => acc + Number(curr.quantity),
+                      0,
+                    )}{" "}
+                    Units
+                  </span>
+                </div>
+                <div className="flex justify-between items-center pt-2 border-t border-default-50">
+                  <span className="text-default-500">Priority Level</span>
+                  <Chip
+                    size="sm"
+                    color="primary"
+                    variant="flat"
+                    className="font-bold"
+                  >
+                    STANDARD
                   </Chip>
                 </div>
-                {watch("notes") && (
-                  <div>
-                    <p className="text-default-500 mb-1">Notes</p>
-                    <p>{watch("notes")}</p>
-                  </div>
-                )}
               </div>
-            )}
-          </CardBody>
-        </Card>
+            </CardBody>
+          </Card>
 
-        {/* Right: Items Card */}
-        <Card className="md:col-span-2">
-          <CardBody className="p-6 space-y-6">
-            <div className="flex flex-col gap-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Items</h3>
-                <div className="flex gap-2">
-                  {isEditing && selectedKeys !== "all" && Array.from(selectedKeys).length > 0 && (
-                     <Dropdown>
-                        <DropdownTrigger>
-                          <Button color="primary" size="sm" variant="flat" endContent={<ChevronDown className="w-4 h-4" />}>
-                            Bulk Update ({Array.from(selectedKeys).length})
-                          </Button>
-                        </DropdownTrigger>
-                        <DropdownMenu onAction={(key) => onBulkStatusUpdate(key as string)}>
-                          <DropdownItem key="accepted">Accept</DropdownItem>
-                          <DropdownItem key="in_transit">Ship</DropdownItem>
-                          <DropdownItem key="completed">Receive</DropdownItem>
-                          <DropdownItem key="out_of_stock">Out of Stock</DropdownItem>
-                        </DropdownMenu>
-                     </Dropdown>
-                   )}
+          <Card className="lg:col-span-3 shadow-sm border-default-100 overflow-hidden">
+            <CardBody className="p-0">
+              <div className="p-8 border-b border-default-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-xl font-bold">Transfer Items</h3>
+                  <p className="text-default-400 text-sm">
+                    Showing {watchItems.length} results
+                  </p>
                 </div>
+
+                {!isEditing || canEditItems ? (
+                  <Autocomplete
+                    className="max-w-md"
+                    isLoading={searchLoading}
+                    items={searchResults}
+                    placeholder="Search Products to Add..."
+                    variant="bordered"
+                    onInputChange={handleSearch}
+                    onSelectionChange={(id) => {
+                      const variant = searchResults.find(
+                        (v) => v.id === Number(id),
+                      );
+                      if (variant) onAddProduct(variant);
+                    }}
+                    startContent={
+                      <Search className="w-4 h-4 text-default-400" />
+                    }
+                  >
+                    {(item) => (
+                      <AutocompleteItem
+                        key={item.id}
+                        textValue={item.product_name}
+                      >
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-semibold">{item.product_name}</p>
+                            <p className="text-tiny text-default-400">
+                              {item.variant_name} ({item.sku})
+                            </p>
+                          </div>
+                          <span className="text-tiny bg-default-100 px-2 py-1 rounded">
+                            Stock: {item.total_quantity || 0}
+                          </span>
+                        </div>
+                      </AutocompleteItem>
+                    )}
+                  </Autocomplete>
+                ) : null}
               </div>
 
-              {/* Global Search Bar */}
-              <Autocomplete
-                isLoading={searchLoading}
-                items={searchResults}
-                label="Search Products to Add"
-                placeholder="Type product name or SKU..."
-                variant="bordered"
-                onInputChange={handleSearch}
-                onSelectionChange={(id) => {
-                  const variant = searchResults.find(v => v.id === Number(id));
-                  if (variant) onAddProduct(variant);
-                }}
-                startContent={<Search className="w-4 h-4 text-default-400" />}
-              >
-                {(item) => (
-                  <AutocompleteItem key={item.id} textValue={`${item.product_name} - ${item.variant_name}`}>
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p>{item.product_name}</p>
-                        <p className="text-tiny text-default-400">{item.variant_name} ({item.sku})</p>
-                      </div>
-                      <span className="text-tiny bg-default-100 px-2 py-1 rounded">Stock: {item.total_quantity || 0}</span>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-separate border-spacing-0">
+                  <thead>
+                    <tr>
+                      <th className="bg-default-50 py-4 px-8 font-bold text-default-500 uppercase tracking-wider text-xs border-b border-default-100">
+                        ITEM NAME
+                      </th>
+                      <th className="bg-default-50 py-4 px-4 font-bold text-default-500 uppercase tracking-wider text-xs border-b border-default-100">
+                        BATCH NO.
+                      </th>
+                      <th className="bg-default-50 py-4 px-4 font-bold text-default-500 uppercase tracking-wider text-xs border-b border-default-100">
+                        TRANSFER QUANTITY
+                      </th>
+                      <th className="bg-default-50 py-4 px-4 font-bold text-default-500 uppercase tracking-wider text-xs border-b border-default-100">
+                        UNIT
+                      </th>
+                      <th className="bg-default-50 py-4 px-4 font-bold text-default-500 uppercase tracking-wider text-xs border-b border-default-100">
+                        ITEM STATUS
+                      </th>
+                      {(!isEditing || canEditItems) && (
+                        <th className="bg-default-50 py-4 px-8 font-bold text-default-500 uppercase tracking-wider text-xs border-b border-default-100 text-center">
+                          ACTIONS
+                        </th>
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {fields.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={!isEditing || canEditItems ? 6 : 5}
+                          className="py-20 text-center text-default-400"
+                        >
+                          <div className="flex flex-col items-center gap-2">
+                            <Package className="w-10 h-10 opacity-20" />
+                            <p>No items added yet.</p>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      fields.map((field, index) => {
+                        const item = watchItems[index];
+                        const isEditingRow = editingRowIndex === index;
+
+                        return (
+                          <tr
+                            key={field.id}
+                            className="group hover:bg-default-50/50 transition-colors"
+                          >
+                            <td className="py-5 px-8 border-b border-default-50">
+                              <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-xl bg-default-100 flex items-center justify-center overflow-hidden border border-default-200 group-hover:border-primary/20 transition-colors">
+                                  <Package className="w-6 h-6 text-default-400 group-hover:text-primary transition-colors" />
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="font-bold text-lg text-default-800">
+                                    {item.variant?.product_name ||
+                                      item.variant?.product?.name}
+                                  </span>
+                                  <span className="text-xs text-default-400 uppercase tracking-tight font-medium">
+                                    SKU: {item.variant?.sku}
+                                  </span>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-5 px-4 border-b border-default-50">
+                              <span className="font-mono text-sm text-default-500 bg-default-100 px-2 py-1 rounded">
+                                BTCH-{(item.variant_id * 123) % 1000}
+                              </span>
+                            </td>
+                            <td className="py-5 px-4 border-b border-default-50">
+                              {isEditingRow ? (
+                                <Input
+                                  autoFocus
+                                  size="sm"
+                                  type="number"
+                                  variant="bordered"
+                                  className="w-32"
+                                  {...register(
+                                    `items.${index}.quantity` as const,
+                                  )}
+                                />
+                              ) : (
+                                <span className="text-xl font-black text-default-700">
+                                  {item.quantity}
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-5 px-4 border-b border-default-50">
+                              <span className="text-default-500 font-medium italic">
+                                Units
+                              </span>
+                            </td>
+                            <td className="py-5 px-4 border-b border-default-50">
+                              <div className="flex items-center gap-2">
+                                <div
+                                  className={`w-2 h-2 rounded-full ${item.status === "pending" ? "bg-warning" : "bg-success shadow-[0_0_8px_rgba(25,135,84,0.4)]"}`}
+                                />
+                                <span className="text-sm font-semibold text-default-600 capitalize">
+                                  {item.status}
+                                </span>
+                              </div>
+                            </td>
+                            {(!isEditing || canEditItems) && (
+                              <td className="py-5 px-8 border-b border-default-50 text-center">
+                                <div className="flex justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  {isEditingRow ? (
+                                    <Button
+                                      isIconOnly
+                                      size="sm"
+                                      color="success"
+                                      variant="flat"
+                                      onPress={() => setEditingRowIndex(null)}
+                                    >
+                                      <Check className="w-4 h-4" />
+                                    </Button>
+                                  ) : (
+                                    <Button
+                                      isIconOnly
+                                      size="sm"
+                                      variant="flat"
+                                      className="text-default-400"
+                                      onPress={() => setEditingRowIndex(index)}
+                                    >
+                                      <Edit2 className="w-4 h-4" />
+                                    </Button>
+                                  )}
+                                  <Button
+                                    isIconOnly
+                                    size="sm"
+                                    variant="flat"
+                                    className="text-danger"
+                                    onPress={() => remove(index)}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </td>
+                            )}
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </CardBody>
+          </Card>
+
+          {/* Activity History Timeline */}
+          {initialData && (
+            <Card className="lg:col-span-3 shadow-sm border-default-100">
+              <CardBody className="p-8 space-y-8">
+                <p className="text-xs font-bold text-default-400 uppercase tracking-widest">
+                  Activity History
+                </p>
+                <div className="space-y-8 pl-4 border-l-2 border-default-100 ml-2">
+                  <div className="relative">
+                    <div className="absolute -left-[26px] top-1 w-4 h-4 rounded-full bg-primary ring-4 ring-primary/20" />
+                    <div className="space-y-1">
+                      <p className="font-bold text-lg">
+                        Transfer Request Created
+                      </p>
+                      <p className="text-sm text-default-400 flex items-center gap-2">
+                        {formatDate(initialData.created_at)} by Warehouse Admin
+                      </p>
                     </div>
-                  </AutocompleteItem>
-                )}
-              </Autocomplete>
-            </div>
+                  </div>
+                  <div className="relative">
+                    <div className="absolute -left-[26px] top-1 w-4 h-4 rounded-full bg-default-200" />
+                    <div className="space-y-1 opacity-50">
+                      <p className="font-bold text-lg">
+                        Awaiting Authorization
+                      </p>
+                      <p className="text-sm text-default-400">
+                        System is processing the transfer request...
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          )}
+        </div>
 
-            <Table 
-              aria-label="Items Table"
-              selectionMode={isEditing ? "multiple" : "none"}
-              selectedKeys={selectedKeys}
-              onSelectionChange={setSelectedKeys}
-              className="mt-4"
+        {/* Form Actions Footer */}
+        {(!isEditing || isDetailsEditing || canEditItems) && (
+          <div className="flex justify-end gap-4 pt-6">
+            <Button
+              size="lg"
+              variant="bordered"
+              className="px-10"
+              onPress={() => router.back()}
             >
-              <TableHeader>
-                <TableColumn>PRODUCT</TableColumn>
-                <TableColumn>QUANTITY</TableColumn>
-                <TableColumn>STATUS</TableColumn>
-                <TableColumn align="center">ACTIONS</TableColumn>
-              </TableHeader>
-              <TableBody emptyContent="No items added yet.">
-                {fields.map((field, index) => {
-                  const isEditingRow = editingRowIndex === index;
-                  const item = watchItems[index];
-
-                  return (
-                    <TableRow key={field.id}>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="font-medium">{item.variant?.product_name || item.variant?.product?.name}</span>
-                          <span className="text-tiny text-default-400">{item.variant?.variant_name || item.variant?.name} ({item.variant?.sku})</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {isEditingRow ? (
-                          <Input
-                            autoFocus
-                            size="sm"
-                            type="number"
-                            variant="bordered"
-                            className="w-24"
-                            {...register(`items.${index}.quantity` as const)}
-                          />
-                        ) : (
-                          <span>{item.quantity}</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Chip color={statusColorMap[item.status] || "default"} size="sm" variant="flat">
-                          {item.status.toUpperCase()}
-                        </Chip>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex justify-center gap-2">
-                          {isEditingRow ? (
-                            <>
-                              <Button isIconOnly size="sm" color="success" variant="light" onPress={() => setEditingRowIndex(null)}>
-                                <Check className="w-4 h-4" />
-                              </Button>
-                              <Button isIconOnly size="sm" color="danger" variant="light" onPress={() => remove(index)}>
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </>
-                          ) : (
-                            <>
-                              <Button isIconOnly size="sm" variant="light" onPress={() => setEditingRowIndex(index)}>
-                                <Edit2 className="w-4 h-4" />
-                              </Button>
-                              <Button isIconOnly size="sm" color="danger" variant="light" onPress={() => remove(index)}>
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </CardBody>
-        </Card>
-      </div>
-
-      <div className="flex justify-end gap-3 mt-6">
-        <Button variant="flat" onPress={() => router.back()}>Cancel</Button>
-        <Button color="primary" isLoading={isSubmitting} type="submit" isDisabled={watchItems.length === 0}>
-          {isEditing ? "Save Changes" : (transferType === "request" ? "Send Request" : "Initiate Transfer")}
-        </Button>
-      </div>
-    </form>
+              Cancel
+            </Button>
+            <Button
+              size="lg"
+              color="primary"
+              className="px-10 font-bold shadow-xl shadow-primary/20"
+              isLoading={isSubmitting}
+              type="submit"
+              isDisabled={watchItems.length === 0}
+            >
+              {isEditing
+                ? "Save Changes"
+                : transferType === "request"
+                  ? "Send Request"
+                  : "Initiate Transfer"}
+            </Button>
+          </div>
+        )}
+      </form>
+    </div>
   );
 }

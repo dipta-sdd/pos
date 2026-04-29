@@ -26,7 +26,7 @@ class VendorScope
 
         // Get vendor id from request route
         $vendorId = $request->route('vendor_id') ?? $request->route('id') ?? $request->input('vendor_id');
-        
+
 
         if (!$vendorId) {
             return response()->json(['error' => 'Vendor id is required'], 400);
@@ -43,9 +43,9 @@ class VendorScope
             return response()->json(['error' => 'No active membership for this vendor'], 403);
         }
 
-        $request->merge(['vendor_id' => $membership->vendor_id]);
-        $request->merge(['role' => $membership->role]);
+        // $request->merge(['vendor_id' => $membership->vendor_id]);
+        // $request->merge(['role' => $membership->role]);
 
         return $next($request);
     }
-} 
+}

@@ -76,19 +76,19 @@ class StockTransferController extends Controller
             $query->addSelect([
                 DB::raw('COALESCE(SUM(product_stocks.quantity), 0) as total_quantity'),
             ])
-            ->leftJoin('product_stocks', function ($join) use ($branchId) {
-                $join->on('variants.id', '=', 'product_stocks.variant_id')
-                    ->where('product_stocks.branch_id', '=', $branchId);
-            })
-            ->groupBy(
-                'variants.id',
-                'variants.name',
-                'variants.value',
-                'variants.sku',
-                'variants.barcode',
-                'products.id',
-                'products.name'
-            );
+                ->leftJoin('product_stocks', function ($join) use ($branchId) {
+                    $join->on('variants.id', '=', 'product_stocks.variant_id')
+                        ->where('product_stocks.branch_id', '=', $branchId);
+                })
+                ->groupBy(
+                    'variants.id',
+                    'variants.name',
+                    'variants.value',
+                    'variants.sku',
+                    'variants.barcode',
+                    'products.id',
+                    'products.name'
+                );
         }
 
         if ($request->filled('search')) {
@@ -124,9 +124,23 @@ class StockTransferController extends Controller
         $validatedData['updated_by'] = $request->user()->id;
         $validatedData['notes'] = $validatedData['notes'] ?? "";
 
+        // Branch Permission Check
+        $membership = $request->user()->memberships()->where('vendor_id', $validatedData['vendor_id'])->first();
+        $userBranchIds = $membership ? $membership->userBranchAssignments->pluck('branch_id')->toArray() : [];
+
+        if ($validatedData['status'] === 'requested') {
+            if (!in_array($validatedData['to_branch_id'], $userBranchIds)) {
+                return response()->json(['message' => "You do not have access to the destination branch to make this request"], 403);
+            }
+        } else {
+            if (!in_array($validatedData['from_branch_id'], $userBranchIds)) {
+                return response()->json(['message' => "You do not have access to the source branch to initiate this transfer"], 403);
+            }
+        }
+
         $stockTransfer = DB::transaction(function () use ($validatedData, $request) {
             $stockTransfer = StockTransfer::create($validatedData);
-            
+
             foreach ($request->items as $item) {
                 $itemData = $item;
                 // If it's not a request and product_stocks_id is missing, try to find it
@@ -154,10 +168,11 @@ class StockTransferController extends Controller
 
     public function update(Request $request, StockTransfer $stockTransfer)
     {
+
         $validatedData = $request->validate([
             'from_branch_id' => 'exists:branches,id',
             'to_branch_id' => 'exists:branches,id',
-            'status' => 'in:draft,pending_approval,in_transit,completed,cancelled,rejected,requested',
+            'status' => 'in:draft,pending,pending_approval,in_transit,completed,cancelled,rejected,requested',
             'notes' => 'nullable|string',
             'items' => 'sometimes|array',
             'items.*.id' => 'sometimes|exists:stock_transfer_items,id',
@@ -170,6 +185,15 @@ class StockTransferController extends Controller
 
         $validatedData['updated_by'] = $request->user()->id;
         $validatedData['notes'] = $validatedData['notes'] ?? "";
+
+        // Check if receiver is trying to edit after acceptance
+        $membership = $request->user()->memberships()->where('vendor_id', $stockTransfer->vendor_id)->first();
+        $userBranchIds = $membership ? $membership->userBranchAssignments->pluck('branch_id')->toArray() : [];
+        $isOnlyReceiver = in_array($stockTransfer->to_branch_id, $userBranchIds) && !in_array($stockTransfer->from_branch_id, $userBranchIds);
+        
+        if ($isOnlyReceiver && !in_array($stockTransfer->status, ['draft', 'requested'])) {
+            return response()->json(['message' => "You cannot edit this transfer after it has been accepted by the sender"], 403);
+        }
 
         DB::transaction(function () use ($validatedData, $request, $stockTransfer) {
             $oldStatus = $stockTransfer->status;
@@ -254,18 +278,48 @@ class StockTransferController extends Controller
         return response()->json(null, 204);
     }
 
-    public function bulkUpdateItemStatus(Request $request, StockTransfer $stockTransfer)
+    public function updateTransferStatus(Request $request, StockTransfer $stockTransfer)
     {
         $request->validate([
-            'item_ids' => 'required|array',
-            'item_ids.*' => 'exists:stock_transfer_items,id,stock_transfer_id,' . $stockTransfer->id,
-            'status' => 'required|string|in:pending,accepted,in_transit,completed,cancelled,rejected,requested,out_of_stock',
+            'status' => 'required|string|in:pending,accepted,in_transit,completed,cancelled,rejected,requested',
         ]);
 
-        $stockTransfer->stockTransferItems()
-            ->whereIn('id', $request->item_ids)
-            ->update(['status' => $request->status]);
+        $newStatus = $request->status;
+        $membership = $request->user()->memberships()->where('vendor_id', $stockTransfer->vendor_id)->first();
+        $userBranchIds = $membership ? $membership->userBranchAssignments->pluck('branch_id')->toArray() : [];
 
-        return response()->json(['message' => 'Statuses updated successfully']);
+        // Enforcement Logic
+        // Sender Actions (Source Branch)
+        $senderActions = ['accepted', 'rejected', 'in_transit', 'out_of_stock'];
+        if (in_array($newStatus, $senderActions)) {
+            if (!in_array($stockTransfer->from_branch_id, $userBranchIds)) {
+                return response()->json(['message' => "Only the sending branch can perform this action ({$newStatus})"], 403);
+            }
+        }
+
+        // Receiver Actions (Destination Branch)
+        $receiverActions = ['completed', 'requested'];
+        if (in_array($newStatus, $receiverActions)) {
+            if (!in_array($stockTransfer->to_branch_id, $userBranchIds)) {
+                return response()->json(['message' => "Only the receiving branch can perform this action ({$newStatus})"], 403);
+            }
+        }
+
+        // Specific Rule: Receiver cannot cancel after acceptance
+        if ($newStatus === 'cancelled') {
+            $isOnlyReceiver = in_array($stockTransfer->to_branch_id, $userBranchIds) && !in_array($stockTransfer->from_branch_id, $userBranchIds);
+            if ($isOnlyReceiver && !in_array($stockTransfer->status, ['draft', 'requested'])) {
+                return response()->json(['message' => "Cannot cancel transfer after it has been accepted by the sender"], 403);
+            }
+        }
+
+        // Handle Status Specific Logic (e.g. accepting a request)
+        if ($newStatus === 'accepted') {
+             $newStatus = 'pending';
+        }
+
+        $stockTransfer->update(['status' => $newStatus]);
+
+        return response()->json(['message' => 'Transfer status updated successfully', 'status' => $newStatus]);
     }
 }
