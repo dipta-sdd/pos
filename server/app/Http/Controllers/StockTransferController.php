@@ -120,6 +120,11 @@ class StockTransferController extends Controller
             'items.*.variant_id' => 'nullable|exists:variants,id',
             'items.*.unit_of_measure_id' => 'nullable|exists:units_of_measure,id',
             'items.*.quantity' => 'required|numeric|min:0.01',
+            'items.*.approved_quantity' => 'nullable|numeric|min:0',
+            'items.*.received_quantity' => 'nullable|numeric|min:0',
+            'items.*.cost_price' => 'nullable|numeric|min:0',
+            'items.*.selling_price' => 'nullable|numeric|min:0',
+            'items.*.expiry_date' => 'nullable|date',
             'items.*.status' => 'nullable|string|in:pending,accepted,in_transit,completed,cancelled,rejected,requested,out_of_stock',
         ]);
 
@@ -183,6 +188,11 @@ class StockTransferController extends Controller
             'items.*.variant_id' => 'nullable|exists:variants,id',
             'items.*.unit_of_measure_id' => 'nullable|exists:units_of_measure,id',
             'items.*.quantity' => 'required_with:items|numeric|min:0.01',
+            'items.*.approved_quantity' => 'nullable|numeric|min:0',
+            'items.*.received_quantity' => 'nullable|numeric|min:0',
+            'items.*.cost_price' => 'nullable|numeric|min:0',
+            'items.*.selling_price' => 'nullable|numeric|min:0',
+            'items.*.expiry_date' => 'nullable|date',
             'items.*.status' => 'nullable|string|in:pending,accepted,in_transit,completed,cancelled,rejected,requested,out_of_stock',
         ]);
 
@@ -234,15 +244,17 @@ class StockTransferController extends Controller
             // Handle Inventory Movement based on status transition
             if ($oldStatus !== $newStatus) {
                 foreach ($stockTransfer->stockTransferItems as $item) {
-                    // 1. Shipped: Deduct from Source
-                    if ($newStatus === 'shipped' && $oldStatus === 'pending') {
+                    // 1. Shipped: Deduct from Source (using approved_quantity)
+                    if ($newStatus === 'in_transit' && ($oldStatus === 'pending' || $oldStatus === 'accepted')) {
+                        $deductQty = $item->approved_quantity ?? $item->quantity;
                         \App\Models\ProductStock::where('branch_id', $stockTransfer->from_branch_id)
                             ->where('variant_id', $item->variant_id)
-                            ->decrement('quantity', $item->quantity);
+                            ->decrement('quantity', $deductQty);
                     }
 
-                    // 2. Received: Add to Destination
-                    if ($newStatus === 'received' && $oldStatus === 'shipped') {
+                    // 2. Received: Add to Destination (using received_quantity)
+                    if ($newStatus === 'completed' && $oldStatus === 'in_transit') {
+                        $addQty = $item->received_quantity ?? $item->approved_quantity ?? $item->quantity;
                         $destStock = \App\Models\ProductStock::where('branch_id', $stockTransfer->to_branch_id)
                             ->where('variant_id', $item->variant_id)
                             ->first();
@@ -254,18 +266,25 @@ class StockTransferController extends Controller
                                 'product_id' => $variant->product_id,
                                 'variant_id' => $variant->id,
                                 'quantity' => 0,
-                                'cost_price' => $variant->cost_price ?? 0,
-                                'selling_price' => $variant->selling_price ?? 0,
+                                'cost_price' => $item->cost_price ?? $variant->cost_price ?? 0,
+                                'selling_price' => $item->selling_price ?? $variant->selling_price ?? 0,
+                                'expiry_date' => $item->expiry_date,
                             ]);
+                        } else {
+                            // Update existing stock info if provided from transfer
+                            if ($item->cost_price) $destStock->cost_price = $item->cost_price;
+                            if ($item->selling_price) $destStock->selling_price = $item->selling_price;
+                            if ($item->expiry_date) $destStock->expiry_date = $item->expiry_date;
                         }
-                        $destStock->increment('quantity', $item->quantity);
+                        $destStock->increment('quantity', $addQty);
                     }
 
                     // 3. Cancelled (if already shipped): Replenish Source
-                    if ($newStatus === 'cancelled' && $oldStatus === 'shipped') {
+                    if ($newStatus === 'cancelled' && $oldStatus === 'in_transit') {
+                        $replenishQty = $item->approved_quantity ?? $item->quantity;
                         \App\Models\ProductStock::where('branch_id', $stockTransfer->from_branch_id)
                             ->where('variant_id', $item->variant_id)
-                            ->increment('quantity', $item->quantity);
+                            ->increment('quantity', $replenishQty);
                     }
                 }
             }

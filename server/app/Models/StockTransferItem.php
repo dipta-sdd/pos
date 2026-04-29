@@ -19,11 +19,21 @@ class StockTransferItem extends Model
         'product_stocks_id',
         'unit_of_measure_id',
         'quantity',
+        'approved_quantity',
+        'received_quantity',
+        'cost_price',
+        'selling_price',
+        'expiry_date',
         'status',
     ];
 
     protected $casts = [
         'quantity' => 'decimal:2',
+        'approved_quantity' => 'decimal:2',
+        'received_quantity' => 'decimal:2',
+        'cost_price' => 'decimal:2',
+        'selling_price' => 'decimal:2',
+        'expiry_date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

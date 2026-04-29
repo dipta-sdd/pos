@@ -17,6 +17,11 @@ return new class extends Migration {
             $table->foreignId('product_stocks_id')->nullable()->constrained('product_stocks')->onDelete('cascade');
             $table->foreignId('unit_of_measure_id')->nullable()->constrained('units_of_measure')->onDelete('set null');
             $table->decimal('quantity', 10, 2);
+            $table->decimal('approved_quantity', 10, 2)->nullable();
+            $table->decimal('received_quantity', 10, 2)->nullable();
+            $table->decimal('cost_price', 15, 2)->nullable();
+            $table->decimal('selling_price', 15, 2)->nullable();
+            $table->date('expiry_date')->nullable();
             $table->string('status')->default('pending');
             $table->timestamps();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
