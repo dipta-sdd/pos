@@ -74,8 +74,12 @@ export default function StockTransferPage() {
 
   return (
     <PermissionGuard permission="can_view_stock_and_inventory">
-      <div className="p-6  space-y-6">
-        <StockTransferForm isEditing initialData={transfer} />
+      <div className="p-6 space-y-6">
+        <StockTransferForm
+          isEditing
+          initialData={transfer}
+          setInitialData={setTransfer}
+        />
       </div>
     </PermissionGuard>
   );

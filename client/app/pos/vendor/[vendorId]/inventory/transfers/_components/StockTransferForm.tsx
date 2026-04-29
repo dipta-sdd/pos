@@ -54,6 +54,7 @@ interface Variant extends BaseVariant {
 interface StockTransferFormProps {
   initialData?: StockTransfer;
   isEditing?: boolean;
+  setInitialData: React.Dispatch<React.SetStateAction<StockTransfer | null>>;
 }
 
 const transferSchema = z
@@ -88,6 +89,7 @@ type TransferFormData = z.infer<typeof transferSchema>;
 export default function StockTransferForm({
   initialData,
   isEditing = false,
+  setInitialData,
 }: StockTransferFormProps) {
   const { vendor, membership } = useVendor();
   const router = useRouter();
@@ -253,34 +255,15 @@ export default function StockTransferForm({
       });
 
       toast.success(`Transfer marked as ${newStatus}`);
-      refreshData();
+      setInitialData((prev) => ({
+        ...(prev as StockTransfer),
+        status: newStatus,
+      }));
     } catch (error: any) {
       toast.error(
         error.response?.data?.message || "Failed to update transfer status",
       );
     }
-  };
-
-  const refreshData = async () => {
-    if (!initialData) return;
-    const response: any = await api.get(`/stock-transfers/${initialData.id}`);
-    reset({
-      ...getValues(),
-      status: response.data.status,
-      items: response.data.stock_transfer_items.map((i: any) => ({
-        id: i.id,
-        variant_id: i.variant_id,
-        product_stocks_id: i.product_stocks_id,
-        quantity: i.quantity,
-        status: i.status,
-        variant: {
-          ...i.variant,
-          unit_abbreviation:
-            i.unit_of_measure?.abbreviation ||
-            i.variant?.unit_of_measure?.abbreviation,
-        },
-      })),
-    });
   };
 
   const onSubmit = async (data: any) => {

@@ -316,10 +316,6 @@ class StockTransferController extends Controller
             }
         }
 
-        // Handle Status Specific Logic (e.g. accepting a request)
-        if ($newStatus === 'accepted') {
-            $newStatus = 'pending';
-        }
 
         $stockTransfer->update(['status' => $newStatus]);
 
