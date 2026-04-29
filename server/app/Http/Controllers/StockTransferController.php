@@ -345,16 +345,42 @@ class StockTransferController extends Controller
         }
 
         // Specific Rule: Receiver cannot cancel after acceptance
-        if ($newStatus === 'cancelled') {
-            $isOnlyReceiver = in_array($stockTransfer->to_branch_id, $userBranchIds) && !in_array($stockTransfer->from_branch_id, $userBranchIds);
-            if ($isOnlyReceiver && !in_array($stockTransfer->status, ['draft', 'requested'])) {
-                return response()->json(['message' => "Cannot cancel transfer after it has been accepted by the sender"], 403);
+        if ($newStatus === 'cancelled' && $stockTransfer->status === 'accepted') {
+            if (!in_array($stockTransfer->from_branch_id, $userBranchIds)) {
+                return response()->json(['message' => 'Only the sender can cancel an accepted transfer'], 403);
             }
         }
 
-
+        $oldStatus = $stockTransfer->status;
         $stockTransfer->update(['status' => $newStatus]);
 
-        return response()->json(['message' => 'Transfer status updated successfully', 'status' => $newStatus]);
+        return response()->json($stockTransfer->load('stockTransferItems.variant', 'fromBranch', 'toBranch'));
+    }
+
+    public function updateItem(Request $request, $itemId)
+    {
+        $item = \App\Models\StockTransferItem::findOrFail($itemId);
+        
+        $validatedData = $request->validate([
+            'quantity' => 'nullable|numeric|min:0.01',
+            'approved_quantity' => 'nullable|numeric|min:0',
+            'received_quantity' => 'nullable|numeric|min:0',
+            'status' => 'nullable|string|in:pending,accepted,in_transit,completed,cancelled,rejected,requested,out_of_stock',
+            'cost_price' => 'nullable|numeric|min:0',
+            'selling_price' => 'nullable|numeric|min:0',
+            'expiry_date' => 'nullable|date',
+        ]);
+
+        $item->update($validatedData);
+
+        return response()->json($item);
+    }
+
+    public function destroyItem($itemId)
+    {
+        $item = \App\Models\StockTransferItem::findOrFail($itemId);
+        $item->delete();
+
+        return response()->json(null, 204);
     }
 }

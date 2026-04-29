@@ -120,6 +120,41 @@ export default function StockTransferForm({
   const [scanInput, setScanInput] = useState("");
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
   const [searchResults, setSearchResults] = useState<Variant[]>([]);
+
+  const updateItemApi = async (index: number, updates: any) => {
+    const item = watchItems[index];
+    if (!item?.id) return; // Only update existing items
+    try {
+      await api.put(`/stock-transfers/items/${item.id}`, updates);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to update item");
+    }
+  };
+
+  const handleSaveItem = async (index: number) => {
+    const itemData = getValues(`items.${index}`);
+    const updates = {
+      quantity: itemData.quantity,
+      approved_quantity: itemData.approved_quantity,
+      received_quantity: itemData.received_quantity,
+    };
+    await updateItemApi(index, updates);
+    setEditingRowIndex(null);
+  };
+
+  const handleDeleteItem = async (index: number) => {
+    const item = watchItems[index];
+    if (item?.id) {
+      try {
+        await api.delete(`/stock-transfers/items/${item.id}`);
+        toast.success("Item removed from transfer");
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || "Failed to delete item");
+        return;
+      }
+    }
+    remove(index);
+  };
   const [transferType, setTransferType] = useState<"transfer" | "request">(
     initialData?.status === "requested" ? "request" : "transfer",
   );
@@ -290,14 +325,18 @@ export default function StockTransferForm({
         scanMode === "full"
           ? Number(item.quantity)
           : Math.min(Number(item.quantity), currentApproved + 1);
+      const updates = { approved_quantity: newApproved };
       setValue(`items.${index}.approved_quantity`, newApproved);
+      updateItemApi(index, updates);
       toast.success(`Updated approval for ${item.variant?.product_name}`);
     } else if (isReceiver && initialData?.status === "in_transit") {
       const currentReceived = Number(item.received_quantity || 0);
       const maxQty = Number(item.approved_quantity || item.quantity);
       const newReceived =
         scanMode === "full" ? maxQty : Math.min(maxQty, currentReceived + 1);
+      const updates = { received_quantity: newReceived };
       setValue(`items.${index}.received_quantity`, newReceived);
+      updateItemApi(index, updates);
       toast.success(`Updated receipt for ${item.variant?.product_name}`);
     }
     setScanInput("");
@@ -668,10 +707,12 @@ export default function StockTransferForm({
                           key="approve"
                           onPress={() => {
                             selectedItems.forEach((index) => {
+                              const updates = { approved_quantity: watchItems[index].quantity };
                               setValue(
                                 `items.${index}.approved_quantity`,
                                 watchItems[index].quantity,
                               );
+                              updateItemApi(index, updates);
                             });
                             toast.success("Approved selected items");
                             setSelectedItems(new Set());
@@ -689,8 +730,10 @@ export default function StockTransferForm({
                           color="danger"
                           onPress={() => {
                             selectedItems.forEach((index) => {
+                              const updates = { status: "out_of_stock", approved_quantity: 0 };
                               setValue(`items.${index}.status`, "out_of_stock");
                               setValue(`items.${index}.approved_quantity`, 0);
+                              updateItemApi(index, updates);
                             });
                             toast.success("Marked selected as Out of Stock");
                             setSelectedItems(new Set());
@@ -703,7 +746,9 @@ export default function StockTransferForm({
                           color="danger"
                           onPress={() => {
                             selectedItems.forEach((index) => {
+                              const updates = { status: "cancelled" };
                               setValue(`items.${index}.status`, "cancelled");
+                              updateItemApi(index, updates);
                             });
                             toast.success("Cancelled selected items");
                             setSelectedItems(new Set());
@@ -974,10 +1019,12 @@ export default function StockTransferForm({
                                               color="success"
                                               className="w-6 h-6 min-w-0"
                                               onPress={() => {
+                                                const updates = { approved_quantity: item.quantity };
                                                 setValue(
                                                   `items.${index}.approved_quantity`,
                                                   item.quantity,
                                                 );
+                                                updateItemApi(index, updates);
                                               }}
                                             >
                                               <Check className="w-3.5 h-3.5" />
@@ -1051,7 +1098,8 @@ export default function StockTransferForm({
                                       size="sm"
                                       color="success"
                                       variant="flat"
-                                      onPress={() => setEditingRowIndex(null)}
+                                      className="w-8 h-8 min-w-0"
+                                      onPress={() => handleSaveItem(index)}
                                     >
                                       <Check className="w-4 h-4" />
                                     </Button>
@@ -1071,7 +1119,7 @@ export default function StockTransferForm({
                                     size="sm"
                                     variant="flat"
                                     className="text-danger"
-                                    onPress={() => remove(index)}
+                                    onPress={() => handleDeleteItem(index)}
                                   >
                                     <Trash2 className="w-4 h-4" />
                                   </Button>

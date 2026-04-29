@@ -338,6 +338,10 @@ Route::middleware('log.api')->group(function () {
             Route::get('/{stockTransfer}', [StockTransferController::class, 'show'])->middleware('permission:can_view_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/_components/StockTransferForm.tsx
             Route::put('/{stockTransfer}', [StockTransferController::class, 'update'])->middleware('permission:can_manage_stock_and_inventory');
+            // Used in: app/pos/vendor/[vendorId]/inventory/transfers/_components/StockTransferForm.tsx
+            Route::put('/items/{item}', [StockTransferController::class, 'updateItem'])->middleware('permission:can_manage_stock_and_inventory');
+            // Used in: app/pos/vendor/[vendorId]/inventory/transfers/_components/StockTransferForm.tsx
+            Route::delete('/items/{item}', [StockTransferController::class, 'destroyItem'])->middleware('permission:can_manage_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/[transferId]/page.tsx
             Route::post('/{stockTransfer}/status', [StockTransferController::class, 'updateTransferStatus'])->middleware('permission:can_manage_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/page.tsx
