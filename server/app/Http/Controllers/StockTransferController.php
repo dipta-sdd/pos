@@ -111,7 +111,7 @@ class StockTransferController extends Controller
     {
         $validatedData = $request->validate([
             'from_branch_id' => 'required|exists:branches,id,vendor_id,' . $request->vendor_id,
-            'to_branch_id' => 'required|exists:branches,id,vendor_id,' . $request->vendor_id,
+            'to_branch_id' => 'required|different:from_branch_id|exists:branches,id,vendor_id,' . $request->vendor_id,
             'status' => 'required|in:draft,pending_approval,in_transit,completed,cancelled,rejected,requested',
             'notes' => 'nullable|string',
             'vendor_id' => 'required|exists:vendors,id',
@@ -174,7 +174,7 @@ class StockTransferController extends Controller
 
         $validatedData = $request->validate([
             'from_branch_id' => 'exists:branches,id',
-            'to_branch_id' => 'exists:branches,id',
+            'to_branch_id' => 'different:from_branch_id|exists:branches,id',
             'status' => 'in:draft,pending,pending_approval,in_transit,completed,cancelled,rejected,requested',
             'notes' => 'nullable|string',
             'items' => 'sometimes|array',

@@ -56,27 +56,32 @@ interface StockTransferFormProps {
   isEditing?: boolean;
 }
 
-const transferSchema = z.object({
-  from_branch_id: z.coerce.number().min(1, "Source branch is required"),
-  to_branch_id: z.coerce.number().min(1, "Destination branch is required"),
-  notes: z.string().optional(),
-  status: z.string().default("pending"),
-  vendor_id: z.number(),
-  items: z
-    .array(
-      z.object({
-        id: z.number().optional(),
-        variant_id: z.coerce.number().min(1, "Product is required"),
-        product_stocks_id: z.number().nullable().optional(),
-        quantity: z.coerce
-          .number()
-          .min(0.01, "Quantity must be greater than 0"),
-        status: z.string().default("pending"),
-        variant: z.any().optional(),
-      }),
-    )
-    .min(1, "At least one item is required"),
-});
+const transferSchema = z
+  .object({
+    from_branch_id: z.coerce.number().min(1, "Source branch is required"),
+    to_branch_id: z.coerce.number().min(1, "Destination branch is required"),
+    notes: z.string().optional(),
+    status: z.string().default("pending"),
+    vendor_id: z.number(),
+    items: z
+      .array(
+        z.object({
+          id: z.number().optional(),
+          variant_id: z.coerce.number().min(1, "Product is required"),
+          product_stocks_id: z.number().nullable().optional(),
+          quantity: z.coerce
+            .number()
+            .min(0.01, "Quantity must be greater than 0"),
+          status: z.string().default("pending"),
+          variant: z.any().optional(),
+        }),
+      )
+      .min(1, "At least one item is required"),
+  })
+  .refine((data) => data.from_branch_id !== data.to_branch_id, {
+    message: "Source and Destination branches cannot be the same",
+    path: ["to_branch_id"],
+  });
 
 type TransferFormData = z.infer<typeof transferSchema>;
 
@@ -210,7 +215,7 @@ export default function StockTransferForm({
             },
           },
         );
-        setSearchResults(response.data?.data as Variant[] || []);
+        setSearchResults((response.data?.data as Variant[]) || []);
       } catch (error) {
         console.error("Search failed", error);
       } finally {
@@ -466,7 +471,10 @@ export default function StockTransferForm({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <Select
                     isRequired
-                    isDisabled={isEditing && !(initialData?.status === "requested" && isReceiver)}
+                    isDisabled={
+                      isEditing &&
+                      !(initialData?.status === "requested" && isReceiver)
+                    }
                     label="Source Branch"
                     placeholder="Select source"
                     selectedKeys={
@@ -477,11 +485,13 @@ export default function StockTransferForm({
                       setValue("from_branch_id", Number(e.target.value))
                     }
                   >
-                    {fromBranches.map((b) => (
-                      <SelectItem key={b.id} textValue={b.name}>
-                        {b.name}
-                      </SelectItem>
-                    ))}
+                    {fromBranches
+                      .filter((b) => b.id !== watchToBranch)
+                      .map((b) => (
+                        <SelectItem key={b.id} textValue={b.name}>
+                          {b.name}
+                        </SelectItem>
+                      ))}
                   </Select>
 
                   <Select
@@ -495,11 +505,13 @@ export default function StockTransferForm({
                       setValue("to_branch_id", Number(e.target.value))
                     }
                   >
-                    {toBranches.map((b) => (
-                      <SelectItem key={b.id} textValue={b.name}>
-                        {b.name}
-                      </SelectItem>
-                    ))}
+                    {toBranches
+                      .filter((b) => b.id !== watchFromBranch)
+                      .map((b) => (
+                        <SelectItem key={b.id} textValue={b.name}>
+                          {b.name}
+                        </SelectItem>
+                      ))}
                   </Select>
                 </div>
               ) : (
@@ -521,8 +533,8 @@ export default function StockTransferForm({
 
                   <div className="flex-1 px-8 relative hidden md:block">
                     <div className="absolute top-1/2 left-0 right-0 h-px border-t border-dashed border-default-200 -translate-y-1/2" />
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-4">
-                      <Truck className="w-6 h-6 text-default-300" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-default-200 px-4 py-2">
+                      <Truck className="w-6 h-6 text-default-700" />
                     </div>
                   </div>
 
