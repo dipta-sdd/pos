@@ -130,36 +130,6 @@ export default function RequestedReceivingTransferForm({
   const { fields, append, remove } = useFieldArray({ control, name: "items" });
   const watchItems = watch("items");
 
-  const handleSearch = useCallback(
-    debounce(async (query: string) => {
-      if (!query || query.length < 2) {
-        setSearchResults([]);
-
-        return;
-      }
-      setSearchLoading(true);
-      try {
-        const response: any = await api.get(
-          "/stock-transfers/search-variants",
-          {
-            params: {
-              vendor_id: vendor?.id,
-              search: query,
-            },
-          },
-        );
-
-        setSearchResults(response.data?.data || []);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setSearchLoading(false);
-      }
-    }, 500),
-    [vendor?.id],
-  );
-  const items = watch("items");
-  console.log(items);
   const onAddProduct = async (variant: Variant) => {
     // Immediate Ref-based lock to prevent double calls
     if (addingRef.current) return;
@@ -210,6 +180,48 @@ export default function RequestedReceivingTransferForm({
       addingRef.current = false;
     }
   };
+
+  const handleSearch = useCallback(
+    debounce(async (query: string) => {
+      if (!query || query.length < 2) {
+        setSearchResults([]);
+
+        return;
+      }
+      setSearchLoading(true);
+      try {
+        const response: any = await api.get(
+          "/stock-transfers/search-variants",
+          {
+            params: {
+              vendor_id: vendor?.id,
+              search: query,
+            },
+          },
+        );
+
+        const results = response.data?.data || [];
+        setSearchResults(results);
+
+        // Auto-add if exact barcode or SKU match and only one result
+        if (results.length === 1) {
+          const variant = results[0];
+          if (
+            variant.barcode?.toLowerCase() === query.toLowerCase() ||
+            variant.sku?.toLowerCase() === query.toLowerCase()
+          ) {
+            onAddProduct(variant);
+            setSearchResults([]);
+          }
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 500),
+    [vendor?.id, onAddProduct],
+  );
 
   const debouncedUpdateQuantity = useCallback(
     debounce(async (itemId: number, quantity: number) => {
@@ -363,10 +375,10 @@ export default function RequestedReceivingTransferForm({
                 {searchResults.map((variant) => (
                   <AutocompleteItem
                     key={variant.id}
-                    textValue={`${variant.product_name} - ${getFullVariantName(
+                    textValue={`${variant.product_name} ${getFullVariantName(
                       variant.variant_name,
                       variant.variant_value,
-                    )}`}
+                    )} ${variant.barcode || ""} ${variant.sku || ""}`}
                     onPress={() => onAddProduct(variant)}
                   >
                     <div className="flex flex-col">
