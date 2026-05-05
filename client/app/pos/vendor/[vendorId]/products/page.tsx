@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { SortDescriptor } from "@heroui/table";
-import { Plus, ChevronDown, Edit, Trash2, Pencil } from "lucide-react";
+import { Plus, ChevronDown, Trash2, Pencil } from "lucide-react";
 import {
   Dropdown,
   DropdownTrigger,
@@ -124,6 +124,7 @@ export default function ProductsPage() {
     try {
       if (id === "bulk") {
         const ids = Array.from(selectedKeys);
+
         await api.post(`/products/bulk-delete`, { ids });
         toast.success(`${ids.length} products deleted successfully`);
         setSelectedKeys(new Set([]));
@@ -193,9 +194,7 @@ export default function ProductsPage() {
                   size="sm"
                   variant="light"
                   onPress={() =>
-                    router.push(
-                      `/pos/vendor/${vendor?.id}/products/${item.id}`
-                    )
+                    router.push(`/pos/vendor/${vendor?.id}/products/${item.id}`)
                   }
                 >
                   <Pencil className="w-4 h-4 text-primary" />
@@ -228,7 +227,10 @@ export default function ProductsPage() {
   return (
     <PermissionGuard permission="can_view_catalog">
       <div className="p-6">
-        <PageHeader description="Manage your products and variants" title="Products">
+        <PageHeader
+          description="Manage your products and variants"
+          title="Products"
+        >
           <PermissionGuard permission="can_manage_catalog">
             <Button
               color="primary"
@@ -312,10 +314,14 @@ export default function ProductsPage() {
 
         <Confirm
           isOpen={deleteConfirmOpen}
-          message={isBulkDelete ? `Are you sure you want to delete ${selectedKeys instanceof Set ? selectedKeys.size : 0} products?` : "Are you sure you want to delete this product?"}
+          message={
+            isBulkDelete
+              ? `Are you sure you want to delete ${selectedKeys instanceof Set ? selectedKeys.size : 0} products?`
+              : "Are you sure you want to delete this product?"
+          }
           title={isBulkDelete ? "Bulk Delete Products" : "Delete Product"}
           onConfirm={(id) => handleDelete(id as number | "bulk")}
-          onConfirmProp={isBulkDelete ? "bulk" : (deleteConfirmId || "")}
+          onConfirmProp={isBulkDelete ? "bulk" : deleteConfirmId || ""}
           onOpenChange={setDeleteConfirmOpen}
         />
       </div>

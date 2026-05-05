@@ -1,14 +1,25 @@
 import NextLink from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { LogOut, Search, Settings, User, Package, Users, Receipt, Loader2, Bell } from "lucide-react";
+import {
+  LogOut,
+  Search,
+  Settings,
+  User,
+  Package,
+  Users,
+  Receipt,
+  Loader2,
+  Bell,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
+
+import InstallPWA from "./InstallPWA";
 
 import { ThemeSwitch } from "@/components/theme-switch";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { Logo } from "@/components/icons";
 import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
-import InstallPWA from "./InstallPWA";
 
 export const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -19,7 +30,7 @@ export const Navbar = () => {
   const [showResults, setShowResults] = useState(false);
   const [lowStockCount, setLowStockCount] = useState(0);
   const searchRef = useRef<HTMLDivElement>(null);
-  
+
   const { user, isAuthenticated, logout } = useAuth();
   const { vendor, selectedBranchIds } = useVendor();
   const router = useRouter();
@@ -33,9 +44,15 @@ export const Navbar = () => {
     const fetchLowStockCount = async () => {
       if (!vendor?.id) return;
       try {
-        const response: any = await api.get('/branch-products', {
-          params: { vendor_id: vendor.id, low_stock_only: 1, per_page: 1, branch_ids: selectedBranchIds }
+        const response: any = await api.get("/branch-products", {
+          params: {
+            vendor_id: vendor.id,
+            low_stock_only: 1,
+            per_page: 1,
+            branch_ids: selectedBranchIds,
+          },
         });
+
         setLowStockCount(response.data.total || 0);
       } catch (error) {
         console.error("Failed to fetch low stock count", error);
@@ -44,16 +61,22 @@ export const Navbar = () => {
 
     fetchLowStockCount();
     const interval = setInterval(fetchLowStockCount, 60000); // Refresh every minute
+
     return () => clearInterval(interval);
   }, [vendor?.id, selectedBranchIds]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
         setShowResults(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
@@ -62,9 +85,10 @@ export const Navbar = () => {
       if (searchQuery.length >= 2 && vendor?.id) {
         setIsSearching(true);
         try {
-          const response: any = await api.get('/global-search', {
-            params: { query: searchQuery, vendor_id: vendor.id }
+          const response: any = await api.get("/global-search", {
+            params: { query: searchQuery, vendor_id: vendor.id },
           });
+
           setSearchResults(response.data.results || []);
           setShowResults(true);
         } catch (error) {
@@ -83,10 +107,14 @@ export const Navbar = () => {
 
   const getIcon = (type: string) => {
     switch (type) {
-      case 'product': return <Package className="w-4 h-4 text-blue-500" />;
-      case 'customer': return <Users className="w-4 h-4 text-green-500" />;
-      case 'sale': return <Receipt className="w-4 h-4 text-orange-500" />;
-      default: return <Search className="w-4 h-4 text-gray-500" />;
+      case "product":
+        return <Package className="w-4 h-4 text-blue-500" />;
+      case "customer":
+        return <Users className="w-4 h-4 text-green-500" />;
+      case "sale":
+        return <Receipt className="w-4 h-4 text-orange-500" />;
+      default:
+        return <Search className="w-4 h-4 text-gray-500" />;
     }
   };
 
@@ -128,7 +156,10 @@ export const Navbar = () => {
 
           {/* Center: Search - only show when authenticated */}
           {isAuthenticated && vendor && (
-            <div className="hidden lg:flex flex-1 justify-center max-w-md mx-8" ref={searchRef}>
+            <div
+              ref={searchRef}
+              className="hidden lg:flex flex-1 justify-center max-w-md mx-8"
+            >
               <div className="relative w-full">
                 <div className="relative">
                   <input
@@ -138,10 +169,16 @@ export const Navbar = () => {
                     type="search"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    onFocus={() => searchQuery.length >= 2 && setShowResults(true)}
+                    onFocus={() =>
+                      searchQuery.length >= 2 && setShowResults(true)
+                    }
                   />
                   <span className="absolute left-3.5 top-2.5 text-gray-400">
-                    {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                    {isSearching ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Search className="w-4 h-4" />
+                    )}
                   </span>
                   <span className="absolute right-3.5 top-2.5 hidden lg:inline-block text-[10px] font-bold text-gray-400 border border-gray-300 dark:border-gray-600 rounded px-1.5 py-0.5 uppercase tracking-tighter">
                     ⌘K
@@ -153,29 +190,36 @@ export const Navbar = () => {
                   <div className="absolute mt-2 w-full bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 py-2 z-[100] max-h-[400px] overflow-y-auto">
                     {searchResults.length > 0 ? (
                       searchResults.map((result, idx) => (
-                        <div
+                        <button
                           key={`${result.type}-${result.id}-${idx}`}
-                          className="px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer flex items-center gap-3 transition-colors"
+                          className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer flex items-center gap-3 transition-colors"
                           onClick={() => {
                             router.push(result.url);
                             setShowResults(false);
                             setSearchQuery("");
                           }}
+                          type="button"
                         >
-                          <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                          <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg shrink-0">
                             {getIcon(result.type)}
                           </div>
-                          <div className="flex flex-col">
-                            <span className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1">{result.title}</span>
-                            <span className="text-[11px] text-gray-500 dark:text-gray-400 uppercase font-medium">{result.subtitle}</span>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-sm font-bold text-gray-900 dark:text-white truncate">
+                              {result.title}
+                            </span>
+                            <span className="text-[11px] text-gray-500 dark:text-gray-400 uppercase font-medium truncate">
+                              {result.subtitle}
+                            </span>
                           </div>
-                        </div>
+                        </button>
                       ))
                     ) : (
                       <div className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                         <div className="flex flex-col items-center gap-2">
                           <Search className="w-8 h-8 opacity-20" />
-                          <span className="text-sm">No results found for &quot;{searchQuery}&quot;</span>
+                          <span className="text-sm">
+                            No results found for &quot;{searchQuery}&quot;
+                          </span>
                         </div>
                       </div>
                     )}
@@ -189,15 +233,15 @@ export const Navbar = () => {
           <div className="flex items-center gap-2">
             {/* Notifications - Low Stock */}
             {isAuthenticated && vendor && (
-              <NextLink 
-                href={`/pos/vendor/${vendor.id}/inventory?low_stock_only=1`}
+              <NextLink
                 className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group"
+                href={`/pos/vendor/${vendor.id}/inventory?low_stock_only=1`}
                 title="Low Stock Alerts"
               >
                 <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-red-500" />
                 {lowStockCount > 0 && (
                   <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white dark:ring-gray-900">
-                    {lowStockCount > 99 ? '99+' : lowStockCount}
+                    {lowStockCount > 99 ? "99+" : lowStockCount}
                   </span>
                 )}
               </NextLink>

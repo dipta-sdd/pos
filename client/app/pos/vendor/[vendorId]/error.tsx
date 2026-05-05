@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Button } from "@heroui/button";
-import { AlertTriangle, RefreshCw, ChevronLeft, Home } from "lucide-react";
+import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function VendorError({
@@ -35,35 +35,38 @@ export default function VendorError({
             Something went wrong
           </h2>
           <p className="text-base text-gray-600 dark:text-gray-400 max-w-md mx-auto leading-relaxed">
-            We encountered an issue while loading this section. This might be a temporary connection problem.
+            We encountered an issue while loading this section. This might be a
+            temporary connection problem.
           </p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
           <Button
+            className="font-semibold px-8"
             color="primary"
             size="lg"
-            className="font-semibold px-8"
             startContent={<RefreshCw className="w-5 h-5" />}
             onPress={() => reset()}
           >
             Try Again
           </Button>
           <Button
-            variant="flat"
-            size="lg"
             className="font-semibold px-8"
+            size="lg"
             startContent={<Home className="w-5 h-5" />}
+            variant="flat"
             onPress={() => router.push("/pos")}
           >
             Dashboard
           </Button>
         </div>
-        
+
         {error.message && (
           <div className="pt-8 mt-8 border-t border-default-100">
             <div className="bg-default-50 dark:bg-default-100/50 p-4 rounded-xl text-left">
-              <p className="text-[11px] font-mono text-default-500 uppercase tracking-widest mb-1">Error Details</p>
+              <p className="text-[11px] font-mono text-default-500 uppercase tracking-widest mb-1">
+                Error Details
+              </p>
               <p className="text-xs font-mono text-danger-500 dark:text-danger-400 break-all leading-tight">
                 {error.message}
               </p>

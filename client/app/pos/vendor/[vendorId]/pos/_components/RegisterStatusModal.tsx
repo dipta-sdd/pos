@@ -65,6 +65,7 @@ export default function RegisterStatusModal({
       const response: any = await api.get(
         `/cash-register-sessions/${activeSession.id}`,
       );
+
       setFullSession(response.data);
     } catch (error) {
       console.error("Failed to fetch full session details", error);
@@ -241,7 +242,8 @@ export default function RegisterStatusModal({
                     <div className="flex justify-between items-center text-success">
                       <p className="font-medium">Total Sales (Cash)</p>
                       <p className="font-bold font-mono">
-                        + {Number(fullSession?.total_sales_cash || 0).toFixed(2)}
+                        +{" "}
+                        {Number(fullSession?.total_sales_cash || 0).toFixed(2)}
                       </p>
                     </div>
                     <div className="flex justify-between items-center text-success">

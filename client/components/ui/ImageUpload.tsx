@@ -12,7 +12,6 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { Upload, X, Crop } from "lucide-react";
-
 import Image from "next/image";
 
 import { BACKEND_URL } from "@/lib/api";
@@ -137,9 +136,9 @@ export default function ImageUpload({
       {preview ? (
         <div className="relative group w-40 h-40 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 dark:bg-gray-900/50">
           <Image
+            fill
             alt="Preview"
             className="w-full h-full object-cover"
-            fill
             src={preview}
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">

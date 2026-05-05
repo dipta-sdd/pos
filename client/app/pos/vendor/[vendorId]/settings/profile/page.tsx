@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "@heroui/button";
 import { Card, CardBody } from "@heroui/card";
-import { Input, Textarea, Select, SelectItem } from "@heroui/react";
+import { Input, Textarea } from "@heroui/react";
 import { Building2, Globe } from "lucide-react";
 
 import { useVendor } from "@/lib/contexts/VendorContext";

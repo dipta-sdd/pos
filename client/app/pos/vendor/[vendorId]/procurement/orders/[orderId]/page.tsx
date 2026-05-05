@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { Skeleton } from "@heroui/skeleton";
 
 import PurchaseOrderForm from "../_components/PurchaseOrderForm";
 
@@ -10,7 +11,6 @@ import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import api from "@/lib/api";
 import ResourceNotFound from "@/components/ui/ResourceNotFound";
-import { Skeleton } from "@heroui/skeleton";
 
 export default function EditPurchaseOrderPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
@@ -67,7 +67,10 @@ export default function EditPurchaseOrderPage() {
             </div>
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end pb-4 border-b border-default-100 last:border-0">
+                <div
+                  key={i}
+                  className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end pb-4 border-b border-default-100 last:border-0"
+                >
                   <div className="md:col-span-6">
                     <Skeleton className="h-10 w-full rounded-lg" />
                   </div>
@@ -103,9 +106,9 @@ export default function EditPurchaseOrderPage() {
   if (!order) {
     return (
       <ResourceNotFound
-        title="Purchase Order"
-        backLink={`/pos/vendor/${vendorId}/procurement/orders`}
         backLabel="Back to Orders"
+        backLink={`/pos/vendor/${vendorId}/procurement/orders`}
+        title="Purchase Order"
       />
     );
   }

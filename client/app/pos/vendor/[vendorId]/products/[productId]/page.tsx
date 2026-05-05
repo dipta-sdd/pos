@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Printer } from "lucide-react";
 import { Button } from "@heroui/button";
+import { Skeleton } from "@heroui/skeleton";
 
 import ProductForm from "../_components/ProductForm";
 
@@ -12,7 +13,6 @@ import PermissionGuard from "@/components/auth/PermissionGuard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import api from "@/lib/api";
 import ResourceNotFound from "@/components/ui/ResourceNotFound";
-import { Skeleton } from "@heroui/skeleton";
 
 export default function EditProductPage() {
   const { vendor, isLoading: contextLoading } = useVendor();
@@ -41,12 +41,13 @@ export default function EditProductPage() {
   };
 
   const handlePrintLabels = () => {
-    const printWindow = window.open('', '_blank');
+    const printWindow = window.open("", "_blank");
+
     if (!printWindow) return;
 
     const variant = product.variants?.[0]; // Default to first variant
-    const barcode = variant?.barcode || product.sku || 'N/A';
-    
+    const barcode = variant?.barcode || product.sku || "N/A";
+
     printWindow.document.write(`
       <html>
         <head>
@@ -74,7 +75,7 @@ export default function EditProductPage() {
         </head>
         <body>
           <div class="name">${product.name}</div>
-          <div class="price">${vendor?.settings?.currency_symbol || '$'}${variant?.price || product.base_price}</div>
+          <div class="price">${vendor?.settings?.currency_symbol || "$"}${variant?.price || product.base_price}</div>
           <div class="barcode">*${barcode}*</div>
           <div class="sku">${barcode}</div>
           <script>
@@ -108,7 +109,7 @@ export default function EditProductPage() {
             <div className="flex flex-col md:flex-row gap-6">
               {/* Image Skeleton */}
               <Skeleton className="w-32 h-32 rounded-xl flex-shrink-0" />
-              
+
               <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Skeleton className="h-12 w-full rounded-xl" />
                 <Skeleton className="h-12 w-full rounded-xl" />
@@ -128,7 +129,10 @@ export default function EditProductPage() {
             </div>
             <div className="space-y-4">
               {[1, 2].map((i) => (
-                <div key={i} className="p-4 border border-default-200 rounded-lg space-y-4">
+                <div
+                  key={i}
+                  className="p-4 border border-default-200 rounded-lg space-y-4"
+                >
                   <div className="flex justify-between">
                     <Skeleton className="w-24 h-4 rounded" />
                     <Skeleton className="w-8 h-8 rounded" />
@@ -156,9 +160,9 @@ export default function EditProductPage() {
   if (!product) {
     return (
       <ResourceNotFound
-        title="Product"
-        backLink={`/pos/vendor/${vendorId}/products`}
         backLabel="Back to Products"
+        backLink={`/pos/vendor/${vendorId}/products`}
+        title="Product"
       />
     );
   }
@@ -170,9 +174,9 @@ export default function EditProductPage() {
           description={`Editing ${product.name}`}
           title="Edit Product"
         >
-          <Button 
-            variant="flat" 
+          <Button
             startContent={<Printer size={18} />}
+            variant="flat"
             onPress={handlePrintLabels}
           >
             Print Labels

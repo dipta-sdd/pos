@@ -52,8 +52,7 @@ export default function CategoryForm({
         });
 
         setCategories(response.data);
-      } catch (error) {
-      }
+      } catch (error) {}
     };
 
     fetchCategories();

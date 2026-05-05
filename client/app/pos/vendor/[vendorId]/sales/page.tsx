@@ -11,7 +11,6 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-  DropdownSection,
 } from "@heroui/dropdown";
 import { Selection, Chip } from "@heroui/react";
 import { toast } from "sonner";

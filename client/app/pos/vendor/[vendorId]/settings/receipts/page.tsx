@@ -527,10 +527,10 @@ export default function ReceiptSettingsPage() {
 
                     {watch("header_text") && (
                       <div
-                        className="text-center italic text-gray-500"
                         dangerouslySetInnerHTML={{
                           __html: watch("header_text")!,
                         }}
+                        className="text-center italic text-gray-500"
                       />
                     )}
 
@@ -662,10 +662,10 @@ export default function ReceiptSettingsPage() {
 
                       {watch("footer_text") && (
                         <div
-                          className="text-center pt-2 italic text-gray-500"
                           dangerouslySetInnerHTML={{
                             __html: watch("footer_text")!,
                           }}
+                          className="text-center pt-2 italic text-gray-500"
                         />
                       )}
                     </div>

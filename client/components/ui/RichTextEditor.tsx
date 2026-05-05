@@ -29,18 +29,18 @@ export function RichTextEditor({
         ["clean"],
       ],
     }),
-    []
+    [],
   );
 
   return (
     <div className={`rich-text-editor-container ${className || ""}`}>
       <ReactQuill
+        className="bg-white text-black min-h-[150px]"
+        modules={modules}
+        placeholder={placeholder}
         theme="snow"
         value={value || ""}
         onChange={onChange}
-        modules={modules}
-        placeholder={placeholder}
-        className="bg-white text-black min-h-[150px]"
       />
     </div>
   );

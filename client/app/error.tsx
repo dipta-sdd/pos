@@ -32,10 +32,13 @@ export default function Error({
             Something went wrong
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            An unexpected error occurred. We've been notified and are looking into it.
+            An unexpected error occurred. We&apos;ve been notified and are looking
+            into it.
           </p>
           {error.digest && (
-            <p className="text-xs text-gray-400 font-mono">ID: {error.digest}</p>
+            <p className="text-xs text-gray-400 font-mono">
+              ID: {error.digest}
+            </p>
           )}
         </div>
 
@@ -49,9 +52,9 @@ export default function Error({
             Try Again
           </Button>
           <Button
-            variant="flat"
             size="lg"
             startContent={<Home className="w-4 h-4" />}
+            variant="flat"
             onPress={() => router.push("/pos")}
           >
             Go Home

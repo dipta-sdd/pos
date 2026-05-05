@@ -1,7 +1,12 @@
 "use client";
 
 import { Card, CardBody } from "@heroui/card";
-import { Boxes, AlertTriangle, PieChart as PieChartIcon, TrendingDown } from "lucide-react";
+import {
+  Boxes,
+  AlertTriangle,
+  PieChart as PieChartIcon,
+  TrendingDown,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   PieChart,
@@ -34,9 +39,11 @@ export default function InventoryReportsPage() {
       const response: any = await api.get(`/reports/inventory`, {
         params: {
           vendor_id: vendor?.id,
-          branch_ids: selectedBranchIds.length > 0 ? selectedBranchIds : undefined,
-        }
+          branch_ids:
+            selectedBranchIds.length > 0 ? selectedBranchIds : undefined,
+        },
       });
+
       setData(response.data);
     } catch (error) {
       console.error("Failed to fetch report data", error);
@@ -49,7 +56,11 @@ export default function InventoryReportsPage() {
 
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
 
-  const totalValue = data?.stock_value_by_category?.reduce((acc: number, curr: any) => acc + Number(curr.total_value), 0) || 0;
+  const totalValue =
+    data?.stock_value_by_category?.reduce(
+      (acc: number, curr: any) => acc + Number(curr.total_value),
+      0,
+    ) || 0;
 
   return (
     <PermissionGuard permission="can_view_reports">
@@ -66,8 +77,12 @@ export default function InventoryReportsPage() {
                 <Boxes className="w-8 h-8" />
               </div>
               <div>
-                <p className="text-primary-700 font-medium">Total Inventory Value</p>
-                <p className="text-3xl font-bold text-primary-900">${totalValue.toFixed(2)}</p>
+                <p className="text-primary-700 font-medium">
+                  Total Inventory Value
+                </p>
+                <p className="text-3xl font-bold text-primary-900">
+                  ${totalValue.toFixed(2)}
+                </p>
               </div>
             </CardBody>
           </Card>
@@ -78,7 +93,9 @@ export default function InventoryReportsPage() {
               </div>
               <div>
                 <p className="text-warning-700 font-medium">Low Stock Alerts</p>
-                <p className="text-3xl font-bold text-warning-900">{data?.low_stock_items?.length || 0} Items</p>
+                <p className="text-3xl font-bold text-warning-900">
+                  {data?.low_stock_items?.length || 0} Items
+                </p>
               </div>
             </CardBody>
           </Card>
@@ -92,21 +109,28 @@ export default function InventoryReportsPage() {
                 <h3 className="text-lg font-bold">Value by Category</h3>
               </div>
               <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer height="100%" width="100%">
                   <PieChart>
                     <Pie
-                      data={data?.stock_value_by_category?.map((c: any) => ({
-                        name: c.category_name,
-                        value: Number(c.total_value)
-                      })) || []}
+                      data={
+                        data?.stock_value_by_category?.map((c: any) => ({
+                          name: c.category_name,
+                          value: Number(c.total_value),
+                        })) || []
+                      }
+                      dataKey="value"
                       innerRadius={60}
                       outerRadius={80}
                       paddingAngle={5}
-                      dataKey="value"
                     >
-                      {(data?.stock_value_by_category || []).map((_entry: any, index: number) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
+                      {(data?.stock_value_by_category || []).map(
+                        (_entry: any, index: number) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length]}
+                          />
+                        ),
+                      )}
                     </Pie>
                     <Tooltip />
                     <Legend />
@@ -133,7 +157,10 @@ export default function InventoryReportsPage() {
                   </thead>
                   <tbody>
                     {data?.low_stock_items?.map((item: any) => (
-                      <tr key={item.id} className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
+                      <tr
+                        key={item.id}
+                        className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
+                      >
                         <td className="px-4 py-3 font-medium">
                           {item.variant?.product?.name} - {item.variant?.name}
                         </td>
@@ -149,7 +176,10 @@ export default function InventoryReportsPage() {
                     ))}
                     {!data?.low_stock_items?.length && (
                       <tr>
-                        <td colSpan={3} className="px-4 py-8 text-center text-gray-500">
+                        <td
+                          className="px-4 py-8 text-center text-gray-500"
+                          colSpan={3}
+                        >
                           All items are well stocked.
                         </td>
                       </tr>

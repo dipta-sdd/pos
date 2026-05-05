@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 
 import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
-import { Expense, ExpenseCategory, Branch } from "@/lib/types/general";
+import { Expense, ExpenseCategory } from "@/lib/types/general";
 
 interface ExpenseFormProps {
   initialData?: Expense | null;

@@ -36,6 +36,7 @@ import {
   ShoppingBasket,
   Tags,
   Ruler,
+  Download,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -166,8 +167,14 @@ export default function Sidebar() {
         },
         {
           icon: Truck,
-          label: "Stock Transfers",
-          href: `/pos/vendor/${vendor.id}/inventory/transfers`,
+          label: "Outgoing Transfers",
+          href: `/pos/vendor/${vendor.id}/inventory/transfers/sending`,
+          permission: "can_view_stock_and_inventory",
+        },
+        {
+          icon: Download,
+          label: "Incoming Transfers",
+          href: `/pos/vendor/${vendor.id}/inventory/transfers/receiving`,
           permission: "can_view_stock_and_inventory",
         },
         {

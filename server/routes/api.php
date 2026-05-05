@@ -326,10 +326,13 @@ Route::middleware('log.api')->group(function () {
             Route::post('/calculate-discounts', [PromotionController::class, 'calculateDiscounts']);
         });
 
-        // Stock Transfer routes (protected)
         Route::prefix('stock-transfers')->group(function () {
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/page.tsx
             Route::get('/', [StockTransferController::class, 'index'])->middleware('permission:can_view_stock_and_inventory');
+            
+            // New specialized routes
+            Route::get('/sending', [StockTransferController::class, 'indexSending'])->middleware('permission:can_view_stock_and_inventory');
+            Route::get('/receiving', [StockTransferController::class, 'indexReceiving'])->middleware('permission:can_view_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/_components/StockTransferForm.tsx
             Route::get('/search-variants', [BranchProductController::class, 'index'])->middleware('permission:can_view_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/_components/StockTransferForm.tsx

@@ -18,7 +18,7 @@ import { Plus, Trash2 } from "lucide-react";
 
 import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
-import { Supplier, Branch, Variant } from "@/lib/types/general";
+import { Supplier, Variant } from "@/lib/types/general";
 
 interface PurchaseOrderFormProps {
   initialData?: any;
@@ -304,16 +304,38 @@ export default function PurchaseOrderForm({
 
       <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
         <div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Grand Total</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Grand Total
+          </p>
           <p className="text-3xl font-bold text-primary">
-            {watch("items")?.reduce((sum, item) => sum + (Number(item.quantity) || 0) * (Number(item.unit_price) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {watch("items")
+              ?.reduce(
+                (sum, item) =>
+                  sum +
+                  (Number(item.quantity) || 0) * (Number(item.unit_price) || 0),
+                0,
+              )
+              .toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
           </p>
         </div>
         <div className="flex gap-3 w-full md:w-auto">
-          <Button color="default" className="flex-1 md:flex-none" variant="flat" onPress={() => router.back()}>
+          <Button
+            className="flex-1 md:flex-none"
+            color="default"
+            variant="flat"
+            onPress={() => router.back()}
+          >
             Cancel
           </Button>
-          <Button color="primary" className="flex-1 md:flex-none" isLoading={isSubmitting} type="submit">
+          <Button
+            className="flex-1 md:flex-none"
+            color="primary"
+            isLoading={isSubmitting}
+            type="submit"
+          >
             {isEditing ? "Update Order" : "Create Order"}
           </Button>
         </div>

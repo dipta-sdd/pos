@@ -236,6 +236,8 @@ export interface StockTransferItem {
   product_stocks_id?: number | null;
   unit_of_measure_id?: number;
   quantity: string | number;
+  approved_quantity?: string | number | null;
+  received_quantity?: string | number | null;
   status: string;
   created_at: string;
   updated_at: string;

@@ -13,19 +13,12 @@ class StockTransferController extends Controller
 {
     public function index(Request $request)
     {
-        $query = StockTransfer::with(['fromBranch', 'toBranch']);
+        $query = StockTransfer::with(['stockTransferItems.variant', 'fromBranch', 'toBranch']);
 
         if ($request->has('vendor_id')) {
             $query->where('vendor_id', $request->vendor_id);
         }
 
-        if ($request->has('from_branch_id')) {
-            $query->where('from_branch_id', $request->from_branch_id);
-        }
-
-        if ($request->has('to_branch_id')) {
-            $query->where('to_branch_id', $request->to_branch_id);
-        }
 
         if ($request->has('branch_ids')) {
             $branchIds = $request->branch_ids;
@@ -48,6 +41,32 @@ class StockTransferController extends Controller
 
         $perPage = $request->input('per_page', 10);
         return response()->json($query->paginate($perPage));
+    }
+
+    public function indexSending(Request $request)
+    {
+        $query = StockTransfer::with(['stockTransferItems.variant', 'fromBranch', 'toBranch']);
+
+        if ($request->has('branch_id')) {
+            $query->where('from_branch_id', $request->branch_id);
+        } elseif ($request->has('vendor_id')) {
+            $query->where('vendor_id', $request->vendor_id);
+        }
+
+        return response()->json($query->latest()->paginate($request->input('per_page', 10)));
+    }
+
+    public function indexReceiving(Request $request)
+    {
+        $query = StockTransfer::with(['stockTransferItems.variant', 'fromBranch', 'toBranch']);
+
+        if ($request->has('branch_id')) {
+            $query->where('to_branch_id', $request->branch_id);
+        } elseif ($request->has('vendor_id')) {
+            $query->where('vendor_id', $request->vendor_id);
+        }
+
+        return response()->json($query->latest()->paginate($request->input('per_page', 10)));
     }
 
     public function searchVariants(Request $request)
@@ -112,7 +131,7 @@ class StockTransferController extends Controller
         $validatedData = $request->validate([
             'from_branch_id' => 'required|exists:branches,id,vendor_id,' . $request->vendor_id,
             'to_branch_id' => 'required|different:from_branch_id|exists:branches,id,vendor_id,' . $request->vendor_id,
-            'status' => 'required|in:draft,pending_approval,in_transit,completed,cancelled,rejected,requested',
+            'status' => 'required|in:requested,accepted,in_transit,shipped,completed,cancelled,rejected',
             'notes' => 'nullable|string',
             'vendor_id' => 'required|exists:vendors,id',
             'items' => 'required|array',
@@ -125,12 +144,17 @@ class StockTransferController extends Controller
             'items.*.cost_price' => 'nullable|numeric|min:0',
             'items.*.selling_price' => 'nullable|numeric|min:0',
             'items.*.expiry_date' => 'nullable|date',
-            'items.*.status' => 'nullable|string|in:pending,accepted,in_transit,completed,cancelled,rejected,requested,out_of_stock',
+            'items.*.status' => 'nullable|string|in:requested,accepted,in_transit,shipped,completed,cancelled,rejected,out_of_stock',
         ]);
 
         $validatedData['created_by'] = $request->user()->id;
         $validatedData['updated_by'] = $request->user()->id;
         $validatedData['notes'] = $validatedData['notes'] ?? "";
+
+        // Force Sender creations to start at 'accepted'
+        if ($validatedData['status'] !== 'requested') {
+            $validatedData['status'] = 'accepted';
+        }
 
         // Branch Permission Check
         $membership = $request->user()->memberships()->where('vendor_id', $validatedData['vendor_id'])->first();
@@ -180,7 +204,7 @@ class StockTransferController extends Controller
         $validatedData = $request->validate([
             'from_branch_id' => 'exists:branches,id',
             'to_branch_id' => 'different:from_branch_id|exists:branches,id',
-            'status' => 'in:draft,pending,pending_approval,in_transit,completed,cancelled,rejected,requested',
+            'status' => 'in:requested,accepted,in_transit,shipped,completed,cancelled,rejected',
             'notes' => 'nullable|string',
             'items' => 'sometimes|array',
             'items.*.id' => 'sometimes|exists:stock_transfer_items,id',
@@ -193,19 +217,23 @@ class StockTransferController extends Controller
             'items.*.cost_price' => 'nullable|numeric|min:0',
             'items.*.selling_price' => 'nullable|numeric|min:0',
             'items.*.expiry_date' => 'nullable|date',
-            'items.*.status' => 'nullable|string|in:pending,accepted,in_transit,completed,cancelled,rejected,requested,out_of_stock',
+            'items.*.status' => 'nullable|string|in:requested,accepted,in_transit,shipped,completed,cancelled,rejected,out_of_stock',
         ]);
 
         $validatedData['updated_by'] = $request->user()->id;
         $validatedData['notes'] = $validatedData['notes'] ?? "";
+
+        if ($stockTransfer->status === 'in_transit') {
+            return response()->json(['message' => "This transfer is currently in transit and cannot be modified"], 403);
+        }
 
         // Check if receiver is trying to edit after acceptance
         $membership = $request->user()->memberships()->where('vendor_id', $stockTransfer->vendor_id)->first();
         $userBranchIds = $membership ? $membership->userBranchAssignments->pluck('branch_id')->toArray() : [];
         $isOnlyReceiver = in_array($stockTransfer->to_branch_id, $userBranchIds) && !in_array($stockTransfer->from_branch_id, $userBranchIds);
 
-        if ($isOnlyReceiver && !in_array($stockTransfer->status, ['draft', 'requested'])) {
-            return response()->json(['message' => "You cannot edit this transfer after it has been accepted by the sender"], 403);
+        if ($isOnlyReceiver && !in_array($stockTransfer->status, ['requested', 'shipped'])) {
+            return response()->json(['message' => "You can only edit this transfer when it is requested or shipped"], 403);
         }
 
         DB::transaction(function () use ($validatedData, $request, $stockTransfer) {
@@ -216,6 +244,9 @@ class StockTransferController extends Controller
 
             if ($request->has('items')) {
                 $itemIds = [];
+                $isOnlySender = in_array($stockTransfer->from_branch_id, $userBranchIds) && !in_array($stockTransfer->to_branch_id, $userBranchIds);
+                $senderRestrictedStatus = in_array($stockTransfer->status, ['requested', 'accepted']);
+
                 foreach ($request->items as $itemData) {
                     // If it's not a request and product_stocks_id is missing, try to find it
                     if (empty($itemData['product_stocks_id']) && $stockTransfer->status !== 'requested') {
@@ -234,43 +265,34 @@ class StockTransferController extends Controller
                             $itemIds[] = $item->id;
                         }
                     } else {
+                        if ($isOnlySender && $senderRestrictedStatus) {
+                            // Sender cannot add items in requested/accepted status
+                            continue;
+                        }
                         $item = $stockTransfer->stockTransferItems()->create($itemData);
                         $itemIds[] = $item->id;
                     }
                 }
-                $stockTransfer->stockTransferItems()->whereNotIn('id', $itemIds)->delete();
+                
+                if (!($isOnlySender && $senderRestrictedStatus)) {
+                    $stockTransfer->stockTransferItems()->whereNotIn('id', $itemIds)->delete();
+                }
             }
 
             // Handle Inventory Movement based on status transition
             if ($oldStatus !== $newStatus) {
                 foreach ($stockTransfer->stockTransferItems as $item) {
-                    // 1. Shipped: Deduct from Source (using approved_quantity)
-                    if ($newStatus === 'in_transit' && ($oldStatus === 'pending' || $oldStatus === 'accepted')) {
+                    // 1. Shipped/In Transit: Deduct from Source (using approved_quantity)
+                    if ($newStatus === 'in_transit' && $oldStatus === 'accepted') {
                         $deductQty = $item->approved_quantity ?? $item->quantity;
                         
-                        // Fetch stock details to fill missing prices/expiry
-                        $sourceStock = \App\Models\ProductStock::where('branch_id', $stockTransfer->from_branch_id)
-                            ->where('variant_id', $item->variant_id)
-                            ->first();
-
-                        if ($sourceStock) {
-                            $itemUpdate = [];
-                            if (!$item->cost_price) $itemUpdate['cost_price'] = $sourceStock->cost_price;
-                            if (!$item->selling_price) $itemUpdate['selling_price'] = $sourceStock->selling_price;
-                            if (!$item->expiry_date) $itemUpdate['expiry_date'] = $sourceStock->expiry_date;
-                            
-                            if (!empty($itemUpdate)) {
-                                $item->update($itemUpdate);
-                            }
-                        }
-
                         \App\Models\ProductStock::where('branch_id', $stockTransfer->from_branch_id)
                             ->where('variant_id', $item->variant_id)
                             ->decrement('quantity', $deductQty);
                     }
 
                     // 2. Received: Add to Destination (using received_quantity)
-                    if ($newStatus === 'completed' && $oldStatus === 'in_transit') {
+                    if ($newStatus === 'completed' && $oldStatus === 'shipped') {
                         $addQty = $item->received_quantity ?? $item->approved_quantity ?? $item->quantity;
                         $destStock = \App\Models\ProductStock::where('branch_id', $stockTransfer->to_branch_id)
                             ->where('variant_id', $item->variant_id)
@@ -296,8 +318,8 @@ class StockTransferController extends Controller
                         $destStock->increment('quantity', $addQty);
                     }
 
-                    // 3. Cancelled (if already shipped): Replenish Source
-                    if ($newStatus === 'cancelled' && $oldStatus === 'in_transit') {
+                    // 3. Cancelled (if already shipped or in transit): Replenish Source
+                    if ($newStatus === 'cancelled' && in_array($oldStatus, ['in_transit', 'shipped'])) {
                         $replenishQty = $item->approved_quantity ?? $item->quantity;
                         \App\Models\ProductStock::where('branch_id', $stockTransfer->from_branch_id)
                             ->where('variant_id', $item->variant_id)
@@ -310,8 +332,22 @@ class StockTransferController extends Controller
         return response()->json($stockTransfer->load('stockTransferItems.unitOfMeasure'));
     }
 
-    public function destroy(StockTransfer $stockTransfer)
+    public function destroy(Request $request, StockTransfer $stockTransfer)
     {
+        $membership = $request->user()->memberships()->where('vendor_id', $stockTransfer->vendor_id)->first();
+        $userBranchIds = $membership ? $membership->userBranchAssignments->pluck('branch_id')->toArray() : [];
+
+        $isSenderOnly = in_array($stockTransfer->from_branch_id, $userBranchIds) && !in_array($stockTransfer->to_branch_id, $userBranchIds);
+        $isReceiverOnly = in_array($stockTransfer->to_branch_id, $userBranchIds) && !in_array($stockTransfer->from_branch_id, $userBranchIds);
+
+        if ($isSenderOnly) {
+            return response()->json(['message' => 'Senders cannot delete transfers'], 403);
+        }
+
+        if ($isReceiverOnly && $stockTransfer->status !== 'requested') {
+            return response()->json(['message' => 'Receivers can only delete requested transfers'], 403);
+        }
+
         $stockTransfer->delete();
 
         return response()->json(null, 204);
@@ -320,27 +356,37 @@ class StockTransferController extends Controller
     public function updateTransferStatus(Request $request, StockTransfer $stockTransfer)
     {
         $request->validate([
-            'status' => 'required|string|in:pending,accepted,in_transit,completed,cancelled,rejected,requested',
+            'status' => 'required|string|in:requested,accepted,in_transit,shipped,completed,cancelled,rejected',
         ]);
 
         $newStatus = $request->status;
         $membership = $request->user()->memberships()->where('vendor_id', $stockTransfer->vendor_id)->first();
         $userBranchIds = $membership ? $membership->userBranchAssignments->pluck('branch_id')->toArray() : [];
 
-        // Enforcement Logic
-        // Sender Actions (Source Branch)
-        $senderActions = ['accepted', 'rejected', 'in_transit', 'out_of_stock'];
-        if (in_array($newStatus, $senderActions)) {
-            if (!in_array($stockTransfer->from_branch_id, $userBranchIds)) {
-                return response()->json(['message' => "Only the sending branch can perform this action ({$newStatus})"], 403);
+        // Specific Rule: Anyone can move to shipped from in_transit
+        if ($newStatus === 'shipped') {
+            if ($stockTransfer->status !== 'in_transit') {
+                return response()->json(['message' => "Transfer must be in transit before it can be marked shipped"], 403);
             }
-        }
+            if (!in_array($stockTransfer->from_branch_id, $userBranchIds) && !in_array($stockTransfer->to_branch_id, $userBranchIds)) {
+                return response()->json(['message' => "Unauthorized"], 403);
+            }
+        } else {
+            // Enforcement Logic
+            // Sender Actions (Source Branch)
+            $senderActions = ['accepted', 'rejected', 'in_transit'];
+            if (in_array($newStatus, $senderActions)) {
+                if (!in_array($stockTransfer->from_branch_id, $userBranchIds)) {
+                    return response()->json(['message' => "Only the sending branch can perform this action ({$newStatus})"], 403);
+                }
+            }
 
-        // Receiver Actions (Destination Branch)
-        $receiverActions = ['completed', 'requested'];
-        if (in_array($newStatus, $receiverActions)) {
-            if (!in_array($stockTransfer->to_branch_id, $userBranchIds)) {
-                return response()->json(['message' => "Only the receiving branch can perform this action ({$newStatus})"], 403);
+            // Receiver Actions (Destination Branch)
+            $receiverActions = ['completed', 'requested'];
+            if (in_array($newStatus, $receiverActions)) {
+                if (!in_array($stockTransfer->to_branch_id, $userBranchIds)) {
+                    return response()->json(['message' => "Only the receiving branch can perform this action ({$newStatus})"], 403);
+                }
             }
         }
 
@@ -352,33 +398,153 @@ class StockTransferController extends Controller
         }
 
         $oldStatus = $stockTransfer->status;
-        $stockTransfer->update(['status' => $newStatus]);
+
+        DB::transaction(function () use ($stockTransfer, $newStatus, $oldStatus) {
+            $stockTransfer->update(['status' => $newStatus]);
+
+            // Handle Inventory Movement based on status transition
+            if ($oldStatus !== $newStatus) {
+                // Auto-assignment logic for bulk approval (requested -> accepted)
+                if ($oldStatus === 'requested' && $newStatus === 'accepted') {
+                    foreach ($stockTransfer->stockTransferItems as $item) {
+                        if (empty($item->product_stocks_id)) {
+                            $stocks = \App\Models\ProductStock::where('branch_id', $stockTransfer->from_branch_id)
+                                ->where('variant_id', $item->variant_id)
+                                ->get();
+                                
+                            if ($stocks->count() === 1) {
+                                $stock = $stocks->first();
+                                $item->update([
+                                    'product_stocks_id' => $stock->id,
+                                    'approved_quantity' => $item->quantity,
+                                    'cost_price' => $stock->cost_price,
+                                    'selling_price' => $stock->selling_price,
+                                    'expiry_date' => $stock->expiry_date,
+                                ]);
+                            }
+                        }
+                    }
+                }
+
+                foreach ($stockTransfer->stockTransferItems as $item) {
+                    // 1. In Transit: Deduct from Source (using approved_quantity)
+                    if ($newStatus === 'in_transit' && $oldStatus === 'accepted') {
+                        $deductQty = $item->approved_quantity ?? $item->quantity;
+                        ProductStock::where('branch_id', $stockTransfer->from_branch_id)
+                            ->where('variant_id', $item->variant_id)
+                            ->decrement('quantity', $deductQty);
+                    }
+
+                    // 2. Completed: Add to Destination (using received_quantity)
+                    if ($newStatus === 'completed' && $oldStatus === 'shipped') {
+                        $addQty = $item->received_quantity ?? $item->approved_quantity ?? $item->quantity;
+                        $destStock = ProductStock::where('branch_id', $stockTransfer->to_branch_id)
+                            ->where('variant_id', $item->variant_id)
+                            ->first();
+
+                        if (!$destStock) {
+                            $variant = Variant::find($item->variant_id);
+                            $destStock = ProductStock::create([
+                                'branch_id' => $stockTransfer->to_branch_id,
+                                'product_id' => $variant->product_id,
+                                'variant_id' => $variant->id,
+                                'quantity' => 0,
+                                'cost_price' => $item->cost_price ?? $variant->cost_price ?? 0,
+                                'selling_price' => $item->selling_price ?? $variant->selling_price ?? 0,
+                                'expiry_date' => $item->expiry_date,
+                            ]);
+                        } else {
+                            if ($item->cost_price) $destStock->cost_price = $item->cost_price;
+                            if ($item->selling_price) $destStock->selling_price = $item->selling_price;
+                            if ($item->expiry_date) $destStock->expiry_date = $item->expiry_date;
+                        }
+                        $destStock->increment('quantity', $addQty);
+                    }
+
+                    // 3. Cancelled (if already shipped or in transit): Replenish Source
+                    if ($newStatus === 'cancelled' && in_array($oldStatus, ['in_transit', 'shipped'])) {
+                        $replenishQty = $item->approved_quantity ?? $item->quantity;
+                        ProductStock::where('branch_id', $stockTransfer->from_branch_id)
+                            ->where('variant_id', $item->variant_id)
+                            ->increment('quantity', $replenishQty);
+                    }
+                }
+            }
+        });
 
         return response()->json($stockTransfer->load('stockTransferItems.variant', 'fromBranch', 'toBranch'));
     }
 
     public function updateItem(Request $request, $itemId)
     {
-        $item = \App\Models\StockTransferItem::findOrFail($itemId);
-        
+        $item = \App\Models\StockTransferItem::with('stockTransfer')->findOrFail($itemId);
+        $stockTransfer = $item->stockTransfer;
+
+        $membership = $request->user()->memberships()->where('vendor_id', $stockTransfer->vendor_id)->first();
+        $userBranchIds = $membership ? $membership->userBranchAssignments->pluck('branch_id')->toArray() : [];
+
+        if ($stockTransfer->status === 'in_transit') {
+            return response()->json(['message' => 'Cannot update items while transfer is in transit'], 403);
+        }
+
         $validatedData = $request->validate([
+            'product_stocks_id' => 'nullable|exists:product_stocks,id',
             'quantity' => 'nullable|numeric|min:0.01',
             'approved_quantity' => 'nullable|numeric|min:0',
             'received_quantity' => 'nullable|numeric|min:0',
-            'status' => 'nullable|string|in:pending,accepted,in_transit,completed,cancelled,rejected,requested,out_of_stock',
+            'status' => 'nullable|string|in:requested,accepted,in_transit,shipped,completed,cancelled,rejected,out_of_stock',
             'cost_price' => 'nullable|numeric|min:0',
             'selling_price' => 'nullable|numeric|min:0',
             'expiry_date' => 'nullable|date',
         ]);
+
+        // Enforcement: approved_quantity, cost, selling, expiry, product_stocks_id can only be updated by the SENDER
+        $senderFields = ['approved_quantity', 'cost_price', 'selling_price', 'expiry_date', 'product_stocks_id'];
+        foreach ($senderFields as $field) {
+            if ($request->has($field) && !in_array($stockTransfer->from_branch_id, $userBranchIds)) {
+                return response()->json(['message' => "Only the sending branch can update {$field}"], 403);
+            }
+        }
+
+        // Enforcement: received_quantity can only be updated by the RECEIVER
+        if ($request->has('received_quantity') && !in_array($stockTransfer->to_branch_id, $userBranchIds)) {
+            return response()->json(['message' => 'Only the receiving branch can update received quantity'], 403);
+        }
+
+        // Sender can mark out of stock only when accepted
+        if ($request->has('status') && $request->status === 'out_of_stock') {
+            if ($stockTransfer->status !== 'accepted') {
+                return response()->json(['message' => 'Items can only be marked out of stock when the transfer is accepted'], 403);
+            }
+        }
 
         $item->update($validatedData);
 
         return response()->json($item);
     }
 
-    public function destroyItem($itemId)
+    public function destroyItem(Request $request, $itemId)
     {
-        $item = \App\Models\StockTransferItem::findOrFail($itemId);
+        $item = \App\Models\StockTransferItem::with('stockTransfer')->findOrFail($itemId);
+        $stockTransfer = $item->stockTransfer;
+
+        $membership = $request->user()->memberships()->where('vendor_id', $stockTransfer->vendor_id)->first();
+        $userBranchIds = $membership ? $membership->userBranchAssignments->pluck('branch_id')->toArray() : [];
+
+        // Only participants can delete items
+        if (!in_array($stockTransfer->from_branch_id, $userBranchIds) && !in_array($stockTransfer->to_branch_id, $userBranchIds)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if (in_array($stockTransfer->status, ['completed', 'shipped', 'in_transit'])) {
+            return response()->json(['message' => "Cannot delete items from a {$stockTransfer->status} transfer"], 403);
+        }
+
+        $isOnlySender = in_array($stockTransfer->from_branch_id, $userBranchIds) && !in_array($stockTransfer->to_branch_id, $userBranchIds);
+        if ($isOnlySender && in_array($stockTransfer->status, ['requested', 'accepted'])) {
+             return response()->json(['message' => "Sender cannot delete items from a {$stockTransfer->status} transfer"], 403);
+        }
+
         $item->delete();
 
         return response()->json(null, 204);

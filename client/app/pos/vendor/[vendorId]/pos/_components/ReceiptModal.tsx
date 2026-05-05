@@ -47,11 +47,7 @@ export default function ReceiptModal({
 
     if (!printContent) return;
 
-    const printWindow = window.open(
-      "",
-      "_blank",
-      "width=400,height=600",
-    );
+    const printWindow = window.open("", "_blank", "width=400,height=600");
 
     if (!printWindow) return;
 
@@ -150,7 +146,7 @@ export default function ReceiptModal({
   const showSalesperson = receiptSettings?.show_salesperson !== false;
   const showSaleId = receiptSettings?.show_sale_id !== false;
   const showDateTime = receiptSettings?.show_date_time !== false;
-  
+
   const showItemQty = receiptSettings?.show_item_qty !== false;
   const showItemPrice = receiptSettings?.show_item_price !== false;
   const showItemUnit = receiptSettings?.show_item_unit === true;
@@ -219,9 +215,11 @@ export default function ReceiptModal({
 
                 {/* Custom header text */}
                 {receiptSettings?.header_text && (
-                  <div 
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: receiptSettings.header_text,
+                    }}
                     className="text-center text-[10px] italic text-gray-500 mb-2"
-                    dangerouslySetInnerHTML={{ __html: receiptSettings.header_text }}
                   />
                 )}
 
@@ -300,11 +298,18 @@ export default function ReceiptModal({
                               {showItemUnit && item.unit_of_measure?.name && (
                                 <span>{item.unit_of_measure.name}</span>
                               )}
-                              {showItemDiscount && Number(item.discount_amount) > 0 && (
-                                <span> (-{formatAmount(item.discount_amount)})</span>
-                              )}
+                              {showItemDiscount &&
+                                Number(item.discount_amount) > 0 && (
+                                  <span>
+                                    {" "}
+                                    (-{formatAmount(item.discount_amount)})
+                                  </span>
+                                )}
                               {showItemTax && Number(item.tax_amount) > 0 && (
-                                <span> (+tax: {formatAmount(item.tax_amount)})</span>
+                                <span>
+                                  {" "}
+                                  (+tax: {formatAmount(item.tax_amount)})
+                                </span>
                               )}
                             </div>
                           </td>
@@ -397,9 +402,11 @@ export default function ReceiptModal({
 
                 {/* Custom footer text */}
                 {receiptSettings?.footer_text && (
-                  <div 
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: receiptSettings.footer_text,
+                    }}
                     className="text-center text-[10px] italic text-gray-500 mb-2"
-                    dangerouslySetInnerHTML={{ __html: receiptSettings.footer_text }}
                   />
                 )}
 

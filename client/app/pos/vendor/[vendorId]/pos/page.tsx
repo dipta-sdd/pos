@@ -86,12 +86,19 @@ export default function PointOfSalePage() {
       ? (subtotal * activeTab.discount_value) / 100
       : activeTab.discount_value
     : 0;
-  
-  const amountAfterDiscounts = itemsTotal - globalDiscount;
-  const vatRate = vendor?.settings?.vat_rate ? Number(vendor.settings.vat_rate) : 0;
-  const totalTax = amountAfterDiscounts > 0 ? (amountAfterDiscounts * vatRate) / 100 : 0;
 
-  const grandTotal = amountAfterDiscounts + totalTax + (activeTab?.extra_charge || 0) - (activeTab?.promotion_discount || 0);
+  const amountAfterDiscounts = itemsTotal - globalDiscount;
+  const vatRate = vendor?.settings?.vat_rate
+    ? Number(vendor.settings.vat_rate)
+    : 0;
+  const totalTax =
+    amountAfterDiscounts > 0 ? (amountAfterDiscounts * vatRate) / 100 : 0;
+
+  const grandTotal =
+    amountAfterDiscounts +
+    totalTax +
+    (activeTab?.extra_charge || 0) -
+    (activeTab?.promotion_discount || 0);
   const totalApplied = activeTab
     ? (activeTab.payments || []).reduce((sum, p) => sum + p.appliedAmount, 0)
     : 0;
@@ -107,6 +114,7 @@ export default function PointOfSalePage() {
         if (activeTab?.promotion_discount !== 0) {
           updateActiveTab({ promotion_discount: 0, applied_promotions: [] });
         }
+
         return;
       }
 
@@ -114,20 +122,23 @@ export default function PointOfSalePage() {
         const payload = {
           vendor_id: vendor.id,
           branch_id: activeSession?.billing_counter?.branch_id || null,
-          items: activeTab.items.map(i => ({
+          items: activeTab.items.map((i) => ({
             variant_id: i.variant.id,
             quantity: i.quantity,
-            price: i.price
-          }))
+            price: i.price,
+          })),
         };
 
-        const res: any = await api.post('/pos/calculate-discounts', payload);
+        const res: any = await api.post("/pos/calculate-discounts", payload);
         const discounts = res.data || [];
-        const totalDiscount = discounts.reduce((sum: number, d: any) => sum + (Number(d.discount_amount) || 0), 0);
+        const totalDiscount = discounts.reduce(
+          (sum: number, d: any) => sum + (Number(d.discount_amount) || 0),
+          0,
+        );
 
         updateActiveTab({
           promotion_discount: totalDiscount,
-          applied_promotions: discounts
+          applied_promotions: discounts,
         });
       } catch (err) {
         console.error("Failed to calculate promotions", err);
@@ -135,6 +146,7 @@ export default function PointOfSalePage() {
     };
 
     const timer = setTimeout(calcPromos, 500);
+
     return () => clearTimeout(timer);
   }, [activeTab?.items, vendor?.id]);
 

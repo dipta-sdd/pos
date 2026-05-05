@@ -405,7 +405,8 @@ export default function UsersPage() {
               >
                 Delete Selected ({(selectedKeys as any).size})
               </Button>
-            ) : membership?.role?.can_delete_access_control && selectedKeys === "all" ? (
+            ) : membership?.role?.can_delete_access_control &&
+              selectedKeys === "all" ? (
               <Button
                 color="danger"
                 radius="sm"

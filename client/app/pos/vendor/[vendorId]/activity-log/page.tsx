@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { History, Search, Filter, Eye, User, Calendar, MapPin, ChevronDown } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Eye, User, Calendar, MapPin, ChevronDown } from "lucide-react";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import {
@@ -40,7 +40,15 @@ const columns: Column[] = [
   { name: "ACTIONS", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = ["action", "user", "model_type", "description", "branch", "created_at", "actions"];
+const INITIAL_VISIBLE_COLUMNS = [
+  "action",
+  "user",
+  "model_type",
+  "description",
+  "branch",
+  "created_at",
+  "actions",
+];
 
 const ACTIONS = [
   { name: "All Actions", uid: "all" },
@@ -50,7 +58,13 @@ const ACTIONS = [
 ];
 
 export default function ActivityLogPage() {
-  const { vendor, isLoading: contextLoading, membership, selectedBranchIds, updateBranchFilter } = useVendor();
+  const {
+    vendor,
+    isLoading: contextLoading,
+    membership,
+    selectedBranchIds,
+    updateBranchFilter,
+  } = useVendor();
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -58,8 +72,10 @@ export default function ActivityLogPage() {
   const [perPage, setPerPage] = useState(15);
   const [searchValue, setSearchValue] = useState("");
   const [actionFilter, setActionFilter] = useState<string>("all");
-  
-  const [visibleColumns, setVisibleColumns] = useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
+
+  const [visibleColumns, setVisibleColumns] = useState<Selection>(
+    new Set(INITIAL_VISIBLE_COLUMNS),
+  );
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "created_at",
     direction: "descending",
@@ -68,30 +84,43 @@ export default function ActivityLogPage() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectedLog, setSelectedLog] = useState<any>(null);
 
-  const fetchLogs = useCallback(async (page: number) => {
-    if (!vendor?.id) return;
-    setLoading(true);
-    try {
-      const response: any = await api.get('/activity-logs', {
-        params: {
-          vendor_id: vendor.id,
-          page,
-          per_page: perPage,
-          search: searchValue,
-          action: actionFilter !== "all" ? actionFilter : undefined,
-          sort_by: sortDescriptor.column,
-          sort_direction: sortDescriptor.direction === "ascending" ? "asc" : "desc",
-          branch_ids: selectedBranchIds.length > 0 ? selectedBranchIds : undefined,
-        }
-      });
-      setItems(response.data.data || []);
-      setCurrentPage(response.data.current_page);
-      setLastPage(response.data.last_page);
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
-  }, [vendor?.id, perPage, searchValue, actionFilter, sortDescriptor, selectedBranchIds]);
+  const fetchLogs = useCallback(
+    async (page: number) => {
+      if (!vendor?.id) return;
+      setLoading(true);
+      try {
+        const response: any = await api.get("/activity-logs", {
+          params: {
+            vendor_id: vendor.id,
+            page,
+            per_page: perPage,
+            search: searchValue,
+            action: actionFilter !== "all" ? actionFilter : undefined,
+            sort_by: sortDescriptor.column,
+            sort_direction:
+              sortDescriptor.direction === "ascending" ? "asc" : "desc",
+            branch_ids:
+              selectedBranchIds.length > 0 ? selectedBranchIds : undefined,
+          },
+        });
+
+        setItems(response.data.data || []);
+        setCurrentPage(response.data.current_page);
+        setLastPage(response.data.last_page);
+      } catch (error) {
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      vendor?.id,
+      perPage,
+      searchValue,
+      actionFilter,
+      sortDescriptor,
+      selectedBranchIds,
+    ],
+  );
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -101,55 +130,87 @@ export default function ActivityLogPage() {
     return () => clearTimeout(delayDebounceFn);
   }, [currentPage, fetchLogs]);
 
-  const renderCell = useCallback((item: any, columnKey: React.Key) => {
-    switch (columnKey) {
-      case "action":
-        return (
-          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-            item.action === 'created' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
-            item.action === 'updated' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' :
-            item.action === 'deleted' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' : 'bg-gray-100 text-gray-800'
-          }`}>
-            {item.action}
-          </span>
-        );
-      case "user":
-        return (
-          <div className="flex flex-col">
-            <span className="text-sm font-bold">{item.user?.firstName} {item.user?.lastName}</span>
-            <span className="text-[10px] text-gray-500">{item.user?.email}</span>
-          </div>
-        );
-      case "model_type":
-        return <span className="text-xs font-mono">{item.model_type?.split('\\').pop()}</span>;
-      case "branch":
-        return item.branch?.name || <span className="text-gray-400 text-[10px] italic">Global / System</span>;
-      case "ip_address":
-        return <span className="text-xs font-mono text-gray-500">{item.ip_address}</span>;
-      case "created_at":
-        return formatDateTime(item.created_at);
-      case "actions":
-        return (
-          <Button isIconOnly size="sm" variant="light" onPress={() => {
-            setSelectedLog(item);
-            onOpen();
-          }}>
-            <Eye size={16} className="text-default-400" />
-          </Button>
-        );
-      default:
-        return item[columnKey as keyof any];
-    }
-  }, [onOpen]);
+  const renderCell = useCallback(
+    (item: any, columnKey: React.Key) => {
+      switch (columnKey) {
+        case "action":
+          return (
+            <span
+              className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                item.action === "created"
+                  ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                  : item.action === "updated"
+                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                    : item.action === "deleted"
+                      ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                      : "bg-gray-100 text-gray-800"
+              }`}
+            >
+              {item.action}
+            </span>
+          );
+        case "user":
+          return (
+            <div className="flex flex-col">
+              <span className="text-sm font-bold">
+                {item.user?.firstName} {item.user?.lastName}
+              </span>
+              <span className="text-[10px] text-gray-500">
+                {item.user?.email}
+              </span>
+            </div>
+          );
+        case "model_type":
+          return (
+            <span className="text-xs font-mono">
+              {item.model_type?.split("\\").pop()}
+            </span>
+          );
+        case "branch":
+          return (
+            item.branch?.name || (
+              <span className="text-gray-400 text-[10px] italic">
+                Global / System
+              </span>
+            )
+          );
+        case "ip_address":
+          return (
+            <span className="text-xs font-mono text-gray-500">
+              {item.ip_address}
+            </span>
+          );
+        case "created_at":
+          return formatDateTime(item.created_at);
+        case "actions":
+          return (
+            <Button
+              isIconOnly
+              size="sm"
+              variant="light"
+              onPress={() => {
+                setSelectedLog(item);
+                onOpen();
+              }}
+            >
+              <Eye className="text-default-400" size={16} />
+            </Button>
+          );
+        default:
+          return item[columnKey as keyof any];
+      }
+    },
+    [onOpen],
+  );
 
   if (contextLoading) return <UserLoding />;
 
   return (
     <PermissionGuard permission="can_view_access_control">
       <div className="p-6">
-        <PageHeader 
-          title="Activity Audit Log" 
+        <PageHeader
           description="Track all changes and actions within your organization"
+          title="Activity Audit Log"
         />
 
         <div className="flex justify-between gap-3 items-end mb-4">
@@ -186,6 +247,7 @@ export default function ActivityLogPage() {
                 selectionMode="multiple"
                 onSelectionChange={(keys) => {
                   const ids = Array.from(keys as Set<string>);
+
                   updateBranchFilter(ids);
                 }}
               >
@@ -203,7 +265,7 @@ export default function ActivityLogPage() {
                   endContent={<ChevronDown className="text-small" />}
                   variant="flat"
                 >
-                  Action: {ACTIONS.find(a => a.uid === actionFilter)?.name}
+                  Action: {ACTIONS.find((a) => a.uid === actionFilter)?.name}
                 </Button>
               </DropdownTrigger>
               <DropdownMenu
@@ -213,13 +275,12 @@ export default function ActivityLogPage() {
                 selectionMode="single"
                 onSelectionChange={(keys) => {
                   const selectedValue = Array.from(keys as Set<string>)[0];
+
                   setActionFilter(selectedValue);
                 }}
               >
                 {ACTIONS.map((action) => (
-                  <DropdownItem key={action.uid}>
-                    {action.name}
-                  </DropdownItem>
+                  <DropdownItem key={action.uid}>{action.name}</DropdownItem>
                 ))}
               </DropdownMenu>
             </Dropdown>
@@ -253,20 +314,25 @@ export default function ActivityLogPage() {
 
         <CustomTable
           columns={columns}
-          items={items}
-          isLoading={loading}
           currentPage={currentPage}
+          isLoading={loading}
+          items={items}
           lastPage={lastPage}
           perPage={perPage}
-          sortDescriptor={sortDescriptor}
-          visibleColumns={visibleColumns}
+          renderCell={renderCell}
           setCurrentPage={setCurrentPage}
           setPerPage={setPerPage}
           setSortDescriptor={setSortDescriptor}
-          renderCell={renderCell}
+          sortDescriptor={sortDescriptor}
+          visibleColumns={visibleColumns}
         />
 
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="3xl" scrollBehavior="inside">
+        <Modal
+          isOpen={isOpen}
+          scrollBehavior="inside"
+          size="3xl"
+          onOpenChange={onOpenChange}
+        >
           <ModalContent>
             {(onClose) => (
               <>
@@ -278,28 +344,44 @@ export default function ActivityLogPage() {
                     <div className="space-y-6">
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800">
-                          <p className="text-[10px] uppercase font-bold text-gray-500 mb-1">User</p>
+                          <p className="text-[10px] uppercase font-bold text-gray-500 mb-1">
+                            User
+                          </p>
                           <div className="flex items-center gap-2">
-                            <User size={14} className="text-primary" />
-                            <span className="text-sm font-bold">{selectedLog.user?.firstName}</span>
+                            <User className="text-primary" size={14} />
+                            <span className="text-sm font-bold">
+                              {selectedLog.user?.firstName}
+                            </span>
                           </div>
                         </div>
                         <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800">
-                          <p className="text-[10px] uppercase font-bold text-gray-500 mb-1">Date</p>
+                          <p className="text-[10px] uppercase font-bold text-gray-500 mb-1">
+                            Date
+                          </p>
                           <div className="flex items-center gap-2">
-                            <Calendar size={14} className="text-primary" />
-                            <span className="text-sm font-bold">{formatDateTime(selectedLog.created_at)}</span>
+                            <Calendar className="text-primary" size={14} />
+                            <span className="text-sm font-bold">
+                              {formatDateTime(selectedLog.created_at)}
+                            </span>
                           </div>
                         </div>
                         <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800">
-                          <p className="text-[10px] uppercase font-bold text-gray-500 mb-1">Action</p>
-                          <span className="text-sm font-bold capitalize">{selectedLog.action}</span>
+                          <p className="text-[10px] uppercase font-bold text-gray-500 mb-1">
+                            Action
+                          </p>
+                          <span className="text-sm font-bold capitalize">
+                            {selectedLog.action}
+                          </span>
                         </div>
                         <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800">
-                          <p className="text-[10px] uppercase font-bold text-gray-500 mb-1">Branch</p>
+                          <p className="text-[10px] uppercase font-bold text-gray-500 mb-1">
+                            Branch
+                          </p>
                           <div className="flex items-center gap-2">
-                            <MapPin size={14} className="text-primary" />
-                            <span className="text-sm font-bold">{selectedLog.branch?.name || "Global"}</span>
+                            <MapPin className="text-primary" size={14} />
+                            <span className="text-sm font-bold">
+                              {selectedLog.branch?.name || "Global"}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -308,13 +390,17 @@ export default function ActivityLogPage() {
                         <h4 className="font-bold text-sm">Data Changes</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <p className="text-xs font-bold text-gray-500 mb-2">Previous State</p>
+                            <p className="text-xs font-bold text-gray-500 mb-2">
+                              Previous State
+                            </p>
                             <pre className="p-4 bg-red-50 dark:bg-red-900/10 text-red-700 dark:text-red-400 rounded-lg text-xs overflow-auto max-h-[300px]">
                               {JSON.stringify(selectedLog.old_values, null, 2)}
                             </pre>
                           </div>
                           <div>
-                            <p className="text-xs font-bold text-gray-500 mb-2">New State</p>
+                            <p className="text-xs font-bold text-gray-500 mb-2">
+                              New State
+                            </p>
                             <pre className="p-4 bg-green-50 dark:bg-green-900/10 text-green-700 dark:text-green-400 rounded-lg text-xs overflow-auto max-h-[300px]">
                               {JSON.stringify(selectedLog.new_values, null, 2)}
                             </pre>
@@ -323,7 +409,8 @@ export default function ActivityLogPage() {
                       </div>
 
                       <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg text-[10px] font-mono text-gray-500">
-                        IP: {selectedLog.ip_address} | UA: {selectedLog.user_agent}
+                        IP: {selectedLog.ip_address} | UA:{" "}
+                        {selectedLog.user_agent}
                       </div>
                     </div>
                   )}

@@ -176,7 +176,11 @@ export default function RolesPage() {
                   className="min-w-none"
                   color="primary"
                   size="sm"
-                  title={membership?.role?.can_manage_access_control ? "Edit" : "View"}
+                  title={
+                    membership?.role?.can_manage_access_control
+                      ? "Edit"
+                      : "View"
+                  }
                   variant="light"
                   onPress={() =>
                     router.push(`/pos/vendor/${vendor?.id}/roles/${role.id}`)

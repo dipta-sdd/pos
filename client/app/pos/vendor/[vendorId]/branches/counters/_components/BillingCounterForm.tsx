@@ -5,11 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import { Input, Button, Select, SelectItem } from "@heroui/react";
-import { useEffect, useState } from "react";
 
 import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
-import { BillingCounter, Branch } from "@/lib/types/general";
+import { BillingCounter } from "@/lib/types/general";
 
 interface BillingCounterFormProps {
   initialData?: BillingCounter | null;
@@ -50,8 +49,6 @@ export default function BillingCounterForm({
       branch_id: initialData?.branch_id,
     },
   });
-
-
 
   const onSubmit = async (data: any) => {
     try {

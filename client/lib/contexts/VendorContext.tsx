@@ -127,6 +127,7 @@ export const VendorProvider = ({ children }: VendorProviderProps) => {
     if (!vendor) return;
     try {
       const res: any = await api.get(`/vendors/${vendor.id}`);
+
       if (res.data) {
         setVendor(res.data);
       }

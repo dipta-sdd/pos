@@ -159,6 +159,7 @@ export default function StoreCreditsPage() {
           );
         case "current_balance":
           const balance = Number(item.current_balance);
+
           return isNaN(balance) ? "0.00" : balance.toFixed(2);
         case "updated_at":
           return formatDateTime(item.updated_at);

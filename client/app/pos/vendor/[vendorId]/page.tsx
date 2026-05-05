@@ -74,12 +74,14 @@ export default function VendorPOS() {
   const fetchStats = async (vendorId: number, branchIds: string[]) => {
     try {
       const queryParams = new URLSearchParams();
+
       queryParams.append("vendor_id", vendorId.toString());
-      branchIds.forEach(id => queryParams.append("branch_ids[]", id));
+      branchIds.forEach((id) => queryParams.append("branch_ids[]", id));
 
       const response: any = await import("@/lib/api").then((m) =>
         m.default.get(`/dashboard/stats?${queryParams.toString()}`),
       );
+
       setStats(response.data);
     } catch (error) {
       console.error("Failed to fetch dashboard stats", error);
@@ -170,7 +172,9 @@ export default function VendorPOS() {
                       Today&apos;s Sales
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {selectedVendor.currency === "USD" ? "$" : stats?.currency_symbol || ""}
+                      {selectedVendor.currency === "USD"
+                        ? "$"
+                        : stats?.currency_symbol || ""}
                       {stats ? Number(stats.today_sales).toLocaleString() : "0"}
                     </p>
                   </div>
@@ -187,8 +191,12 @@ export default function VendorPOS() {
                       Today&apos;s Expenses
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {selectedVendor.currency === "USD" ? "$" : stats?.currency_symbol || ""}
-                      {stats ? Number(stats.today_expenses).toLocaleString() : "0"}
+                      {selectedVendor.currency === "USD"
+                        ? "$"
+                        : stats?.currency_symbol || ""}
+                      {stats
+                        ? Number(stats.today_expenses).toLocaleString()
+                        : "0"}
                     </p>
                   </div>
                 </div>
@@ -204,7 +212,9 @@ export default function VendorPOS() {
                       Net Income
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {selectedVendor.currency === "USD" ? "$" : stats?.currency_symbol || ""}
+                      {selectedVendor.currency === "USD"
+                        ? "$"
+                        : stats?.currency_symbol || ""}
                       {stats ? Number(stats.net_income).toLocaleString() : "0"}
                     </p>
                   </div>
@@ -250,9 +260,11 @@ export default function VendorPOS() {
                 Quick Actions
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <button 
+                <button
                   className="flex flex-col items-center gap-2 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  onClick={() => router.push(`/pos/vendor/${selectedVendor.id}/pos`)}
+                  onClick={() =>
+                    router.push(`/pos/vendor/${selectedVendor.id}/pos`)
+                  }
                 >
                   <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
                     <CreditCard className="w-5 h-5 text-green-600 dark:text-green-400" />
@@ -262,9 +274,11 @@ export default function VendorPOS() {
                   </span>
                 </button>
 
-                <button 
+                <button
                   className="flex flex-col items-center gap-2 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  onClick={() => router.push(`/pos/vendor/${selectedVendor.id}/products/new`)}
+                  onClick={() =>
+                    router.push(`/pos/vendor/${selectedVendor.id}/products/new`)
+                  }
                 >
                   <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
                     <Package className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -274,9 +288,11 @@ export default function VendorPOS() {
                   </span>
                 </button>
 
-                <button 
+                <button
                   className="flex flex-col items-center gap-2 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  onClick={() => router.push(`/pos/vendor/${selectedVendor.id}/customers`)}
+                  onClick={() =>
+                    router.push(`/pos/vendor/${selectedVendor.id}/customers`)
+                  }
                 >
                   <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
                     <User className="w-5 h-5 text-purple-600 dark:text-purple-400" />
@@ -286,9 +302,11 @@ export default function VendorPOS() {
                   </span>
                 </button>
 
-                <button 
+                <button
                   className="flex flex-col items-center gap-2 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  onClick={() => router.push(`/pos/vendor/${selectedVendor.id}/settings`)}
+                  onClick={() =>
+                    router.push(`/pos/vendor/${selectedVendor.id}/settings`)
+                  }
                 >
                   <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center">
                     <Building2 className="w-5 h-5 text-orange-600 dark:text-orange-400" />
@@ -306,23 +324,35 @@ export default function VendorPOS() {
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Recent Activity
                 </h3>
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   variant="light"
-                  onPress={() => router.push(`/pos/vendor/${selectedVendor.id}/sales`)}
+                  onPress={() =>
+                    router.push(`/pos/vendor/${selectedVendor.id}/sales`)
+                  }
                 >
                   History
                 </Button>
               </div>
-              
+
               <div className="space-y-4">
                 {stats?.recent_activity?.map((activity: any, idx: number) => (
-                  <div key={`${activity.type}-${activity.id}-${idx}`} className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors border border-transparent hover:border-gray-100 dark:hover:border-gray-800">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
-                      activity.type === 'sale' ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400' : 
-                      'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400'
-                    }`}>
-                      {activity.type === 'sale' ? <CreditCard size={18} /> : <BarChart3 size={18} />}
+                  <div
+                    key={`${activity.type}-${activity.id}-${idx}`}
+                    className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors border border-transparent hover:border-gray-100 dark:hover:border-gray-800"
+                  >
+                    <div
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                        activity.type === "sale"
+                          ? "bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400"
+                          : "bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400"
+                      }`}
+                    >
+                      {activity.type === "sale" ? (
+                        <CreditCard size={18} />
+                      ) : (
+                        <BarChart3 size={18} />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-gray-900 dark:text-white truncate">
@@ -333,10 +363,16 @@ export default function VendorPOS() {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className={`text-sm font-black ${
-                        activity.type === 'sale' ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {activity.type === 'sale' ? '+' : '-'}{stats.currency_symbol}{Number(activity.amount).toLocaleString()}
+                      <p
+                        className={`text-sm font-black ${
+                          activity.type === "sale"
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {activity.type === "sale" ? "+" : "-"}
+                        {stats.currency_symbol}
+                        {Number(activity.amount).toLocaleString()}
                       </p>
                       <p className="text-[10px] text-gray-400">
                         {new Date(activity.date).toLocaleDateString()}

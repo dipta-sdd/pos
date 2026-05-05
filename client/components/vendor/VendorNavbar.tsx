@@ -5,15 +5,16 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
-} from "@heroui/dropdown";
+} from "@heroui/react";
 import { User } from "@heroui/user";
 import { Menu } from "lucide-react";
+
+import InstallPWA from "../InstallPWA";
 
 import { ThemeSwitch } from "@/components/theme-switch";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import { useSidebar } from "@/lib/contexts/SidebarContext";
-import InstallPWA from "../InstallPWA";
 
 export default function VendorNavbar() {
   const { vendor, currentRole, isLoading } = useVendor();

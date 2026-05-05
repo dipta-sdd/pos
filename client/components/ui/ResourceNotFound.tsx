@@ -39,18 +39,18 @@ export default function ResourceNotFound({
 
       <div className="flex flex-col sm:flex-row gap-3 mt-10">
         <Button
-          variant="flat"
-          size="lg"
           className="font-semibold px-8 rounded-2xl"
+          size="lg"
           startContent={<ArrowLeft className="w-4 h-4" />}
+          variant="flat"
           onPress={() => (backLink ? router.push(backLink) : router.back())}
         >
           {backLabel}
         </Button>
         <Button
+          className="font-semibold px-8 rounded-2xl shadow-lg shadow-blue-500/20"
           color="primary"
           size="lg"
-          className="font-semibold px-8 rounded-2xl shadow-lg shadow-blue-500/20"
           startContent={<Home className="w-4 h-4" />}
           onPress={() => router.push("/pos")}
         >

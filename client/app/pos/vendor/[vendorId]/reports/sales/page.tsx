@@ -1,7 +1,13 @@
 "use client";
 
 import { Card, CardBody } from "@heroui/card";
-import { LineChart as LineChartIcon, Download, Filter, BarChart3, PieChart as PieChartIcon } from "lucide-react";
+import {
+  LineChart as LineChartIcon,
+  Download,
+  Filter,
+  BarChart3,
+  PieChart as PieChartIcon,
+} from "lucide-react";
 import { Button } from "@heroui/button";
 import { useEffect, useState } from "react";
 import {
@@ -41,16 +47,19 @@ export default function SalesReportPage() {
       const response: any = await api.get(`/reports/sales`, {
         params: {
           vendor_id: vendor?.id,
-          branch_ids: selectedBranchIds.length > 0 ? selectedBranchIds : undefined,
-        }
+          branch_ids:
+            selectedBranchIds.length > 0 ? selectedBranchIds : undefined,
+        },
       });
       const formattedData = {
         ...response.data,
-        sales_over_time: response.data.sales_over_time?.map((item: any) => ({
-          ...item,
-          total: Number(item.total)
-        })) || []
+        sales_over_time:
+          response.data.sales_over_time?.map((item: any) => ({
+            ...item,
+            total: Number(item.total),
+          })) || [],
       };
+
       setData(formattedData);
     } catch (error) {
       console.error("Failed to fetch report data", error);
@@ -93,25 +102,34 @@ export default function SalesReportPage() {
               <h3 className="text-lg font-bold">Daily Sales Revenue</h3>
             </div>
             <div className="h-[400px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer height="100%" width="100%">
                 <LineChart data={data?.sales_over_time || []}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis 
-                    dataKey="date" 
-                    tick={{ fontSize: 12 }} 
-                    tickFormatter={(str) => new Date(str).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fontSize: 12 }}
+                    tickFormatter={(str) =>
+                      new Date(str).toLocaleDateString(undefined, {
+                        day: "numeric",
+                        month: "short",
+                      })
+                    }
                   />
                   <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip 
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "8px",
+                      border: "none",
+                      boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                    }}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="total" 
-                    stroke="#006FEE" 
-                    strokeWidth={3} 
-                    dot={{ r: 4, fill: '#006FEE' }} 
-                    activeDot={{ r: 6 }} 
+                  <Line
+                    activeDot={{ r: 6 }}
+                    dataKey="total"
+                    dot={{ r: 4, fill: "#006FEE" }}
+                    stroke="#006FEE"
+                    strokeWidth={3}
+                    type="monotone"
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -127,16 +145,24 @@ export default function SalesReportPage() {
                 <h3 className="text-lg font-bold">Top Products by Revenue</h3>
               </div>
               <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={data?.top_products?.map((p: any) => ({
-                    name: p.variant?.product?.name || 'Unknown',
-                    revenue: Number(p.total_revenue)
-                  })) || []}>
+                <ResponsiveContainer height="100%" width="100%">
+                  <BarChart
+                    data={
+                      data?.top_products?.map((p: any) => ({
+                        name: p.variant?.product?.name || "Unknown",
+                        revenue: Number(p.total_revenue),
+                      })) || []
+                    }
+                  >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="name" hide />
+                    <XAxis hide dataKey="name" />
                     <YAxis />
-                    <Tooltip cursor={{ fill: 'transparent' }} />
-                    <Bar dataKey="revenue" fill="#9353D3" radius={[4, 4, 0, 0]} />
+                    <Tooltip cursor={{ fill: "transparent" }} />
+                    <Bar
+                      dataKey="revenue"
+                      fill="#9353D3"
+                      radius={[4, 4, 0, 0]}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -149,32 +175,49 @@ export default function SalesReportPage() {
                 <h3 className="text-lg font-bold">Sales by Category</h3>
               </div>
               <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer height="100%" width="100%">
                   <PieChart>
                     <Pie
-                      data={data?.sales_by_category?.map((c: any) => ({
-                        name: c.category_name,
-                        value: Number(c.total)
-                      })) || []}
+                      data={
+                        data?.sales_by_category?.map((c: any) => ({
+                          name: c.category_name,
+                          value: Number(c.total),
+                        })) || []
+                      }
+                      dataKey="value"
                       innerRadius={60}
                       outerRadius={80}
                       paddingAngle={5}
-                      dataKey="value"
                     >
-                      {(data?.sales_by_category || []).map((_entry: any, index: number) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
+                      {(data?.sales_by_category || []).map(
+                        (_entry: any, index: number) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length]}
+                          />
+                        ),
+                      )}
                     </Pie>
                     <Tooltip />
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="flex flex-wrap justify-center gap-4 mt-2">
-                   {data?.sales_by_category?.map((c: any, index: number) => (
-                     <div key={c.category_name} className="flex items-center gap-1.5">
-                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                       <span className="text-xs font-medium">{c.category_name}</span>
-                     </div>
-                   ))}
+                  {data?.sales_by_category?.map((c: any, index: number) => (
+                    <div
+                      key={c.category_name}
+                      className="flex items-center gap-1.5"
+                    >
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{
+                          backgroundColor: COLORS[index % COLORS.length],
+                        }}
+                      />
+                      <span className="text-xs font-medium">
+                        {c.category_name}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </CardBody>

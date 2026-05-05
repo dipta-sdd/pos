@@ -2,6 +2,7 @@
 
 import { Button } from "@heroui/button";
 import { Download } from "lucide-react";
+
 import { usePWA } from "@/lib/hooks/usePWA";
 
 interface InstallPWAProps {
@@ -23,10 +24,10 @@ export default function InstallPWA({
         className="font-semibold h-9 min-w-min px-2"
         color="primary"
         size="sm"
+        startContent={<Download className="w-4 h-4" />}
         variant="light"
         onPress={install}
-        startContent={<Download className="w-4 h-4" />}
-      ></Button>
+      />
     );
   }
 
@@ -35,10 +36,10 @@ export default function InstallPWA({
       <Button
         className={`w-full font-semibold transition-all duration-300 ${collapsed ? "min-w-0 p-0" : ""}`}
         color="primary"
+        isIconOnly={collapsed}
         size={collapsed ? "sm" : "md"}
         variant="flat"
         onPress={install}
-        isIconOnly={collapsed}
       >
         <Download className={`${collapsed ? "w-5 h-5" : "w-4 h-4 mr-2"}`} />
         {!collapsed && <span>Install App</span>}
