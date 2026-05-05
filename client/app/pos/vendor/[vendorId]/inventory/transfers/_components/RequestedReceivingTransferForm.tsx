@@ -71,8 +71,9 @@ export default function RequestedReceivingTransferForm({
   const [isBulkLoading, setIsBulkLoading] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const addingRef = useRef(false);
+  const [inputValue, setInputValue] = useState("");
 
-  const { register, handleSubmit, control, watch, reset } =
+  const { register, handleSubmit, control, watch, reset, setValue } =
     useForm<TransferFormData>({
       // @ts-ignore
       resolver: zodResolver(transferSchema),
@@ -127,21 +128,49 @@ export default function RequestedReceivingTransferForm({
     }
   }, [initialData, reset, vendor?.id]);
 
-  const { fields, append, remove } = useFieldArray({ control, name: "items" });
+  const { fields, append, remove, update } = useFieldArray({ control, name: "items" });
   const watchItems = watch("items");
+
+  const debouncedUpdateQuantity = useCallback(
+    debounce(async (itemId: number, quantity: number) => {
+      try {
+        await api.put(`/stock-transfers/items/${itemId}`, {
+          quantity: quantity,
+        });
+      } catch (error) {
+        toast.error("Failed to sync quantity to server");
+      }
+    }, 500),
+    [],
+  );
 
   const onAddProduct = async (variant: Variant) => {
     // Immediate Ref-based lock to prevent double calls
     if (addingRef.current) return;
 
-    // Use getValues for freshest data to prevent duplicates
+    // Use getValues for freshest data
     const currentItems = control._formValues.items || [];
     const existingIndex = currentItems.findIndex(
       (i: any) => i.variant_id === variant.id,
     );
 
     if (existingIndex > -1) {
-      toast.info("Product already in list");
+      // If already in list, just increase quantity
+      const item = currentItems[existingIndex];
+      const newQty = Number(item.quantity) + 1;
+
+      update(existingIndex, {
+        ...item,
+        quantity: newQty,
+      });
+
+      if (item.id) {
+        debouncedUpdateQuantity(item.id, newQty);
+      }
+      toast.success("Quantity increased");
+      setSearchResults([]);
+      setInputValue("");
+
       return;
     }
 
@@ -168,6 +197,7 @@ export default function RequestedReceivingTransferForm({
         unit_of_measure: newItem.unit_of_measure,
       });
       setSearchResults([]); // Clear search results after adding
+      setInputValue(""); // Clear input field after adding
       toast.success("Product added");
     } catch (error: any) {
       if (error.response?.status === 422) {
@@ -212,6 +242,7 @@ export default function RequestedReceivingTransferForm({
           ) {
             onAddProduct(variant);
             setSearchResults([]);
+            setInputValue("");
           }
         }
       } catch (error) {
@@ -221,19 +252,6 @@ export default function RequestedReceivingTransferForm({
       }
     }, 500),
     [vendor?.id, onAddProduct],
-  );
-
-  const debouncedUpdateQuantity = useCallback(
-    debounce(async (itemId: number, quantity: number) => {
-      try {
-        await api.put(`/stock-transfers/items/${itemId}`, {
-          quantity: quantity,
-        });
-      } catch (error) {
-        toast.error("Failed to sync quantity to server");
-      }
-    }, 500),
-    [],
   );
 
   const cancelRequest = async () => {
@@ -362,6 +380,7 @@ export default function RequestedReceivingTransferForm({
           <div className="p-8 border-b flex justify-between items-center gap-4">
             <div className="flex-1 max-w-md">
               <Autocomplete
+                inputValue={inputValue}
                 isLoading={searchLoading || isAdding}
                 placeholder="Search products by name, SKU, or barcode..."
                 startContent={
@@ -370,7 +389,10 @@ export default function RequestedReceivingTransferForm({
                   </div>
                 }
                 variant="bordered"
-                onInputChange={handleSearch}
+                onInputChange={(value) => {
+                  setInputValue(value);
+                  handleSearch(value);
+                }}
               >
                 {searchResults.map((variant) => (
                   <AutocompleteItem
