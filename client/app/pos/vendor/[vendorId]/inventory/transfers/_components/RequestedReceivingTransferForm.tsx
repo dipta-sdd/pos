@@ -211,27 +211,18 @@ export default function RequestedReceivingTransferForm({
     }
   };
 
-  const updateItemQuantity = async (index: number, quantity: number) => {
-    const item = watchItems[index];
-    if (!item.id) return;
-
-    try {
-      await api.put(`/stock-transfers/items/${item.id}`, {
-        quantity: quantity,
-      });
-    } catch (error) {
-      toast.error("Failed to sync quantity to server");
-    }
-  };
-
-  const onSubmit = async (data: any) => {
-    try {
-      await api.put(`/stock-transfers/${initialData.id}`, data);
-      toast.success("Request updated successfully");
-    } catch (error) {
-      toast.error("Something went wrong");
-    }
-  };
+  const debouncedUpdateQuantity = useCallback(
+    debounce(async (itemId: number, quantity: number) => {
+      try {
+        await api.put(`/stock-transfers/items/${itemId}`, {
+          quantity: quantity,
+        });
+      } catch (error) {
+        toast.error("Failed to sync quantity to server");
+      }
+    }, 500),
+    [],
+  );
 
   const cancelRequest = async () => {
     try {
@@ -319,9 +310,6 @@ export default function RequestedReceivingTransferForm({
         <div className="flex items-center gap-3">
           <Button color="danger" variant="flat" onPress={cancelRequest}>
             Cancel Request
-          </Button>
-          <Button color="primary" onPress={handleSubmit(onSubmit)}>
-            Save Changes
           </Button>
         </div>
       </div>
@@ -489,13 +477,16 @@ export default function RequestedReceivingTransferForm({
                             size="sm"
                             type="number"
                             variant="bordered"
-                            {...register(`items.${index}.quantity` as const)}
-                            onBlur={(e) =>
-                              updateItemQuantity(
-                                index,
-                                Number(e.target.value),
-                              )
-                            }
+                            {...register(`items.${index}.quantity` as const, {
+                              onChange: (e) => {
+                                if (item.id) {
+                                  debouncedUpdateQuantity(
+                                    item.id,
+                                    Number(e.target.value),
+                                  );
+                                }
+                              },
+                            })}
                             classNames={{
                               input: "text-center pr-8",
                               inputWrapper: "h-9",
