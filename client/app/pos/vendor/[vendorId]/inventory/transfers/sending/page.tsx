@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Selection } from "@heroui/table";
 
-import BulkActionBar, { BulkAction } from "../../_components/BulkActionBar";
 
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
@@ -20,6 +19,7 @@ import { StockTransfer } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
 import Confirm from "@/components/ui/Confirm";
 import { UserLoding } from "@/components/user-loding";
+import BulkActionBar, { BulkAction } from "../_components/BulkActionBar";
 
 const columns: Column[] = [
   { name: "TRANSFER ID", uid: "id", sortable: true },

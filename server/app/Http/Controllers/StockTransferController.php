@@ -549,4 +549,47 @@ class StockTransferController extends Controller
 
         return response()->json(null, 204);
     }
+
+    public function addItem(Request $request, StockTransfer $stockTransfer)
+    {
+        $request->validate([
+            'variant_id' => 'required|exists:variants,id',
+            'quantity' => 'required|numeric|min:0.01',
+            'status' => 'required|string',
+        ]);
+
+        $membership = $request->user()->memberships()->where('vendor_id', $stockTransfer->vendor_id)->first();
+        $userBranchIds = $membership ? $membership->userBranchAssignments->pluck('branch_id')->toArray() : [];
+
+        if (!in_array($stockTransfer->from_branch_id, $userBranchIds) && !in_array($stockTransfer->to_branch_id, $userBranchIds)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if (!in_array($stockTransfer->status, ['requested', 'accepted'])) {
+            return response()->json(['message' => 'Cannot add items in current status'], 403);
+        }
+
+        // Check if variant already exists in this transfer
+        $existingItem = $stockTransfer->stockTransferItems()
+            ->where('variant_id', $request->variant_id)
+            ->first();
+
+        if ($existingItem) {
+            return response()->json([
+                'message' => 'This product is already in the transfer list',
+                'item' => $existingItem->load(['variant.product', 'unitOfMeasure'])
+            ], 422);
+        }
+
+        $variant = Variant::findOrFail($request->variant_id);
+
+        $item = $stockTransfer->stockTransferItems()->create([
+            'variant_id' => $request->variant_id,
+            'quantity' => $request->quantity,
+            'status' => $request->status,
+            'unit_of_measure_id' => $variant->unit_of_measure_id,
+        ]);
+
+        return response()->json($item->load(['variant.product', 'unitOfMeasure']));
+    }
 }

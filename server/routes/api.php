@@ -347,6 +347,8 @@ Route::middleware('log.api')->group(function () {
             Route::delete('/items/{item}', [StockTransferController::class, 'destroyItem'])->middleware('permission:can_manage_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/[transferId]/page.tsx
             Route::post('/{stockTransfer}/status', [StockTransferController::class, 'updateTransferStatus'])->middleware('permission:can_manage_stock_and_inventory');
+            // Add individual item to transfer
+            Route::post('/{stockTransfer}/items', [StockTransferController::class, 'addItem'])->middleware('permission:can_manage_stock_and_inventory');
             // Used in: app/pos/vendor/[vendorId]/inventory/transfers/page.tsx
             Route::delete('/{stockTransfer}', [StockTransferController::class, 'destroy'])->middleware('permission:can_manage_stock_and_inventory');
         });

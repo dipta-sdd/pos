@@ -15,7 +15,7 @@ import {
   Chip,
   Checkbox,
 } from "@heroui/react";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Trash2, Clock, User } from "lucide-react";
 import debounce from "lodash/debounce";
 
@@ -69,6 +69,8 @@ export default function RequestedReceivingTransferForm({
     new Set(),
   );
   const [isBulkLoading, setIsBulkLoading] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const addingRef = useRef(false);
 
   const { register, handleSubmit, control, watch, reset } =
     useForm<TransferFormData>({
@@ -158,45 +160,68 @@ export default function RequestedReceivingTransferForm({
   );
   const items = watch("items");
   console.log(items);
-  const onAddProduct = (variant: Variant) => {
-    const existingIndex = watchItems.findIndex(
-      (i) => i.variant_id === variant.id,
+  const onAddProduct = async (variant: Variant) => {
+    // Immediate Ref-based lock to prevent double calls
+    if (addingRef.current) return;
+
+    // Use getValues for freshest data to prevent duplicates
+    const currentItems = control._formValues.items || [];
+    const existingIndex = currentItems.findIndex(
+      (i: any) => i.variant_id === variant.id,
     );
 
     if (existingIndex > -1) {
       toast.info("Product already in list");
       return;
     }
-    console.log({
-      variant_id: variant.id,
-      quantity: 1,
-      status: "requested",
-      variant: {
-        ...variant,
-      },
-    });
-    append({
-      variant_id: variant.id,
-      quantity: 1,
-      status: "requested",
-      variant: {
-        id: variant.id,
-        product_id: variant.product_id,
-        name: variant.variant_name,
-        value: variant.variant_value,
-        sku: variant.sku,
-        barcode: variant.barcode,
-        product: {
-          id: variant.product_id,
-          name: variant.product_name,
-        } as any,
-      },
-      unit_of_measure: {
-        name: variant.unit_name,
-        abbreviation: variant.unit_abbreviation,
-        is_decimal_allowed: !!variant.is_decimal_allowed,
-      } as any,
-    });
+
+    addingRef.current = true;
+    setIsAdding(true);
+    try {
+      const response: any = await api.post(
+        `/stock-transfers/${initialData.id}/items`,
+        {
+          variant_id: variant.id,
+          quantity: 1,
+          status: "requested",
+        },
+      );
+
+      const newItem = response.data;
+
+      append({
+        id: newItem.id,
+        variant_id: newItem.variant_id,
+        quantity: newItem.quantity,
+        status: newItem.status,
+        variant: newItem.variant,
+        unit_of_measure: newItem.unit_of_measure,
+      });
+      setSearchResults([]); // Clear search results after adding
+      toast.success("Product added");
+    } catch (error: any) {
+      if (error.response?.status === 422) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Failed to add product to server");
+      }
+    } finally {
+      setIsAdding(false);
+      addingRef.current = false;
+    }
+  };
+
+  const updateItemQuantity = async (index: number, quantity: number) => {
+    const item = watchItems[index];
+    if (!item.id) return;
+
+    try {
+      await api.put(`/stock-transfers/items/${item.id}`, {
+        quantity: quantity,
+      });
+    } catch (error) {
+      toast.error("Failed to sync quantity to server");
+    }
   };
 
   const onSubmit = async (data: any) => {
@@ -337,7 +362,7 @@ export default function RequestedReceivingTransferForm({
           <div className="p-8 border-b flex justify-between items-center gap-4">
             <div className="flex-1 max-w-md">
               <Autocomplete
-                isLoading={searchLoading}
+                isLoading={searchLoading || isAdding}
                 placeholder="Search products by name, SKU, or barcode..."
                 startContent={
                   <div className="pointer-events-none flex items-center">
@@ -465,6 +490,12 @@ export default function RequestedReceivingTransferForm({
                             type="number"
                             variant="bordered"
                             {...register(`items.${index}.quantity` as const)}
+                            onBlur={(e) =>
+                              updateItemQuantity(
+                                index,
+                                Number(e.target.value),
+                              )
+                            }
                             classNames={{
                               input: "text-center pr-8",
                               inputWrapper: "h-9",
