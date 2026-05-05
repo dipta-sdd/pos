@@ -70,6 +70,27 @@ export interface Variant {
   updated_at: string;
   product?: Product;
 }
+export interface SearchVariant {
+  "id": number,
+  "variant_name": string,
+  "variant_value": string,
+  "sku": string,
+  "barcode": string,
+  "product_id": number,
+  "product_name": string,
+  "image_url": string | null,
+  "total_quantity": string,
+  "base_price": string,
+  "selling_price": string,
+  "cost_price": string,
+  "expiry_date": string,
+  "unit_name": string,
+  "unit_abbreviation": string,
+  "is_decimal_allowed": 0 | 1,
+  "branch_product_id": number | null,
+  "is_active": boolean | null
+}
+
 
 export interface Customer {
   id: number;
@@ -238,10 +259,14 @@ export interface StockTransferItem {
   quantity: string | number;
   approved_quantity?: string | number | null;
   received_quantity?: string | number | null;
+  cost_price?: string | number | null;
+  selling_price?: string | number | null;
+  expiry_date?: string | null;
   status: string;
   created_at: string;
   updated_at: string;
   variant?: Variant & { product?: Product };
+  unit_of_measure?: UnitOfMeasure;
 }
 
 export interface Expense {

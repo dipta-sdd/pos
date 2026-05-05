@@ -193,12 +193,12 @@ export const Navbar = () => {
                         <button
                           key={`${result.type}-${result.id}-${idx}`}
                           className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer flex items-center gap-3 transition-colors"
+                          type="button"
                           onClick={() => {
                             router.push(result.url);
                             setShowResults(false);
                             setSearchQuery("");
                           }}
-                          type="button"
                         >
                           <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg shrink-0">
                             {getIcon(result.type)}

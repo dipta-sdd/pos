@@ -55,8 +55,8 @@ export default function NotFound() {
               Lost in the void?
             </h2>
             <p className="text-lg text-gray-500 dark:text-gray-400 max-w-md mx-auto leading-relaxed">
-              We couldn&apos;t find the page you&apos;re looking for. It might have been
-              moved, deleted, or never existed in the first place.
+              We couldn&apos;t find the page you&apos;re looking for. It might
+              have been moved, deleted, or never existed in the first place.
             </p>
           </div>
         </div>

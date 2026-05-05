@@ -14,7 +14,9 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
+  Checkbox,
 } from "@heroui/react";
+import BulkActionBar from "./BulkActionBar";
 import { useEffect, useState } from "react";
 import { Clock, User, Edit2, Package } from "lucide-react";
 
@@ -24,6 +26,7 @@ import { formatDate } from "@/lib/helper/dates";
 import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import { StockTransfer } from "@/lib/types/general";
+import { getFullVariantName } from "@/lib/helper/variant";
 
 interface AcceptedSendingTransferFormProps {
   initialData: StockTransfer;
@@ -48,6 +51,7 @@ const transferSchema = z.object({
       expiry_date: z.string().nullable().optional(),
       status: z.string(),
       variant: z.any().optional(),
+      unit_of_measure: z.any().optional(),
     }),
   ),
 });
@@ -65,6 +69,8 @@ export default function AcceptedSendingTransferForm({
   const [stockModalItemIndex, setStockModalItemIndex] = useState<number | null>(
     null,
   );
+  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
+  const [isBulkLoading, setIsBulkLoading] = useState(false);
 
   const { handleSubmit, control, setValue, watch, reset } =
     useForm<TransferFormData>({
@@ -86,14 +92,8 @@ export default function AcceptedSendingTransferForm({
             selling_price: i.selling_price,
             expiry_date: i.expiry_date,
             status: i.status || "accepted",
-            variant: {
-              ...i.variant,
-              product_name: i.variant?.product?.name,
-              variant_name: i.variant?.value,
-              unit_abbreviation:
-                i.unit_of_measure?.abbreviation ||
-                i.variant?.unit_of_measure?.abbreviation,
-            },
+            variant: i.variant,
+            unit_of_measure: i.unit_of_measure,
           })) || [],
       },
     });
@@ -116,14 +116,8 @@ export default function AcceptedSendingTransferForm({
             selling_price: i.selling_price,
             expiry_date: i.expiry_date,
             status: i.status || "accepted",
-            variant: {
-              ...i.variant,
-              product_name: i.variant?.product?.name,
-              variant_name: i.variant?.value,
-              unit_abbreviation:
-                i.unit_of_measure?.abbreviation ||
-                i.variant?.unit_of_measure?.abbreviation,
-            },
+            variant: i.variant,
+            unit_of_measure: i.unit_of_measure,
           })) || [],
       });
     }
@@ -175,6 +169,34 @@ export default function AcceptedSendingTransferForm({
     toast.success("Item marked out of stock");
   };
 
+
+  const handleBulkAction = async (action: string) => {
+    const indices = Array.from(selectedIndices);
+    setIsBulkLoading(true);
+
+    try {
+      if (action === "out_of_stock") {
+        await Promise.all(
+          indices.map(async (index) => {
+            const item = watchItems[index];
+            setValue(`items.${index}.status`, "out_of_stock");
+            setValue(`items.${index}.approved_quantity`, 0);
+            await api.put(`/stock-transfers/items/${item.id}`, {
+              status: "out_of_stock",
+              approved_quantity: 0,
+            });
+          }),
+        );
+        toast.success("Items marked as out of stock");
+      }
+      setSelectedIndices(new Set());
+    } catch (error) {
+      toast.error("Bulk action failed");
+    } finally {
+      setIsBulkLoading(false);
+    }
+  };
+
   const updateGlobalStatus = async (newStatus: string) => {
     try {
       await api.post(`/stock-transfers/${initialData.id}/status`, {
@@ -188,6 +210,24 @@ export default function AcceptedSendingTransferForm({
     } catch (error: any) {
       toast.error("Failed to update status");
     }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIndices.size === fields.length) {
+      setSelectedIndices(new Set());
+    } else {
+      setSelectedIndices(new Set(fields.map((_, i) => i)));
+    }
+  };
+
+  const toggleSelect = (index: number) => {
+    const next = new Set(selectedIndices);
+    if (next.has(index)) {
+      next.delete(index);
+    } else {
+      next.add(index);
+    }
+    setSelectedIndices(next);
   };
 
   return (
@@ -266,10 +306,40 @@ export default function AcceptedSendingTransferForm({
               if stock levels changed.
             </p>
           </div>
+
+          {selectedIndices.size > 0 && (
+            <div className="px-6 py-2">
+              <BulkActionBar
+                actions={[
+                  {
+                    label: "Mark Out of Stock",
+                    action: "out_of_stock",
+                    color: "danger",
+                  },
+                ]}
+                isLoading={isBulkLoading}
+                selectedCount={selectedIndices.size}
+                onAction={handleBulkAction}
+              />
+            </div>
+          )}
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b bg-default-50/50">
+                  <th className="py-4 px-6 w-12 text-center">
+                    <Checkbox
+                      isSelected={
+                        fields.length > 0 &&
+                        selectedIndices.size === fields.length
+                      }
+                      isIndeterminate={
+                        selectedIndices.size > 0 &&
+                        selectedIndices.size < fields.length
+                      }
+                      onValueChange={toggleSelectAll}
+                    />
+                  </th>
                   <th className="py-4 px-6 font-semibold text-sm">
                     Product Details
                   </th>
@@ -295,15 +365,24 @@ export default function AcceptedSendingTransferForm({
                   return (
                     <tr
                       key={field.id}
-                      className={`border-b hover:bg-default-50/50 ${isOutOfStock ? "opacity-50" : ""}`}
+                      className={`border-b hover:bg-default-50/50 ${isOutOfStock ? "opacity-50" : ""} ${selectedIndices.has(index) ? "bg-primary-50/50" : ""}`}
                     >
+                      <td className="py-4 px-6 text-center">
+                        <Checkbox
+                          isSelected={selectedIndices.has(index)}
+                          onValueChange={() => toggleSelect(index)}
+                        />
+                      </td>
                       <td className="py-4 px-6">
                         <div className="flex flex-col gap-1">
                           <span className="font-semibold text-sm">
-                            {item.variant?.product_name}
+                            {item.variant?.product?.name}
                           </span>
                           <span className="text-xs text-default-500">
-                            {item.variant?.variant_name}
+                            {getFullVariantName(
+                              item.variant?.name,
+                              item.variant?.value,
+                            )}
                           </span>
                         </div>
                       </td>
@@ -312,7 +391,7 @@ export default function AcceptedSendingTransferForm({
                           {item.quantity}
                         </span>
                         <span className="text-default-400 text-xs ml-1">
-                          {item.variant?.unit_abbreviation}
+                          {item.unit_of_measure?.abbreviation}
                         </span>
                       </td>
                       <td className="py-4 px-6 text-center">
@@ -324,7 +403,7 @@ export default function AcceptedSendingTransferForm({
                               {item.approved_quantity || 0}
                             </span>
                             <span className="text-xs">
-                              {item.variant?.unit_abbreviation}
+                              {item.unit_of_measure?.abbreviation}
                             </span>
                           </div>
                         )}
@@ -352,6 +431,7 @@ export default function AcceptedSendingTransferForm({
                                 setStockModalItemIndex(index);
                                 setIsStockModalOpen(true);
                               }}
+                              key="edit"
                             >
                               Edit Stock/Qty
                             </DropdownItem>
@@ -359,6 +439,7 @@ export default function AcceptedSendingTransferForm({
                               className="text-danger"
                               color="danger"
                               onPress={() => markItemOutOfStock(index)}
+                              key="out_of_stock"
                             >
                               Mark Out of Stock
                             </DropdownItem>

@@ -7,7 +7,13 @@ import React from "react";
 export interface BulkAction {
   label: string;
   action: string;
-  color?: "default" | "primary" | "secondary" | "success" | "warning" | "danger";
+  color?:
+    | "default"
+    | "primary"
+    | "secondary"
+    | "success"
+    | "warning"
+    | "danger";
   icon?: React.ReactNode;
 }
 

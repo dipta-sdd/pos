@@ -6,6 +6,8 @@ import { Tabs, Tab, Chip } from "@heroui/react";
 import { Plus, Edit, Eye } from "lucide-react";
 import { Button } from "@heroui/button";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Selection } from "@heroui/table";
 
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
@@ -15,10 +17,8 @@ import api from "@/lib/api";
 import { StockTransfer } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
 import { UserLoding } from "@/components/user-loding";
-import { toast } from "sonner";
-import { Selection } from "@heroui/table";
-import BulkActionBar, { BulkAction } from "../../_components/BulkActionBar";
 import Confirm from "@/components/ui/Confirm";
+import BulkActionBar, { BulkAction } from "../_components/BulkActionBar";
 
 const columns: Column[] = [
   { name: "TRANSFER ID", uid: "id", sortable: true },
@@ -46,15 +46,22 @@ export default function IncomingTransfersPage() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
-  const [isBulkActionLoading, setIsBulkActionLoading] = useState<boolean>(false);
+  const [isBulkActionLoading, setIsBulkActionLoading] =
+    useState<boolean>(false);
 
   const getSelectedItems = () => {
     if (selectedKeys === "all") return items;
-    return items.filter((item) => Array.from(selectedKeys).includes(item.id.toString()) || Array.from(selectedKeys).includes(item.id));
+
+    return items.filter(
+      (item) =>
+        Array.from(selectedKeys).includes(item.id.toString()) ||
+        Array.from(selectedKeys).includes(item.id),
+    );
   };
 
   const getBulkActions = (): BulkAction[] => {
     const selectedItems = getSelectedItems();
+
     if (selectedItems.length === 0) return [];
 
     const allRequested = selectedItems.every((i) => i.status === "requested");
@@ -65,15 +72,27 @@ export default function IncomingTransfersPage() {
 
     if (allRequested) {
       actions.push({ label: "Delete All", action: "delete", color: "danger" });
-      actions.push({ label: "Cancel All", action: "cancelled", color: "warning" });
+      actions.push({
+        label: "Cancel All",
+        action: "cancelled",
+        color: "warning",
+      });
     }
 
     if (allInTransit) {
-      actions.push({ label: "Mark Shipped", action: "shipped", color: "primary" });
+      actions.push({
+        label: "Mark Shipped",
+        action: "shipped",
+        color: "primary",
+      });
     }
 
     if (allShipped) {
-      actions.push({ label: "Mark Completed", action: "completed", color: "success" });
+      actions.push({
+        label: "Mark Completed",
+        action: "completed",
+        color: "success",
+      });
     }
 
     return actions;
@@ -81,19 +100,22 @@ export default function IncomingTransfersPage() {
 
   const handleBulkAction = async (action: string) => {
     const selectedItems = getSelectedItems();
+
     if (selectedItems.length === 0) return;
 
     setIsBulkActionLoading(true);
     try {
       if (action === "delete") {
         await Promise.all(
-          selectedItems.map((item) => api.delete(`/stock-transfers/${item.id}`))
+          selectedItems.map((item) =>
+            api.delete(`/stock-transfers/${item.id}`),
+          ),
         );
       } else {
         await Promise.all(
           selectedItems.map((item) =>
-            api.post(`/stock-transfers/${item.id}/status`, { status: action })
-          )
+            api.post(`/stock-transfers/${item.id}/status`, { status: action }),
+          ),
         );
       }
       toast.success("Bulk action completed successfully");
@@ -241,7 +263,9 @@ export default function IncomingTransfersPage() {
           <BulkActionBar
             actions={getBulkActions()}
             isLoading={isBulkActionLoading}
-            selectedCount={selectedKeys === "all" ? items.length : selectedKeys.size}
+            selectedCount={
+              selectedKeys === "all" ? items.length : selectedKeys.size
+            }
             onAction={handleBulkAction}
           />
 
@@ -253,16 +277,16 @@ export default function IncomingTransfersPage() {
             lastPage={lastPage}
             perPage={perPage}
             renderCell={renderCell}
+            selectedKeys={selectedKeys}
+            selectionMode="multiple"
             setCurrentPage={setCurrentPage}
             setPerPage={setPerPage}
             setSortDescriptor={setSortDescriptor}
             sortDescriptor={sortDescriptor}
-            selectedKeys={selectedKeys}
-            selectionMode="multiple"
-            onSelectionChange={setSelectedKeys}
             visibleColumns={
               new Set(["id", "from_branch", "status", "created_at", "actions"])
             }
+            onSelectionChange={setSelectedKeys}
           />
         </div>
 

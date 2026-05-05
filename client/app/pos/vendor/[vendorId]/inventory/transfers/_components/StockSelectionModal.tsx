@@ -16,6 +16,7 @@ import { toast } from "sonner";
 
 import { StockTransferItem } from "@/lib/types/general";
 import api from "@/lib/api";
+import { useVendor } from "@/lib/contexts/VendorContext";
 
 interface StockBatch {
   id: number;
@@ -32,35 +33,31 @@ interface StockBatch {
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  vendorId: string | number;
   branchId: string | number;
-  item: StockTransferItem | null;
-  itemIndex: number | null;
-  onConfirm: (
-    index: number,
-    stock: StockBatch,
-    approvedQuantity: number,
-  ) => void;
+  variantId: number;
+  requestedQuantity: number;
+  onConfirm: (stock: StockBatch, approvedQuantity: number) => void;
 }
 
 export default function StockSelectionModal({
   isOpen,
   onClose,
-  vendorId,
   branchId,
-  item,
-  itemIndex,
+  variantId,
+  requestedQuantity,
   onConfirm,
 }: Props) {
+  const { vendor } = useVendor();
+  const vendorId = vendor?.id;
   const [isLoading, setIsLoading] = useState(false);
   const [stocks, setStocks] = useState<StockBatch[]>([]);
   const [selectedStockId, setSelectedStockId] = useState<string>("");
 
   useEffect(() => {
-    if (isOpen && item && item.variant_id) {
+    if (isOpen && variantId) {
       fetchStocks();
     }
-  }, [isOpen, item]);
+  }, [isOpen, variantId]);
 
   const fetchStocks = async () => {
     setIsLoading(true);
@@ -69,12 +66,12 @@ export default function StockSelectionModal({
         `/api/vendor/${vendorId}/branch-products/stocks`,
         {
           params: {
-            variant_id: item?.variant_id,
+            variant_id: variantId,
             "branch_ids[]": branchId,
           },
         },
       );
-      const data = response.data;
+      const data = response.data as StockBatch[];
 
       setStocks(data);
       if (data.length > 0) {
@@ -89,7 +86,7 @@ export default function StockSelectionModal({
   };
 
   const handleConfirm = () => {
-    if (!selectedStockId || itemIndex === null || !item) {
+    if (!selectedStockId || !variantId) {
       toast.error("Please select a stock batch");
 
       return;
@@ -100,7 +97,7 @@ export default function StockSelectionModal({
 
     if (!selectedStock) return;
 
-    if (Number(selectedStock.quantity) < Number(item.quantity)) {
+    if (Number(selectedStock.quantity) < Number(requestedQuantity)) {
       toast.warning(
         `Selected batch only has ${selectedStock.quantity} in stock. Adjusting approved quantity.`,
       );
@@ -108,10 +105,10 @@ export default function StockSelectionModal({
 
     const approvedQuantity = Math.min(
       Number(selectedStock.quantity),
-      Number(item.quantity),
+      Number(requestedQuantity),
     );
 
-    onConfirm(itemIndex, selectedStock, approvedQuantity);
+    onConfirm(selectedStock, approvedQuantity);
     onClose();
   };
 
@@ -133,7 +130,7 @@ export default function StockSelectionModal({
               <p className="text-sm text-default-500">
                 Please select which stock batch to fulfill this request from.
                 The requested quantity is{" "}
-                <strong className="text-foreground">{item?.quantity}</strong>.
+                <strong className="text-foreground">{requestedQuantity}</strong>.
               </p>
               <RadioGroup
                 value={selectedStockId}
@@ -154,7 +151,7 @@ export default function StockSelectionModal({
                             : ""}
                         </span>
                         <span
-                          className={`font-bold ${Number(stock.quantity) >= Number(item?.quantity) ? "text-success" : "text-warning"}`}
+                          className={`font-bold ${Number(stock.quantity) >= Number(requestedQuantity) ? "text-success" : "text-warning"}`}
                         >
                           {stock.quantity} available
                         </span>

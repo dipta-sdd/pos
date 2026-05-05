@@ -12,14 +12,18 @@ import {
   CardBody,
   Chip,
   ButtonGroup,
+  Checkbox,
 } from "@heroui/react";
 import { useEffect, useState } from "react";
 import { Clock, User, Package } from "lucide-react";
+
+import BulkActionBar from "./BulkActionBar";
 
 import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import { StockTransfer } from "@/lib/types/general";
 import { formatDate } from "@/lib/helper/dates";
+import { getFullVariantName } from "@/lib/helper/variant";
 
 interface ShippedReceivingTransferFormProps {
   initialData: StockTransfer;
@@ -40,6 +44,7 @@ const transferSchema = z.object({
       received_quantity: z.coerce.number().nullable().optional(),
       status: z.string(),
       variant: z.any().optional(),
+      unit_of_measure: z.any().optional(),
     }),
   ),
 });
@@ -55,6 +60,10 @@ export default function ShippedReceivingTransferForm({
 
   const [scanMode, setScanMode] = useState<"increment" | "full">("increment");
   const [scanInput, setScanInput] = useState("");
+  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(
+    new Set(),
+  );
+  const [isBulkLoading, setIsBulkLoading] = useState(false);
 
   const { register, handleSubmit, control, setValue, watch, reset } =
     useForm<TransferFormData>({
@@ -73,14 +82,8 @@ export default function ShippedReceivingTransferForm({
             quantity: i.quantity,
             received_quantity: i.received_quantity,
             status: i.status || "shipped",
-            variant: {
-              ...i.variant,
-              product_name: i.variant?.product?.name,
-              variant_name: i.variant?.value,
-              unit_abbreviation:
-                i.unit_of_measure?.abbreviation ||
-                i.variant?.unit_of_measure?.abbreviation,
-            },
+            variant: i.variant,
+            unit_of_measure: i.unit_of_measure,
           })) || [],
       },
     });
@@ -100,14 +103,8 @@ export default function ShippedReceivingTransferForm({
             quantity: i.quantity,
             received_quantity: i.received_quantity,
             status: i.status || "shipped",
-            variant: {
-              ...i.variant,
-              product_name: i.variant?.product?.name,
-              variant_name: i.variant?.value,
-              unit_abbreviation:
-                i.unit_of_measure?.abbreviation ||
-                i.variant?.unit_of_measure?.abbreviation,
-            },
+            variant: i.variant,
+            unit_of_measure: i.unit_of_measure,
           })) || [],
       });
     }
@@ -150,6 +147,58 @@ export default function ShippedReceivingTransferForm({
     setValue(`items.${index}.received_quantity`, newReceived);
     updateItemApi(index, { received_quantity: newReceived });
     setScanInput("");
+  };
+
+  const handleBulkAction = async (action: string) => {
+    const indices = Array.from(selectedIndices);
+
+    setIsBulkLoading(true);
+
+    try {
+      if (action === "receive_all") {
+        await Promise.all(
+          indices.map(async (index) => {
+            const item = watchItems[index];
+            const originalItem = initialData.stock_transfer_items?.find(
+              (i: any) => i.id === item.id,
+            );
+            const maxQty = Number(
+              originalItem?.approved_quantity ?? originalItem?.quantity,
+            );
+
+            setValue(`items.${index}.received_quantity`, maxQty);
+            await api.put(`/stock-transfers/items/${item.id}`, {
+              received_quantity: maxQty,
+            });
+          }),
+        );
+        toast.success("Items marked as received");
+      }
+      setSelectedIndices(new Set());
+    } catch (error) {
+      toast.error("Bulk action failed");
+    } finally {
+      setIsBulkLoading(false);
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIndices.size === fields.length) {
+      setSelectedIndices(new Set());
+    } else {
+      setSelectedIndices(new Set(fields.map((_, i) => i)));
+    }
+  };
+
+  const toggleSelect = (index: number) => {
+    const next = new Set(selectedIndices);
+
+    if (next.has(index)) {
+      next.delete(index);
+    } else {
+      next.add(index);
+    }
+    setSelectedIndices(next);
   };
 
   const updateGlobalStatus = async (newStatus: string) => {
@@ -275,10 +324,40 @@ export default function ShippedReceivingTransferForm({
               </div>
             </div>
 
+            {selectedIndices.size > 0 && (
+              <div className="px-8 py-2">
+                <BulkActionBar
+                  actions={[
+                    {
+                      label: "Mark Received",
+                      action: "receive_all",
+                      color: "success",
+                    },
+                  ]}
+                  isLoading={isBulkLoading}
+                  selectedCount={selectedIndices.size}
+                  onAction={handleBulkAction}
+                />
+              </div>
+            )}
+
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b bg-default-50/50">
+                    <th className="py-4 px-6 w-12 text-center">
+                      <Checkbox
+                        isIndeterminate={
+                          selectedIndices.size > 0 &&
+                          selectedIndices.size < fields.length
+                        }
+                        isSelected={
+                          fields.length > 0 &&
+                          selectedIndices.size === fields.length
+                        }
+                        onValueChange={toggleSelectAll}
+                      />
+                    </th>
                     <th className="py-4 px-6 font-semibold text-sm">
                       Product Details
                     </th>
@@ -302,22 +381,31 @@ export default function ShippedReceivingTransferForm({
                     return (
                       <tr
                         key={field.id}
-                        className="border-b hover:bg-default-50/50"
+                        className={`border-b hover:bg-default-50/50 ${selectedIndices.has(index) ? "bg-primary-50/50" : ""}`}
                       >
+                        <td className="py-4 px-6 text-center">
+                          <Checkbox
+                            isSelected={selectedIndices.has(index)}
+                            onValueChange={() => toggleSelect(index)}
+                          />
+                        </td>
                         <td className="py-4 px-6">
                           <div className="flex flex-col gap-1">
-                            <span className="font-semibold text-sm">
-                              {item.variant?.product_name}
-                            </span>
-                            <span className="text-xs text-default-500">
-                              {item.variant?.variant_name}
-                            </span>
+                          <span className="font-semibold text-sm">
+                            {item.variant?.product?.name}
+                          </span>
+                          <span className="text-xs text-default-500">
+                            {getFullVariantName(
+                              item.variant?.name,
+                              item.variant?.value,
+                            )}
+                          </span>
                           </div>
                         </td>
                         <td className="py-4 px-6 text-center">
                           <span className="font-medium text-lg">{maxQty}</span>
                           <span className="text-default-400 text-xs ml-1">
-                            {item.variant?.unit_abbreviation}
+                            {item.unit_of_measure?.abbreviation}
                           </span>
                         </td>
                         <td className="py-4 px-6">

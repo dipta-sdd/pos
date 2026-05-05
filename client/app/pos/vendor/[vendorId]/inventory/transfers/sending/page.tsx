@@ -3,9 +3,13 @@
 import { useState, useCallback, useEffect } from "react";
 import { SortDescriptor } from "@heroui/table";
 import { Tabs, Tab, Chip } from "@heroui/react";
-import { Plus, Edit, Trash2, Eye } from "lucide-react";
+import { Plus, Edit, Eye } from "lucide-react";
 import { Button } from "@heroui/button";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Selection } from "@heroui/table";
+
+import BulkActionBar, { BulkAction } from "../../_components/BulkActionBar";
 
 import { useVendor } from "@/lib/contexts/VendorContext";
 import PermissionGuard from "@/components/auth/PermissionGuard";
@@ -16,9 +20,6 @@ import { StockTransfer } from "@/lib/types/general";
 import { formatDateTime } from "@/lib/helper/dates";
 import Confirm from "@/components/ui/Confirm";
 import { UserLoding } from "@/components/user-loding";
-import { toast } from "sonner";
-import { Selection } from "@heroui/table";
-import BulkActionBar, { BulkAction } from "../../_components/BulkActionBar";
 
 const columns: Column[] = [
   { name: "TRANSFER ID", uid: "id", sortable: true },
@@ -46,15 +47,22 @@ export default function OutgoingTransfersPage() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
-  const [isBulkActionLoading, setIsBulkActionLoading] = useState<boolean>(false);
+  const [isBulkActionLoading, setIsBulkActionLoading] =
+    useState<boolean>(false);
 
   const getSelectedItems = () => {
     if (selectedKeys === "all") return items;
-    return items.filter((item) => Array.from(selectedKeys).includes(item.id.toString()) || Array.from(selectedKeys).includes(item.id));
+
+    return items.filter(
+      (item) =>
+        Array.from(selectedKeys).includes(item.id.toString()) ||
+        Array.from(selectedKeys).includes(item.id),
+    );
   };
 
   const getBulkActions = (): BulkAction[] => {
     const selectedItems = getSelectedItems();
+
     if (selectedItems.length === 0) return [];
 
     const allRequested = selectedItems.every((i) => i.status === "requested");
@@ -63,12 +71,24 @@ export default function OutgoingTransfersPage() {
     const actions: BulkAction[] = [];
 
     if (allRequested) {
-      actions.push({ label: "Approve All", action: "accepted", color: "primary" });
+      actions.push({
+        label: "Approve All",
+        action: "accepted",
+        color: "primary",
+      });
     }
 
     if (allAccepted) {
-      actions.push({ label: "Ship All", action: "in_transit", color: "secondary" });
-      actions.push({ label: "Cancel All", action: "cancelled", color: "danger" });
+      actions.push({
+        label: "Ship All",
+        action: "in_transit",
+        color: "secondary",
+      });
+      actions.push({
+        label: "Cancel All",
+        action: "cancelled",
+        color: "danger",
+      });
     }
 
     return actions;
@@ -76,14 +96,15 @@ export default function OutgoingTransfersPage() {
 
   const handleBulkAction = async (action: string) => {
     const selectedItems = getSelectedItems();
+
     if (selectedItems.length === 0) return;
 
     setIsBulkActionLoading(true);
     try {
       await Promise.all(
         selectedItems.map((item) =>
-          api.post(`/stock-transfers/${item.id}/status`, { status: action })
-        )
+          api.post(`/stock-transfers/${item.id}/status`, { status: action }),
+        ),
       );
       toast.success("Bulk action completed successfully");
       setSelectedKeys(new Set([]));
@@ -231,7 +252,9 @@ export default function OutgoingTransfersPage() {
           <BulkActionBar
             actions={getBulkActions()}
             isLoading={isBulkActionLoading}
-            selectedCount={selectedKeys === "all" ? items.length : selectedKeys.size}
+            selectedCount={
+              selectedKeys === "all" ? items.length : selectedKeys.size
+            }
             onAction={handleBulkAction}
           />
 
@@ -243,16 +266,16 @@ export default function OutgoingTransfersPage() {
             lastPage={lastPage}
             perPage={perPage}
             renderCell={renderCell}
+            selectedKeys={selectedKeys}
+            selectionMode="multiple"
             setCurrentPage={setCurrentPage}
             setPerPage={setPerPage}
             setSortDescriptor={setSortDescriptor}
             sortDescriptor={sortDescriptor}
-            selectedKeys={selectedKeys}
-            selectionMode="multiple"
-            onSelectionChange={setSelectedKeys}
             visibleColumns={
               new Set(["id", "to_branch", "status", "created_at", "actions"])
             }
+            onSelectionChange={setSelectedKeys}
           />
         </div>
 

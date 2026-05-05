@@ -13,20 +13,19 @@ import {
   Autocomplete,
   AutocompleteItem,
   Chip,
+  Checkbox,
 } from "@heroui/react";
 import { useEffect, useState, useCallback } from "react";
 import { Trash2, Clock, User } from "lucide-react";
 import debounce from "lodash/debounce";
 
+import BulkActionBar from "./BulkActionBar";
+
 import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
-import { Variant as BaseVariant, StockTransfer } from "@/lib/types/general";
+import { SearchVariant as Variant, StockTransfer } from "@/lib/types/general";
 import { formatDate } from "@/lib/helper/dates";
-
-interface Variant extends BaseVariant {
-  product_name: string;
-  variant_name: string;
-}
+import { getFullVariantName } from "@/lib/helper/variant";
 
 interface RequestedReceivingTransferFormProps {
   initialData: StockTransfer;
@@ -49,6 +48,7 @@ const transferSchema = z.object({
           .min(0.01, "Quantity must be greater than 0"),
         status: z.string().default("requested"),
         variant: z.any().optional(),
+        unit_of_measure: z.any().optional(),
       }),
     )
     .min(1, "At least one item is required"),
@@ -65,6 +65,10 @@ export default function RequestedReceivingTransferForm({
 
   const [searchResults, setSearchResults] = useState<Variant[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(
+    new Set(),
+  );
+  const [isBulkLoading, setIsBulkLoading] = useState(false);
 
   const { register, handleSubmit, control, watch, reset } =
     useForm<TransferFormData>({
@@ -152,7 +156,8 @@ export default function RequestedReceivingTransferForm({
     }, 500),
     [vendor?.id],
   );
-
+  const items = watch("items");
+  console.log(items);
   const onAddProduct = (variant: Variant) => {
     const existingIndex = watchItems.findIndex(
       (i) => i.variant_id === variant.id,
@@ -160,15 +165,37 @@ export default function RequestedReceivingTransferForm({
 
     if (existingIndex > -1) {
       toast.info("Product already in list");
-
       return;
     }
-
+    console.log({
+      variant_id: variant.id,
+      quantity: 1,
+      status: "requested",
+      variant: {
+        ...variant,
+      },
+    });
     append({
       variant_id: variant.id,
       quantity: 1,
       status: "requested",
-      variant: variant,
+      variant: {
+        id: variant.id,
+        product_id: variant.product_id,
+        name: variant.variant_name,
+        value: variant.variant_value,
+        sku: variant.sku,
+        barcode: variant.barcode,
+        product: {
+          id: variant.product_id,
+          name: variant.product_name,
+        } as any,
+      },
+      unit_of_measure: {
+        name: variant.unit_name,
+        abbreviation: variant.unit_abbreviation,
+        is_decimal_allowed: !!variant.is_decimal_allowed,
+      } as any,
     });
   };
 
@@ -194,6 +221,51 @@ export default function RequestedReceivingTransferForm({
     } catch (error: any) {
       toast.error("Failed to cancel request");
     }
+  };
+
+  const handleBulkAction = async (action: string) => {
+    if (action === "delete") {
+      const indices = Array.from(selectedIndices).sort((a, b) => b - a);
+
+      setIsBulkLoading(true);
+      try {
+        await Promise.all(
+          indices.map(async (index) => {
+            const item = watchItems[index];
+
+            if (item.id) {
+              await api.delete(`/stock-transfers/items/${item.id}`);
+            }
+          }),
+        );
+        indices.forEach((index) => remove(index));
+        setSelectedIndices(new Set());
+        toast.success("Selected items removed");
+      } catch (error) {
+        toast.error("Failed to remove some items");
+      } finally {
+        setIsBulkLoading(false);
+      }
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIndices.size === fields.length) {
+      setSelectedIndices(new Set());
+    } else {
+      setSelectedIndices(new Set(fields.map((_, i) => i)));
+    }
+  };
+
+  const toggleSelect = (index: number) => {
+    const next = new Set(selectedIndices);
+
+    if (next.has(index)) {
+      next.delete(index);
+    } else {
+      next.add(index);
+    }
+    setSelectedIndices(next);
   };
 
   return (
@@ -278,7 +350,10 @@ export default function RequestedReceivingTransferForm({
                 {searchResults.map((variant) => (
                   <AutocompleteItem
                     key={variant.id}
-                    textValue={`${variant.product_name} - ${variant.variant_name}`}
+                    textValue={`${variant.product_name} - ${getFullVariantName(
+                      variant.variant_name,
+                      variant.variant_value,
+                    )}`}
                     onPress={() => onAddProduct(variant)}
                   >
                     <div className="flex flex-col">
@@ -286,7 +361,10 @@ export default function RequestedReceivingTransferForm({
                         {variant.product_name}
                       </span>
                       <span className="text-xs text-default-500">
-                        {variant.variant_name}
+                        {getFullVariantName(
+                          variant.variant_name,
+                          variant.variant_value,
+                        )}
                       </span>
                     </div>
                   </AutocompleteItem>
@@ -295,10 +373,40 @@ export default function RequestedReceivingTransferForm({
             </div>
           </div>
 
+          {selectedIndices.size > 0 && (
+            <div className="px-8 py-2">
+              <BulkActionBar
+                actions={[
+                  {
+                    label: "Delete Selected",
+                    action: "delete",
+                    color: "danger",
+                  },
+                ]}
+                isLoading={isBulkLoading}
+                selectedCount={selectedIndices.size}
+                onAction={handleBulkAction}
+              />
+            </div>
+          )}
+
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b bg-default-50/50">
+                  <th className="py-4 px-6 w-12 text-center">
+                    <Checkbox
+                      isIndeterminate={
+                        selectedIndices.size > 0 &&
+                        selectedIndices.size < fields.length
+                      }
+                      isSelected={
+                        fields.length > 0 &&
+                        selectedIndices.size === fields.length
+                      }
+                      onValueChange={toggleSelectAll}
+                    />
+                  </th>
                   <th className="py-4 px-6 font-semibold text-sm">
                     Product Details
                   </th>
@@ -330,15 +438,24 @@ export default function RequestedReceivingTransferForm({
                     return (
                       <tr
                         key={field.id}
-                        className="border-b hover:bg-default-50/50"
+                        className={`border-b hover:bg-default-50/50 ${selectedIndices.has(index) ? "bg-primary-50/50" : ""}`}
                       >
+                        <td className="py-4 px-6 text-center">
+                          <Checkbox
+                            isSelected={selectedIndices.has(index)}
+                            onValueChange={() => toggleSelect(index)}
+                          />
+                        </td>
                         <td className="py-4 px-6">
                           <div className="flex flex-col gap-1">
                             <span className="font-semibold text-sm">
-                              {item.variant?.product_name}
+                              {item.variant?.product?.name || (item.variant as any)?.product_name}
                             </span>
                             <span className="text-xs text-default-500">
-                              {item.variant?.variant_name}
+                              {getFullVariantName(
+                                item.variant?.name,
+                                item.variant?.value,
+                              )}
                             </span>
                           </div>
                         </td>
@@ -354,7 +471,7 @@ export default function RequestedReceivingTransferForm({
                             }}
                             endContent={
                               <span className="text-default-400 text-xs">
-                                {item.variant?.unit_abbreviation}
+                                {item.unit_of_measure?.abbreviation || (item.variant as any)?.unit_abbreviation}
                               </span>
                             }
                           />
@@ -379,6 +496,9 @@ export default function RequestedReceivingTransferForm({
                                 }
                               }
                               remove(index);
+                              if (selectedIndices.has(index)) {
+                                toggleSelect(index);
+                              }
                             }}
                           >
                             <Trash2 className="w-4 h-4" />

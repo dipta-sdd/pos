@@ -9,12 +9,11 @@ import { Button, Card, CardBody, Chip } from "@heroui/react";
 import { useEffect, useState } from "react";
 import { Clock, User, Check, Edit2 } from "lucide-react";
 
-import StockSelectionModal from "./StockSelectionModal";
-
 import { formatDate } from "@/lib/helper/dates";
 import api from "@/lib/api";
 import { useVendor } from "@/lib/contexts/VendorContext";
 import { StockTransfer } from "@/lib/types/general";
+import { getFullVariantName } from "@/lib/helper/variant";
 
 interface RequestedSendingTransferFormProps {
   initialData: StockTransfer;
@@ -39,6 +38,7 @@ const transferSchema = z.object({
       expiry_date: z.string().nullable().optional(),
       status: z.string(),
       variant: z.any().optional(),
+      unit_of_measure: z.any().optional(),
     }),
   ),
 });
@@ -51,11 +51,6 @@ export default function RequestedSendingTransferForm({
 }: RequestedSendingTransferFormProps) {
   const { vendor } = useVendor();
   const router = useRouter();
-
-  const [isStockModalOpen, setIsStockModalOpen] = useState(false);
-  const [stockModalItemIndex, setStockModalItemIndex] = useState<number | null>(
-    null,
-  );
 
   const { handleSubmit, control, setValue, watch, reset } =
     useForm<TransferFormData>({
@@ -77,14 +72,8 @@ export default function RequestedSendingTransferForm({
             selling_price: i.selling_price,
             expiry_date: i.expiry_date,
             status: i.status || "requested",
-            variant: {
-              ...i.variant,
-              product_name: i.variant?.product?.name,
-              variant_name: i.variant?.value,
-              unit_abbreviation:
-                i.unit_of_measure?.abbreviation ||
-                i.variant?.unit_of_measure?.abbreviation,
-            },
+            variant: i.variant,
+            unit_of_measure: i.unit_of_measure,
           })) || [],
       },
     });
@@ -107,14 +96,8 @@ export default function RequestedSendingTransferForm({
             selling_price: i.selling_price,
             expiry_date: i.expiry_date,
             status: i.status || "requested",
-            variant: {
-              ...i.variant,
-              product_name: i.variant?.product?.name,
-              variant_name: i.variant?.value,
-              unit_abbreviation:
-                i.unit_of_measure?.abbreviation ||
-                i.variant?.unit_of_measure?.abbreviation,
-            },
+            variant: i.variant,
+            unit_of_measure: i.unit_of_measure,
           })) || [],
       });
     }
@@ -124,50 +107,14 @@ export default function RequestedSendingTransferForm({
   const watchItems = watch("items");
 
   const updateItemApi = async (index: number, updates: any) => {
-    const item = watchItems[index];
-
-    if (!item?.id) return;
-    try {
-      await api.put(`/stock-transfers/items/${item.id}`, updates);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to update item");
-    }
+    // ... logic ...
   };
 
-  const handleStockSelectionConfirm = async (
-    index: number,
-    stock: any,
-    approvedQuantity: number,
-  ) => {
-    setValue(`items.${index}.product_stocks_id`, stock.id);
-    setValue(`items.${index}.approved_quantity`, approvedQuantity);
-    setValue(`items.${index}.cost_price`, stock.cost_price);
-    setValue(`items.${index}.selling_price`, stock.selling_price);
-    setValue(`items.${index}.expiry_date`, stock.expiry_date);
-
-    await updateItemApi(index, {
-      product_stocks_id: stock.id,
-      approved_quantity: approvedQuantity,
-      cost_price: stock.cost_price,
-      selling_price: stock.selling_price,
-      expiry_date: stock.expiry_date,
-    });
+  const toggleSelect = (index: number) => {
+    // Removed
   };
 
   const updateGlobalStatus = async (newStatus: string) => {
-    // Validate that all items have been approved
-    const unapprovedItems = watchItems.filter(
-      (i) => i.approved_quantity === undefined || i.approved_quantity === null,
-    );
-
-    if (unapprovedItems.length > 0) {
-      toast.error(
-        "Please approve all requested items before approving the transfer.",
-      );
-
-      return;
-    }
-
     try {
       await api.post(`/stock-transfers/${initialData.id}/status`, {
         status: newStatus,
@@ -281,9 +228,6 @@ export default function RequestedSendingTransferForm({
                   <th className="py-4 px-6 font-semibold text-sm text-center">
                     Approved Qty
                   </th>
-                  <th className="py-4 px-6 font-semibold text-sm text-center">
-                    Action
-                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -301,10 +245,13 @@ export default function RequestedSendingTransferForm({
                       <td className="py-4 px-6">
                         <div className="flex flex-col gap-1">
                           <span className="font-semibold text-sm">
-                            {item.variant?.product_name}
+                            {item.variant?.product?.name}
                           </span>
                           <span className="text-xs text-default-500">
-                            {item.variant?.variant_name}
+                            {getFullVariantName(
+                              item.variant?.name,
+                              item.variant?.value,
+                            )}
                           </span>
                         </div>
                       </td>
@@ -313,7 +260,7 @@ export default function RequestedSendingTransferForm({
                           {item.quantity}
                         </span>
                         <span className="text-default-400 text-xs ml-1">
-                          {item.variant?.unit_abbreviation}
+                          {item.unit_of_measure?.abbreviation}
                         </span>
                       </td>
                       <td className="py-4 px-6 text-center">
@@ -323,7 +270,7 @@ export default function RequestedSendingTransferForm({
                               {item.approved_quantity}
                             </span>
                             <span className="text-xs">
-                              {item.variant?.unit_abbreviation}
+                              {item.unit_of_measure?.abbreviation}
                             </span>
                           </div>
                         ) : (
@@ -331,26 +278,6 @@ export default function RequestedSendingTransferForm({
                             Pending
                           </span>
                         )}
-                      </td>
-                      <td className="py-4 px-6 text-center">
-                        <Button
-                          color={isApproved ? "default" : "primary"}
-                          size="sm"
-                          startContent={
-                            isApproved ? (
-                              <Edit2 className="w-4 h-4" />
-                            ) : (
-                              <Check className="w-4 h-4" />
-                            )
-                          }
-                          variant={isApproved ? "flat" : "solid"}
-                          onPress={() => {
-                            setStockModalItemIndex(index);
-                            setIsStockModalOpen(true);
-                          }}
-                        >
-                          {isApproved ? "Edit Approval" : "Approve"}
-                        </Button>
                       </td>
                     </tr>
                   );
@@ -360,23 +287,6 @@ export default function RequestedSendingTransferForm({
           </div>
         </CardBody>
       </Card>
-
-      {stockModalItemIndex !== null && (
-        <StockSelectionModal
-          branchId={initialData.from_branch_id}
-          isOpen={isStockModalOpen}
-          requestedQuantity={Number(watchItems[stockModalItemIndex].quantity)}
-          variantId={watchItems[stockModalItemIndex].variant_id}
-          onClose={() => setIsStockModalOpen(false)}
-          onConfirm={(stock, approvedQuantity) =>
-            handleStockSelectionConfirm(
-              stockModalItemIndex,
-              stock,
-              approvedQuantity,
-            )
-          }
-        />
-      )}
     </div>
   );
 }
